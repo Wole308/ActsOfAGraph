@@ -383,7 +383,7 @@ void acts_all::TOPP0_topkernelP1(
 	if(globalparamsV.ENABLE_APPLYUPDATESCOMMAND == ON){ num_stages = 3; }
 	
 	voffset_kvs = 0;
-	unsigned int upartition_base_kvs = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) / VDATA_SHRINK_RATIO; 
+	unsigned int upartition_base_kvs = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION);// / VDATA_SHRINK_RATIO; 
 	unsigned int maxsz_actvedgeblocks = globalparamsK.NUM_PROCESSEDGESPARTITIONS * MAXNUM_EDGEBLOCKS_PER_VPARTITION;
 	
 	#ifdef _DEBUGMODE_STATS
@@ -496,41 +496,51 @@ void acts_all::TOPP0_topkernelP1(
 						
 						// read vertices & vmasks
 						#ifdef TOP_ENABLE_BROADCASTUPROPS	
-						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON){
-							if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS == ALGORITHMCLASS_ALLVERTEXISACTIVE || globalposition.num_active_edgeblocks > 0){
-								unsigned int depth_i = 0, transfsz_kvs = 0;
-								unsigned int buffer_offsets[BLOCKRAM_SIZE];
-								workload_t xload_kvs[BLOCKRAM_SIZE];
-								unsigned int num_its = MEMACCESSP0_get_upropblock_workload(true, globalposition.source_partition, vdram, vbuffer0, stats0, globalposition.num_active_edgeblocks, globalparamsV, xload_kvs, buffer_offsets, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID);
-								bool sparse_readu = false; if(globalposition.num_active_edgeblocks < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPROPBLOCKS_PER_VPARTITION){ sparse_readu = true; } else { sparse_readu = false; }
-								
-								if(sparse_readu == true){
-									for(unsigned int n=0; n<num_its; n++){
-										unsigned int s = xload_kvs[n].offset_begin / NUM_VERTICESKVS_PER_UPROPBLOCK; // CHECKME.
-										unsigned int offsetSRC = (s * globalparamsV.SIZEKVS2_REDUCEPARTITION) + (xload_kvs[n].offset_begin % NUM_VERTICESKVS_PER_UPROPBLOCK);
-										#ifdef _DEBUGMODE_CHECKS3		
-										actsutilityobj->checkoutofbounds("topkernelP:: ERROR 27", s, NUM_PEs, source_partition, n, num_its);
-										#endif			
-										MERGEP0_broadcastVs1(vdram, kvdram0, xload_kvs[n], globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA);
-										transfsz_kvs += xload_kvs[n].size;
-									}
-								} else {
-									depth_i = 0;
-									for(unsigned int s=0; s<NUM_PEs; s++){
-										unsigned int offsetSRC = (s * globalparamsV.SIZEKVS2_REDUCEPARTITION) + (source_partition * (globalparamsV.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs));
-										MERGEP0_broadcastVs1(vdram, kvdram0, xload_kvs[0], globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA);
-										transfsz_kvs += xload_kvs[0].size;
-									}
+						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
+						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
+							unsigned int depth_i = 0, transfsz_kvs = 0;
+							unsigned int buffer_offsets[BLOCKRAM_SIZE];
+							workload_t xload_kvs[BLOCKRAM_SIZE];
+							// cout<<"--- topkernelP:: _get_upropblock_workload 777. globalposition.source_partition: "<<globalposition.source_partition<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl;
+							unsigned int num_its = MEMACCESSP0_get_upropblock_workload(true, globalposition.source_partition, vdram, vbuffer0, stats0, globalposition.num_active_edgeblocks, globalparamsV, xload_kvs, buffer_offsets, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID);
+							bool sparse_readu = false; if(globalposition.num_active_edgeblocks < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPROPBLOCKS_PER_VPARTITION && globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE){ sparse_readu = true; } else { sparse_readu = false; }
+							
+							if(sparse_readu == true){
+								for(unsigned int n=0; n<num_its; n++){
+									unsigned int s = xload_kvs[n].offset_begin / vsz_kvs; // CRITICAL OPTIMIZEME.
+									unsigned int offsetSRC_kvs = (s * globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) + voffset_kvs + (xload_kvs[n].offset_begin - (s * vsz_kvs));
+									unsigned int offsetDST_kvs = xload_kvs[n].offset_begin - (s * vsz_kvs);
+									
+									#ifdef _DEBUGMODE_CHECKS3		
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 27", s, NUM_PEs, source_partition, n, num_its);									
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 28", offsetSRC_kvs, ((1 << 28) / 4) / 16, source_partition, n, num_its);
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 29", offsetDST_kvs, vsz_kvs, source_partition, xload_kvs[n].offset_begin, s);
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 30", xload_kvs[n].size, globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION, source_partition, xload_kvs[n].offset_begin, s);
+									#endif			
+									MERGEP0_broadcastVs1(vdram, kvdram0, globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + offsetDST_kvs, NUM_VERTICESKVS_PER_UPROPBLOCK);
+									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+									transfsz_kvs += xload_kvs[n].size + REPORT__DRAM_ACCESS_LATENCY;
+									#endif 
+									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:sparse: xload_kvs["<<n<<"].size: "<<xload_kvs[n].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
-								
-								#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
-								collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE; 
-								collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE;
-								collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE; 
-								#endif 
-								cout<<"----------- top_nusrcv_nudstv-------------------------: transfsz: "<<transfsz_kvs * VECTOR2_SIZE<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl;
-								
+							} else {
+								depth_i = 0;
+								for(unsigned int s=0; s<NUM_PEs; s++){
+									unsigned int offsetSRC_kvs = (s * globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) + voffset_kvs;
+									unsigned int offsetDST_kvs = s * vsz_kvs; 
+									MERGEP0_broadcastVs1(vdram, kvdram0, globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + offsetDST_kvs, vsz_kvs);
+									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+									transfsz_kvs += xload_kvs[0].size + REPORT__DRAM_ACCESS_LATENCY;
+									#endif 
+									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:dense: xload_kvs[0].size: "<<xload_kvs[0].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
+								}
 							}
+							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
+							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:: instid: "<<globalparamsK.ACTSPARAMS_INSTID<<", sparse_readu: "<<sparse_readu<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<", source_partition: "<<source_partition<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl; }
+							#endif
 						}
 						#endif 
 						
@@ -722,7 +732,7 @@ void acts_all::TOPP0_topkernelP2(
 	if(globalparamsV.ENABLE_APPLYUPDATESCOMMAND == ON){ num_stages = 3; }
 	
 	voffset_kvs = 0;
-	unsigned int upartition_base_kvs = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) / VDATA_SHRINK_RATIO; 
+	unsigned int upartition_base_kvs = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION);// / VDATA_SHRINK_RATIO; 
 	unsigned int maxsz_actvedgeblocks = globalparamsK.NUM_PROCESSEDGESPARTITIONS * MAXNUM_EDGEBLOCKS_PER_VPARTITION;
 	
 	#ifdef _DEBUGMODE_STATS
@@ -835,41 +845,51 @@ void acts_all::TOPP0_topkernelP2(
 						
 						// read vertices & vmasks
 						#ifdef TOP_ENABLE_BROADCASTUPROPS	
-						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON){
-							if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS == ALGORITHMCLASS_ALLVERTEXISACTIVE || globalposition.num_active_edgeblocks > 0){
-								unsigned int depth_i = 0, transfsz_kvs = 0;
-								unsigned int buffer_offsets[BLOCKRAM_SIZE];
-								workload_t xload_kvs[BLOCKRAM_SIZE];
-								unsigned int num_its = MEMACCESSP0_get_upropblock_workload(true, globalposition.source_partition, vdram, vbuffer0, stats0, globalposition.num_active_edgeblocks, globalparamsV, xload_kvs, buffer_offsets, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID);
-								bool sparse_readu = false; if(globalposition.num_active_edgeblocks < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPROPBLOCKS_PER_VPARTITION){ sparse_readu = true; } else { sparse_readu = false; }
-								
-								if(sparse_readu == true){
-									for(unsigned int n=0; n<num_its; n++){
-										unsigned int s = xload_kvs[n].offset_begin / NUM_VERTICESKVS_PER_UPROPBLOCK; // CHECKME.
-										unsigned int offsetSRC = (s * globalparamsV.SIZEKVS2_REDUCEPARTITION) + (xload_kvs[n].offset_begin % NUM_VERTICESKVS_PER_UPROPBLOCK);
-										#ifdef _DEBUGMODE_CHECKS3		
-										actsutilityobj->checkoutofbounds("topkernelP:: ERROR 27", s, NUM_PEs, source_partition, n, num_its);
-										#endif			
-										MERGEP0_broadcastVs2(vdram, kvdram0,kvdram1, xload_kvs[n], globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA);
-										transfsz_kvs += xload_kvs[n].size;
-									}
-								} else {
-									depth_i = 0;
-									for(unsigned int s=0; s<NUM_PEs; s++){
-										unsigned int offsetSRC = (s * globalparamsV.SIZEKVS2_REDUCEPARTITION) + (source_partition * (globalparamsV.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs));
-										MERGEP0_broadcastVs2(vdram, kvdram0,kvdram1, xload_kvs[0], globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA);
-										transfsz_kvs += xload_kvs[0].size;
-									}
+						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
+						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
+							unsigned int depth_i = 0, transfsz_kvs = 0;
+							unsigned int buffer_offsets[BLOCKRAM_SIZE];
+							workload_t xload_kvs[BLOCKRAM_SIZE];
+							// cout<<"--- topkernelP:: _get_upropblock_workload 777. globalposition.source_partition: "<<globalposition.source_partition<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl;
+							unsigned int num_its = MEMACCESSP0_get_upropblock_workload(true, globalposition.source_partition, vdram, vbuffer0, stats0, globalposition.num_active_edgeblocks, globalparamsV, xload_kvs, buffer_offsets, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID);
+							bool sparse_readu = false; if(globalposition.num_active_edgeblocks < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPROPBLOCKS_PER_VPARTITION && globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE){ sparse_readu = true; } else { sparse_readu = false; }
+							
+							if(sparse_readu == true){
+								for(unsigned int n=0; n<num_its; n++){
+									unsigned int s = xload_kvs[n].offset_begin / vsz_kvs; // CRITICAL OPTIMIZEME.
+									unsigned int offsetSRC_kvs = (s * globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) + voffset_kvs + (xload_kvs[n].offset_begin - (s * vsz_kvs));
+									unsigned int offsetDST_kvs = xload_kvs[n].offset_begin - (s * vsz_kvs);
+									
+									#ifdef _DEBUGMODE_CHECKS3		
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 27", s, NUM_PEs, source_partition, n, num_its);									
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 28", offsetSRC_kvs, ((1 << 28) / 4) / 16, source_partition, n, num_its);
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 29", offsetDST_kvs, vsz_kvs, source_partition, xload_kvs[n].offset_begin, s);
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 30", xload_kvs[n].size, globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION, source_partition, xload_kvs[n].offset_begin, s);
+									#endif			
+									MERGEP0_broadcastVs2(vdram, kvdram0,kvdram1, globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + offsetDST_kvs, NUM_VERTICESKVS_PER_UPROPBLOCK);
+									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+									transfsz_kvs += xload_kvs[n].size + REPORT__DRAM_ACCESS_LATENCY;
+									#endif 
+									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:sparse: xload_kvs["<<n<<"].size: "<<xload_kvs[n].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
-								
-								#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
-								collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE; 
-								collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE;
-								collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE; 
-								#endif 
-								cout<<"----------- top_nusrcv_nudstv-------------------------: transfsz: "<<transfsz_kvs * VECTOR2_SIZE<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl;
-								
+							} else {
+								depth_i = 0;
+								for(unsigned int s=0; s<NUM_PEs; s++){
+									unsigned int offsetSRC_kvs = (s * globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) + voffset_kvs;
+									unsigned int offsetDST_kvs = s * vsz_kvs; 
+									MERGEP0_broadcastVs2(vdram, kvdram0,kvdram1, globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + offsetDST_kvs, vsz_kvs);
+									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+									transfsz_kvs += xload_kvs[0].size + REPORT__DRAM_ACCESS_LATENCY;
+									#endif 
+									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:dense: xload_kvs[0].size: "<<xload_kvs[0].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
+								}
 							}
+							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
+							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:: instid: "<<globalparamsK.ACTSPARAMS_INSTID<<", sparse_readu: "<<sparse_readu<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<", source_partition: "<<source_partition<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl; }
+							#endif
 						}
 						#endif 
 						
@@ -1086,7 +1106,7 @@ void acts_all::TOPP0_topkernelP3(
 	if(globalparamsV.ENABLE_APPLYUPDATESCOMMAND == ON){ num_stages = 3; }
 	
 	voffset_kvs = 0;
-	unsigned int upartition_base_kvs = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) / VDATA_SHRINK_RATIO; 
+	unsigned int upartition_base_kvs = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION);// / VDATA_SHRINK_RATIO; 
 	unsigned int maxsz_actvedgeblocks = globalparamsK.NUM_PROCESSEDGESPARTITIONS * MAXNUM_EDGEBLOCKS_PER_VPARTITION;
 	
 	#ifdef _DEBUGMODE_STATS
@@ -1199,41 +1219,51 @@ void acts_all::TOPP0_topkernelP3(
 						
 						// read vertices & vmasks
 						#ifdef TOP_ENABLE_BROADCASTUPROPS	
-						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON){
-							if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS == ALGORITHMCLASS_ALLVERTEXISACTIVE || globalposition.num_active_edgeblocks > 0){
-								unsigned int depth_i = 0, transfsz_kvs = 0;
-								unsigned int buffer_offsets[BLOCKRAM_SIZE];
-								workload_t xload_kvs[BLOCKRAM_SIZE];
-								unsigned int num_its = MEMACCESSP0_get_upropblock_workload(true, globalposition.source_partition, vdram, vbuffer0, stats0, globalposition.num_active_edgeblocks, globalparamsV, xload_kvs, buffer_offsets, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID);
-								bool sparse_readu = false; if(globalposition.num_active_edgeblocks < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPROPBLOCKS_PER_VPARTITION){ sparse_readu = true; } else { sparse_readu = false; }
-								
-								if(sparse_readu == true){
-									for(unsigned int n=0; n<num_its; n++){
-										unsigned int s = xload_kvs[n].offset_begin / NUM_VERTICESKVS_PER_UPROPBLOCK; // CHECKME.
-										unsigned int offsetSRC = (s * globalparamsV.SIZEKVS2_REDUCEPARTITION) + (xload_kvs[n].offset_begin % NUM_VERTICESKVS_PER_UPROPBLOCK);
-										#ifdef _DEBUGMODE_CHECKS3		
-										actsutilityobj->checkoutofbounds("topkernelP:: ERROR 27", s, NUM_PEs, source_partition, n, num_its);
-										#endif			
-										MERGEP0_broadcastVs3(vdram, kvdram0,kvdram1,kvdram2, xload_kvs[n], globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA);
-										transfsz_kvs += xload_kvs[n].size;
-									}
-								} else {
-									depth_i = 0;
-									for(unsigned int s=0; s<NUM_PEs; s++){
-										unsigned int offsetSRC = (s * globalparamsV.SIZEKVS2_REDUCEPARTITION) + (source_partition * (globalparamsV.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs));
-										MERGEP0_broadcastVs3(vdram, kvdram0,kvdram1,kvdram2, xload_kvs[0], globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA);
-										transfsz_kvs += xload_kvs[0].size;
-									}
+						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
+						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
+							unsigned int depth_i = 0, transfsz_kvs = 0;
+							unsigned int buffer_offsets[BLOCKRAM_SIZE];
+							workload_t xload_kvs[BLOCKRAM_SIZE];
+							// cout<<"--- topkernelP:: _get_upropblock_workload 777. globalposition.source_partition: "<<globalposition.source_partition<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl;
+							unsigned int num_its = MEMACCESSP0_get_upropblock_workload(true, globalposition.source_partition, vdram, vbuffer0, stats0, globalposition.num_active_edgeblocks, globalparamsV, xload_kvs, buffer_offsets, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID);
+							bool sparse_readu = false; if(globalposition.num_active_edgeblocks < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPROPBLOCKS_PER_VPARTITION && globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE){ sparse_readu = true; } else { sparse_readu = false; }
+							
+							if(sparse_readu == true){
+								for(unsigned int n=0; n<num_its; n++){
+									unsigned int s = xload_kvs[n].offset_begin / vsz_kvs; // CRITICAL OPTIMIZEME.
+									unsigned int offsetSRC_kvs = (s * globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) + voffset_kvs + (xload_kvs[n].offset_begin - (s * vsz_kvs));
+									unsigned int offsetDST_kvs = xload_kvs[n].offset_begin - (s * vsz_kvs);
+									
+									#ifdef _DEBUGMODE_CHECKS3		
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 27", s, NUM_PEs, source_partition, n, num_its);									
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 28", offsetSRC_kvs, ((1 << 28) / 4) / 16, source_partition, n, num_its);
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 29", offsetDST_kvs, vsz_kvs, source_partition, xload_kvs[n].offset_begin, s);
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 30", xload_kvs[n].size, globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION, source_partition, xload_kvs[n].offset_begin, s);
+									#endif			
+									MERGEP0_broadcastVs3(vdram, kvdram0,kvdram1,kvdram2, globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + offsetDST_kvs, NUM_VERTICESKVS_PER_UPROPBLOCK);
+									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+									transfsz_kvs += xload_kvs[n].size + REPORT__DRAM_ACCESS_LATENCY;
+									#endif 
+									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:sparse: xload_kvs["<<n<<"].size: "<<xload_kvs[n].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
-								
-								#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
-								collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE; 
-								collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE;
-								collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE; 
-								#endif 
-								cout<<"----------- top_nusrcv_nudstv-------------------------: transfsz: "<<transfsz_kvs * VECTOR2_SIZE<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl;
-								
+							} else {
+								depth_i = 0;
+								for(unsigned int s=0; s<NUM_PEs; s++){
+									unsigned int offsetSRC_kvs = (s * globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) + voffset_kvs;
+									unsigned int offsetDST_kvs = s * vsz_kvs; 
+									MERGEP0_broadcastVs3(vdram, kvdram0,kvdram1,kvdram2, globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + offsetDST_kvs, vsz_kvs);
+									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+									transfsz_kvs += xload_kvs[0].size + REPORT__DRAM_ACCESS_LATENCY;
+									#endif 
+									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:dense: xload_kvs[0].size: "<<xload_kvs[0].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
+								}
 							}
+							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
+							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:: instid: "<<globalparamsK.ACTSPARAMS_INSTID<<", sparse_readu: "<<sparse_readu<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<", source_partition: "<<source_partition<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl; }
+							#endif
 						}
 						#endif 
 						
@@ -1475,7 +1505,7 @@ void acts_all::TOPP0_topkernelP4(
 	if(globalparamsV.ENABLE_APPLYUPDATESCOMMAND == ON){ num_stages = 3; }
 	
 	voffset_kvs = 0;
-	unsigned int upartition_base_kvs = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) / VDATA_SHRINK_RATIO; 
+	unsigned int upartition_base_kvs = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION);// / VDATA_SHRINK_RATIO; 
 	unsigned int maxsz_actvedgeblocks = globalparamsK.NUM_PROCESSEDGESPARTITIONS * MAXNUM_EDGEBLOCKS_PER_VPARTITION;
 	
 	#ifdef _DEBUGMODE_STATS
@@ -1588,41 +1618,51 @@ void acts_all::TOPP0_topkernelP4(
 						
 						// read vertices & vmasks
 						#ifdef TOP_ENABLE_BROADCASTUPROPS	
-						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON){
-							if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS == ALGORITHMCLASS_ALLVERTEXISACTIVE || globalposition.num_active_edgeblocks > 0){
-								unsigned int depth_i = 0, transfsz_kvs = 0;
-								unsigned int buffer_offsets[BLOCKRAM_SIZE];
-								workload_t xload_kvs[BLOCKRAM_SIZE];
-								unsigned int num_its = MEMACCESSP0_get_upropblock_workload(true, globalposition.source_partition, vdram, vbuffer0, stats0, globalposition.num_active_edgeblocks, globalparamsV, xload_kvs, buffer_offsets, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID);
-								bool sparse_readu = false; if(globalposition.num_active_edgeblocks < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPROPBLOCKS_PER_VPARTITION){ sparse_readu = true; } else { sparse_readu = false; }
-								
-								if(sparse_readu == true){
-									for(unsigned int n=0; n<num_its; n++){
-										unsigned int s = xload_kvs[n].offset_begin / NUM_VERTICESKVS_PER_UPROPBLOCK; // CHECKME.
-										unsigned int offsetSRC = (s * globalparamsV.SIZEKVS2_REDUCEPARTITION) + (xload_kvs[n].offset_begin % NUM_VERTICESKVS_PER_UPROPBLOCK);
-										#ifdef _DEBUGMODE_CHECKS3		
-										actsutilityobj->checkoutofbounds("topkernelP:: ERROR 27", s, NUM_PEs, source_partition, n, num_its);
-										#endif			
-										MERGEP0_broadcastVs4(vdram, kvdram0,kvdram1,kvdram2,kvdram3, xload_kvs[n], globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA);
-										transfsz_kvs += xload_kvs[n].size;
-									}
-								} else {
-									depth_i = 0;
-									for(unsigned int s=0; s<NUM_PEs; s++){
-										unsigned int offsetSRC = (s * globalparamsV.SIZEKVS2_REDUCEPARTITION) + (source_partition * (globalparamsV.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs));
-										MERGEP0_broadcastVs4(vdram, kvdram0,kvdram1,kvdram2,kvdram3, xload_kvs[0], globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA);
-										transfsz_kvs += xload_kvs[0].size;
-									}
+						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
+						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
+							unsigned int depth_i = 0, transfsz_kvs = 0;
+							unsigned int buffer_offsets[BLOCKRAM_SIZE];
+							workload_t xload_kvs[BLOCKRAM_SIZE];
+							// cout<<"--- topkernelP:: _get_upropblock_workload 777. globalposition.source_partition: "<<globalposition.source_partition<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl;
+							unsigned int num_its = MEMACCESSP0_get_upropblock_workload(true, globalposition.source_partition, vdram, vbuffer0, stats0, globalposition.num_active_edgeblocks, globalparamsV, xload_kvs, buffer_offsets, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID);
+							bool sparse_readu = false; if(globalposition.num_active_edgeblocks < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPROPBLOCKS_PER_VPARTITION && globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE){ sparse_readu = true; } else { sparse_readu = false; }
+							
+							if(sparse_readu == true){
+								for(unsigned int n=0; n<num_its; n++){
+									unsigned int s = xload_kvs[n].offset_begin / vsz_kvs; // CRITICAL OPTIMIZEME.
+									unsigned int offsetSRC_kvs = (s * globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) + voffset_kvs + (xload_kvs[n].offset_begin - (s * vsz_kvs));
+									unsigned int offsetDST_kvs = xload_kvs[n].offset_begin - (s * vsz_kvs);
+									
+									#ifdef _DEBUGMODE_CHECKS3		
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 27", s, NUM_PEs, source_partition, n, num_its);									
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 28", offsetSRC_kvs, ((1 << 28) / 4) / 16, source_partition, n, num_its);
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 29", offsetDST_kvs, vsz_kvs, source_partition, xload_kvs[n].offset_begin, s);
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 30", xload_kvs[n].size, globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION, source_partition, xload_kvs[n].offset_begin, s);
+									#endif			
+									MERGEP0_broadcastVs4(vdram, kvdram0,kvdram1,kvdram2,kvdram3, globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + offsetDST_kvs, NUM_VERTICESKVS_PER_UPROPBLOCK);
+									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+									transfsz_kvs += xload_kvs[n].size + REPORT__DRAM_ACCESS_LATENCY;
+									#endif 
+									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:sparse: xload_kvs["<<n<<"].size: "<<xload_kvs[n].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
-								
-								#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
-								collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE; 
-								collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE;
-								collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE; 
-								#endif 
-								cout<<"----------- top_nusrcv_nudstv-------------------------: transfsz: "<<transfsz_kvs * VECTOR2_SIZE<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl;
-								
+							} else {
+								depth_i = 0;
+								for(unsigned int s=0; s<NUM_PEs; s++){
+									unsigned int offsetSRC_kvs = (s * globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) + voffset_kvs;
+									unsigned int offsetDST_kvs = s * vsz_kvs; 
+									MERGEP0_broadcastVs4(vdram, kvdram0,kvdram1,kvdram2,kvdram3, globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + offsetDST_kvs, vsz_kvs);
+									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+									transfsz_kvs += xload_kvs[0].size + REPORT__DRAM_ACCESS_LATENCY;
+									#endif 
+									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:dense: xload_kvs[0].size: "<<xload_kvs[0].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
+								}
 							}
+							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
+							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:: instid: "<<globalparamsK.ACTSPARAMS_INSTID<<", sparse_readu: "<<sparse_readu<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<", source_partition: "<<source_partition<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl; }
+							#endif
 						}
 						#endif 
 						
@@ -1889,7 +1929,7 @@ void acts_all::TOPP0_topkernelP5(
 	if(globalparamsV.ENABLE_APPLYUPDATESCOMMAND == ON){ num_stages = 3; }
 	
 	voffset_kvs = 0;
-	unsigned int upartition_base_kvs = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) / VDATA_SHRINK_RATIO; 
+	unsigned int upartition_base_kvs = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION);// / VDATA_SHRINK_RATIO; 
 	unsigned int maxsz_actvedgeblocks = globalparamsK.NUM_PROCESSEDGESPARTITIONS * MAXNUM_EDGEBLOCKS_PER_VPARTITION;
 	
 	#ifdef _DEBUGMODE_STATS
@@ -2002,41 +2042,51 @@ void acts_all::TOPP0_topkernelP5(
 						
 						// read vertices & vmasks
 						#ifdef TOP_ENABLE_BROADCASTUPROPS	
-						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON){
-							if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS == ALGORITHMCLASS_ALLVERTEXISACTIVE || globalposition.num_active_edgeblocks > 0){
-								unsigned int depth_i = 0, transfsz_kvs = 0;
-								unsigned int buffer_offsets[BLOCKRAM_SIZE];
-								workload_t xload_kvs[BLOCKRAM_SIZE];
-								unsigned int num_its = MEMACCESSP0_get_upropblock_workload(true, globalposition.source_partition, vdram, vbuffer0, stats0, globalposition.num_active_edgeblocks, globalparamsV, xload_kvs, buffer_offsets, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID);
-								bool sparse_readu = false; if(globalposition.num_active_edgeblocks < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPROPBLOCKS_PER_VPARTITION){ sparse_readu = true; } else { sparse_readu = false; }
-								
-								if(sparse_readu == true){
-									for(unsigned int n=0; n<num_its; n++){
-										unsigned int s = xload_kvs[n].offset_begin / NUM_VERTICESKVS_PER_UPROPBLOCK; // CHECKME.
-										unsigned int offsetSRC = (s * globalparamsV.SIZEKVS2_REDUCEPARTITION) + (xload_kvs[n].offset_begin % NUM_VERTICESKVS_PER_UPROPBLOCK);
-										#ifdef _DEBUGMODE_CHECKS3		
-										actsutilityobj->checkoutofbounds("topkernelP:: ERROR 27", s, NUM_PEs, source_partition, n, num_its);
-										#endif			
-										MERGEP0_broadcastVs5(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4, xload_kvs[n], globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA);
-										transfsz_kvs += xload_kvs[n].size;
-									}
-								} else {
-									depth_i = 0;
-									for(unsigned int s=0; s<NUM_PEs; s++){
-										unsigned int offsetSRC = (s * globalparamsV.SIZEKVS2_REDUCEPARTITION) + (source_partition * (globalparamsV.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs));
-										MERGEP0_broadcastVs5(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4, xload_kvs[0], globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA);
-										transfsz_kvs += xload_kvs[0].size;
-									}
+						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
+						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
+							unsigned int depth_i = 0, transfsz_kvs = 0;
+							unsigned int buffer_offsets[BLOCKRAM_SIZE];
+							workload_t xload_kvs[BLOCKRAM_SIZE];
+							// cout<<"--- topkernelP:: _get_upropblock_workload 777. globalposition.source_partition: "<<globalposition.source_partition<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl;
+							unsigned int num_its = MEMACCESSP0_get_upropblock_workload(true, globalposition.source_partition, vdram, vbuffer0, stats0, globalposition.num_active_edgeblocks, globalparamsV, xload_kvs, buffer_offsets, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID);
+							bool sparse_readu = false; if(globalposition.num_active_edgeblocks < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPROPBLOCKS_PER_VPARTITION && globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE){ sparse_readu = true; } else { sparse_readu = false; }
+							
+							if(sparse_readu == true){
+								for(unsigned int n=0; n<num_its; n++){
+									unsigned int s = xload_kvs[n].offset_begin / vsz_kvs; // CRITICAL OPTIMIZEME.
+									unsigned int offsetSRC_kvs = (s * globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) + voffset_kvs + (xload_kvs[n].offset_begin - (s * vsz_kvs));
+									unsigned int offsetDST_kvs = xload_kvs[n].offset_begin - (s * vsz_kvs);
+									
+									#ifdef _DEBUGMODE_CHECKS3		
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 27", s, NUM_PEs, source_partition, n, num_its);									
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 28", offsetSRC_kvs, ((1 << 28) / 4) / 16, source_partition, n, num_its);
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 29", offsetDST_kvs, vsz_kvs, source_partition, xload_kvs[n].offset_begin, s);
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 30", xload_kvs[n].size, globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION, source_partition, xload_kvs[n].offset_begin, s);
+									#endif			
+									MERGEP0_broadcastVs5(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4, globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + offsetDST_kvs, NUM_VERTICESKVS_PER_UPROPBLOCK);
+									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+									transfsz_kvs += xload_kvs[n].size + REPORT__DRAM_ACCESS_LATENCY;
+									#endif 
+									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:sparse: xload_kvs["<<n<<"].size: "<<xload_kvs[n].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
-								
-								#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
-								collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE; 
-								collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE;
-								collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE; 
-								#endif 
-								cout<<"----------- top_nusrcv_nudstv-------------------------: transfsz: "<<transfsz_kvs * VECTOR2_SIZE<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl;
-								
+							} else {
+								depth_i = 0;
+								for(unsigned int s=0; s<NUM_PEs; s++){
+									unsigned int offsetSRC_kvs = (s * globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) + voffset_kvs;
+									unsigned int offsetDST_kvs = s * vsz_kvs; 
+									MERGEP0_broadcastVs5(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4, globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + offsetDST_kvs, vsz_kvs);
+									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+									transfsz_kvs += xload_kvs[0].size + REPORT__DRAM_ACCESS_LATENCY;
+									#endif 
+									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:dense: xload_kvs[0].size: "<<xload_kvs[0].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
+								}
 							}
+							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
+							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:: instid: "<<globalparamsK.ACTSPARAMS_INSTID<<", sparse_readu: "<<sparse_readu<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<", source_partition: "<<source_partition<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl; }
+							#endif
 						}
 						#endif 
 						
@@ -2328,7 +2378,7 @@ void acts_all::TOPP0_topkernelP6(
 	if(globalparamsV.ENABLE_APPLYUPDATESCOMMAND == ON){ num_stages = 3; }
 	
 	voffset_kvs = 0;
-	unsigned int upartition_base_kvs = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) / VDATA_SHRINK_RATIO; 
+	unsigned int upartition_base_kvs = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION);// / VDATA_SHRINK_RATIO; 
 	unsigned int maxsz_actvedgeblocks = globalparamsK.NUM_PROCESSEDGESPARTITIONS * MAXNUM_EDGEBLOCKS_PER_VPARTITION;
 	
 	#ifdef _DEBUGMODE_STATS
@@ -2441,41 +2491,51 @@ void acts_all::TOPP0_topkernelP6(
 						
 						// read vertices & vmasks
 						#ifdef TOP_ENABLE_BROADCASTUPROPS	
-						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON){
-							if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS == ALGORITHMCLASS_ALLVERTEXISACTIVE || globalposition.num_active_edgeblocks > 0){
-								unsigned int depth_i = 0, transfsz_kvs = 0;
-								unsigned int buffer_offsets[BLOCKRAM_SIZE];
-								workload_t xload_kvs[BLOCKRAM_SIZE];
-								unsigned int num_its = MEMACCESSP0_get_upropblock_workload(true, globalposition.source_partition, vdram, vbuffer0, stats0, globalposition.num_active_edgeblocks, globalparamsV, xload_kvs, buffer_offsets, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID);
-								bool sparse_readu = false; if(globalposition.num_active_edgeblocks < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPROPBLOCKS_PER_VPARTITION){ sparse_readu = true; } else { sparse_readu = false; }
-								
-								if(sparse_readu == true){
-									for(unsigned int n=0; n<num_its; n++){
-										unsigned int s = xload_kvs[n].offset_begin / NUM_VERTICESKVS_PER_UPROPBLOCK; // CHECKME.
-										unsigned int offsetSRC = (s * globalparamsV.SIZEKVS2_REDUCEPARTITION) + (xload_kvs[n].offset_begin % NUM_VERTICESKVS_PER_UPROPBLOCK);
-										#ifdef _DEBUGMODE_CHECKS3		
-										actsutilityobj->checkoutofbounds("topkernelP:: ERROR 27", s, NUM_PEs, source_partition, n, num_its);
-										#endif			
-										MERGEP0_broadcastVs6(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5, xload_kvs[n], globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA);
-										transfsz_kvs += xload_kvs[n].size;
-									}
-								} else {
-									depth_i = 0;
-									for(unsigned int s=0; s<NUM_PEs; s++){
-										unsigned int offsetSRC = (s * globalparamsV.SIZEKVS2_REDUCEPARTITION) + (source_partition * (globalparamsV.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs));
-										MERGEP0_broadcastVs6(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5, xload_kvs[0], globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA);
-										transfsz_kvs += xload_kvs[0].size;
-									}
+						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
+						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
+							unsigned int depth_i = 0, transfsz_kvs = 0;
+							unsigned int buffer_offsets[BLOCKRAM_SIZE];
+							workload_t xload_kvs[BLOCKRAM_SIZE];
+							// cout<<"--- topkernelP:: _get_upropblock_workload 777. globalposition.source_partition: "<<globalposition.source_partition<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl;
+							unsigned int num_its = MEMACCESSP0_get_upropblock_workload(true, globalposition.source_partition, vdram, vbuffer0, stats0, globalposition.num_active_edgeblocks, globalparamsV, xload_kvs, buffer_offsets, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID);
+							bool sparse_readu = false; if(globalposition.num_active_edgeblocks < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPROPBLOCKS_PER_VPARTITION && globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE){ sparse_readu = true; } else { sparse_readu = false; }
+							
+							if(sparse_readu == true){
+								for(unsigned int n=0; n<num_its; n++){
+									unsigned int s = xload_kvs[n].offset_begin / vsz_kvs; // CRITICAL OPTIMIZEME.
+									unsigned int offsetSRC_kvs = (s * globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) + voffset_kvs + (xload_kvs[n].offset_begin - (s * vsz_kvs));
+									unsigned int offsetDST_kvs = xload_kvs[n].offset_begin - (s * vsz_kvs);
+									
+									#ifdef _DEBUGMODE_CHECKS3		
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 27", s, NUM_PEs, source_partition, n, num_its);									
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 28", offsetSRC_kvs, ((1 << 28) / 4) / 16, source_partition, n, num_its);
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 29", offsetDST_kvs, vsz_kvs, source_partition, xload_kvs[n].offset_begin, s);
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 30", xload_kvs[n].size, globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION, source_partition, xload_kvs[n].offset_begin, s);
+									#endif			
+									MERGEP0_broadcastVs6(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5, globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + offsetDST_kvs, NUM_VERTICESKVS_PER_UPROPBLOCK);
+									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+									transfsz_kvs += xload_kvs[n].size + REPORT__DRAM_ACCESS_LATENCY;
+									#endif 
+									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:sparse: xload_kvs["<<n<<"].size: "<<xload_kvs[n].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
-								
-								#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
-								collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE; 
-								collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE;
-								collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE; 
-								#endif 
-								cout<<"----------- top_nusrcv_nudstv-------------------------: transfsz: "<<transfsz_kvs * VECTOR2_SIZE<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl;
-								
+							} else {
+								depth_i = 0;
+								for(unsigned int s=0; s<NUM_PEs; s++){
+									unsigned int offsetSRC_kvs = (s * globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) + voffset_kvs;
+									unsigned int offsetDST_kvs = s * vsz_kvs; 
+									MERGEP0_broadcastVs6(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5, globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + offsetDST_kvs, vsz_kvs);
+									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+									transfsz_kvs += xload_kvs[0].size + REPORT__DRAM_ACCESS_LATENCY;
+									#endif 
+									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:dense: xload_kvs[0].size: "<<xload_kvs[0].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
+								}
 							}
+							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
+							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:: instid: "<<globalparamsK.ACTSPARAMS_INSTID<<", sparse_readu: "<<sparse_readu<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<", source_partition: "<<source_partition<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl; }
+							#endif
 						}
 						#endif 
 						
@@ -2792,7 +2852,7 @@ void acts_all::TOPP0_topkernelP7(
 	if(globalparamsV.ENABLE_APPLYUPDATESCOMMAND == ON){ num_stages = 3; }
 	
 	voffset_kvs = 0;
-	unsigned int upartition_base_kvs = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) / VDATA_SHRINK_RATIO; 
+	unsigned int upartition_base_kvs = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION);// / VDATA_SHRINK_RATIO; 
 	unsigned int maxsz_actvedgeblocks = globalparamsK.NUM_PROCESSEDGESPARTITIONS * MAXNUM_EDGEBLOCKS_PER_VPARTITION;
 	
 	#ifdef _DEBUGMODE_STATS
@@ -2905,41 +2965,51 @@ void acts_all::TOPP0_topkernelP7(
 						
 						// read vertices & vmasks
 						#ifdef TOP_ENABLE_BROADCASTUPROPS	
-						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON){
-							if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS == ALGORITHMCLASS_ALLVERTEXISACTIVE || globalposition.num_active_edgeblocks > 0){
-								unsigned int depth_i = 0, transfsz_kvs = 0;
-								unsigned int buffer_offsets[BLOCKRAM_SIZE];
-								workload_t xload_kvs[BLOCKRAM_SIZE];
-								unsigned int num_its = MEMACCESSP0_get_upropblock_workload(true, globalposition.source_partition, vdram, vbuffer0, stats0, globalposition.num_active_edgeblocks, globalparamsV, xload_kvs, buffer_offsets, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID);
-								bool sparse_readu = false; if(globalposition.num_active_edgeblocks < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPROPBLOCKS_PER_VPARTITION){ sparse_readu = true; } else { sparse_readu = false; }
-								
-								if(sparse_readu == true){
-									for(unsigned int n=0; n<num_its; n++){
-										unsigned int s = xload_kvs[n].offset_begin / NUM_VERTICESKVS_PER_UPROPBLOCK; // CHECKME.
-										unsigned int offsetSRC = (s * globalparamsV.SIZEKVS2_REDUCEPARTITION) + (xload_kvs[n].offset_begin % NUM_VERTICESKVS_PER_UPROPBLOCK);
-										#ifdef _DEBUGMODE_CHECKS3		
-										actsutilityobj->checkoutofbounds("topkernelP:: ERROR 27", s, NUM_PEs, source_partition, n, num_its);
-										#endif			
-										MERGEP0_broadcastVs7(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6, xload_kvs[n], globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA);
-										transfsz_kvs += xload_kvs[n].size;
-									}
-								} else {
-									depth_i = 0;
-									for(unsigned int s=0; s<NUM_PEs; s++){
-										unsigned int offsetSRC = (s * globalparamsV.SIZEKVS2_REDUCEPARTITION) + (source_partition * (globalparamsV.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs));
-										MERGEP0_broadcastVs7(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6, xload_kvs[0], globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA);
-										transfsz_kvs += xload_kvs[0].size;
-									}
+						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
+						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
+							unsigned int depth_i = 0, transfsz_kvs = 0;
+							unsigned int buffer_offsets[BLOCKRAM_SIZE];
+							workload_t xload_kvs[BLOCKRAM_SIZE];
+							// cout<<"--- topkernelP:: _get_upropblock_workload 777. globalposition.source_partition: "<<globalposition.source_partition<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl;
+							unsigned int num_its = MEMACCESSP0_get_upropblock_workload(true, globalposition.source_partition, vdram, vbuffer0, stats0, globalposition.num_active_edgeblocks, globalparamsV, xload_kvs, buffer_offsets, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID);
+							bool sparse_readu = false; if(globalposition.num_active_edgeblocks < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPROPBLOCKS_PER_VPARTITION && globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE){ sparse_readu = true; } else { sparse_readu = false; }
+							
+							if(sparse_readu == true){
+								for(unsigned int n=0; n<num_its; n++){
+									unsigned int s = xload_kvs[n].offset_begin / vsz_kvs; // CRITICAL OPTIMIZEME.
+									unsigned int offsetSRC_kvs = (s * globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) + voffset_kvs + (xload_kvs[n].offset_begin - (s * vsz_kvs));
+									unsigned int offsetDST_kvs = xload_kvs[n].offset_begin - (s * vsz_kvs);
+									
+									#ifdef _DEBUGMODE_CHECKS3		
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 27", s, NUM_PEs, source_partition, n, num_its);									
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 28", offsetSRC_kvs, ((1 << 28) / 4) / 16, source_partition, n, num_its);
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 29", offsetDST_kvs, vsz_kvs, source_partition, xload_kvs[n].offset_begin, s);
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 30", xload_kvs[n].size, globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION, source_partition, xload_kvs[n].offset_begin, s);
+									#endif			
+									MERGEP0_broadcastVs7(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6, globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + offsetDST_kvs, NUM_VERTICESKVS_PER_UPROPBLOCK);
+									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+									transfsz_kvs += xload_kvs[n].size + REPORT__DRAM_ACCESS_LATENCY;
+									#endif 
+									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:sparse: xload_kvs["<<n<<"].size: "<<xload_kvs[n].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
-								
-								#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
-								collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE; 
-								collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE;
-								collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE; 
-								#endif 
-								cout<<"----------- top_nusrcv_nudstv-------------------------: transfsz: "<<transfsz_kvs * VECTOR2_SIZE<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl;
-								
+							} else {
+								depth_i = 0;
+								for(unsigned int s=0; s<NUM_PEs; s++){
+									unsigned int offsetSRC_kvs = (s * globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) + voffset_kvs;
+									unsigned int offsetDST_kvs = s * vsz_kvs; 
+									MERGEP0_broadcastVs7(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6, globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + offsetDST_kvs, vsz_kvs);
+									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+									transfsz_kvs += xload_kvs[0].size + REPORT__DRAM_ACCESS_LATENCY;
+									#endif 
+									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:dense: xload_kvs[0].size: "<<xload_kvs[0].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
+								}
 							}
+							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
+							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:: instid: "<<globalparamsK.ACTSPARAMS_INSTID<<", sparse_readu: "<<sparse_readu<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<", source_partition: "<<source_partition<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl; }
+							#endif
 						}
 						#endif 
 						
@@ -3281,7 +3351,7 @@ void acts_all::TOPP0_topkernelP8(
 	if(globalparamsV.ENABLE_APPLYUPDATESCOMMAND == ON){ num_stages = 3; }
 	
 	voffset_kvs = 0;
-	unsigned int upartition_base_kvs = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) / VDATA_SHRINK_RATIO; 
+	unsigned int upartition_base_kvs = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION);// / VDATA_SHRINK_RATIO; 
 	unsigned int maxsz_actvedgeblocks = globalparamsK.NUM_PROCESSEDGESPARTITIONS * MAXNUM_EDGEBLOCKS_PER_VPARTITION;
 	
 	#ifdef _DEBUGMODE_STATS
@@ -3394,41 +3464,51 @@ void acts_all::TOPP0_topkernelP8(
 						
 						// read vertices & vmasks
 						#ifdef TOP_ENABLE_BROADCASTUPROPS	
-						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON){
-							if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS == ALGORITHMCLASS_ALLVERTEXISACTIVE || globalposition.num_active_edgeblocks > 0){
-								unsigned int depth_i = 0, transfsz_kvs = 0;
-								unsigned int buffer_offsets[BLOCKRAM_SIZE];
-								workload_t xload_kvs[BLOCKRAM_SIZE];
-								unsigned int num_its = MEMACCESSP0_get_upropblock_workload(true, globalposition.source_partition, vdram, vbuffer0, stats0, globalposition.num_active_edgeblocks, globalparamsV, xload_kvs, buffer_offsets, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID);
-								bool sparse_readu = false; if(globalposition.num_active_edgeblocks < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPROPBLOCKS_PER_VPARTITION){ sparse_readu = true; } else { sparse_readu = false; }
-								
-								if(sparse_readu == true){
-									for(unsigned int n=0; n<num_its; n++){
-										unsigned int s = xload_kvs[n].offset_begin / NUM_VERTICESKVS_PER_UPROPBLOCK; // CHECKME.
-										unsigned int offsetSRC = (s * globalparamsV.SIZEKVS2_REDUCEPARTITION) + (xload_kvs[n].offset_begin % NUM_VERTICESKVS_PER_UPROPBLOCK);
-										#ifdef _DEBUGMODE_CHECKS3		
-										actsutilityobj->checkoutofbounds("topkernelP:: ERROR 27", s, NUM_PEs, source_partition, n, num_its);
-										#endif			
-										MERGEP0_broadcastVs8(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7, xload_kvs[n], globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA);
-										transfsz_kvs += xload_kvs[n].size;
-									}
-								} else {
-									depth_i = 0;
-									for(unsigned int s=0; s<NUM_PEs; s++){
-										unsigned int offsetSRC = (s * globalparamsV.SIZEKVS2_REDUCEPARTITION) + (source_partition * (globalparamsV.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs));
-										MERGEP0_broadcastVs8(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7, xload_kvs[0], globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA);
-										transfsz_kvs += xload_kvs[0].size;
-									}
+						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
+						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
+							unsigned int depth_i = 0, transfsz_kvs = 0;
+							unsigned int buffer_offsets[BLOCKRAM_SIZE];
+							workload_t xload_kvs[BLOCKRAM_SIZE];
+							// cout<<"--- topkernelP:: _get_upropblock_workload 777. globalposition.source_partition: "<<globalposition.source_partition<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl;
+							unsigned int num_its = MEMACCESSP0_get_upropblock_workload(true, globalposition.source_partition, vdram, vbuffer0, stats0, globalposition.num_active_edgeblocks, globalparamsV, xload_kvs, buffer_offsets, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID);
+							bool sparse_readu = false; if(globalposition.num_active_edgeblocks < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPROPBLOCKS_PER_VPARTITION && globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE){ sparse_readu = true; } else { sparse_readu = false; }
+							
+							if(sparse_readu == true){
+								for(unsigned int n=0; n<num_its; n++){
+									unsigned int s = xload_kvs[n].offset_begin / vsz_kvs; // CRITICAL OPTIMIZEME.
+									unsigned int offsetSRC_kvs = (s * globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) + voffset_kvs + (xload_kvs[n].offset_begin - (s * vsz_kvs));
+									unsigned int offsetDST_kvs = xload_kvs[n].offset_begin - (s * vsz_kvs);
+									
+									#ifdef _DEBUGMODE_CHECKS3		
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 27", s, NUM_PEs, source_partition, n, num_its);									
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 28", offsetSRC_kvs, ((1 << 28) / 4) / 16, source_partition, n, num_its);
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 29", offsetDST_kvs, vsz_kvs, source_partition, xload_kvs[n].offset_begin, s);
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 30", xload_kvs[n].size, globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION, source_partition, xload_kvs[n].offset_begin, s);
+									#endif			
+									MERGEP0_broadcastVs8(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7, globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + offsetDST_kvs, NUM_VERTICESKVS_PER_UPROPBLOCK);
+									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+									transfsz_kvs += xload_kvs[n].size + REPORT__DRAM_ACCESS_LATENCY;
+									#endif 
+									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:sparse: xload_kvs["<<n<<"].size: "<<xload_kvs[n].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
-								
-								#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
-								collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE; 
-								collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE;
-								collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE; 
-								#endif 
-								cout<<"----------- top_nusrcv_nudstv-------------------------: transfsz: "<<transfsz_kvs * VECTOR2_SIZE<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl;
-								
+							} else {
+								depth_i = 0;
+								for(unsigned int s=0; s<NUM_PEs; s++){
+									unsigned int offsetSRC_kvs = (s * globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) + voffset_kvs;
+									unsigned int offsetDST_kvs = s * vsz_kvs; 
+									MERGEP0_broadcastVs8(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7, globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + offsetDST_kvs, vsz_kvs);
+									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+									transfsz_kvs += xload_kvs[0].size + REPORT__DRAM_ACCESS_LATENCY;
+									#endif 
+									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:dense: xload_kvs[0].size: "<<xload_kvs[0].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
+								}
 							}
+							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
+							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:: instid: "<<globalparamsK.ACTSPARAMS_INSTID<<", sparse_readu: "<<sparse_readu<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<", source_partition: "<<source_partition<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl; }
+							#endif
 						}
 						#endif 
 						
@@ -3795,7 +3875,7 @@ void acts_all::TOPP0_topkernelP9(
 	if(globalparamsV.ENABLE_APPLYUPDATESCOMMAND == ON){ num_stages = 3; }
 	
 	voffset_kvs = 0;
-	unsigned int upartition_base_kvs = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) / VDATA_SHRINK_RATIO; 
+	unsigned int upartition_base_kvs = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION);// / VDATA_SHRINK_RATIO; 
 	unsigned int maxsz_actvedgeblocks = globalparamsK.NUM_PROCESSEDGESPARTITIONS * MAXNUM_EDGEBLOCKS_PER_VPARTITION;
 	
 	#ifdef _DEBUGMODE_STATS
@@ -3908,41 +3988,51 @@ void acts_all::TOPP0_topkernelP9(
 						
 						// read vertices & vmasks
 						#ifdef TOP_ENABLE_BROADCASTUPROPS	
-						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON){
-							if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS == ALGORITHMCLASS_ALLVERTEXISACTIVE || globalposition.num_active_edgeblocks > 0){
-								unsigned int depth_i = 0, transfsz_kvs = 0;
-								unsigned int buffer_offsets[BLOCKRAM_SIZE];
-								workload_t xload_kvs[BLOCKRAM_SIZE];
-								unsigned int num_its = MEMACCESSP0_get_upropblock_workload(true, globalposition.source_partition, vdram, vbuffer0, stats0, globalposition.num_active_edgeblocks, globalparamsV, xload_kvs, buffer_offsets, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID);
-								bool sparse_readu = false; if(globalposition.num_active_edgeblocks < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPROPBLOCKS_PER_VPARTITION){ sparse_readu = true; } else { sparse_readu = false; }
-								
-								if(sparse_readu == true){
-									for(unsigned int n=0; n<num_its; n++){
-										unsigned int s = xload_kvs[n].offset_begin / NUM_VERTICESKVS_PER_UPROPBLOCK; // CHECKME.
-										unsigned int offsetSRC = (s * globalparamsV.SIZEKVS2_REDUCEPARTITION) + (xload_kvs[n].offset_begin % NUM_VERTICESKVS_PER_UPROPBLOCK);
-										#ifdef _DEBUGMODE_CHECKS3		
-										actsutilityobj->checkoutofbounds("topkernelP:: ERROR 27", s, NUM_PEs, source_partition, n, num_its);
-										#endif			
-										MERGEP0_broadcastVs9(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8, xload_kvs[n], globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA);
-										transfsz_kvs += xload_kvs[n].size;
-									}
-								} else {
-									depth_i = 0;
-									for(unsigned int s=0; s<NUM_PEs; s++){
-										unsigned int offsetSRC = (s * globalparamsV.SIZEKVS2_REDUCEPARTITION) + (source_partition * (globalparamsV.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs));
-										MERGEP0_broadcastVs9(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8, xload_kvs[0], globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA);
-										transfsz_kvs += xload_kvs[0].size;
-									}
+						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
+						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
+							unsigned int depth_i = 0, transfsz_kvs = 0;
+							unsigned int buffer_offsets[BLOCKRAM_SIZE];
+							workload_t xload_kvs[BLOCKRAM_SIZE];
+							// cout<<"--- topkernelP:: _get_upropblock_workload 777. globalposition.source_partition: "<<globalposition.source_partition<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl;
+							unsigned int num_its = MEMACCESSP0_get_upropblock_workload(true, globalposition.source_partition, vdram, vbuffer0, stats0, globalposition.num_active_edgeblocks, globalparamsV, xload_kvs, buffer_offsets, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID);
+							bool sparse_readu = false; if(globalposition.num_active_edgeblocks < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPROPBLOCKS_PER_VPARTITION && globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE){ sparse_readu = true; } else { sparse_readu = false; }
+							
+							if(sparse_readu == true){
+								for(unsigned int n=0; n<num_its; n++){
+									unsigned int s = xload_kvs[n].offset_begin / vsz_kvs; // CRITICAL OPTIMIZEME.
+									unsigned int offsetSRC_kvs = (s * globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) + voffset_kvs + (xload_kvs[n].offset_begin - (s * vsz_kvs));
+									unsigned int offsetDST_kvs = xload_kvs[n].offset_begin - (s * vsz_kvs);
+									
+									#ifdef _DEBUGMODE_CHECKS3		
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 27", s, NUM_PEs, source_partition, n, num_its);									
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 28", offsetSRC_kvs, ((1 << 28) / 4) / 16, source_partition, n, num_its);
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 29", offsetDST_kvs, vsz_kvs, source_partition, xload_kvs[n].offset_begin, s);
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 30", xload_kvs[n].size, globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION, source_partition, xload_kvs[n].offset_begin, s);
+									#endif			
+									MERGEP0_broadcastVs9(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8, globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + offsetDST_kvs, NUM_VERTICESKVS_PER_UPROPBLOCK);
+									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+									transfsz_kvs += xload_kvs[n].size + REPORT__DRAM_ACCESS_LATENCY;
+									#endif 
+									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:sparse: xload_kvs["<<n<<"].size: "<<xload_kvs[n].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
-								
-								#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
-								collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE; 
-								collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE;
-								collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE; 
-								#endif 
-								cout<<"----------- top_nusrcv_nudstv-------------------------: transfsz: "<<transfsz_kvs * VECTOR2_SIZE<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl;
-								
+							} else {
+								depth_i = 0;
+								for(unsigned int s=0; s<NUM_PEs; s++){
+									unsigned int offsetSRC_kvs = (s * globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) + voffset_kvs;
+									unsigned int offsetDST_kvs = s * vsz_kvs; 
+									MERGEP0_broadcastVs9(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8, globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + offsetDST_kvs, vsz_kvs);
+									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+									transfsz_kvs += xload_kvs[0].size + REPORT__DRAM_ACCESS_LATENCY;
+									#endif 
+									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:dense: xload_kvs[0].size: "<<xload_kvs[0].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
+								}
 							}
+							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
+							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:: instid: "<<globalparamsK.ACTSPARAMS_INSTID<<", sparse_readu: "<<sparse_readu<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<", source_partition: "<<source_partition<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl; }
+							#endif
 						}
 						#endif 
 						
@@ -4334,7 +4424,7 @@ void acts_all::TOPP0_topkernelP10(
 	if(globalparamsV.ENABLE_APPLYUPDATESCOMMAND == ON){ num_stages = 3; }
 	
 	voffset_kvs = 0;
-	unsigned int upartition_base_kvs = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) / VDATA_SHRINK_RATIO; 
+	unsigned int upartition_base_kvs = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION);// / VDATA_SHRINK_RATIO; 
 	unsigned int maxsz_actvedgeblocks = globalparamsK.NUM_PROCESSEDGESPARTITIONS * MAXNUM_EDGEBLOCKS_PER_VPARTITION;
 	
 	#ifdef _DEBUGMODE_STATS
@@ -4447,41 +4537,51 @@ void acts_all::TOPP0_topkernelP10(
 						
 						// read vertices & vmasks
 						#ifdef TOP_ENABLE_BROADCASTUPROPS	
-						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON){
-							if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS == ALGORITHMCLASS_ALLVERTEXISACTIVE || globalposition.num_active_edgeblocks > 0){
-								unsigned int depth_i = 0, transfsz_kvs = 0;
-								unsigned int buffer_offsets[BLOCKRAM_SIZE];
-								workload_t xload_kvs[BLOCKRAM_SIZE];
-								unsigned int num_its = MEMACCESSP0_get_upropblock_workload(true, globalposition.source_partition, vdram, vbuffer0, stats0, globalposition.num_active_edgeblocks, globalparamsV, xload_kvs, buffer_offsets, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID);
-								bool sparse_readu = false; if(globalposition.num_active_edgeblocks < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPROPBLOCKS_PER_VPARTITION){ sparse_readu = true; } else { sparse_readu = false; }
-								
-								if(sparse_readu == true){
-									for(unsigned int n=0; n<num_its; n++){
-										unsigned int s = xload_kvs[n].offset_begin / NUM_VERTICESKVS_PER_UPROPBLOCK; // CHECKME.
-										unsigned int offsetSRC = (s * globalparamsV.SIZEKVS2_REDUCEPARTITION) + (xload_kvs[n].offset_begin % NUM_VERTICESKVS_PER_UPROPBLOCK);
-										#ifdef _DEBUGMODE_CHECKS3		
-										actsutilityobj->checkoutofbounds("topkernelP:: ERROR 27", s, NUM_PEs, source_partition, n, num_its);
-										#endif			
-										MERGEP0_broadcastVs10(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9, xload_kvs[n], globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA);
-										transfsz_kvs += xload_kvs[n].size;
-									}
-								} else {
-									depth_i = 0;
-									for(unsigned int s=0; s<NUM_PEs; s++){
-										unsigned int offsetSRC = (s * globalparamsV.SIZEKVS2_REDUCEPARTITION) + (source_partition * (globalparamsV.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs));
-										MERGEP0_broadcastVs10(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9, xload_kvs[0], globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA);
-										transfsz_kvs += xload_kvs[0].size;
-									}
+						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
+						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
+							unsigned int depth_i = 0, transfsz_kvs = 0;
+							unsigned int buffer_offsets[BLOCKRAM_SIZE];
+							workload_t xload_kvs[BLOCKRAM_SIZE];
+							// cout<<"--- topkernelP:: _get_upropblock_workload 777. globalposition.source_partition: "<<globalposition.source_partition<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl;
+							unsigned int num_its = MEMACCESSP0_get_upropblock_workload(true, globalposition.source_partition, vdram, vbuffer0, stats0, globalposition.num_active_edgeblocks, globalparamsV, xload_kvs, buffer_offsets, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID);
+							bool sparse_readu = false; if(globalposition.num_active_edgeblocks < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPROPBLOCKS_PER_VPARTITION && globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE){ sparse_readu = true; } else { sparse_readu = false; }
+							
+							if(sparse_readu == true){
+								for(unsigned int n=0; n<num_its; n++){
+									unsigned int s = xload_kvs[n].offset_begin / vsz_kvs; // CRITICAL OPTIMIZEME.
+									unsigned int offsetSRC_kvs = (s * globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) + voffset_kvs + (xload_kvs[n].offset_begin - (s * vsz_kvs));
+									unsigned int offsetDST_kvs = xload_kvs[n].offset_begin - (s * vsz_kvs);
+									
+									#ifdef _DEBUGMODE_CHECKS3		
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 27", s, NUM_PEs, source_partition, n, num_its);									
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 28", offsetSRC_kvs, ((1 << 28) / 4) / 16, source_partition, n, num_its);
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 29", offsetDST_kvs, vsz_kvs, source_partition, xload_kvs[n].offset_begin, s);
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 30", xload_kvs[n].size, globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION, source_partition, xload_kvs[n].offset_begin, s);
+									#endif			
+									MERGEP0_broadcastVs10(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9, globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + offsetDST_kvs, NUM_VERTICESKVS_PER_UPROPBLOCK);
+									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+									transfsz_kvs += xload_kvs[n].size + REPORT__DRAM_ACCESS_LATENCY;
+									#endif 
+									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:sparse: xload_kvs["<<n<<"].size: "<<xload_kvs[n].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
-								
-								#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
-								collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE; 
-								collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE;
-								collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE; 
-								#endif 
-								cout<<"----------- top_nusrcv_nudstv-------------------------: transfsz: "<<transfsz_kvs * VECTOR2_SIZE<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl;
-								
+							} else {
+								depth_i = 0;
+								for(unsigned int s=0; s<NUM_PEs; s++){
+									unsigned int offsetSRC_kvs = (s * globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) + voffset_kvs;
+									unsigned int offsetDST_kvs = s * vsz_kvs; 
+									MERGEP0_broadcastVs10(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9, globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + offsetDST_kvs, vsz_kvs);
+									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+									transfsz_kvs += xload_kvs[0].size + REPORT__DRAM_ACCESS_LATENCY;
+									#endif 
+									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:dense: xload_kvs[0].size: "<<xload_kvs[0].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
+								}
 							}
+							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
+							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:: instid: "<<globalparamsK.ACTSPARAMS_INSTID<<", sparse_readu: "<<sparse_readu<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<", source_partition: "<<source_partition<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl; }
+							#endif
 						}
 						#endif 
 						
@@ -4898,7 +4998,7 @@ void acts_all::TOPP0_topkernelP11(
 	if(globalparamsV.ENABLE_APPLYUPDATESCOMMAND == ON){ num_stages = 3; }
 	
 	voffset_kvs = 0;
-	unsigned int upartition_base_kvs = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) / VDATA_SHRINK_RATIO; 
+	unsigned int upartition_base_kvs = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION);// / VDATA_SHRINK_RATIO; 
 	unsigned int maxsz_actvedgeblocks = globalparamsK.NUM_PROCESSEDGESPARTITIONS * MAXNUM_EDGEBLOCKS_PER_VPARTITION;
 	
 	#ifdef _DEBUGMODE_STATS
@@ -5011,41 +5111,51 @@ void acts_all::TOPP0_topkernelP11(
 						
 						// read vertices & vmasks
 						#ifdef TOP_ENABLE_BROADCASTUPROPS	
-						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON){
-							if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS == ALGORITHMCLASS_ALLVERTEXISACTIVE || globalposition.num_active_edgeblocks > 0){
-								unsigned int depth_i = 0, transfsz_kvs = 0;
-								unsigned int buffer_offsets[BLOCKRAM_SIZE];
-								workload_t xload_kvs[BLOCKRAM_SIZE];
-								unsigned int num_its = MEMACCESSP0_get_upropblock_workload(true, globalposition.source_partition, vdram, vbuffer0, stats0, globalposition.num_active_edgeblocks, globalparamsV, xload_kvs, buffer_offsets, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID);
-								bool sparse_readu = false; if(globalposition.num_active_edgeblocks < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPROPBLOCKS_PER_VPARTITION){ sparse_readu = true; } else { sparse_readu = false; }
-								
-								if(sparse_readu == true){
-									for(unsigned int n=0; n<num_its; n++){
-										unsigned int s = xload_kvs[n].offset_begin / NUM_VERTICESKVS_PER_UPROPBLOCK; // CHECKME.
-										unsigned int offsetSRC = (s * globalparamsV.SIZEKVS2_REDUCEPARTITION) + (xload_kvs[n].offset_begin % NUM_VERTICESKVS_PER_UPROPBLOCK);
-										#ifdef _DEBUGMODE_CHECKS3		
-										actsutilityobj->checkoutofbounds("topkernelP:: ERROR 27", s, NUM_PEs, source_partition, n, num_its);
-										#endif			
-										MERGEP0_broadcastVs11(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10, xload_kvs[n], globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA);
-										transfsz_kvs += xload_kvs[n].size;
-									}
-								} else {
-									depth_i = 0;
-									for(unsigned int s=0; s<NUM_PEs; s++){
-										unsigned int offsetSRC = (s * globalparamsV.SIZEKVS2_REDUCEPARTITION) + (source_partition * (globalparamsV.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs));
-										MERGEP0_broadcastVs11(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10, xload_kvs[0], globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA);
-										transfsz_kvs += xload_kvs[0].size;
-									}
+						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
+						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
+							unsigned int depth_i = 0, transfsz_kvs = 0;
+							unsigned int buffer_offsets[BLOCKRAM_SIZE];
+							workload_t xload_kvs[BLOCKRAM_SIZE];
+							// cout<<"--- topkernelP:: _get_upropblock_workload 777. globalposition.source_partition: "<<globalposition.source_partition<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl;
+							unsigned int num_its = MEMACCESSP0_get_upropblock_workload(true, globalposition.source_partition, vdram, vbuffer0, stats0, globalposition.num_active_edgeblocks, globalparamsV, xload_kvs, buffer_offsets, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID);
+							bool sparse_readu = false; if(globalposition.num_active_edgeblocks < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPROPBLOCKS_PER_VPARTITION && globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE){ sparse_readu = true; } else { sparse_readu = false; }
+							
+							if(sparse_readu == true){
+								for(unsigned int n=0; n<num_its; n++){
+									unsigned int s = xload_kvs[n].offset_begin / vsz_kvs; // CRITICAL OPTIMIZEME.
+									unsigned int offsetSRC_kvs = (s * globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) + voffset_kvs + (xload_kvs[n].offset_begin - (s * vsz_kvs));
+									unsigned int offsetDST_kvs = xload_kvs[n].offset_begin - (s * vsz_kvs);
+									
+									#ifdef _DEBUGMODE_CHECKS3		
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 27", s, NUM_PEs, source_partition, n, num_its);									
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 28", offsetSRC_kvs, ((1 << 28) / 4) / 16, source_partition, n, num_its);
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 29", offsetDST_kvs, vsz_kvs, source_partition, xload_kvs[n].offset_begin, s);
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 30", xload_kvs[n].size, globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION, source_partition, xload_kvs[n].offset_begin, s);
+									#endif			
+									MERGEP0_broadcastVs11(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10, globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + offsetDST_kvs, NUM_VERTICESKVS_PER_UPROPBLOCK);
+									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+									transfsz_kvs += xload_kvs[n].size + REPORT__DRAM_ACCESS_LATENCY;
+									#endif 
+									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:sparse: xload_kvs["<<n<<"].size: "<<xload_kvs[n].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
-								
-								#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
-								collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE; 
-								collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE;
-								collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE; 
-								#endif 
-								cout<<"----------- top_nusrcv_nudstv-------------------------: transfsz: "<<transfsz_kvs * VECTOR2_SIZE<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl;
-								
+							} else {
+								depth_i = 0;
+								for(unsigned int s=0; s<NUM_PEs; s++){
+									unsigned int offsetSRC_kvs = (s * globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) + voffset_kvs;
+									unsigned int offsetDST_kvs = s * vsz_kvs; 
+									MERGEP0_broadcastVs11(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10, globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + offsetDST_kvs, vsz_kvs);
+									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+									transfsz_kvs += xload_kvs[0].size + REPORT__DRAM_ACCESS_LATENCY;
+									#endif 
+									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:dense: xload_kvs[0].size: "<<xload_kvs[0].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
+								}
 							}
+							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
+							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:: instid: "<<globalparamsK.ACTSPARAMS_INSTID<<", sparse_readu: "<<sparse_readu<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<", source_partition: "<<source_partition<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl; }
+							#endif
 						}
 						#endif 
 						
@@ -5487,7 +5597,7 @@ void acts_all::TOPP0_topkernelP12(
 	if(globalparamsV.ENABLE_APPLYUPDATESCOMMAND == ON){ num_stages = 3; }
 	
 	voffset_kvs = 0;
-	unsigned int upartition_base_kvs = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) / VDATA_SHRINK_RATIO; 
+	unsigned int upartition_base_kvs = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION);// / VDATA_SHRINK_RATIO; 
 	unsigned int maxsz_actvedgeblocks = globalparamsK.NUM_PROCESSEDGESPARTITIONS * MAXNUM_EDGEBLOCKS_PER_VPARTITION;
 	
 	#ifdef _DEBUGMODE_STATS
@@ -5600,41 +5710,51 @@ void acts_all::TOPP0_topkernelP12(
 						
 						// read vertices & vmasks
 						#ifdef TOP_ENABLE_BROADCASTUPROPS	
-						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON){
-							if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS == ALGORITHMCLASS_ALLVERTEXISACTIVE || globalposition.num_active_edgeblocks > 0){
-								unsigned int depth_i = 0, transfsz_kvs = 0;
-								unsigned int buffer_offsets[BLOCKRAM_SIZE];
-								workload_t xload_kvs[BLOCKRAM_SIZE];
-								unsigned int num_its = MEMACCESSP0_get_upropblock_workload(true, globalposition.source_partition, vdram, vbuffer0, stats0, globalposition.num_active_edgeblocks, globalparamsV, xload_kvs, buffer_offsets, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID);
-								bool sparse_readu = false; if(globalposition.num_active_edgeblocks < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPROPBLOCKS_PER_VPARTITION){ sparse_readu = true; } else { sparse_readu = false; }
-								
-								if(sparse_readu == true){
-									for(unsigned int n=0; n<num_its; n++){
-										unsigned int s = xload_kvs[n].offset_begin / NUM_VERTICESKVS_PER_UPROPBLOCK; // CHECKME.
-										unsigned int offsetSRC = (s * globalparamsV.SIZEKVS2_REDUCEPARTITION) + (xload_kvs[n].offset_begin % NUM_VERTICESKVS_PER_UPROPBLOCK);
-										#ifdef _DEBUGMODE_CHECKS3		
-										actsutilityobj->checkoutofbounds("topkernelP:: ERROR 27", s, NUM_PEs, source_partition, n, num_its);
-										#endif			
-										MERGEP0_broadcastVs12(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11, xload_kvs[n], globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA);
-										transfsz_kvs += xload_kvs[n].size;
-									}
-								} else {
-									depth_i = 0;
-									for(unsigned int s=0; s<NUM_PEs; s++){
-										unsigned int offsetSRC = (s * globalparamsV.SIZEKVS2_REDUCEPARTITION) + (source_partition * (globalparamsV.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs));
-										MERGEP0_broadcastVs12(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11, xload_kvs[0], globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA);
-										transfsz_kvs += xload_kvs[0].size;
-									}
+						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
+						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
+							unsigned int depth_i = 0, transfsz_kvs = 0;
+							unsigned int buffer_offsets[BLOCKRAM_SIZE];
+							workload_t xload_kvs[BLOCKRAM_SIZE];
+							// cout<<"--- topkernelP:: _get_upropblock_workload 777. globalposition.source_partition: "<<globalposition.source_partition<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl;
+							unsigned int num_its = MEMACCESSP0_get_upropblock_workload(true, globalposition.source_partition, vdram, vbuffer0, stats0, globalposition.num_active_edgeblocks, globalparamsV, xload_kvs, buffer_offsets, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID);
+							bool sparse_readu = false; if(globalposition.num_active_edgeblocks < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPROPBLOCKS_PER_VPARTITION && globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE){ sparse_readu = true; } else { sparse_readu = false; }
+							
+							if(sparse_readu == true){
+								for(unsigned int n=0; n<num_its; n++){
+									unsigned int s = xload_kvs[n].offset_begin / vsz_kvs; // CRITICAL OPTIMIZEME.
+									unsigned int offsetSRC_kvs = (s * globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) + voffset_kvs + (xload_kvs[n].offset_begin - (s * vsz_kvs));
+									unsigned int offsetDST_kvs = xload_kvs[n].offset_begin - (s * vsz_kvs);
+									
+									#ifdef _DEBUGMODE_CHECKS3		
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 27", s, NUM_PEs, source_partition, n, num_its);									
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 28", offsetSRC_kvs, ((1 << 28) / 4) / 16, source_partition, n, num_its);
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 29", offsetDST_kvs, vsz_kvs, source_partition, xload_kvs[n].offset_begin, s);
+									actsutilityobj->checkoutofbounds("topkernelP:: ERROR 30", xload_kvs[n].size, globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION, source_partition, xload_kvs[n].offset_begin, s);
+									#endif			
+									MERGEP0_broadcastVs12(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11, globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + offsetDST_kvs, NUM_VERTICESKVS_PER_UPROPBLOCK);
+									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+									transfsz_kvs += xload_kvs[n].size + REPORT__DRAM_ACCESS_LATENCY;
+									#endif 
+									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:sparse: xload_kvs["<<n<<"].size: "<<xload_kvs[n].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
-								
-								#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
-								collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE; 
-								collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE;
-								collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE; 
-								#endif 
-								cout<<"----------- top_nusrcv_nudstv-------------------------: transfsz: "<<transfsz_kvs * VECTOR2_SIZE<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl;
-								
+							} else {
+								depth_i = 0;
+								for(unsigned int s=0; s<NUM_PEs; s++){
+									unsigned int offsetSRC_kvs = (s * globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) + voffset_kvs;
+									unsigned int offsetDST_kvs = s * vsz_kvs; 
+									MERGEP0_broadcastVs12(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11, globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + offsetDST_kvs, vsz_kvs);
+									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+									transfsz_kvs += xload_kvs[0].size + REPORT__DRAM_ACCESS_LATENCY;
+									#endif 
+									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:dense: xload_kvs[0].size: "<<xload_kvs[0].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
+								}
 							}
+							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
+							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:: instid: "<<globalparamsK.ACTSPARAMS_INSTID<<", sparse_readu: "<<sparse_readu<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<", source_partition: "<<source_partition<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl; }
+							#endif
 						}
 						#endif 
 						

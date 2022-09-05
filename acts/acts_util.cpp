@@ -3,7 +3,7 @@ unsigned int acts_all::UTILP0_amin(unsigned int val1, unsigned int val2){
 	if(val1 < val2){ return val1; }
 	else { return val2; }
 }
-unsigned int acts_all::UTILP0_amax(unsigned int val1, unsigned int val2){
+unsigned int acts_all::UTILP0_amax(unsigned int val1, unsigned int val2){ 
 	if(val1 > val2){ return val1; }
 	else { return val2; }
 }

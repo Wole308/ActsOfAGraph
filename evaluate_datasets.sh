@@ -39,7 +39,7 @@ DIRECTIONS=(1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0)
 # DIRECTIONS=(1)
 
 DATSETS=(
-		com-Orkut.mtx #(undirected)(3M,234M)
+		# com-Orkut.mtx #(undirected)(3M,234M)
 		# soc-LiveJournal1.mtx #(directed)(5M,70M)
 		# sx-stackoverflow.mtx #(directed)(2.6M,36M)
 		# ljournal-2008.mtx #(directed)(5M,79M)
@@ -50,14 +50,14 @@ DATSETS=(
 		# uk-2002.mtx #(directed)(18.5M,298M)
 		####################### delicious.mtx #(directed)(M,M)
 		# rmat_16m_256m.mtx #(directed)(16M,256M)
-		# rmat_32m_256m.mtx #(directed)(32M,256M)
+		rmat_32m_256m.mtx #(directed)(32M,256M)
 		)		
 	
 # for algo in $PR $CF $HITS $SPMV $BFS	
 # for algo in $SSSP $BFS 
 
-for algo in $PR 
-# for algo in $SSSP 
+# for algo in $PR 
+for algo in $SSSP 
 # for algo in $BFS 
 
 # for algo in $PR 

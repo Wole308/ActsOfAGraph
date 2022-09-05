@@ -125,11 +125,11 @@ void acts_all::MERGEP0_broadcastVs(uint512_dt * vdram, uint512_dt * kvdram, unsi
 	return;
 }
 
-void acts_all::MERGEP0_broadcastVs1(uint512_dt * vdram, uint512_dt * kvdram0, workload_t workload_kvs, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs){
+void acts_all::MERGEP0_broadcastVs1(uint512_dt * vdram, uint512_dt * kvdram0, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs, unsigned int size_kvs){
 	value_t datas[VECTOR2_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable=datas complete
 	
-	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=workload_kvs.offset_begin; k<workload_kvs.size; k++){
+	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=0; k<size_kvs; k++){ // workload_kvs.offset_begin
 	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
 		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offsetSRC_kvs + k, (1 << 26) / 16, offsetSRC_kvs, NAp, k);
@@ -142,11 +142,11 @@ void acts_all::MERGEP0_broadcastVs1(uint512_dt * vdram, uint512_dt * kvdram0, wo
 	}
 	return;
 }
-void acts_all::MERGEP0_broadcastVs2(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1, workload_t workload_kvs, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs){
+void acts_all::MERGEP0_broadcastVs2(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs, unsigned int size_kvs){
 	value_t datas[VECTOR2_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable=datas complete
 	
-	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=workload_kvs.offset_begin; k<workload_kvs.size; k++){
+	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=0; k<size_kvs; k++){ // workload_kvs.offset_begin
 	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
 		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offsetSRC_kvs + k, (1 << 26) / 16, offsetSRC_kvs, NAp, k);
@@ -161,11 +161,11 @@ void acts_all::MERGEP0_broadcastVs2(uint512_dt * vdram, uint512_dt * kvdram0,uin
 	}
 	return;
 }
-void acts_all::MERGEP0_broadcastVs3(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2, workload_t workload_kvs, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs){
+void acts_all::MERGEP0_broadcastVs3(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs, unsigned int size_kvs){
 	value_t datas[VECTOR2_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable=datas complete
 	
-	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=workload_kvs.offset_begin; k<workload_kvs.size; k++){
+	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=0; k<size_kvs; k++){ // workload_kvs.offset_begin
 	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
 		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offsetSRC_kvs + k, (1 << 26) / 16, offsetSRC_kvs, NAp, k);
@@ -182,11 +182,11 @@ void acts_all::MERGEP0_broadcastVs3(uint512_dt * vdram, uint512_dt * kvdram0,uin
 	}
 	return;
 }
-void acts_all::MERGEP0_broadcastVs4(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3, workload_t workload_kvs, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs){
+void acts_all::MERGEP0_broadcastVs4(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs, unsigned int size_kvs){
 	value_t datas[VECTOR2_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable=datas complete
 	
-	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=workload_kvs.offset_begin; k<workload_kvs.size; k++){
+	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=0; k<size_kvs; k++){ // workload_kvs.offset_begin
 	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
 		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offsetSRC_kvs + k, (1 << 26) / 16, offsetSRC_kvs, NAp, k);
@@ -205,11 +205,11 @@ void acts_all::MERGEP0_broadcastVs4(uint512_dt * vdram, uint512_dt * kvdram0,uin
 	}
 	return;
 }
-void acts_all::MERGEP0_broadcastVs5(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4, workload_t workload_kvs, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs){
+void acts_all::MERGEP0_broadcastVs5(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs, unsigned int size_kvs){
 	value_t datas[VECTOR2_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable=datas complete
 	
-	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=workload_kvs.offset_begin; k<workload_kvs.size; k++){
+	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=0; k<size_kvs; k++){ // workload_kvs.offset_begin
 	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
 		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offsetSRC_kvs + k, (1 << 26) / 16, offsetSRC_kvs, NAp, k);
@@ -230,11 +230,11 @@ void acts_all::MERGEP0_broadcastVs5(uint512_dt * vdram, uint512_dt * kvdram0,uin
 	}
 	return;
 }
-void acts_all::MERGEP0_broadcastVs6(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5, workload_t workload_kvs, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs){
+void acts_all::MERGEP0_broadcastVs6(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs, unsigned int size_kvs){
 	value_t datas[VECTOR2_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable=datas complete
 	
-	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=workload_kvs.offset_begin; k<workload_kvs.size; k++){
+	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=0; k<size_kvs; k++){ // workload_kvs.offset_begin
 	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
 		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offsetSRC_kvs + k, (1 << 26) / 16, offsetSRC_kvs, NAp, k);
@@ -257,11 +257,11 @@ void acts_all::MERGEP0_broadcastVs6(uint512_dt * vdram, uint512_dt * kvdram0,uin
 	}
 	return;
 }
-void acts_all::MERGEP0_broadcastVs7(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6, workload_t workload_kvs, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs){
+void acts_all::MERGEP0_broadcastVs7(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs, unsigned int size_kvs){
 	value_t datas[VECTOR2_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable=datas complete
 	
-	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=workload_kvs.offset_begin; k<workload_kvs.size; k++){
+	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=0; k<size_kvs; k++){ // workload_kvs.offset_begin
 	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
 		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offsetSRC_kvs + k, (1 << 26) / 16, offsetSRC_kvs, NAp, k);
@@ -286,11 +286,11 @@ void acts_all::MERGEP0_broadcastVs7(uint512_dt * vdram, uint512_dt * kvdram0,uin
 	}
 	return;
 }
-void acts_all::MERGEP0_broadcastVs8(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7, workload_t workload_kvs, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs){
+void acts_all::MERGEP0_broadcastVs8(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs, unsigned int size_kvs){
 	value_t datas[VECTOR2_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable=datas complete
 	
-	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=workload_kvs.offset_begin; k<workload_kvs.size; k++){
+	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=0; k<size_kvs; k++){ // workload_kvs.offset_begin
 	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
 		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offsetSRC_kvs + k, (1 << 26) / 16, offsetSRC_kvs, NAp, k);
@@ -317,11 +317,11 @@ void acts_all::MERGEP0_broadcastVs8(uint512_dt * vdram, uint512_dt * kvdram0,uin
 	}
 	return;
 }
-void acts_all::MERGEP0_broadcastVs9(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8, workload_t workload_kvs, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs){
+void acts_all::MERGEP0_broadcastVs9(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs, unsigned int size_kvs){
 	value_t datas[VECTOR2_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable=datas complete
 	
-	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=workload_kvs.offset_begin; k<workload_kvs.size; k++){
+	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=0; k<size_kvs; k++){ // workload_kvs.offset_begin
 	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
 		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offsetSRC_kvs + k, (1 << 26) / 16, offsetSRC_kvs, NAp, k);
@@ -350,11 +350,11 @@ void acts_all::MERGEP0_broadcastVs9(uint512_dt * vdram, uint512_dt * kvdram0,uin
 	}
 	return;
 }
-void acts_all::MERGEP0_broadcastVs10(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9, workload_t workload_kvs, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs){
+void acts_all::MERGEP0_broadcastVs10(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs, unsigned int size_kvs){
 	value_t datas[VECTOR2_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable=datas complete
 	
-	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=workload_kvs.offset_begin; k<workload_kvs.size; k++){
+	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=0; k<size_kvs; k++){ // workload_kvs.offset_begin
 	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
 		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offsetSRC_kvs + k, (1 << 26) / 16, offsetSRC_kvs, NAp, k);
@@ -385,11 +385,11 @@ void acts_all::MERGEP0_broadcastVs10(uint512_dt * vdram, uint512_dt * kvdram0,ui
 	}
 	return;
 }
-void acts_all::MERGEP0_broadcastVs11(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10, workload_t workload_kvs, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs){
+void acts_all::MERGEP0_broadcastVs11(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs, unsigned int size_kvs){
 	value_t datas[VECTOR2_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable=datas complete
 	
-	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=workload_kvs.offset_begin; k<workload_kvs.size; k++){
+	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=0; k<size_kvs; k++){ // workload_kvs.offset_begin
 	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
 		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offsetSRC_kvs + k, (1 << 26) / 16, offsetSRC_kvs, NAp, k);
@@ -422,11 +422,11 @@ void acts_all::MERGEP0_broadcastVs11(uint512_dt * vdram, uint512_dt * kvdram0,ui
 	}
 	return;
 }
-void acts_all::MERGEP0_broadcastVs12(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11, workload_t workload_kvs, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs){
+void acts_all::MERGEP0_broadcastVs12(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs, unsigned int size_kvs){
 	value_t datas[VECTOR2_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable=datas complete
 	
-	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=workload_kvs.offset_begin; k<workload_kvs.size; k++){
+	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=0; k<size_kvs; k++){ // workload_kvs.offset_begin
 	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
 		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offsetSRC_kvs + k, (1 << 26) / 16, offsetSRC_kvs, NAp, k);

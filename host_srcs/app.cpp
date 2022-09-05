@@ -117,7 +117,10 @@ universalparams_t app::get_universalparams(std::string algo, unsigned int numite
 	universalparams.PROCESSPARTITIONSZ_KVS2 = (universalparams.PROCESSPARTITIONSZ / VECTOR2_SIZE);
 	universalparams.NUMPROCESSEDGESPARTITIONS = ((universalparams.KVDATA_RANGE + (universalparams.PROCESSPARTITIONSZ - 1)) / universalparams.PROCESSPARTITIONSZ);
 	universalparams.NUMVERTEXBLOCKPARTITIONS = utilityobj->allignhigher_FACTOR(((universalparams.KVDATA_RANGE + (NUM_VERTICES_PER_UPROPBLOCK - 1)) / NUM_VERTICES_PER_UPROPBLOCK), VECTOR2_SIZE);
-	
+	#ifdef _DEBUGMODE_CHECKS3		
+	utilityobj->checkoutofbounds("app::get_universalparams:: ERROR 27", universalparams.PROCESSPARTITIONSZ, 131072, NAp, NAp, NAp);									
+	#endif	
+									
 	universalparams.NUMLASTLEVELPARTITIONS = (1 << (universalparams.NUM_PARTITIONS_POW * universalparams.TREE_DEPTH));
 
 	universalparams.NUM_EDGE_BANKS = 1;
@@ -509,33 +512,24 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 		for(unsigned int b = 0; b<num_runs_b; b++){
 			for(unsigned int c = 0; c<num_runs_c; c++){
 				
-				#ifndef CONFIG_PRELOADEDVERTEXMASKS
-				// reload src vertices 
+				/* // reload src vertices 
 				loadgraphobj->loadvertexdata(algo, vdram, globalparams.globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA, globalparams.globalparamsV.SIZE_SRCVERTICESDATA, globalparams.globalparamsV, universalparams);
 				for(unsigned int i = 0; i < NUM_PEs; i++){ loadgraphobj->loadvertexdata(algo, kvbuffer[i], globalparams.globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA, globalparams.globalparamsK.SIZE_SRCVERTICESDATA, globalparams.globalparamsK, universalparams); }					
 				
 				// reload dst vertices 
 				loadgraphobj->loadvertexdata(algo, vdram, globalparams.globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA, globalparams.globalparamsV.SIZE_DESTVERTICESDATA, globalparams.globalparamsV, universalparams);
 				for(unsigned int i = 0; i < NUM_PEs; i++){ loadgraphobj->loadvertexdata(algo, kvbuffer[i], globalparams.globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, globalparams.globalparamsK.SIZE_DESTVERTICESDATA, globalparams.globalparamsK, universalparams); }
-				#endif 
 				
 				// set root vid 
-				loadgraphobj->setrootvid((uint512_vec_dt *)vdram, actvvs, globalparams.globalparamsV, universalparams);
+				loadgraphobj->setrootvid((uint512_vec_dt *)vdram, actvvs, globalparams.globalparamsV, universalparams); */
 				
 				// set configuration. max {1024, 341, 1024}
 				maxlimit_actvedgeblocks_per_vpartition = a*skip_a; maxlimit_actvupropblocks_per_vpartition = b*skip_b; maxlimit_actvupdateblocks_per_vpartition = c*skip_c; 
 				
-				// maxlimit_actvedgeblocks_per_vpartition = 0; maxlimit_actvupropblocks_per_vpartition = 0; maxlimit_actvupdateblocks_per_vpartition = 0; 
-				// maxlimit_actvedgeblocks_per_vpartition = 2; maxlimit_actvupropblocks_per_vpartition = 0; maxlimit_actvupdateblocks_per_vpartition = 0; 
-				// maxlimit_actvedgeblocks_per_vpartition = 64; maxlimit_actvupropblocks_per_vpartition = 16; maxlimit_actvupdateblocks_per_vpartition = 64; 
-				// maxlimit_actvedgeblocks_per_vpartition = 64; maxlimit_actvupropblocks_per_vpartition = 0; maxlimit_actvupdateblocks_per_vpartition = 0;  //
-				// maxlimit_actvedgeblocks_per_vpartition = 0; maxlimit_actvupropblocks_per_vpartition = 16; maxlimit_actvupdateblocks_per_vpartition = 16; 
-				// maxlimit_actvedgeblocks_per_vpartition = 0; maxlimit_actvupropblocks_per_vpartition = 0; maxlimit_actvupdateblocks_per_vpartition = 16; 
-				// maxlimit_actvedgeblocks_per_vpartition = 512; maxlimit_actvupropblocks_per_vpartition = 16; maxlimit_actvupdateblocks_per_vpartition = 64; 
-				
 				// maxlimit_actvedgeblocks_per_vpartition = 0; maxlimit_actvupropblocks_per_vpartition = 0; maxlimit_actvupdateblocks_per_vpartition = 0;
-				maxlimit_actvedgeblocks_per_vpartition = 256; maxlimit_actvupropblocks_per_vpartition = 16; maxlimit_actvupdateblocks_per_vpartition = 64;  //
-				// maxlimit_actvedgeblocks_per_vpartition = 1024; maxlimit_actvupropblocks_per_vpartition = 16; maxlimit_actvupdateblocks_per_vpartition = 1024; 
+				// maxlimit_actvedgeblocks_per_vpartition = 256; maxlimit_actvupropblocks_per_vpartition = 16; maxlimit_actvupdateblocks_per_vpartition = 64; 
+				// maxlimit_actvedgeblocks_per_vpartition = 1024; maxlimit_actvupropblocks_per_vpartition = 128; maxlimit_actvupdateblocks_per_vpartition = 64; 
+				maxlimit_actvedgeblocks_per_vpartition = 1024; maxlimit_actvupropblocks_per_vpartition = 1024; maxlimit_actvupdateblocks_per_vpartition = 64; 
 				
 				// uprop needs fixing...
 				for(unsigned int i=0; i<NUM_PEs; i++){
@@ -579,6 +573,13 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	summary(GRAPH_PATH, vdram, globalparams.globalparamsV);
 	#endif 
 	
+	cout<<"------------------------------------------ app::printdataset: VDATA_PACKINGNUMSETS: "<<VDATA_PACKINGNUMSETS<<endl;
+	cout<<"------------------------------------------ app::printdataset: NUM_VERTICES_PER_UPROPBLOCK: "<<NUM_VERTICES_PER_UPROPBLOCK<<endl;
+	cout<<"------------------------------------------ app::printdataset: NUM_VERTICESKVS_PER_UPROPBLOCK: "<<NUM_VERTICESKVS_PER_UPROPBLOCK<<endl;
+	cout<<"------------------------------------------ app::printdataset: NUM_UPROPBLOCKS_PER_VPARTITION: "<<NUM_UPROPBLOCKS_PER_VPARTITION<<endl;
+	cout<<"------------------------------------------ app::printdataset: VDATA_PACKINGNUMSETS: "<<VDATA_PACKINGNUMSETS<<endl;
+	cout<<"------------------------------------------ app::printdataset: VDATA_PACKINGNUMSETS: "<<VDATA_PACKINGNUMSETS<<endl;
+
 	#ifdef _DEBUGMODE_HOSTPRINTS4
 	cout<<endl;
 	cout<<"app::printdataset: printing dataset parameters..."<<endl;

@@ -15,7 +15,7 @@ void acts_all::ACTSP0_actit(bool_type enable, unsigned int mode,
 	unsigned int metadata_stats[VDATA_PACKINGSIZE];
 	unsigned int buffer_offsets[BLOCKRAM_SIZE];
 	unsigned int xblock_ids[BLOCKRAM_SIZE];
-	workload_t xload_kvs[BLOCKRAM_SIZE];
+	workload_t xload_kvs[MAXNUM_EDGEBLOCKS_PER_VPARTITION]; // BLOCKRAM_SIZE];
 	unsigned int vertexblock_ids[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vertexblock_ids
 	
@@ -59,16 +59,33 @@ void acts_all::ACTSP0_actit(bool_type enable, unsigned int mode,
 	
 		if(mode == ACTSPROCESSMODE || mode == ACTSPARTITIONMODE){
 			
-			MEMACCESSP0_get_edgeblock_ids(ON, globalposition.source_partition, kvdram, vbuffer, vertexblock_ids, stats, collections_tmp, globalposition.num_active_edgeblocks, globalparamsK, globalparamsE);
+			MEMACCESSP0_get_vertexblock_ids(ON, globalposition.source_partition, kvdram, vbuffer, vertexblock_ids, stats, collections_tmp, globalposition.num_active_edgeblocks, globalparamsK, globalparamsE);
 			
 			#ifdef ACTS_ENABLE_READUPROPS
+			// cout<<"--- acts:: _get_upropblock_workload 777"<<endl;
 			unsigned int num_its = MEMACCESSP0_get_upropblock_workload(true, sweepparams.source_partition, kvdram, vbuffer, stats, globalposition.num_active_edgeblocks, globalparamsK, xload_kvs, buffer_offsets, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID);
+			#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST
+			collections_tmp[PROCESSINGPHASE_TRANSFSZ_COLLECTIONID].data1 += ((num_its / VECTOR2_SIZE) + REPORT__DRAM_ACCESS_LATENCY) * VECTOR2_SIZE; 
+			collections_tmp[NUMVERTICESPROCESSED_COLLECTIONID].data1 += ((num_its / VECTOR2_SIZE) + REPORT__DRAM_ACCESS_LATENCY) * VECTOR2_SIZE;
+			collections_tmp[NUMREADSFROMDRAM_COLLECTIONID].data1 += ((num_its / VECTOR2_SIZE) + REPORT__DRAM_ACCESS_LATENCY) * VECTOR2_SIZE; 
+			#endif 
 			if(sparse_readu == true){
+				cout<<""<<endl;
 				for(unsigned int n=0; n<num_its; n++){		
 					MEMACCESSP0_readV(ON, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA, xload_kvs[n].offset_begin, xload_kvs[n].offset_begin, xload_kvs[n].size);
+					#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+					collections_tmp[PROCESSINGPHASE_TRANSFSZ_COLLECTIONID].data1 += (xload_kvs[n].size + REPORT__DRAM_ACCESS_LATENCY) * VECTOR2_SIZE; 
+					collections_tmp[NUMVERTICESPROCESSED_COLLECTIONID].data1 += (xload_kvs[n].size + REPORT__DRAM_ACCESS_LATENCY) * VECTOR2_SIZE;
+					collections_tmp[NUMREADSFROMDRAM_COLLECTIONID].data1 += (xload_kvs[n].size + REPORT__DRAM_ACCESS_LATENCY) * VECTOR2_SIZE; 
+					#endif
 				}
 			} else {
 				MEMACCESSP0_readV(ON, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA, 0, 0, globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION);
+				#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+				collections_tmp[PROCESSINGPHASE_TRANSFSZ_COLLECTIONID].data1 += (globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION + REPORT__DRAM_ACCESS_LATENCY) * VECTOR2_SIZE; 
+				collections_tmp[NUMVERTICESPROCESSED_COLLECTIONID].data1 += (globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION + REPORT__DRAM_ACCESS_LATENCY) * VECTOR2_SIZE;
+				collections_tmp[NUMREADSFROMDRAM_COLLECTIONID].data1 += (globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION + REPORT__DRAM_ACCESS_LATENCY) * VECTOR2_SIZE; 
+				#endif
 			}
 			#endif 
 			

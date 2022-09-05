@@ -126,11 +126,11 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_broadcastVs(uint
 }
 
 {%for n in context['T_seq']%}{%if(n>=1)%}
-void {{context['classname__acts_merge']}}MERGE{{context['id']}}_broadcastVs{{n}}(uint512_dt * vdram, {%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} workload_t workload_kvs, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs){
+void {{context['classname__acts_merge']}}MERGE{{context['id']}}_broadcastVs{{n}}(uint512_dt * vdram, {%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs, unsigned int size_kvs){
 	value_t datas[VECTOR2_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable=datas complete
 	
-	MERGE{{context['id']}}_BROADCASTVS_LOOP: for(unsigned int k=workload_kvs.offset_begin; k<workload_kvs.size; k++){
+	MERGE{{context['id']}}_BROADCASTVS_LOOP: for(unsigned int k=0; k<size_kvs; k++){ // workload_kvs.offset_begin
 	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
 		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offsetSRC_kvs + k, (1 << 26) / 16, offsetSRC_kvs, NAp, k);

@@ -1402,9 +1402,9 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 						#endif
 						
 						edges_temp.push_back(edge_vec2);
-						#ifdef _DEBUGMODE_HOSTCHECKS3
-						for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ utilityobj->checkoutofbounds("loadedges::ERROR 561::", (edges_temp[t].data[v].srcvid - (v_p * vsize_vP)) / NUM_VERTICES_PER_UPROPBLOCK, MAXNUM_EDGEBLOCKS_PER_VPARTITION, edges_temp[t].data[v].srcvid, v_p, vsize_vP);	}
-						#endif
+						// #ifdef _DEBUGMODE_HOSTCHECKS3
+						// for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ utilityobj->checkoutofbounds("loadedges::ERROR 561::", (edges_temp[t].data[v].srcvid - (v_p * vsize_vP)) / NUM_VERTICES_PER_UPROPBLOCK, MAXNUM_EDGEBLOCKS_PER_VPARTITION, edges_temp[t].data[v].srcvid, v_p, vsize_vP);	}
+						// #endif	
 					}
 				} // iteration end: llp_id:EDGEDATA_PACKINGSIZE
 				// exit(EXIT_SUCCESS);

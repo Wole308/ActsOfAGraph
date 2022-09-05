@@ -159,7 +159,23 @@ unsigned int acts_helper::extract_stats(uint512_vec_dt * vdram, uint512_vec_dt *
 				// load vpartition & upropblock stats
 				unsigned int v_p_ = vid / myuniversalparams.PROCESSPARTITIONSZ;
 				unsigned int lvid = vid - (v_p_ * myuniversalparams.PROCESSPARTITIONSZ);
-				if(upropblock_stats[GraphIter+1][v_p_][lvid / NUM_VERTICES_PER_UPROPBLOCK] == 0){ 
+				
+				#ifdef RRR
+				edge_t vptr_begin = vertexptrbuffer[vid];
+				edge_t vptr_end = vertexptrbuffer[vid+1];
+				edge_t edges_size = vptr_end - vptr_begin;
+				if(vptr_end < vptr_begin){ edges_size = 0; }
+				unsigned int H = 222;
+				for(unsigned int k=0; k<edges_size; k++){
+					unsigned int dstvid = edgedatabuffer[vptr_begin + k].dstvid;
+					H = (dstvid % (VDATA_PACKINGNUMSETS * EDGEDATA_PACKINGSIZE * NUM_PEs)) / (VDATA_PACKINGNUMSETS * EDGEDATA_PACKINGSIZE);
+					if(H==7){ break; }
+				}
+				#endif 
+				
+				if(upropblock_stats[GraphIter+1][v_p_][lvid / NUM_VERTICES_PER_UPROPBLOCK] == 0
+					// && H==7
+				){ 
 					upropblock_stats[GraphIter+1][v_p_][lvid / NUM_VERTICES_PER_UPROPBLOCK] = 1; 
 					vpartition_stats[GraphIter+1][vid / myuniversalparams.PROCESSPARTITIONSZ].A += 1; 
 				}
@@ -215,15 +231,39 @@ unsigned int acts_helper::extract_stats(uint512_vec_dt * vdram, uint512_vec_dt *
 			unsigned int index = 0, active_index = 0;
 			unsigned int offset = ((v_p * MAXNUMGRAPHITERATIONS * MAXNUM_UPROPBLOCKS_PER_VPARTITION) + (iter * MAXNUM_UPROPBLOCKS_PER_VPARTITION)) / VECTOR2_SIZE;
 			tempvdram[vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK + v_p].data[iter] = 0; 
-			for(unsigned int t=0; t<MAXNUM_UPROPBLOCKS_PER_VPARTITION; t++){
+			for(unsigned int t=0; t<NUM_UPROPBLOCKS_PER_VPARTITION; t++){ // (myuniversalparams.KVDATA_RANGE / NUM_VERTICES_PER_UPROPBLOCK), NUM_UPROPBLOCKS_PER_VPARTITION
 				if(upropblock_stats[iter][v_p][t] == 1){ // > 0
-					if(index < MAXNUM_UPROPBLOCKS_PER_VPARTITION){
-						tempvdram[vdram_BASEOFFSETKVS_ACTIVEUPROPBLOCKS + offset + (index / VECTOR2_SIZE)].data[index % VECTOR2_SIZE] = (v_p * NUM_UPROPBLOCKS_PER_VPARTITION) + t; 
-						for(unsigned int i=0; i<NUM_PEs; i++){ tempkvdram[i][kvdram_BASEOFFSETKVS_ACTIVEUPROPBLOCKS + offset + (index / VECTOR2_SIZE)].data[index % VECTOR2_SIZE] = (v_p * NUM_UPROPBLOCKS_PER_VPARTITION) + t; }
+					if(index < NUM_UPROPBLOCKS_PER_VPARTITION){
+						
+						#ifdef XXXXXXXXXXXXXXXXXXx
+						unsigned int block_id = (v_p * NUM_UPROPBLOCKS_PER_VPARTITION) + t;
+						tempvdram[vdram_BASEOFFSETKVS_ACTIVEUPROPBLOCKS + offset + (index / VECTOR2_SIZE)].data[index % VECTOR2_SIZE] = block_id; 
+						for(unsigned int i=0; i<NUM_PEs; i++){ 
+							// if((v_p * NUM_UPROPBLOCKS_PER_VPARTITION) + t > NUM_UPROPBLOCKS_PER_VPARTITION){ cout<<"acts_helper.cpp. [(v_p * NUM_UPROPBLOCKS_PER_VPARTITION) + t](="<<(v_p * NUM_UPROPBLOCKS_PER_VPARTITION) + t<<") > NUM_UPROPBLOCKS_PER_VPARTITION("<<NUM_UPROPBLOCKS_PER_VPARTITION<<"): "<<((v_p * NUM_UPROPBLOCKS_PER_VPARTITION) + t > NUM_UPROPBLOCKS_PER_VPARTITION)<<". EXITING..."<<endl; exit(EXIT_FAILURE); }				
+							// if((v_p * NUM_UPROPBLOCKS_PER_VPARTITION) + t == 1920){ cout<<"acts_helper.cpp. [(v_p * NUM_UPROPBLOCKS_PER_VPARTITION) + t]=1920: index: "<<((v_p * NUM_UPROPBLOCKS_PER_VPARTITION) + t)<<", v_p: "<<v_p<<", t: "<<t<<". EXITING..."<<endl; } // exit(EXIT_FAILURE);	
+							tempkvdram[i][kvdram_BASEOFFSETKVS_ACTIVEUPROPBLOCKS + offset + (index / VECTOR2_SIZE)].data[index % VECTOR2_SIZE] = block_id; 
+						}
+						// if((v_p * NUM_UPROPBLOCKS_PER_VPARTITION) + t > 1294967294){ cout<<"acts_helper.cpp. [(v_p * NUM_UPROPBLOCKS_PER_VPARTITION) + t] > 1294967294: index: "<<((v_p * NUM_UPROPBLOCKS_PER_VPARTITION) + t)<<", v_p: "<<v_p<<", t: "<<t<<". EXITING..."<<endl; exit(EXIT_FAILURE); } // exit(EXIT_FAILURE);	
+						// if(block_id == 9 && v_p == 1){ cout<<"acts_helper.cpp. [block_id == 9 && v_p == 1], v_p: "<<v_p<<", t: "<<t<<". EXITING..."<<endl; exit(EXIT_FAILURE); } // exit(EXIT_FAILURE);	
+						
 						// if(iter==14){ cout<<"acts_helper.cpp --------------------> t: "<<t<<endl; }
-						tempvdram[vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK + v_p].data[iter] += 1;
-						active_index += 1;
+						/* tempvdram[vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK + v_p].data[iter] += 1;
+						active_index += 1; */
+						#endif 
+						
+						
+						unsigned int block_id = (v_p * NUM_UPROPBLOCKS_PER_VPARTITION) + t;
+						tempvdram[vdram_BASEOFFSETKVS_ACTIVEUPROPBLOCKS + offset + (index / VECTOR2_SIZE)].data[index % VECTOR2_SIZE] = block_id; 
+						for(unsigned int i=0; i<NUM_PEs; i++){ 
+							tempkvdram[i][kvdram_BASEOFFSETKVS_ACTIVEUPROPBLOCKS + offset + (index / VECTOR2_SIZE)].data[index % VECTOR2_SIZE] = block_id; 
+						}
+						
+						#ifdef _DEBUGMODE_CHECKS3
+						utilityobj->checkoutofbounds("acts_helper:: ERROR 21d", tempvdram[vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK + v_p].data[iter], NUM_UPROPBLOCKS_PER_VPARTITION+1, v_p, NAp, NAp);
+						#endif
 					}
+					tempvdram[vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK + v_p].data[iter] += 1;
+					active_index += 1;
 					index += 1;
 				}
 			}
