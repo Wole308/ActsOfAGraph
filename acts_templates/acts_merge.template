@@ -286,7 +286,7 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_exchange(uint512
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 {%for n in context['T_seq']%}{%if(n>=1)%}
 unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}__broadcastACTVVs(uint512_dt * vdram, {%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} unsigned int source_partition, globalparams_t globalparamsK, globalparams_t globalparamsV){
-	#ifdef _DEBUGMODE_KERNELPRINTS4
+	#ifdef _DEBUGMODE_KERNELPRINTS//4
 	cout<< TIMINGRESULTSCOLOR << ">>> broadcastACTVVs:: broadcasting frontier vertices..."<< RESET <<endl; 
 	#endif
 	
@@ -335,7 +335,7 @@ unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}__broadca
 		}
 	}
 	
-	#ifdef _DEBUGMODE_KERNELPRINTS4//3
+	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"broadcastACTVVs:: broadcast operation finished. "<<transfsz_kvs*VECTOR2_SIZE<<" vertices transferred."<<endl;  
 	#endif
 	// exit(EXIT_SUCCESS); // 
@@ -344,7 +344,7 @@ unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}__broadca
 {%endif%}{%endfor%}
 
 unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}_mergeACTVVs(uint512_dt * kvdram, uint512_dt * vdram){
-	#ifdef _DEBUGMODE_KERNELPRINTS4
+	#ifdef _DEBUGMODE_KERNELPRINTS//4
 	cout<< TIMINGRESULTSCOLOR << ">>> mergeACTVVs:: merging frontier vertices..."<< RESET <<endl; 
 	#endif
 	
@@ -405,7 +405,7 @@ unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}_mergeACT
 }
 
 unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}_copyACTVVs(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, unsigned int begin_computeunitid, unsigned int num_compute_units){
-	#ifdef _DEBUGMODE_KERNELPRINTS4
+	#ifdef _DEBUGMODE_KERNELPRINTS//4
 	cout<< TIMINGRESULTSCOLOR << ">>> copyACTVVs:: synchronizing frontier vertices..."<< RESET <<endl; 
 	#endif
 	

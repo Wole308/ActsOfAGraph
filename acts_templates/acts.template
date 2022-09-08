@@ -122,8 +122,6 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable,
 						for(unsigned int v=0; v<VECTOR2_SIZE; v++){ 
 							value_t vdata = datas2[v] & 0xFFFF;
 							unsigned int lvid = datas2[v] >> ACTVVATA_BITSZ;
-							// unsigned int vid = sweepparams.source_partition
-							// unsigned int index_offset = 0; // sweepparams.source_partition * NUM_ACTVVSPARTITIONS_PER_VPARTITION * VDATA_PACKING_PERCHANNEL;
 							if(t<datas[v]){ vbuffer[v][lvid].data = (vdata << 1) | 0x1; } // combo & 0xFFFF
 						}
 						
@@ -164,7 +162,7 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable,
 					workload_kvs.offset_buffer_begin = 0; // NAp;
 				
 					unsigned int activetransfsz_kvs = MEMACCESS{{context['id']}}_write__process_base(mode, llp_set, kvdram, vbuffer, stats, workload_kvs, collections_tmp, globalparamsK);
-					#ifdef _DEBUGMODE_KERNELPRINTS
+					#ifdef _DEBUGMODE_KERNELPRINTS//4
 					cout<<"actit: n:"<<n<<", workload_kvs.size: "<<workload_kvs.size<<", activetransfsz_kvs: "<<activetransfsz_kvs<<endl;
 					#endif 
 						
@@ -177,7 +175,7 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable,
 					collections_tmp[PROCESSINGPHASE_TRANSFSZ_COLLECTIONID].data1 += ((workload_kvs.size + REPORT__DRAM_ACCESS_LATENCY) * VECTOR2_SIZE) * 2; 
 					collections_tmp[NUMEDGESPROCESSED_COLLECTIONID].data1 += (workload_kvs.size + REPORT__DRAM_ACCESS_LATENCY) * VECTOR2_SIZE;
 					collections_tmp[NUMREADSFROMDRAM_COLLECTIONID].data1 += (workload_kvs.size + REPORT__DRAM_ACCESS_LATENCY) * VECTOR2_SIZE; 
-					collections_tmp[NUMWRITESTODRAM_COLLECTIONID].data1 += (activetransfsz_kvs + REPORT__DRAM_ACCESS_LATENCY) * VECTOR2_SIZE; 
+					collections_tmp[NUMWRITESTODRAM_COLLECTIONID].data1 += (workload_kvs.size + REPORT__DRAM_ACCESS_LATENCY) * VECTOR2_SIZE; 
 					#endif 
 				}
 			}

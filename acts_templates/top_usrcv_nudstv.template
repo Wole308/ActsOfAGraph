@@ -596,6 +596,7 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 		transfsz_kvs += MERGE{{context['id']}}_mergeACTVVs(kvdram{{i}}, vdram); 
 		{%endif%}{%endfor%}
 	}
+	// cout<<"--------------- topkernelP::merge:: transfsz_kvs: "<<transfsz_kvs<<endl;
 	#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST
 	collections0[SYNCPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
 	collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
