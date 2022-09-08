@@ -5,7 +5,9 @@ using namespace std;
 // messages area {messages}
 // edges area {edges, vertex ptrs} 
 // vertices area {src vertices data, dest vertices data}
-// actvvs area {active edge blocks, edges map, active edges map, vertex partition mask}
+// active vertices area {actv vertices data}
+// stats area {actv uprop blocks, active edge blocks, active update blocks}
+// stats area {edges map, edge block map, vertex partition mask}
 // stats area {stats, edge stats}
 // workspace area {kvdram, kvdram workspace}
 
@@ -101,7 +103,7 @@ universalparams_t app::get_universalparams(std::string algo, unsigned int numite
 	universalparams.REDUCESZ_POW = universalparams.RED_SRAMSZ_POW; // NEWCHANGE
 	universalparams.REDUCESZ = (1 << universalparams.REDUCESZ_POW); 
 	
-	universalparams.REDUCEPARTITIONSZ = universalparams.RED_SRAMSZ * VDATA_PACKINGSIZE; // NEWCHANGE
+	universalparams.REDUCEPARTITIONSZ = VDATA_PACKING_PERCHANNEL * NUM_ACTVVSPARTITIONS_PER_VPARTITION * VECTOR2_SIZE; 			// universalparams.RED_SRAMSZ * VDATA_PACKINGSIZE; // NEWCHANGE
 	if(universalparams.REDUCEPARTITIONSZ > universalparams.BATCH_RANGE){ universalparams.REDUCEPARTITIONSZ = universalparams.BATCH_RANGE; } ///// NEWCHANGE.
 	universalparams.REDUCEPARTITIONSZ_KVS2 = universalparams.REDUCEPARTITIONSZ / VECTOR2_SIZE;
 	if(universalparams.ALGORITHM == BFS){ 
@@ -113,7 +115,7 @@ universalparams_t app::get_universalparams(std::string algo, unsigned int numite
 	}
 	else { universalparams.NUMREDUCEPARTITIONS = ((universalparams.KVDATA_RANGE / NUM_PEs) + (universalparams.REDUCEPARTITIONSZ - 1)) / universalparams.REDUCEPARTITIONSZ; }
 	
-	universalparams.PROCESSPARTITIONSZ = NUM_VERTICES_PER_UPROPBLOCK * NUM_UPROPBLOCKS_PER_VPARTITION; // (=122880vertices/vpartition)(=7680kvs/vpartition)(=320kvs/vpartition/channel)
+	universalparams.PROCESSPARTITIONSZ = VDATA_PACKING_PERCHANNEL * NUM_ACTVVSPARTITIONS_PER_VPARTITION * VECTOR2_SIZE; 			// VDATA_PACKING_PERCHANNEL * NUM_PEs * VECTOR2_SIZE; // NUM_VERTICES_PER_UPROPBLOCK * NUM_UPROPBLOCKS_PER_VPARTITION; // (=122880vertices/vpartition)(=7680kvs/vpartition)(=320kvs/vpartition/channel)
 	universalparams.PROCESSPARTITIONSZ_KVS2 = (universalparams.PROCESSPARTITIONSZ / VECTOR2_SIZE);
 	universalparams.NUMPROCESSEDGESPARTITIONS = ((universalparams.KVDATA_RANGE + (universalparams.PROCESSPARTITIONSZ - 1)) / universalparams.PROCESSPARTITIONSZ);
 	universalparams.NUMVERTEXBLOCKPARTITIONS = utilityobj->allignhigher_FACTOR(((universalparams.KVDATA_RANGE + (NUM_VERTICES_PER_UPROPBLOCK - 1)) / NUM_VERTICES_PER_UPROPBLOCK), VECTOR2_SIZE);
@@ -412,7 +414,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	cout<<"app::loadvertexdata:: loading dest vertex datas... "<<endl;
 	#endif 
 	globalparams.globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA = globalparams.globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + (globalparams.globalparamsK.SIZE_SRCVERTICESDATA / VALUEDATA_PACKINGSIZE) + 1;
-	globalparams.globalparamsK.SIZE_DESTVERTICESDATA = universalparams.BATCH_RANGE; // (1 << universalparams.BATCH_RANGE_POW); // universalparams.BATCH_RANGE; 
+	globalparams.globalparamsK.SIZE_DESTVERTICESDATA = universalparams.BATCH_RANGE;
 	globalparams.globalparamsE.BASEOFFSETKVS_DESTVERTICESDATA = globalparams.globalparamsE.BASEOFFSETKVS_SRCVERTICESDATA + (globalparams.globalparamsE.SIZE_SRCVERTICESDATA / VALUEDATA_PACKINGSIZE) + 1;
 	globalparams.globalparamsE.SIZE_DESTVERTICESDATA = 0;
 	globalparams.globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA = globalparams.globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + (globalparams.globalparamsV.SIZE_SRCVERTICESDATA / VALUEDATA_PACKINGSIZE) + 1;
@@ -423,6 +425,20 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	loadgraphobj->loadvertexdata(algo, vdram, globalparams.globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA, globalparams.globalparamsV.SIZE_DESTVERTICESDATA, globalparams.globalparamsV, universalparams);
 	for(unsigned int i = 0; i < NUM_PEs; i++){ loadgraphobj->loadvertexdata(algo, kvbuffer[i], globalparams.globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, globalparams.globalparamsK.SIZE_DESTVERTICESDATA, globalparams.globalparamsK, universalparams); }
 	#endif 
+	// exit(EXIT_SUCCESS); //
+	
+	// active vertices data 
+	#ifdef _DEBUGMODE_HOSTPRINTS4
+	cout<<"app::loadvertexdata:: loading dest vertex datas... "<<endl;
+	#endif 
+	globalparams.globalparamsK.BASEOFFSETKVS_ACTIVEVERTICESDATA = globalparams.globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA + (globalparams.globalparamsK.SIZE_DESTVERTICESDATA / VALUEDATA_PACKINGSIZE) + 1;
+	globalparams.globalparamsK.SIZE_ACTIVEVERTICESDATA = universalparams.BATCH_RANGE; // 8192 * 16 * universalparams.NUMPROCESSEDGESPARTITIONS; ; // universalparams.BATCH_RANGE; 
+	globalparams.globalparamsE.BASEOFFSETKVS_ACTIVEVERTICESDATA = globalparams.globalparamsE.BASEOFFSETKVS_DESTVERTICESDATA + (globalparams.globalparamsE.SIZE_DESTVERTICESDATA / VALUEDATA_PACKINGSIZE) + 1;
+	globalparams.globalparamsE.SIZE_ACTIVEVERTICESDATA = 0;
+	globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEVERTICESDATA = globalparams.globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + (globalparams.globalparamsV.SIZE_DESTVERTICESDATA / VALUEDATA_PACKINGSIZE) + 1;
+	globalparams.globalparamsV.SIZE_ACTIVEVERTICESDATA = NUM_PEs * universalparams.NUMREDUCEPARTITIONS * universalparams.REDUCEPARTITIONSZ_KVS2 * VECTOR2_SIZE;; 
+	globalparams.globalparamsM.BASEOFFSETKVS_ACTIVEVERTICESDATA = globalparams.globalparamsM.BASEOFFSETKVS_DESTVERTICESDATA + (globalparams.globalparamsM.SIZE_DESTVERTICESDATA / VALUEDATA_PACKINGSIZE) + 1;
+	globalparams.globalparamsM.SIZE_ACTIVEVERTICESDATA = 0; 
 	// exit(EXIT_SUCCESS); //
 	
 	// load maps 
@@ -445,7 +461,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	#ifdef _DEBUGMODE_HOSTPRINTS4
 	cout<<"app::setrootvid:: setting root vid(s)... "<<endl;
 	#endif 
-	loadgraphobj->setrootvid((uint512_vec_dt *)vdram, actvvs, globalparams.globalparamsV, universalparams);
+	loadgraphobj->setrootvid(algo, (uint512_vec_dt *)vdram, actvvs, globalparams.globalparamsV, universalparams);
 	#endif 
 	// exit(EXIT_SUCCESS); //
 	
@@ -512,7 +528,8 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 		for(unsigned int b = 0; b<num_runs_b; b++){
 			for(unsigned int c = 0; c<num_runs_c; c++){
 				
-				/* // reload src vertices 
+				#ifdef NOT___USED
+				// reload src vertices 
 				loadgraphobj->loadvertexdata(algo, vdram, globalparams.globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA, globalparams.globalparamsV.SIZE_SRCVERTICESDATA, globalparams.globalparamsV, universalparams);
 				for(unsigned int i = 0; i < NUM_PEs; i++){ loadgraphobj->loadvertexdata(algo, kvbuffer[i], globalparams.globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA, globalparams.globalparamsK.SIZE_SRCVERTICESDATA, globalparams.globalparamsK, universalparams); }					
 				
@@ -521,7 +538,8 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 				for(unsigned int i = 0; i < NUM_PEs; i++){ loadgraphobj->loadvertexdata(algo, kvbuffer[i], globalparams.globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, globalparams.globalparamsK.SIZE_DESTVERTICESDATA, globalparams.globalparamsK, universalparams); }
 				
 				// set root vid 
-				loadgraphobj->setrootvid((uint512_vec_dt *)vdram, actvvs, globalparams.globalparamsV, universalparams); */
+				loadgraphobj->setrootvid((uint512_vec_dt *)vdram, actvvs, globalparams.globalparamsV, universalparams);
+				#endif 
 				
 				// set configuration. max {1024, 341, 1024}
 				maxlimit_actvedgeblocks_per_vpartition = a*skip_a; maxlimit_actvupropblocks_per_vpartition = b*skip_b; maxlimit_actvupdateblocks_per_vpartition = c*skip_c; 
@@ -551,7 +569,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 					num_edges_processed, vertexptrbuffer, edgedatabuffer, universalparams);
 					
 				float total__latency_ms = actshelperobj->get_results("app", graph_path, vdram, vdram, vdram, vdram, kvbuffer, universalparams);
-				actshelperobj->verifyresults(vdram, globalparams.globalparamsV, universalparams);
+				actshelperobj->verifyresults2(vdram, globalparams.globalparamsV, universalparams);
 				total_time_elapsed = total__latency_ms;
 			}
 		}
@@ -573,12 +591,12 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	summary(GRAPH_PATH, vdram, globalparams.globalparamsV);
 	#endif 
 	
-	cout<<"------------------------------------------ app::printdataset: VDATA_PACKINGNUMSETS: "<<VDATA_PACKINGNUMSETS<<endl;
+	cout<<"------------------------------------------ app::printdataset: VDATA_PACKING_PERCHANNEL: "<<VDATA_PACKING_PERCHANNEL<<endl;
 	cout<<"------------------------------------------ app::printdataset: NUM_VERTICES_PER_UPROPBLOCK: "<<NUM_VERTICES_PER_UPROPBLOCK<<endl;
 	cout<<"------------------------------------------ app::printdataset: NUM_VERTICESKVS_PER_UPROPBLOCK: "<<NUM_VERTICESKVS_PER_UPROPBLOCK<<endl;
 	cout<<"------------------------------------------ app::printdataset: NUM_UPROPBLOCKS_PER_VPARTITION: "<<NUM_UPROPBLOCKS_PER_VPARTITION<<endl;
-	cout<<"------------------------------------------ app::printdataset: VDATA_PACKINGNUMSETS: "<<VDATA_PACKINGNUMSETS<<endl;
-	cout<<"------------------------------------------ app::printdataset: VDATA_PACKINGNUMSETS: "<<VDATA_PACKINGNUMSETS<<endl;
+	cout<<"------------------------------------------ app::printdataset: VDATA_PACKING_PERCHANNEL: "<<VDATA_PACKING_PERCHANNEL<<endl;
+	cout<<"------------------------------------------ app::printdataset: VDATA_PACKING_PERCHANNEL: "<<VDATA_PACKING_PERCHANNEL<<endl;
 
 	#ifdef _DEBUGMODE_HOSTPRINTS4
 	cout<<endl;

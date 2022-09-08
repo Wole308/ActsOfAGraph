@@ -159,20 +159,7 @@ unsigned int acts_helper::extract_stats(uint512_vec_dt * vdram, uint512_vec_dt *
 				// load vpartition & upropblock stats
 				unsigned int v_p_ = vid / myuniversalparams.PROCESSPARTITIONSZ;
 				unsigned int lvid = vid - (v_p_ * myuniversalparams.PROCESSPARTITIONSZ);
-				
-				#ifdef RRR
-				edge_t vptr_begin = vertexptrbuffer[vid];
-				edge_t vptr_end = vertexptrbuffer[vid+1];
-				edge_t edges_size = vptr_end - vptr_begin;
-				if(vptr_end < vptr_begin){ edges_size = 0; }
-				unsigned int H = 222;
-				for(unsigned int k=0; k<edges_size; k++){
-					unsigned int dstvid = edgedatabuffer[vptr_begin + k].dstvid;
-					H = (dstvid % (VDATA_PACKINGNUMSETS * EDGEDATA_PACKINGSIZE * NUM_PEs)) / (VDATA_PACKINGNUMSETS * EDGEDATA_PACKINGSIZE);
-					if(H==7){ break; }
-				}
-				#endif 
-				
+			
 				if(upropblock_stats[GraphIter+1][v_p_][lvid / NUM_VERTICES_PER_UPROPBLOCK] == 0
 					// && H==7
 				){ 
@@ -527,6 +514,31 @@ void acts_helper::verifyresults(uint512_vec_dt * vbuffer, globalparams_t globalp
 					}
 				}
 			}
+		}
+	}
+	#ifdef _DEBUGMODE_HOSTPRINTS4
+	utilityobj->printvalues("acts_helper::verifyresults: results after kernel run", vdatas, 16);
+	#endif 
+	return;
+}
+
+void acts_helper::verifyresults2(uint512_vec_dt * vbuffer, globalparams_t globalparams, universalparams_t universalparams){
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<endl<<"acts_helper::verifyresults: verifying results... "<<endl;
+	#endif
+	
+	if(universalparams.ALGORITHM == BFS || universalparams.ALGORITHM == SSSP){} else { return; }
+	
+	unsigned int * vbufferINT32 = (unsigned int *)&vbuffer[globalparams.BASEOFFSETKVS_SRCVERTICESDATA];
+	unsigned int vdatas[64]; for(unsigned int k=0; k<64; k++){ vdatas[k] = 0; } 
+	for(unsigned int t=0; t<globalparams.SIZE_SRCVERTICESDATA; t++){
+		unsigned int vid = vbufferINT32[t];
+		
+		if(vid < 64){
+			#ifdef _DEBUGMODE_HOSTPRINTS
+			cout<<"acts_helper::verifyresults: vid: "<<vid<<endl;
+			#endif
+			vdatas[vid] += 1; 
 		}
 	}
 	#ifdef _DEBUGMODE_HOSTPRINTS4

@@ -284,6 +284,9 @@ void utility::resetkeyvalues(string message, keyvalue_t * keyvalues, unsigned in
 void utility::resetkeyvalues(keyvalue_t * keyvalues, unsigned int size){
 	for(unsigned int i=0; i<size; i++){ keyvalues[i].key = 0; keyvalues[i].value = 0; }
 }
+void utility::resetvalues(value_t * values, unsigned int size, unsigned int value){
+	for(unsigned int i=0; i<size; i++){ values[i] = value; }
+}
 
 unsigned int utility::allignlower_FACTOR(unsigned int val, unsigned int _FACTOR){
 	unsigned int fac = val / _FACTOR;
@@ -421,10 +424,10 @@ unsigned int utility::UTIL_GETLOCALVID(unsigned int vid, unsigned int instid){
 	// unsigned int lvid = (y * EDGEDATA_PACKINGSIZE) + x;
 	// return lvid;
 	
-	unsigned int W = (VDATA_PACKINGNUMSETS * EDGEDATA_PACKINGSIZE) * NUM_PEs;
+	unsigned int W = (VDATA_PACKINGNUMSETS_OFFLINE * EDGEDATA_PACKINGSIZE) * NUM_PEs;
 	unsigned int y = vid / W; 
-	unsigned int x = vid % (VDATA_PACKINGNUMSETS * EDGEDATA_PACKINGSIZE);
-	unsigned int lvid = (y * (VDATA_PACKINGNUMSETS * EDGEDATA_PACKINGSIZE)) + x;
+	unsigned int x = vid % (VDATA_PACKINGNUMSETS_OFFLINE * EDGEDATA_PACKINGSIZE);
+	unsigned int lvid = (y * (VDATA_PACKINGNUMSETS_OFFLINE * EDGEDATA_PACKINGSIZE)) + x;
 	
 	// cout<<"UTIL_GETLOCALVID:: vid: "<<vid<<endl;
 	// cout<<"UTIL_GETLOCALVID:: W: "<<W<<endl;
@@ -437,10 +440,10 @@ unsigned int utility::UTIL_GETLOCALVID(unsigned int vid, unsigned int instid){
 unsigned int utility::UTIL_GETREALVID(unsigned int lvid, unsigned int instid){
 	#pragma HLS INLINE
 
-	unsigned int W = (VDATA_PACKINGNUMSETS * EDGEDATA_PACKINGSIZE) * NUM_PEs;
-	unsigned int y2 = lvid / (VDATA_PACKINGNUMSETS * EDGEDATA_PACKINGSIZE);
-	unsigned int x2 = lvid % (VDATA_PACKINGNUMSETS * EDGEDATA_PACKINGSIZE);		
-	unsigned int vid = (y2 * W) + (instid * (VDATA_PACKINGNUMSETS * EDGEDATA_PACKINGSIZE)) + x2;
+	unsigned int W = (VDATA_PACKINGNUMSETS_OFFLINE * EDGEDATA_PACKINGSIZE) * NUM_PEs;
+	unsigned int y2 = lvid / (VDATA_PACKINGNUMSETS_OFFLINE * EDGEDATA_PACKINGSIZE);
+	unsigned int x2 = lvid % (VDATA_PACKINGNUMSETS_OFFLINE * EDGEDATA_PACKINGSIZE);		
+	unsigned int vid = (y2 * W) + (instid * (VDATA_PACKINGNUMSETS_OFFLINE * EDGEDATA_PACKINGSIZE)) + x2;
 	return vid;
 }
 

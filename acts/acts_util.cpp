@@ -168,19 +168,31 @@ keyy_t acts_all::UTILP0_GETKEYENTRY(uint512_dt data, unsigned int v){
 unsigned int acts_all::UTILP0_GETLOCALVID(unsigned int vid, unsigned int instid){ 
 	#pragma HLS INLINE
 	
-	unsigned int W = EDGEDATA_PACKINGSIZE * NUM_PEs;
+	// unsigned int W = EDGEDATA_PACKINGSIZE * NUM_PEs;
+	// unsigned int y = vid / W; 
+	// unsigned int x = vid % EDGEDATA_PACKINGSIZE;
+	// unsigned int lvid = (y * EDGEDATA_PACKINGSIZE) + x;
+	
+	unsigned int W = (VDATA_PACKING_PERCHANNEL * EDGEDATA_PACKINGSIZE) * NUM_PEs;
 	unsigned int y = vid / W; 
-	unsigned int x = vid % EDGEDATA_PACKINGSIZE;
-	unsigned int lvid = (y * EDGEDATA_PACKINGSIZE) + x;
+	unsigned int x = vid % (VDATA_PACKING_PERCHANNEL * EDGEDATA_PACKINGSIZE);
+	unsigned int lvid = (y * (VDATA_PACKING_PERCHANNEL * EDGEDATA_PACKINGSIZE)) + x;
+	
 	return lvid;
 }
 unsigned int acts_all::UTILP0_GETREALVID(unsigned int lvid, unsigned int instid){ 
 	#pragma HLS INLINE
 	
-	unsigned int W = EDGEDATA_PACKINGSIZE * NUM_PEs;
-	unsigned int y2 = lvid / EDGEDATA_PACKINGSIZE;
-	unsigned int x2 = lvid % EDGEDATA_PACKINGSIZE;		
-	unsigned int vid = (y2 * W) + (instid * EDGEDATA_PACKINGSIZE) + x2;
+	// unsigned int W = EDGEDATA_PACKINGSIZE * NUM_PEs;
+	// unsigned int y2 = lvid / EDGEDATA_PACKINGSIZE;
+	// unsigned int x2 = lvid % EDGEDATA_PACKINGSIZE;		
+	// unsigned int vid = (y2 * W) + (instid * EDGEDATA_PACKINGSIZE) + x2;
+	
+	unsigned int W = (VDATA_PACKING_PERCHANNEL * EDGEDATA_PACKINGSIZE) * NUM_PEs;
+	unsigned int y2 = lvid / (VDATA_PACKING_PERCHANNEL * EDGEDATA_PACKINGSIZE);
+	unsigned int x2 = lvid % (VDATA_PACKING_PERCHANNEL * EDGEDATA_PACKINGSIZE);		
+	unsigned int vid = (y2 * W) + (instid * (VDATA_PACKING_PERCHANNEL * EDGEDATA_PACKINGSIZE)) + x2;
+	
 	return vid;
 }
 unsigned int acts_all::UTILP0_GET_PROCESSEDGESPARTITIONSIZEKVS2(globalparams_t globalparams){ 
@@ -948,6 +960,7 @@ globalparams_t acts_all::UTILP0_getglobalparams(uint512_dt * kvdram, unsigned in
 	globalparams.BASEOFFSETKVS_VERTEXPTR = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_VERTEXPTR];
 	globalparams.BASEOFFSETKVS_SRCVERTICESDATA = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_SRCVERTICESDATA];
 	globalparams.BASEOFFSETKVS_DESTVERTICESDATA = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_DESTVERTICESDATA];
+	globalparams.BASEOFFSETKVS_ACTIVEVERTICESDATA = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_ACTIVEVERTICESDATA]; ///
 	globalparams.BASEOFFSETKVS_ACTIVEUPROPBLOCKS = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_ACTIVEUPROPBLOCKS];
 	globalparams.BASEOFFSETKVS_ACTIVEEDGEBLOCKS = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_ACTIVEEDGEBLOCKS];
 	globalparams.BASEOFFSETKVS_ACTIVEUPDATEBLOCKS = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_ACTIVEUPDATEBLOCKS];
@@ -975,6 +988,7 @@ globalparams_t acts_all::UTILP0_getglobalparams(uint512_dt * kvdram, unsigned in
 	globalparams.SIZE_VERTEXPTRS = buffer[MESSAGES_SIZE_VERTEXPTRS];
 	globalparams.SIZE_SRCVERTICESDATA = buffer[MESSAGES_SIZE_SRCVERTICESDATA];
 	globalparams.SIZE_DESTVERTICESDATA = buffer[MESSAGES_SIZE_DESTVERTICESDATA];
+	globalparams.SIZE_ACTIVEVERTICESDATA = buffer[MESSAGES_SIZE_ACTIVEVERTICESDATA]; ///
 	globalparams.SIZE_ACTIVEUPROPBLOCKS = buffer[MESSAGES_SIZE_ACTIVEUPROPBLOCKS];
 	globalparams.SIZE_ACTIVEEDGEBLOCKS = buffer[MESSAGES_SIZE_ACTIVEEDGEBLOCKS];
 	globalparams.SIZE_ACTIVEUPDATEBLOCKS = buffer[MESSAGES_SIZE_ACTIVEUPDATEBLOCKS];

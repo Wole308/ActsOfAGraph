@@ -35,11 +35,11 @@ make cleanall
 # make host
 make actsobj
 
-DIRECTIONS=(1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0)
+DIRECTIONS=(1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0)
 # DIRECTIONS=(1)
 
 DATSETS=(
-		# com-Orkut.mtx #(undirected)(3M,234M)
+		com-Orkut.mtx #(undirected)(3M,234M)
 		# soc-LiveJournal1.mtx #(directed)(5M,70M)
 		# sx-stackoverflow.mtx #(directed)(2.6M,36M)
 		# ljournal-2008.mtx #(directed)(5M,79M)
@@ -50,7 +50,8 @@ DATSETS=(
 		# uk-2002.mtx #(directed)(18.5M,298M)
 		####################### delicious.mtx #(directed)(M,M)
 		# rmat_16m_256m.mtx #(directed)(16M,256M)
-		rmat_32m_256m.mtx #(directed)(32M,256M)
+		# rmat_32m_256m.mtx #(directed)(32M,256M)
+		# rmat_64m_256m.mtx #(directed)(64M,256M)
 		)		
 	
 # for algo in $PR $CF $HITS $SPMV $BFS	
@@ -69,7 +70,7 @@ for algo in $SSSP
 do
 	for ((i = 0; i < ${#DATSETS[@]}; i++)) do
 		echo ${BUILD_DIR}/${algo} ${DATSETS[i]}
-		./host "nap" "${algo}" 16 1 "$DATASET_DIR/${DATSETS[i]}" "${DIRECTIONS[i]}" "$XCLBIN_DIR/$XCLBIN_FILE" #> ${RESULT_PATH}/${algo}/${DATSETS[i]}.out
+		./host "nap" "${algo}" 1 1 "$DATASET_DIR/${DATSETS[i]}" "${DIRECTIONS[i]}" "$XCLBIN_DIR/$XCLBIN_FILE" #> ${RESULT_PATH}/${algo}/${DATSETS[i]}.out
 		# gdb ./host
 		# exit 0
 	done

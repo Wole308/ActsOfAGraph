@@ -225,6 +225,39 @@ void MERGEP0_print_active_masks(uint512_dt * vdram, globalparams_t globalparams,
 
 unsigned int MERGEP0_mergeVs(uint512_dt * kvdram, uint512_dt * vdram);
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+unsigned int MERGEP0__broadcastACTVVs(uint512_dt * vdram, uint512_dt * kvdram0, unsigned int source_partition, globalparams_t globalparamsK, globalparams_t globalparamsV);
+	
+unsigned int MERGEP0__broadcastACTVVs(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1, unsigned int source_partition, globalparams_t globalparamsK, globalparams_t globalparamsV);
+	
+unsigned int MERGEP0__broadcastACTVVs(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2, unsigned int source_partition, globalparams_t globalparamsK, globalparams_t globalparamsV);
+	
+unsigned int MERGEP0__broadcastACTVVs(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3, unsigned int source_partition, globalparams_t globalparamsK, globalparams_t globalparamsV);
+	
+unsigned int MERGEP0__broadcastACTVVs(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4, unsigned int source_partition, globalparams_t globalparamsK, globalparams_t globalparamsV);
+	
+unsigned int MERGEP0__broadcastACTVVs(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5, unsigned int source_partition, globalparams_t globalparamsK, globalparams_t globalparamsV);
+	
+unsigned int MERGEP0__broadcastACTVVs(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6, unsigned int source_partition, globalparams_t globalparamsK, globalparams_t globalparamsV);
+	
+unsigned int MERGEP0__broadcastACTVVs(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7, unsigned int source_partition, globalparams_t globalparamsK, globalparams_t globalparamsV);
+	
+unsigned int MERGEP0__broadcastACTVVs(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8, unsigned int source_partition, globalparams_t globalparamsK, globalparams_t globalparamsV);
+	
+unsigned int MERGEP0__broadcastACTVVs(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9, unsigned int source_partition, globalparams_t globalparamsK, globalparams_t globalparamsV);
+	
+unsigned int MERGEP0__broadcastACTVVs(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10, unsigned int source_partition, globalparams_t globalparamsK, globalparams_t globalparamsV);
+	
+unsigned int MERGEP0__broadcastACTVVs(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11, unsigned int source_partition, globalparams_t globalparamsK, globalparams_t globalparamsV);
+
+unsigned int MERGEP0_mergeACTVVs(uint512_dt * kvdram, uint512_dt * vdram);
+
+unsigned int MERGEP0_copyACTVVs(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, unsigned int begin_computeunitid, unsigned int num_compute_units);
+
+unsigned int MERGEP0_exchangeACTVVs(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC);
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void MERGEP0_broadcastVs(uint512_dt * vdram, uint512_dt * kvdram, unsigned int offset1_kvs, unsigned int offset2_kvs, unsigned int size_kvs);
 
 	

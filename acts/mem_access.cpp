@@ -647,18 +647,10 @@ keyvaluemask_t acts_all::process_edge(unsigned int mode, bool enx, unsigned int 
 	// value_t combo = vbuffer[loc].data;
 	value_t combo = 0; if(enx == true && loc != 16383){ combo = vbuffer[loc].data; }
 	value_t mask; if(globalparams.ALGORITHMINFO_GRAPHALGORITHMCLASS == ALGORITHMCLASS_ALLVERTEXISACTIVE){ mask = 1; } else { 
-		#ifdef CONFIG_PRELOADEDVERTEXMASKS
-		unsigned int mask_set = combo & 0xFFFF; mask = (mask_set >> globalparams.ALGORITHMINFO_GRAPHITERATIONID) & 0x1;
-		#else 
 		mask = combo & 0x1; 	
-		#endif 
 	}
-	
-	#ifdef CONFIG_PRELOADEDVERTEXMASKS
-	value_t udata = combo >> 0xFFFF;
-	#else 
+
 	value_t udata = combo >> 1;	
-	#endif 
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 	if(mask == 1 && mode == ACTSPROCESSMODE){ cout<<">>> PROCESS VECTOR:: PROCESS EDGE SEEN @ v: "<<v<<", loc: "<<loc<<", edge_data.key: "<<edge_data.key<<", edge_data.value: "<<edge_data.value<<", udata: "<<udata<<", mask: "<<mask<<", srcvid: "<<(edge_data.value * EDGEDATA_PACKINGSIZE) + v<<", dstvid*: "<<UTILP0_GETREALVID(edge_data.key, globalparams.ACTSPARAMS_INSTID)<<", ldstvid: "<<edge_data.key<<endl; }
 	#endif
@@ -858,10 +850,10 @@ void acts_all::reduce_update(unsigned int mode, bool enx, unsigned int v, unsign
 	#endif 
 	#ifdef _DEBUGMODE_CHECKS3
 	if(enx == true && loc >= (globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE)){ cout<<"reduce_update::ERROR SEEN @ loc("<<loc<<") >= globalparams.SIZEKVS2_REDUCEPARTITION("<<globalparams.SIZEKVS2_REDUCEPARTITION<<"). update_data.key: "<<update_data.key<<", update_data.value: "<<update_data.value<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
-	#endif 
-	#ifdef MEMACCESS_ENABLE_ATOMICREDUCE
-	if(enx == true && mode == ACTSREDUCEMODE){ if(loc == memory[0]){ loc = (loc + 1) % 8; } memory[0] = loc; } // CRITICAL FIXME.
-	#endif 
+	#endif 	
+	// #ifdef MEMACCESS_ENABLE_ATOMICREDUCE
+	// if(enx == true && mode == ACTSREDUCEMODE){ if(loc == memory[0]){ loc = (loc + 1) % 8; } memory[0] = loc; } // CRITICAL FIXME.
+	// #endif 	
 	#ifdef _DEBUGMODE_CHECKS3
 	if(enx == true){ actsutilityobj->checkoutofbounds("reducevector(114)::DEBUG CODE 113::1", loc, MAX_BLOCKRAM_VDESTDATA_SIZE, update_data.key, update_data.value, mode); }
 	#endif
@@ -876,35 +868,28 @@ void acts_all::reduce_update(unsigned int mode, bool enx, unsigned int v, unsign
 		if(enx == true){ combo = loc & 0x10; } // CRITICAL FIXME.
 		#endif 
 		if(globalparams.ALGORITHMINFO_GRAPHALGORITHMCLASS == ALGORITHMCLASS_ALLVERTEXISACTIVE){ mask = 1; } else { 
-			#ifdef CONFIG_PRELOADEDVERTEXMASKS
-			unsigned int mask_set = combo & 0xFFFF; mask = (mask_set >> globalparams.ALGORITHMINFO_GRAPHITERATIONID) & 0x1;
-			#else 
 			mask = combo & 0x1; 	
-			#endif 
 		}
 		
-		#ifdef CONFIG_PRELOADEDVERTEXMASKS
-		vdata_tmp = combo >> 0xFFFF; 
-		#else 
 		vdata_tmp = combo >> 1; 	
-		#endif 
 		
 		new_vprop = reduce_func(vdata_tmp, vdata_tmp, update_data.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		#ifdef CONFIG_PRELOADEDVERTEXMASKS
-		new_combo = (new_vprop << 0xFFFF) | 0xFFFF; // ????
-		#else 
 		new_combo = (new_vprop << 1) | 0x1;
-		#endif 
 		if(enx == true && new_vprop != vdata_tmp){ en = true; } else { en = false; }
 	} else { new_combo = update_data.value; }
 	
 	// write-back
 	if(en == true){ // REMOVEME.
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3  // REMOVEME.
-		if(mode == ACTSREDUCEMODE){ cout<<">>> REDUCE VECTOR:: REDUCE UPDATE SEEN @: v: "<<v<<", loc: "<<loc<<", vdata_tmp: "<<vdata_tmp<<", mask: "<<mask<<", update_data.key: "<<update_data.key<<", update_data.value: "<<update_data.value<<", new_vprop: "<<new_vprop<<", new combo: "<<((new_vprop << 1) | 0x1)<<", dstvid: "<<UTILP0_GETREALVID(update_data.key, globalparams.ACTSPARAMS_INSTID)<<endl; }
+		if(mode == ACTSREDUCEMODE){ cout<<">>> REDUCE VECTOR:: REDUCE UPDATE SEEN @: v: "<<v<<", loc: "<<loc<<", mask: "<<mask<<", update_data.key: "<<update_data.key<<", update_data.value: "<<update_data.value<<", new_vprop: "<<new_vprop<<", new combo: "<<((new_vprop << 1) | 0x1)<<", dstvid: "<<UTILP0_GETREALVID(update_data.key, globalparams.ACTSPARAMS_INSTID)<<", vdata_tmp: "<<vdata_tmp<<endl; }
 		#endif
 		
 		vbuffer[loc].data = new_combo;
+		
+		// unsigned int p_ = 0; 
+		// vbuffer[base + actvv_index[p_]].acttv.key = update_data.key;
+		// vbuffer[actvv_index[p_]].acttv.value = new_combo;
+		// actvv_index[p_] += 1;
 	}
 	return;
 }
@@ -1097,7 +1082,6 @@ unsigned int acts_all::MEMACCESSP0_get_upropblock_workload(bool en, unsigned int
 		wkl_kvs.offset_srcbase = globalparams.BASEOFFSETKVS_ACTIVEUPROPBLOCKS + upropblockoffset_vs; 
 		wkl_kvs.offset_buffer_begin = 0;
 		
-		#ifdef MEMACCESS_ENABLE_SEPERATEINTERFACEFORMISCREADSANDWRITES
 		for(unsigned int n=0; n<num_its; n++){
 			#ifdef _DEBUGMODE_CHECKS3
 			actsutilityobj->checkoutofbounds("_get_upropblock_workload(1)", globalparams.BASEOFFSETKVS_ACTIVEUPROPBLOCKS + upropblockoffset_vs, ((1 << 28) / 4) / 16, NAp, NAp, n);
@@ -1107,10 +1091,6 @@ unsigned int acts_all::MEMACCESSP0_get_upropblock_workload(bool en, unsigned int
 			actsutilityobj->checkoutofbounds("_get_upropblock_workload:: ERROR 21x", upropblock_ids[n], NUM_UPROPBLOCKS_PER_VPARTITION * globalparams.NUM_PROCESSEDGESPARTITIONS, globalparams.BASEOFFSETKVS_ACTIVEUPROPBLOCKS, upropblockoffset_vs, globalparams.BASEOFFSETKVS_ACTIVEUPROPBLOCKS + upropblockoffset_vs + (n/VECTOR2_SIZE));
 			#endif 
 		}
-		#else 
-		MEMACCESSP0_read__reduce(READDATAMODE, dram, buffer, stats, wkl_kvs, collections_tmp, globalparams);
-		for(unsigned int n=0; n<num_its; n++){ upropblock_ids[n] = buffer[n % VDATA_PACKINGSIZE][n / VDATA_PACKINGSIZE].data; }	
-		#endif 
 	}
 	
 	for(unsigned int n=0; n<num_its; n++){
@@ -1169,30 +1149,7 @@ void acts_all::MEMACCESSP0_get_vertexblock_ids(bool en, unsigned int process_par
 		wkl_kvs.offset_srcbase = globalparamsE.BASEOFFSETKVS_EDGESMAP + process_partition;
 		wkl_kvs.offset_buffer_begin = 0;
 	}
-	#ifdef MEMACCESS_ENABLE_SEPERATEINTERFACEFORMISCREADSANDWRITES
 	MEMACCESSP0_read(ON, dram, vertexblock_ids, wkl_kvs.offset_srcbase, wkl_kvs.offset_begin, wkl_kvs.offset_buffer_begin, wkl_kvs.size);		
-		/* if(sparse_process == true && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 9 && process_partition == 4){
-			cout<<"----------------- _get_vertexblock_ids: new set. num_active_edgeblocks: "<<num_active_edgeblocks<<", wkl_kvs.size: "<<wkl_kvs.size<<". iter: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", process_partition: "<<process_partition<<". -------------------------"<<endl;
-			for(unsigned int t=0; t<wkl_kvs.size; t++){
-				for(unsigned int v=0; v<VDATA_PACKINGSIZE; v++){
-					cout<<"_get_vertexblock_ids: vertexblock_ids["<<v<<"]["<<t<<"]: "<<vertexblock_ids[v][t]<<endl;
-				}
-			}
-		}	 */
-	#else 
-	MEMACCESSP0_read__reduce(READDATAMODE, dram, buffer, stats, wkl_kvs, collections_tmp, globalparamsE);
-		for(unsigned int t=0; t<wkl_kvs.size; t++){
-		#pragma HLS PIPELINE II=1 // REMOVEME?
-			for(unsigned int v=0; v<VDATA_PACKINGSIZE; v++){
-			#pragma HLS UNROLL 
-				vertexblock_ids[v][t] = buffer[v][t].data; 
-				cout<<"_get_vertexblock_ids: vertexblock_ids["<<v<<"]["<<t<<"]: "<<vertexblock_ids[v][t]<<endl;
-				#ifdef _DEBUGMODE_CHECKS3
-				actsutilityobj->checkoutofbounds("_get_vertexblock_ids(1)", vertexblock_ids[v][t], ((1 << 28) / 4) / 16, vertexblock_ids[v][t], v, sparse_process);
-				#endif
-			}
-		}
-	#endif
 	return;
 }
 

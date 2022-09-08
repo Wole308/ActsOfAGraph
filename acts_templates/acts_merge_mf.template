@@ -4,6 +4,18 @@ void MERGE{{context['id']}}_print_active_masks(uint512_dt * vdram, globalparams_
 
 unsigned int MERGE{{context['id']}}_mergeVs{{n}}(uint512_dt * kvdram, uint512_dt * vdram);
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+{%for n in context['T_seq']%}{%if(n>=1)%}	
+unsigned int MERGE{{context['id']}}__broadcastACTVVs(uint512_dt * vdram, {%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} unsigned int source_partition, globalparams_t globalparamsK, globalparams_t globalparamsV);
+{%endif%}{%endfor%}
+
+unsigned int MERGE{{context['id']}}_mergeACTVVs(uint512_dt * kvdram, uint512_dt * vdram);
+
+unsigned int MERGE{{context['id']}}_copyACTVVs(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, unsigned int begin_computeunitid, unsigned int num_compute_units);
+
+unsigned int MERGE{{context['id']}}_exchangeACTVVs(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC);
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void MERGE{{context['id']}}_broadcastVs(uint512_dt * vdram, uint512_dt * kvdram, unsigned int offset1_kvs, unsigned int offset2_kvs, unsigned int size_kvs);
 
 {%for n in context['T_seq']%}{%if(n>=1)%}	

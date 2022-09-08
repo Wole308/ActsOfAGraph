@@ -35,11 +35,6 @@ loadgraph.cpp
 #define CONFIG_RELEASE_VERSION7 // mask included
 // #define CONFIG_RELEASE_VERSION_DUPLICATEEDGES 
 
-
-
-
-
-// #ifdef RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR //////////////////////////////////////////////////
 // >>> top_usrcv_nudstv.cpp <<<
 // #define TOP_ENABLE_SHRINKVBUFFER // { loadgraph.cpp }
 #define TOP_ENABLE_MERGEVS // CRITICAL FIXME NOW. *
@@ -62,14 +57,10 @@ loadgraph.cpp
 #define ACTS_ENABLE_REDUCE
 #define ACTS_ENABLE_COLLECTSTATS // CRITICAL FIXME NOW.
 #define ACTS_ENABLE_COLLECTHOSTSTATS
+#define ACTS_ENABLE_COLLECTACTVVS
 
 // >>> algo_funcs.cpp <<<
 #define ALGOFUNCS_ENABLE_ALLALGORITHMS 
-// #endif ////////////////////////////////////////////////// //////////////////////////////////////////////////
-
-
-
-
 
 // #define CONFIG_ENABLE___SPARSEUPDATEBUFFER___ 
 
@@ -102,7 +93,6 @@ loadgraph.cpp
 
 #define CONFIG_SELECTIVEVERTEXPARTITIONS // OBSOLETE.
 #define CONFIG_PRELOADEDVERTEXPARTITIONMASKS
-// #define CONFIG_PRELOADEDVERTEXMASKS /////////////////////////////////// FIXME?
 
 #define CONFIG_FORCEDCORRECT_LOADEDGES
 #define CONFIG_FORCEDCORRECT_TRADGP
@@ -121,9 +111,12 @@ loadgraph.cpp
 #endif
 
 /*
-NEWCHANGES:
-MEMACCESS{{context['id']}}_write__process_base: removed 'if(mode == ACTSPROCESSMODE){ load(kvdram, c0, workload_kvs); }'
-
+WARNINGS:
+mem_access.cpp: commented out
+	// #ifdef MEMACCESS_ENABLE_ATOMICREDUCE
+	// if(enx == true && mode == ACTSREDUCEMODE){ if(loc == memory[0]){ loc = (loc + 1) % 8; } memory[0] = loc; } // CRITICAL FIXME.
+	// #endif 	
+	
 */
 
 

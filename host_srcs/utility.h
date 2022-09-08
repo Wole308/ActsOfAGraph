@@ -87,6 +87,7 @@ public:
 	unsigned int RetrieveBit(unsigned int * edgeoffsetbits, size_t index);
 	void resetkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size);
 	void resetkeyvalues(keyvalue_t * keyvalues, unsigned int size);
+	void resetvalues(value_t * values, unsigned int size, unsigned int value);
 
 	unsigned int allignlower_FACTOR(unsigned int val, unsigned int _FACTOR);
 	unsigned int allignhigher_FACTOR(unsigned int val, unsigned int _FACTOR);

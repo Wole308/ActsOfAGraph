@@ -48,22 +48,21 @@ globalparams_TWOt loadgraph::loadactvvertices(uint512_vec_dt * vdram, vector<ver
 	cout<<"loadgraph::loadactvvertices:: loading active vertices... "<<endl;
 	#endif
 
-	// CRITICAL NEWCHANGE
-	globalparams.globalparamsK.BASEOFFSETKVS_ACTIVEUPROPBLOCKS = globalparams.globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA + (globalparams.globalparamsK.SIZE_DESTVERTICESDATA / VECTOR2_SIZE) + 1;
+	globalparams.globalparamsK.BASEOFFSETKVS_ACTIVEUPROPBLOCKS = globalparams.globalparamsK.BASEOFFSETKVS_ACTIVEVERTICESDATA + (globalparams.globalparamsK.SIZE_ACTIVEVERTICESDATA / VECTOR2_SIZE) + 1;
 	globalparams.globalparamsK.SIZE_ACTIVEUPROPBLOCKS = MAXNUMGRAPHITERATIONS * universalparams.NUMPROCESSEDGESPARTITIONS * MAXNUM_UPROPBLOCKS_PER_VPARTITION;
 	globalparams.globalparamsK.BASEOFFSETKVS_ACTIVEEDGEBLOCKS = globalparams.globalparamsK.BASEOFFSETKVS_ACTIVEUPROPBLOCKS + (globalparams.globalparamsK.SIZE_ACTIVEUPROPBLOCKS / VECTOR2_SIZE) + 1;
 	globalparams.globalparamsK.SIZE_ACTIVEEDGEBLOCKS = 0; 
 	globalparams.globalparamsK.BASEOFFSETKVS_ACTIVEUPDATEBLOCKS = globalparams.globalparamsK.BASEOFFSETKVS_ACTIVEEDGEBLOCKS + (globalparams.globalparamsK.SIZE_ACTIVEEDGEBLOCKS / VECTOR2_SIZE) + 1;
 	globalparams.globalparamsK.SIZE_ACTIVEUPDATEBLOCKS = universalparams.NUMREDUCEPARTITIONS * MAXNUM_UPDATEBLOCKS_PER_VPARTITION * VECTOR2_SIZE;
 	
-	globalparams.globalparamsE.BASEOFFSETKVS_ACTIVEUPROPBLOCKS = globalparams.globalparamsE.BASEOFFSETKVS_DESTVERTICESDATA + (globalparams.globalparamsE.SIZE_DESTVERTICESDATA / VECTOR2_SIZE) + 1;
+	globalparams.globalparamsE.BASEOFFSETKVS_ACTIVEUPROPBLOCKS = globalparams.globalparamsE.BASEOFFSETKVS_ACTIVEVERTICESDATA + (globalparams.globalparamsE.SIZE_ACTIVEVERTICESDATA / VECTOR2_SIZE) + 1;
 	globalparams.globalparamsE.SIZE_ACTIVEUPROPBLOCKS = 0; 
 	globalparams.globalparamsE.BASEOFFSETKVS_ACTIVEEDGEBLOCKS = globalparams.globalparamsE.BASEOFFSETKVS_ACTIVEUPROPBLOCKS + (globalparams.globalparamsE.SIZE_ACTIVEUPROPBLOCKS / VECTOR2_SIZE) + 1;
 	globalparams.globalparamsE.SIZE_ACTIVEEDGEBLOCKS = 0;
 	globalparams.globalparamsE.BASEOFFSETKVS_ACTIVEUPDATEBLOCKS = globalparams.globalparamsE.BASEOFFSETKVS_ACTIVEEDGEBLOCKS + (globalparams.globalparamsE.SIZE_ACTIVEEDGEBLOCKS / VECTOR2_SIZE) + 1;
 	globalparams.globalparamsE.SIZE_ACTIVEUPDATEBLOCKS = 0;
 	
-	globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEUPROPBLOCKS = globalparams.globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + (globalparams.globalparamsV.SIZE_DESTVERTICESDATA / VECTOR2_SIZE) + 1;
+	globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEUPROPBLOCKS = globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEVERTICESDATA + (globalparams.globalparamsV.SIZE_ACTIVEVERTICESDATA / VECTOR2_SIZE) + 1;
 	globalparams.globalparamsV.SIZE_ACTIVEUPROPBLOCKS = MAXNUMGRAPHITERATIONS * universalparams.NUMPROCESSEDGESPARTITIONS * MAXNUM_UPROPBLOCKS_PER_VPARTITION; 
 	globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEEDGEBLOCKS = globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEUPROPBLOCKS + (globalparams.globalparamsV.SIZE_ACTIVEUPROPBLOCKS / VECTOR2_SIZE) + 1;
 	globalparams.globalparamsV.SIZE_ACTIVEEDGEBLOCKS = 0; 
@@ -83,6 +82,24 @@ globalparams_TWOt loadgraph::loadactvvertices(uint512_vec_dt * vdram, vector<ver
 	
 	utilityobj->writedata(vdram, globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEEDGEBLOCKS, 0, 1);
 	utilityobj->writedata(vdram, globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEEDGEBLOCKS, 1, 0);
+	
+	/* // write root actvv
+	value_t datas[VECTOR2_SIZE];
+	
+	// for(unsigned int v=0; v<globalparams.globalparamsK.SIZE_ACTIVEVERTICESDATA / VECTOR2_SIZE; v++){
+		
+	// }
+	utilityobj->resetvalues((value_t *)&vdram[globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEVERTICESDATA], globalparams.globalparamsV.SIZE_ACTIVEVERTICESDATA);
+	// utilityobj->resetvalues((value_t *)&vdram[globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEVERTICESDATA], globalparams.globalparamsV.SIZE_ACTIVEVERTICESDATA);
+	
+	for(unsigned int v=0; v<VECTOR2_SIZE; v++){ datas[0] = 0; }
+	datas[1] = 1;	
+	utilityobj->writedata(vdram, globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEVERTICESDATA, 1, 1);
+	
+	for(unsigned int v=0; v<VECTOR2_SIZE; v++){ datas[0] = 0; }
+	unsigned int index = 0; unsigned int vdata = 0;
+	datas[1] = (index << 16) | vdata;
+	utilityobj->writedata(vdram, globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEVERTICESDATA + 1, 1, ((index << 16) | vdata)); */
 	return globalparams;
 }
 
@@ -461,14 +478,22 @@ void loadgraph::savevdata(uint512_vec_dt * kvdram, unsigned int buffer[VDATA_PAC
 	}
 	return;
 }
-void loadgraph::setrootvid(uint512_vec_dt * vbuffer, vector<vertex_t> &activevertices, globalparams_t globalparams, universalparams_t universalparams){
+void loadgraph::setrootvid(std::string algo, uint512_vec_dt * vbuffer, vector<vertex_t> &activevertices, globalparams_t globalparams, universalparams_t universalparams){
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	cout<<"loadgraph::setrootvid:: setting root vid(s)... "<<endl;
 	#endif 
 	
+	value_t datas[VECTOR2_SIZE];
+	algorithm * algorithmobj = new algorithm();
+	
+	utilityobj->resetvalues((value_t *)&vbuffer[globalparams.BASEOFFSETKVS_SRCVERTICESDATA], globalparams.SIZE_SRCVERTICESDATA, algorithmobj->vertex_initdata(algo));
+	utilityobj->resetvalues((value_t *)&vbuffer[globalparams.BASEOFFSETKVS_ACTIVEVERTICESDATA], globalparams.SIZE_ACTIVEVERTICESDATA, 0);
+	
+	////// write root actvv (bitmask-based)
 	unsigned int data = 0;
 	utilityobj->WRITETO_UINT((unsigned int *)&data, OFFSETOF_VDATA, SIZEOF_VDATA, 0);
 	utilityobj->WRITETO_UINT((unsigned int *)&data, OFFSETOF_VMASK, SIZEOF_VMASK, 1);
+	data = 0; // NEWCHANGE.
 	
 	uint512_ivec_dt * ivbuffer = (uint512_ivec_dt *)&vbuffer[globalparams.BASEOFFSETKVS_SRCVERTICESDATA];	
 	
@@ -476,7 +501,16 @@ void loadgraph::setrootvid(uint512_vec_dt * vbuffer, vector<vertex_t> &activever
 	unsigned int ldstvid = ((universalparams.ROOTVID / (EDGEDATA_PACKINGSIZE * NUM_PEs)) * EDGEDATA_PACKINGSIZE) + (universalparams.ROOTVID % EDGEDATA_PACKINGSIZE); 
 	unsigned int depth = (H * universalparams.NUMREDUCEPARTITIONS * universalparams.REDUCEPARTITIONSZ_KVS2) / VDATA_SHRINK_RATIO;
 	ivbuffer[depth + (ldstvid / VECTOR2_SIZE)].data[ldstvid % VECTOR2_SIZE] = data;
-	// for(unsigned int v=2; v<14; v++){ ivbuffer[depth + (ldstvid / VECTOR2_SIZE)].data[v] = data; }
+	
+	////// write root actvv (vertexID-based)
+	for(unsigned int v=0; v<VECTOR2_SIZE; v++){ datas[0] = 0; }
+	datas[1] = 1;	
+	utilityobj->writedata(vbuffer, globalparams.BASEOFFSETKVS_ACTIVEVERTICESDATA, 1, 1);
+	
+	for(unsigned int v=0; v<VECTOR2_SIZE; v++){ datas[0] = 0; }
+	unsigned int index = 0; unsigned int vdata = 0;
+	datas[1] = (index << 16) | vdata;
+	utilityobj->writedata(vbuffer, globalparams.BASEOFFSETKVS_ACTIVEVERTICESDATA + 1, 1, ((index << 16) | vdata));
 	
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"loadgraph::setrootvid: data: "<<data<<", depth: "<<depth<<", ldstvid / VECTOR2_SIZE: "<<ldstvid / VECTOR2_SIZE<<", ldstvid % VECTOR2_SIZE: "<<ldstvid % VECTOR2_SIZE<<", vbuffer["<<globalparams.BASEOFFSETKVS_SRCVERTICESDATA + depth + (ldstvid / VECTOR2_SIZE)<<"].data[0].key: "<<vbuffer[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + depth + (ldstvid / VECTOR2_SIZE)].data[0].key<<endl;			
@@ -972,6 +1006,7 @@ globalparams_t loadgraph::createmessages(
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTEXPTR].data[0].key = globalparams.BASEOFFSETKVS_VERTEXPTR;
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_SRCVERTICESDATA].data[0].key = globalparams.BASEOFFSETKVS_SRCVERTICESDATA;
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_DESTVERTICESDATA].data[0].key = globalparams.BASEOFFSETKVS_DESTVERTICESDATA;
+	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_ACTIVEVERTICESDATA].data[0].key = globalparams.BASEOFFSETKVS_ACTIVEVERTICESDATA;
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_ACTIVEUPROPBLOCKS].data[0].key = globalparams.BASEOFFSETKVS_ACTIVEUPROPBLOCKS;
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_ACTIVEEDGEBLOCKS].data[0].key = globalparams.BASEOFFSETKVS_ACTIVEEDGEBLOCKS;
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_ACTIVEUPDATEBLOCKS].data[0].key = globalparams.BASEOFFSETKVS_ACTIVEUPDATEBLOCKS;
@@ -1000,6 +1035,7 @@ globalparams_t loadgraph::createmessages(
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_VERTEXPTRS].data[0].key = globalparams.SIZE_VERTEXPTRS; // srcvsize; // NEWCHANGE***
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_SRCVERTICESDATA].data[0].key = globalparams.SIZE_SRCVERTICESDATA; // SRCVERTICESDATASZ; // NEWCHANGE.
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_DESTVERTICESDATA].data[0].key = globalparams.SIZE_DESTVERTICESDATA; // DESTVERTICESDATASZ;
+	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_ACTIVEVERTICESDATA].data[0].key = globalparams.SIZE_ACTIVEVERTICESDATA;
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_ACTIVEUPROPBLOCKS].data[0].key = 0; // 
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_ACTIVEEDGEBLOCKS].data[0].key = actvvsize; // 
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_ACTIVEUPDATEBLOCKS].data[0].key = 0; // 

@@ -322,7 +322,7 @@ void acts_all::TOPP0_topkernelP1(
 	workload_t edgestats0[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];
 	collection_t collections0[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections0 complete	
+	
 	pmask_dt pmask_curr[BLOCKRAM_CURRPMASK_SIZE];
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
@@ -495,7 +495,7 @@ void acts_all::TOPP0_topkernelP1(
 						if(globalposition.EN_REDUCE == ON){ enablereduce = ON; } else { enablereduce = OFF; }
 						
 						// read vertices & vmasks
-						#ifdef TOP_ENABLE_BROADCASTUPROPS	
+						#ifdef TOP_ENABLE_BROADCASTUPROPS_XXXXXXXXXXXX
 						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
 						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
 							unsigned int depth_i = 0, transfsz_kvs = 0;
@@ -521,7 +521,6 @@ void acts_all::TOPP0_topkernelP1(
 									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 									transfsz_kvs += xload_kvs[n].size + REPORT__DRAM_ACCESS_LATENCY;
 									#endif 
-									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:sparse: xload_kvs["<<n<<"].size: "<<xload_kvs[n].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
 							} else {
 								depth_i = 0;
@@ -532,14 +531,25 @@ void acts_all::TOPP0_topkernelP1(
 									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 									transfsz_kvs += xload_kvs[0].size + REPORT__DRAM_ACCESS_LATENCY;
 									#endif 
-									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:dense: xload_kvs[0].size: "<<xload_kvs[0].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
 							}
 							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
 							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
 							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
-							// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:: instid: "<<globalparamsK.ACTSPARAMS_INSTID<<", sparse_readu: "<<sparse_readu<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<", source_partition: "<<source_partition<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl; }
+							#endif
+						}
+						#endif 
+						
+						// read vertices & vmasks
+						#ifdef TOP_ENABLE_BROADCASTUPROPS	
+						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
+						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
+							unsigned int transfsz_kvs = MERGEP0__broadcastACTVVs(vdram, kvdram0, source_partition, globalparamsK, globalparamsV);
+							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
+							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
 							#endif
 						}
 						#endif 
@@ -572,7 +582,7 @@ void acts_all::TOPP0_topkernelP1(
 	unsigned int transfsz_kvs = 0;
 	if(globalparamsV.ENABLE_MERGECOMMAND == ON){	
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram0, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram0, vdram); 
 	}
 	#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST
 	collections0[SYNCPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
@@ -655,7 +665,6 @@ void acts_all::TOPP0_topkernelP2(
 	workload_t edgestats0[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];
 	collection_t collections0[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections0 complete	
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer1
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -671,7 +680,7 @@ void acts_all::TOPP0_topkernelP2(
 	workload_t edgestats1[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule1[BLOCKRAM_SIZE];
 	collection_t collections1[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections1 complete	
+	
 	pmask_dt pmask_curr[BLOCKRAM_CURRPMASK_SIZE];
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
@@ -844,7 +853,7 @@ void acts_all::TOPP0_topkernelP2(
 						if(globalposition.EN_REDUCE == ON){ enablereduce = ON; } else { enablereduce = OFF; }
 						
 						// read vertices & vmasks
-						#ifdef TOP_ENABLE_BROADCASTUPROPS	
+						#ifdef TOP_ENABLE_BROADCASTUPROPS_XXXXXXXXXXXX
 						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
 						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
 							unsigned int depth_i = 0, transfsz_kvs = 0;
@@ -870,7 +879,6 @@ void acts_all::TOPP0_topkernelP2(
 									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 									transfsz_kvs += xload_kvs[n].size + REPORT__DRAM_ACCESS_LATENCY;
 									#endif 
-									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:sparse: xload_kvs["<<n<<"].size: "<<xload_kvs[n].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
 							} else {
 								depth_i = 0;
@@ -881,14 +889,25 @@ void acts_all::TOPP0_topkernelP2(
 									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 									transfsz_kvs += xload_kvs[0].size + REPORT__DRAM_ACCESS_LATENCY;
 									#endif 
-									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:dense: xload_kvs[0].size: "<<xload_kvs[0].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
 							}
 							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
 							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
 							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
-							// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:: instid: "<<globalparamsK.ACTSPARAMS_INSTID<<", sparse_readu: "<<sparse_readu<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<", source_partition: "<<source_partition<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl; }
+							#endif
+						}
+						#endif 
+						
+						// read vertices & vmasks
+						#ifdef TOP_ENABLE_BROADCASTUPROPS	
+						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
+						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
+							unsigned int transfsz_kvs = MERGEP0__broadcastACTVVs(vdram, kvdram0,kvdram1, source_partition, globalparamsK, globalparamsV);
+							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
+							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
 							#endif
 						}
 						#endif 
@@ -922,9 +941,9 @@ void acts_all::TOPP0_topkernelP2(
 	unsigned int transfsz_kvs = 0;
 	if(globalparamsV.ENABLE_MERGECOMMAND == ON){	
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram0, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram0, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram1, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram1, vdram); 
 	}
 	#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST
 	collections0[SYNCPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
@@ -1013,7 +1032,6 @@ void acts_all::TOPP0_topkernelP3(
 	workload_t edgestats0[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];
 	collection_t collections0[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections0 complete	
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer1
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -1029,7 +1047,6 @@ void acts_all::TOPP0_topkernelP3(
 	workload_t edgestats1[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule1[BLOCKRAM_SIZE];
 	collection_t collections1[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections1 complete	
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer2
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -1045,7 +1062,7 @@ void acts_all::TOPP0_topkernelP3(
 	workload_t edgestats2[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule2[BLOCKRAM_SIZE];
 	collection_t collections2[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections2 complete	
+	
 	pmask_dt pmask_curr[BLOCKRAM_CURRPMASK_SIZE];
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
@@ -1218,7 +1235,7 @@ void acts_all::TOPP0_topkernelP3(
 						if(globalposition.EN_REDUCE == ON){ enablereduce = ON; } else { enablereduce = OFF; }
 						
 						// read vertices & vmasks
-						#ifdef TOP_ENABLE_BROADCASTUPROPS	
+						#ifdef TOP_ENABLE_BROADCASTUPROPS_XXXXXXXXXXXX
 						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
 						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
 							unsigned int depth_i = 0, transfsz_kvs = 0;
@@ -1244,7 +1261,6 @@ void acts_all::TOPP0_topkernelP3(
 									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 									transfsz_kvs += xload_kvs[n].size + REPORT__DRAM_ACCESS_LATENCY;
 									#endif 
-									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:sparse: xload_kvs["<<n<<"].size: "<<xload_kvs[n].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
 							} else {
 								depth_i = 0;
@@ -1255,14 +1271,25 @@ void acts_all::TOPP0_topkernelP3(
 									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 									transfsz_kvs += xload_kvs[0].size + REPORT__DRAM_ACCESS_LATENCY;
 									#endif 
-									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:dense: xload_kvs[0].size: "<<xload_kvs[0].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
 							}
 							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
 							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
 							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
-							// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:: instid: "<<globalparamsK.ACTSPARAMS_INSTID<<", sparse_readu: "<<sparse_readu<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<", source_partition: "<<source_partition<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl; }
+							#endif
+						}
+						#endif 
+						
+						// read vertices & vmasks
+						#ifdef TOP_ENABLE_BROADCASTUPROPS	
+						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
+						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
+							unsigned int transfsz_kvs = MERGEP0__broadcastACTVVs(vdram, kvdram0,kvdram1,kvdram2, source_partition, globalparamsK, globalparamsV);
+							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
+							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
 							#endif
 						}
 						#endif 
@@ -1297,11 +1324,11 @@ void acts_all::TOPP0_topkernelP3(
 	unsigned int transfsz_kvs = 0;
 	if(globalparamsV.ENABLE_MERGECOMMAND == ON){	
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram0, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram0, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram1, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram1, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram2, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram2, vdram); 
 	}
 	#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST
 	collections0[SYNCPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
@@ -1396,7 +1423,6 @@ void acts_all::TOPP0_topkernelP4(
 	workload_t edgestats0[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];
 	collection_t collections0[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections0 complete	
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer1
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -1412,7 +1438,6 @@ void acts_all::TOPP0_topkernelP4(
 	workload_t edgestats1[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule1[BLOCKRAM_SIZE];
 	collection_t collections1[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections1 complete	
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer2
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -1428,7 +1453,6 @@ void acts_all::TOPP0_topkernelP4(
 	workload_t edgestats2[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule2[BLOCKRAM_SIZE];
 	collection_t collections2[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections2 complete	
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer3
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -1444,7 +1468,7 @@ void acts_all::TOPP0_topkernelP4(
 	workload_t edgestats3[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule3[BLOCKRAM_SIZE];
 	collection_t collections3[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections3 complete	
+	
 	pmask_dt pmask_curr[BLOCKRAM_CURRPMASK_SIZE];
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
@@ -1617,7 +1641,7 @@ void acts_all::TOPP0_topkernelP4(
 						if(globalposition.EN_REDUCE == ON){ enablereduce = ON; } else { enablereduce = OFF; }
 						
 						// read vertices & vmasks
-						#ifdef TOP_ENABLE_BROADCASTUPROPS	
+						#ifdef TOP_ENABLE_BROADCASTUPROPS_XXXXXXXXXXXX
 						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
 						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
 							unsigned int depth_i = 0, transfsz_kvs = 0;
@@ -1643,7 +1667,6 @@ void acts_all::TOPP0_topkernelP4(
 									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 									transfsz_kvs += xload_kvs[n].size + REPORT__DRAM_ACCESS_LATENCY;
 									#endif 
-									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:sparse: xload_kvs["<<n<<"].size: "<<xload_kvs[n].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
 							} else {
 								depth_i = 0;
@@ -1654,14 +1677,25 @@ void acts_all::TOPP0_topkernelP4(
 									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 									transfsz_kvs += xload_kvs[0].size + REPORT__DRAM_ACCESS_LATENCY;
 									#endif 
-									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:dense: xload_kvs[0].size: "<<xload_kvs[0].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
 							}
 							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
 							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
 							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
-							// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:: instid: "<<globalparamsK.ACTSPARAMS_INSTID<<", sparse_readu: "<<sparse_readu<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<", source_partition: "<<source_partition<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl; }
+							#endif
+						}
+						#endif 
+						
+						// read vertices & vmasks
+						#ifdef TOP_ENABLE_BROADCASTUPROPS	
+						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
+						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
+							unsigned int transfsz_kvs = MERGEP0__broadcastACTVVs(vdram, kvdram0,kvdram1,kvdram2,kvdram3, source_partition, globalparamsK, globalparamsV);
+							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
+							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
 							#endif
 						}
 						#endif 
@@ -1697,13 +1731,13 @@ void acts_all::TOPP0_topkernelP4(
 	unsigned int transfsz_kvs = 0;
 	if(globalparamsV.ENABLE_MERGECOMMAND == ON){	
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram0, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram0, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram1, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram1, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram2, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram2, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram3, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram3, vdram); 
 	}
 	#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST
 	collections0[SYNCPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
@@ -1804,7 +1838,6 @@ void acts_all::TOPP0_topkernelP5(
 	workload_t edgestats0[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];
 	collection_t collections0[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections0 complete	
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer1
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -1820,7 +1853,6 @@ void acts_all::TOPP0_topkernelP5(
 	workload_t edgestats1[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule1[BLOCKRAM_SIZE];
 	collection_t collections1[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections1 complete	
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer2
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -1836,7 +1868,6 @@ void acts_all::TOPP0_topkernelP5(
 	workload_t edgestats2[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule2[BLOCKRAM_SIZE];
 	collection_t collections2[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections2 complete	
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer3
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -1852,7 +1883,6 @@ void acts_all::TOPP0_topkernelP5(
 	workload_t edgestats3[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule3[BLOCKRAM_SIZE];
 	collection_t collections3[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections3 complete	
 	keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer4
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -1868,7 +1898,7 @@ void acts_all::TOPP0_topkernelP5(
 	workload_t edgestats4[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule4[BLOCKRAM_SIZE];
 	collection_t collections4[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections4 complete	
+	
 	pmask_dt pmask_curr[BLOCKRAM_CURRPMASK_SIZE];
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
@@ -2041,7 +2071,7 @@ void acts_all::TOPP0_topkernelP5(
 						if(globalposition.EN_REDUCE == ON){ enablereduce = ON; } else { enablereduce = OFF; }
 						
 						// read vertices & vmasks
-						#ifdef TOP_ENABLE_BROADCASTUPROPS	
+						#ifdef TOP_ENABLE_BROADCASTUPROPS_XXXXXXXXXXXX
 						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
 						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
 							unsigned int depth_i = 0, transfsz_kvs = 0;
@@ -2067,7 +2097,6 @@ void acts_all::TOPP0_topkernelP5(
 									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 									transfsz_kvs += xload_kvs[n].size + REPORT__DRAM_ACCESS_LATENCY;
 									#endif 
-									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:sparse: xload_kvs["<<n<<"].size: "<<xload_kvs[n].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
 							} else {
 								depth_i = 0;
@@ -2078,14 +2107,25 @@ void acts_all::TOPP0_topkernelP5(
 									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 									transfsz_kvs += xload_kvs[0].size + REPORT__DRAM_ACCESS_LATENCY;
 									#endif 
-									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:dense: xload_kvs[0].size: "<<xload_kvs[0].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
 							}
 							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
 							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
 							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
-							// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:: instid: "<<globalparamsK.ACTSPARAMS_INSTID<<", sparse_readu: "<<sparse_readu<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<", source_partition: "<<source_partition<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl; }
+							#endif
+						}
+						#endif 
+						
+						// read vertices & vmasks
+						#ifdef TOP_ENABLE_BROADCASTUPROPS	
+						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
+						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
+							unsigned int transfsz_kvs = MERGEP0__broadcastACTVVs(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4, source_partition, globalparamsK, globalparamsV);
+							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
+							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
 							#endif
 						}
 						#endif 
@@ -2122,15 +2162,15 @@ void acts_all::TOPP0_topkernelP5(
 	unsigned int transfsz_kvs = 0;
 	if(globalparamsV.ENABLE_MERGECOMMAND == ON){	
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram0, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram0, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram1, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram1, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram2, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram2, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram3, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram3, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram4, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram4, vdram); 
 	}
 	#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST
 	collections0[SYNCPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
@@ -2237,7 +2277,6 @@ void acts_all::TOPP0_topkernelP6(
 	workload_t edgestats0[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];
 	collection_t collections0[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections0 complete	
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer1
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -2253,7 +2292,6 @@ void acts_all::TOPP0_topkernelP6(
 	workload_t edgestats1[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule1[BLOCKRAM_SIZE];
 	collection_t collections1[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections1 complete	
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer2
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -2269,7 +2307,6 @@ void acts_all::TOPP0_topkernelP6(
 	workload_t edgestats2[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule2[BLOCKRAM_SIZE];
 	collection_t collections2[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections2 complete	
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer3
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -2285,7 +2322,6 @@ void acts_all::TOPP0_topkernelP6(
 	workload_t edgestats3[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule3[BLOCKRAM_SIZE];
 	collection_t collections3[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections3 complete	
 	keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer4
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -2301,7 +2337,6 @@ void acts_all::TOPP0_topkernelP6(
 	workload_t edgestats4[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule4[BLOCKRAM_SIZE];
 	collection_t collections4[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections4 complete	
 	keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer5
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -2317,7 +2352,7 @@ void acts_all::TOPP0_topkernelP6(
 	workload_t edgestats5[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule5[BLOCKRAM_SIZE];
 	collection_t collections5[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections5 complete	
+	
 	pmask_dt pmask_curr[BLOCKRAM_CURRPMASK_SIZE];
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
@@ -2490,7 +2525,7 @@ void acts_all::TOPP0_topkernelP6(
 						if(globalposition.EN_REDUCE == ON){ enablereduce = ON; } else { enablereduce = OFF; }
 						
 						// read vertices & vmasks
-						#ifdef TOP_ENABLE_BROADCASTUPROPS	
+						#ifdef TOP_ENABLE_BROADCASTUPROPS_XXXXXXXXXXXX
 						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
 						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
 							unsigned int depth_i = 0, transfsz_kvs = 0;
@@ -2516,7 +2551,6 @@ void acts_all::TOPP0_topkernelP6(
 									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 									transfsz_kvs += xload_kvs[n].size + REPORT__DRAM_ACCESS_LATENCY;
 									#endif 
-									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:sparse: xload_kvs["<<n<<"].size: "<<xload_kvs[n].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
 							} else {
 								depth_i = 0;
@@ -2527,14 +2561,25 @@ void acts_all::TOPP0_topkernelP6(
 									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 									transfsz_kvs += xload_kvs[0].size + REPORT__DRAM_ACCESS_LATENCY;
 									#endif 
-									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:dense: xload_kvs[0].size: "<<xload_kvs[0].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
 							}
 							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
 							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
 							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
-							// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:: instid: "<<globalparamsK.ACTSPARAMS_INSTID<<", sparse_readu: "<<sparse_readu<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<", source_partition: "<<source_partition<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl; }
+							#endif
+						}
+						#endif 
+						
+						// read vertices & vmasks
+						#ifdef TOP_ENABLE_BROADCASTUPROPS	
+						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
+						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
+							unsigned int transfsz_kvs = MERGEP0__broadcastACTVVs(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5, source_partition, globalparamsK, globalparamsV);
+							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
+							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
 							#endif
 						}
 						#endif 
@@ -2572,17 +2617,17 @@ void acts_all::TOPP0_topkernelP6(
 	unsigned int transfsz_kvs = 0;
 	if(globalparamsV.ENABLE_MERGECOMMAND == ON){	
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram0, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram0, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram1, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram1, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram2, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram2, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram3, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram3, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram4, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram4, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram5, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram5, vdram); 
 	}
 	#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST
 	collections0[SYNCPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
@@ -2695,7 +2740,6 @@ void acts_all::TOPP0_topkernelP7(
 	workload_t edgestats0[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];
 	collection_t collections0[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections0 complete	
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer1
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -2711,7 +2755,6 @@ void acts_all::TOPP0_topkernelP7(
 	workload_t edgestats1[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule1[BLOCKRAM_SIZE];
 	collection_t collections1[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections1 complete	
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer2
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -2727,7 +2770,6 @@ void acts_all::TOPP0_topkernelP7(
 	workload_t edgestats2[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule2[BLOCKRAM_SIZE];
 	collection_t collections2[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections2 complete	
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer3
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -2743,7 +2785,6 @@ void acts_all::TOPP0_topkernelP7(
 	workload_t edgestats3[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule3[BLOCKRAM_SIZE];
 	collection_t collections3[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections3 complete	
 	keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer4
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -2759,7 +2800,6 @@ void acts_all::TOPP0_topkernelP7(
 	workload_t edgestats4[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule4[BLOCKRAM_SIZE];
 	collection_t collections4[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections4 complete	
 	keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer5
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -2775,7 +2815,6 @@ void acts_all::TOPP0_topkernelP7(
 	workload_t edgestats5[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule5[BLOCKRAM_SIZE];
 	collection_t collections5[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections5 complete	
 	keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer6
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -2791,7 +2830,7 @@ void acts_all::TOPP0_topkernelP7(
 	workload_t edgestats6[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule6[BLOCKRAM_SIZE];
 	collection_t collections6[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections6 complete	
+	
 	pmask_dt pmask_curr[BLOCKRAM_CURRPMASK_SIZE];
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
@@ -2964,7 +3003,7 @@ void acts_all::TOPP0_topkernelP7(
 						if(globalposition.EN_REDUCE == ON){ enablereduce = ON; } else { enablereduce = OFF; }
 						
 						// read vertices & vmasks
-						#ifdef TOP_ENABLE_BROADCASTUPROPS	
+						#ifdef TOP_ENABLE_BROADCASTUPROPS_XXXXXXXXXXXX
 						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
 						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
 							unsigned int depth_i = 0, transfsz_kvs = 0;
@@ -2990,7 +3029,6 @@ void acts_all::TOPP0_topkernelP7(
 									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 									transfsz_kvs += xload_kvs[n].size + REPORT__DRAM_ACCESS_LATENCY;
 									#endif 
-									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:sparse: xload_kvs["<<n<<"].size: "<<xload_kvs[n].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
 							} else {
 								depth_i = 0;
@@ -3001,14 +3039,25 @@ void acts_all::TOPP0_topkernelP7(
 									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 									transfsz_kvs += xload_kvs[0].size + REPORT__DRAM_ACCESS_LATENCY;
 									#endif 
-									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:dense: xload_kvs[0].size: "<<xload_kvs[0].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
 							}
 							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
 							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
 							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
-							// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:: instid: "<<globalparamsK.ACTSPARAMS_INSTID<<", sparse_readu: "<<sparse_readu<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<", source_partition: "<<source_partition<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl; }
+							#endif
+						}
+						#endif 
+						
+						// read vertices & vmasks
+						#ifdef TOP_ENABLE_BROADCASTUPROPS	
+						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
+						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
+							unsigned int transfsz_kvs = MERGEP0__broadcastACTVVs(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6, source_partition, globalparamsK, globalparamsV);
+							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
+							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
 							#endif
 						}
 						#endif 
@@ -3047,19 +3096,19 @@ void acts_all::TOPP0_topkernelP7(
 	unsigned int transfsz_kvs = 0;
 	if(globalparamsV.ENABLE_MERGECOMMAND == ON){	
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram0, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram0, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram1, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram1, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram2, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram2, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram3, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram3, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram4, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram4, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram5, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram5, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram6, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram6, vdram); 
 	}
 	#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST
 	collections0[SYNCPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
@@ -3178,7 +3227,6 @@ void acts_all::TOPP0_topkernelP8(
 	workload_t edgestats0[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];
 	collection_t collections0[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections0 complete	
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer1
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -3194,7 +3242,6 @@ void acts_all::TOPP0_topkernelP8(
 	workload_t edgestats1[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule1[BLOCKRAM_SIZE];
 	collection_t collections1[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections1 complete	
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer2
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -3210,7 +3257,6 @@ void acts_all::TOPP0_topkernelP8(
 	workload_t edgestats2[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule2[BLOCKRAM_SIZE];
 	collection_t collections2[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections2 complete	
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer3
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -3226,7 +3272,6 @@ void acts_all::TOPP0_topkernelP8(
 	workload_t edgestats3[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule3[BLOCKRAM_SIZE];
 	collection_t collections3[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections3 complete	
 	keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer4
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -3242,7 +3287,6 @@ void acts_all::TOPP0_topkernelP8(
 	workload_t edgestats4[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule4[BLOCKRAM_SIZE];
 	collection_t collections4[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections4 complete	
 	keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer5
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -3258,7 +3302,6 @@ void acts_all::TOPP0_topkernelP8(
 	workload_t edgestats5[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule5[BLOCKRAM_SIZE];
 	collection_t collections5[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections5 complete	
 	keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer6
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -3274,7 +3317,6 @@ void acts_all::TOPP0_topkernelP8(
 	workload_t edgestats6[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule6[BLOCKRAM_SIZE];
 	collection_t collections6[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections6 complete	
 	keyvalue_vbuffer_t vbuffer7[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer7
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -3290,7 +3332,7 @@ void acts_all::TOPP0_topkernelP8(
 	workload_t edgestats7[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule7[BLOCKRAM_SIZE];
 	collection_t collections7[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections7 complete	
+	
 	pmask_dt pmask_curr[BLOCKRAM_CURRPMASK_SIZE];
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
@@ -3463,7 +3505,7 @@ void acts_all::TOPP0_topkernelP8(
 						if(globalposition.EN_REDUCE == ON){ enablereduce = ON; } else { enablereduce = OFF; }
 						
 						// read vertices & vmasks
-						#ifdef TOP_ENABLE_BROADCASTUPROPS	
+						#ifdef TOP_ENABLE_BROADCASTUPROPS_XXXXXXXXXXXX
 						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
 						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
 							unsigned int depth_i = 0, transfsz_kvs = 0;
@@ -3489,7 +3531,6 @@ void acts_all::TOPP0_topkernelP8(
 									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 									transfsz_kvs += xload_kvs[n].size + REPORT__DRAM_ACCESS_LATENCY;
 									#endif 
-									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:sparse: xload_kvs["<<n<<"].size: "<<xload_kvs[n].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
 							} else {
 								depth_i = 0;
@@ -3500,14 +3541,25 @@ void acts_all::TOPP0_topkernelP8(
 									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 									transfsz_kvs += xload_kvs[0].size + REPORT__DRAM_ACCESS_LATENCY;
 									#endif 
-									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:dense: xload_kvs[0].size: "<<xload_kvs[0].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
 							}
 							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
 							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
 							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
-							// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:: instid: "<<globalparamsK.ACTSPARAMS_INSTID<<", sparse_readu: "<<sparse_readu<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<", source_partition: "<<source_partition<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl; }
+							#endif
+						}
+						#endif 
+						
+						// read vertices & vmasks
+						#ifdef TOP_ENABLE_BROADCASTUPROPS	
+						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
+						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
+							unsigned int transfsz_kvs = MERGEP0__broadcastACTVVs(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7, source_partition, globalparamsK, globalparamsV);
+							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
+							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
 							#endif
 						}
 						#endif 
@@ -3547,21 +3599,21 @@ void acts_all::TOPP0_topkernelP8(
 	unsigned int transfsz_kvs = 0;
 	if(globalparamsV.ENABLE_MERGECOMMAND == ON){	
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram0, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram0, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram1, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram1, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram2, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram2, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram3, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram3, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram4, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram4, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram5, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram5, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram6, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram6, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram7, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram7, vdram); 
 	}
 	#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST
 	collections0[SYNCPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
@@ -3686,7 +3738,6 @@ void acts_all::TOPP0_topkernelP9(
 	workload_t edgestats0[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];
 	collection_t collections0[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections0 complete	
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer1
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -3702,7 +3753,6 @@ void acts_all::TOPP0_topkernelP9(
 	workload_t edgestats1[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule1[BLOCKRAM_SIZE];
 	collection_t collections1[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections1 complete	
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer2
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -3718,7 +3768,6 @@ void acts_all::TOPP0_topkernelP9(
 	workload_t edgestats2[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule2[BLOCKRAM_SIZE];
 	collection_t collections2[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections2 complete	
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer3
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -3734,7 +3783,6 @@ void acts_all::TOPP0_topkernelP9(
 	workload_t edgestats3[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule3[BLOCKRAM_SIZE];
 	collection_t collections3[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections3 complete	
 	keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer4
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -3750,7 +3798,6 @@ void acts_all::TOPP0_topkernelP9(
 	workload_t edgestats4[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule4[BLOCKRAM_SIZE];
 	collection_t collections4[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections4 complete	
 	keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer5
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -3766,7 +3813,6 @@ void acts_all::TOPP0_topkernelP9(
 	workload_t edgestats5[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule5[BLOCKRAM_SIZE];
 	collection_t collections5[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections5 complete	
 	keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer6
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -3782,7 +3828,6 @@ void acts_all::TOPP0_topkernelP9(
 	workload_t edgestats6[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule6[BLOCKRAM_SIZE];
 	collection_t collections6[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections6 complete	
 	keyvalue_vbuffer_t vbuffer7[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer7
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -3798,7 +3843,6 @@ void acts_all::TOPP0_topkernelP9(
 	workload_t edgestats7[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule7[BLOCKRAM_SIZE];
 	collection_t collections7[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections7 complete	
 	keyvalue_vbuffer_t vbuffer8[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer8
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -3814,7 +3858,7 @@ void acts_all::TOPP0_topkernelP9(
 	workload_t edgestats8[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule8[BLOCKRAM_SIZE];
 	collection_t collections8[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections8 complete	
+	
 	pmask_dt pmask_curr[BLOCKRAM_CURRPMASK_SIZE];
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
@@ -3987,7 +4031,7 @@ void acts_all::TOPP0_topkernelP9(
 						if(globalposition.EN_REDUCE == ON){ enablereduce = ON; } else { enablereduce = OFF; }
 						
 						// read vertices & vmasks
-						#ifdef TOP_ENABLE_BROADCASTUPROPS	
+						#ifdef TOP_ENABLE_BROADCASTUPROPS_XXXXXXXXXXXX
 						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
 						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
 							unsigned int depth_i = 0, transfsz_kvs = 0;
@@ -4013,7 +4057,6 @@ void acts_all::TOPP0_topkernelP9(
 									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 									transfsz_kvs += xload_kvs[n].size + REPORT__DRAM_ACCESS_LATENCY;
 									#endif 
-									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:sparse: xload_kvs["<<n<<"].size: "<<xload_kvs[n].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
 							} else {
 								depth_i = 0;
@@ -4024,14 +4067,25 @@ void acts_all::TOPP0_topkernelP9(
 									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 									transfsz_kvs += xload_kvs[0].size + REPORT__DRAM_ACCESS_LATENCY;
 									#endif 
-									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:dense: xload_kvs[0].size: "<<xload_kvs[0].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
 							}
 							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
 							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
 							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
-							// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:: instid: "<<globalparamsK.ACTSPARAMS_INSTID<<", sparse_readu: "<<sparse_readu<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<", source_partition: "<<source_partition<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl; }
+							#endif
+						}
+						#endif 
+						
+						// read vertices & vmasks
+						#ifdef TOP_ENABLE_BROADCASTUPROPS	
+						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
+						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
+							unsigned int transfsz_kvs = MERGEP0__broadcastACTVVs(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8, source_partition, globalparamsK, globalparamsV);
+							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
+							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
 							#endif
 						}
 						#endif 
@@ -4072,23 +4126,23 @@ void acts_all::TOPP0_topkernelP9(
 	unsigned int transfsz_kvs = 0;
 	if(globalparamsV.ENABLE_MERGECOMMAND == ON){	
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram0, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram0, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram1, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram1, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram2, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram2, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram3, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram3, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram4, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram4, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram5, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram5, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram6, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram6, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram7, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram7, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram8, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram8, vdram); 
 	}
 	#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST
 	collections0[SYNCPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
@@ -4219,7 +4273,6 @@ void acts_all::TOPP0_topkernelP10(
 	workload_t edgestats0[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];
 	collection_t collections0[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections0 complete	
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer1
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -4235,7 +4288,6 @@ void acts_all::TOPP0_topkernelP10(
 	workload_t edgestats1[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule1[BLOCKRAM_SIZE];
 	collection_t collections1[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections1 complete	
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer2
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -4251,7 +4303,6 @@ void acts_all::TOPP0_topkernelP10(
 	workload_t edgestats2[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule2[BLOCKRAM_SIZE];
 	collection_t collections2[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections2 complete	
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer3
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -4267,7 +4318,6 @@ void acts_all::TOPP0_topkernelP10(
 	workload_t edgestats3[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule3[BLOCKRAM_SIZE];
 	collection_t collections3[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections3 complete	
 	keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer4
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -4283,7 +4333,6 @@ void acts_all::TOPP0_topkernelP10(
 	workload_t edgestats4[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule4[BLOCKRAM_SIZE];
 	collection_t collections4[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections4 complete	
 	keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer5
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -4299,7 +4348,6 @@ void acts_all::TOPP0_topkernelP10(
 	workload_t edgestats5[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule5[BLOCKRAM_SIZE];
 	collection_t collections5[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections5 complete	
 	keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer6
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -4315,7 +4363,6 @@ void acts_all::TOPP0_topkernelP10(
 	workload_t edgestats6[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule6[BLOCKRAM_SIZE];
 	collection_t collections6[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections6 complete	
 	keyvalue_vbuffer_t vbuffer7[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer7
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -4331,7 +4378,6 @@ void acts_all::TOPP0_topkernelP10(
 	workload_t edgestats7[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule7[BLOCKRAM_SIZE];
 	collection_t collections7[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections7 complete	
 	keyvalue_vbuffer_t vbuffer8[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer8
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -4347,7 +4393,6 @@ void acts_all::TOPP0_topkernelP10(
 	workload_t edgestats8[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule8[BLOCKRAM_SIZE];
 	collection_t collections8[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections8 complete	
 	keyvalue_vbuffer_t vbuffer9[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer9
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -4363,7 +4408,7 @@ void acts_all::TOPP0_topkernelP10(
 	workload_t edgestats9[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule9[BLOCKRAM_SIZE];
 	collection_t collections9[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections9 complete	
+	
 	pmask_dt pmask_curr[BLOCKRAM_CURRPMASK_SIZE];
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
@@ -4536,7 +4581,7 @@ void acts_all::TOPP0_topkernelP10(
 						if(globalposition.EN_REDUCE == ON){ enablereduce = ON; } else { enablereduce = OFF; }
 						
 						// read vertices & vmasks
-						#ifdef TOP_ENABLE_BROADCASTUPROPS	
+						#ifdef TOP_ENABLE_BROADCASTUPROPS_XXXXXXXXXXXX
 						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
 						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
 							unsigned int depth_i = 0, transfsz_kvs = 0;
@@ -4562,7 +4607,6 @@ void acts_all::TOPP0_topkernelP10(
 									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 									transfsz_kvs += xload_kvs[n].size + REPORT__DRAM_ACCESS_LATENCY;
 									#endif 
-									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:sparse: xload_kvs["<<n<<"].size: "<<xload_kvs[n].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
 							} else {
 								depth_i = 0;
@@ -4573,14 +4617,25 @@ void acts_all::TOPP0_topkernelP10(
 									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 									transfsz_kvs += xload_kvs[0].size + REPORT__DRAM_ACCESS_LATENCY;
 									#endif 
-									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:dense: xload_kvs[0].size: "<<xload_kvs[0].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
 							}
 							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
 							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
 							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
-							// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:: instid: "<<globalparamsK.ACTSPARAMS_INSTID<<", sparse_readu: "<<sparse_readu<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<", source_partition: "<<source_partition<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl; }
+							#endif
+						}
+						#endif 
+						
+						// read vertices & vmasks
+						#ifdef TOP_ENABLE_BROADCASTUPROPS	
+						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
+						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
+							unsigned int transfsz_kvs = MERGEP0__broadcastACTVVs(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9, source_partition, globalparamsK, globalparamsV);
+							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
+							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
 							#endif
 						}
 						#endif 
@@ -4622,25 +4677,25 @@ void acts_all::TOPP0_topkernelP10(
 	unsigned int transfsz_kvs = 0;
 	if(globalparamsV.ENABLE_MERGECOMMAND == ON){	
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram0, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram0, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram1, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram1, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram2, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram2, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram3, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram3, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram4, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram4, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram5, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram5, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram6, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram6, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram7, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram7, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram8, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram8, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram9, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram9, vdram); 
 	}
 	#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST
 	collections0[SYNCPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
@@ -4777,7 +4832,6 @@ void acts_all::TOPP0_topkernelP11(
 	workload_t edgestats0[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];
 	collection_t collections0[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections0 complete	
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer1
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -4793,7 +4847,6 @@ void acts_all::TOPP0_topkernelP11(
 	workload_t edgestats1[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule1[BLOCKRAM_SIZE];
 	collection_t collections1[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections1 complete	
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer2
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -4809,7 +4862,6 @@ void acts_all::TOPP0_topkernelP11(
 	workload_t edgestats2[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule2[BLOCKRAM_SIZE];
 	collection_t collections2[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections2 complete	
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer3
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -4825,7 +4877,6 @@ void acts_all::TOPP0_topkernelP11(
 	workload_t edgestats3[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule3[BLOCKRAM_SIZE];
 	collection_t collections3[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections3 complete	
 	keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer4
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -4841,7 +4892,6 @@ void acts_all::TOPP0_topkernelP11(
 	workload_t edgestats4[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule4[BLOCKRAM_SIZE];
 	collection_t collections4[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections4 complete	
 	keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer5
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -4857,7 +4907,6 @@ void acts_all::TOPP0_topkernelP11(
 	workload_t edgestats5[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule5[BLOCKRAM_SIZE];
 	collection_t collections5[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections5 complete	
 	keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer6
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -4873,7 +4922,6 @@ void acts_all::TOPP0_topkernelP11(
 	workload_t edgestats6[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule6[BLOCKRAM_SIZE];
 	collection_t collections6[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections6 complete	
 	keyvalue_vbuffer_t vbuffer7[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer7
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -4889,7 +4937,6 @@ void acts_all::TOPP0_topkernelP11(
 	workload_t edgestats7[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule7[BLOCKRAM_SIZE];
 	collection_t collections7[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections7 complete	
 	keyvalue_vbuffer_t vbuffer8[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer8
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -4905,7 +4952,6 @@ void acts_all::TOPP0_topkernelP11(
 	workload_t edgestats8[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule8[BLOCKRAM_SIZE];
 	collection_t collections8[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections8 complete	
 	keyvalue_vbuffer_t vbuffer9[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer9
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -4921,7 +4967,6 @@ void acts_all::TOPP0_topkernelP11(
 	workload_t edgestats9[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule9[BLOCKRAM_SIZE];
 	collection_t collections9[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections9 complete	
 	keyvalue_vbuffer_t vbuffer10[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer10
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -4937,7 +4982,7 @@ void acts_all::TOPP0_topkernelP11(
 	workload_t edgestats10[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule10[BLOCKRAM_SIZE];
 	collection_t collections10[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections10 complete	
+	
 	pmask_dt pmask_curr[BLOCKRAM_CURRPMASK_SIZE];
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
@@ -5110,7 +5155,7 @@ void acts_all::TOPP0_topkernelP11(
 						if(globalposition.EN_REDUCE == ON){ enablereduce = ON; } else { enablereduce = OFF; }
 						
 						// read vertices & vmasks
-						#ifdef TOP_ENABLE_BROADCASTUPROPS	
+						#ifdef TOP_ENABLE_BROADCASTUPROPS_XXXXXXXXXXXX
 						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
 						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
 							unsigned int depth_i = 0, transfsz_kvs = 0;
@@ -5136,7 +5181,6 @@ void acts_all::TOPP0_topkernelP11(
 									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 									transfsz_kvs += xload_kvs[n].size + REPORT__DRAM_ACCESS_LATENCY;
 									#endif 
-									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:sparse: xload_kvs["<<n<<"].size: "<<xload_kvs[n].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
 							} else {
 								depth_i = 0;
@@ -5147,14 +5191,25 @@ void acts_all::TOPP0_topkernelP11(
 									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 									transfsz_kvs += xload_kvs[0].size + REPORT__DRAM_ACCESS_LATENCY;
 									#endif 
-									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:dense: xload_kvs[0].size: "<<xload_kvs[0].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
 							}
 							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
 							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
 							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
-							// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:: instid: "<<globalparamsK.ACTSPARAMS_INSTID<<", sparse_readu: "<<sparse_readu<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<", source_partition: "<<source_partition<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl; }
+							#endif
+						}
+						#endif 
+						
+						// read vertices & vmasks
+						#ifdef TOP_ENABLE_BROADCASTUPROPS	
+						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
+						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
+							unsigned int transfsz_kvs = MERGEP0__broadcastACTVVs(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10, source_partition, globalparamsK, globalparamsV);
+							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
+							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
 							#endif
 						}
 						#endif 
@@ -5197,27 +5252,27 @@ void acts_all::TOPP0_topkernelP11(
 	unsigned int transfsz_kvs = 0;
 	if(globalparamsV.ENABLE_MERGECOMMAND == ON){	
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram0, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram0, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram1, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram1, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram2, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram2, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram3, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram3, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram4, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram4, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram5, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram5, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram6, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram6, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram7, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram7, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram8, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram8, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram9, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram9, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram10, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram10, vdram); 
 	}
 	#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST
 	collections0[SYNCPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
@@ -5360,7 +5415,6 @@ void acts_all::TOPP0_topkernelP12(
 	workload_t edgestats0[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];
 	collection_t collections0[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections0 complete	
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer1
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -5376,7 +5430,6 @@ void acts_all::TOPP0_topkernelP12(
 	workload_t edgestats1[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule1[BLOCKRAM_SIZE];
 	collection_t collections1[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections1 complete	
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer2
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -5392,7 +5445,6 @@ void acts_all::TOPP0_topkernelP12(
 	workload_t edgestats2[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule2[BLOCKRAM_SIZE];
 	collection_t collections2[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections2 complete	
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer3
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -5408,7 +5460,6 @@ void acts_all::TOPP0_topkernelP12(
 	workload_t edgestats3[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule3[BLOCKRAM_SIZE];
 	collection_t collections3[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections3 complete	
 	keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer4
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -5424,7 +5475,6 @@ void acts_all::TOPP0_topkernelP12(
 	workload_t edgestats4[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule4[BLOCKRAM_SIZE];
 	collection_t collections4[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections4 complete	
 	keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer5
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -5440,7 +5490,6 @@ void acts_all::TOPP0_topkernelP12(
 	workload_t edgestats5[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule5[BLOCKRAM_SIZE];
 	collection_t collections5[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections5 complete	
 	keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer6
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -5456,7 +5505,6 @@ void acts_all::TOPP0_topkernelP12(
 	workload_t edgestats6[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule6[BLOCKRAM_SIZE];
 	collection_t collections6[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections6 complete	
 	keyvalue_vbuffer_t vbuffer7[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer7
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -5472,7 +5520,6 @@ void acts_all::TOPP0_topkernelP12(
 	workload_t edgestats7[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule7[BLOCKRAM_SIZE];
 	collection_t collections7[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections7 complete	
 	keyvalue_vbuffer_t vbuffer8[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer8
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -5488,7 +5535,6 @@ void acts_all::TOPP0_topkernelP12(
 	workload_t edgestats8[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule8[BLOCKRAM_SIZE];
 	collection_t collections8[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections8 complete	
 	keyvalue_vbuffer_t vbuffer9[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer9
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -5504,7 +5550,6 @@ void acts_all::TOPP0_topkernelP12(
 	workload_t edgestats9[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule9[BLOCKRAM_SIZE];
 	collection_t collections9[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections9 complete	
 	keyvalue_vbuffer_t vbuffer10[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer10
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -5520,7 +5565,6 @@ void acts_all::TOPP0_topkernelP12(
 	workload_t edgestats10[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule10[BLOCKRAM_SIZE];
 	collection_t collections10[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections10 complete	
 	keyvalue_vbuffer_t vbuffer11[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer11
 	#ifdef TOP_ENABLE_USEURAMS	
@@ -5536,7 +5580,7 @@ void acts_all::TOPP0_topkernelP12(
 	workload_t edgestats11[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule11[BLOCKRAM_SIZE];
 	collection_t collections11[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections11 complete	
+	
 	pmask_dt pmask_curr[BLOCKRAM_CURRPMASK_SIZE];
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
@@ -5709,7 +5753,7 @@ void acts_all::TOPP0_topkernelP12(
 						if(globalposition.EN_REDUCE == ON){ enablereduce = ON; } else { enablereduce = OFF; }
 						
 						// read vertices & vmasks
-						#ifdef TOP_ENABLE_BROADCASTUPROPS	
+						#ifdef TOP_ENABLE_BROADCASTUPROPS_XXXXXXXXXXXX
 						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
 						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
 							unsigned int depth_i = 0, transfsz_kvs = 0;
@@ -5735,7 +5779,6 @@ void acts_all::TOPP0_topkernelP12(
 									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 									transfsz_kvs += xload_kvs[n].size + REPORT__DRAM_ACCESS_LATENCY;
 									#endif 
-									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:sparse: xload_kvs["<<n<<"].size: "<<xload_kvs[n].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
 							} else {
 								depth_i = 0;
@@ -5746,14 +5789,25 @@ void acts_all::TOPP0_topkernelP12(
 									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 									transfsz_kvs += xload_kvs[0].size + REPORT__DRAM_ACCESS_LATENCY;
 									#endif 
-									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:dense: xload_kvs[0].size: "<<xload_kvs[0].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
 							}
 							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
 							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
 							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
-							// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:: instid: "<<globalparamsK.ACTSPARAMS_INSTID<<", sparse_readu: "<<sparse_readu<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<", source_partition: "<<source_partition<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl; }
+							#endif
+						}
+						#endif 
+						
+						// read vertices & vmasks
+						#ifdef TOP_ENABLE_BROADCASTUPROPS	
+						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
+						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
+							unsigned int transfsz_kvs = MERGEP0__broadcastACTVVs(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11, source_partition, globalparamsK, globalparamsV);
+							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
+							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
 							#endif
 						}
 						#endif 
@@ -5797,29 +5851,29 @@ void acts_all::TOPP0_topkernelP12(
 	unsigned int transfsz_kvs = 0;
 	if(globalparamsV.ENABLE_MERGECOMMAND == ON){	
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram0, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram0, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram1, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram1, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram2, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram2, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram3, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram3, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram4, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram4, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram5, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram5, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram6, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram6, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram7, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram7, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram8, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram8, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram9, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram9, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram10, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram10, vdram); 
 	
-		transfsz_kvs += MERGEP0_mergeVs(kvdram11, vdram); 
+		transfsz_kvs += MERGEP0_mergeACTVVs(kvdram11, vdram); 
 	}
 	#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST
 	collections0[SYNCPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 

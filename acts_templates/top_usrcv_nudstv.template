@@ -330,8 +330,8 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 	workload_t edgestats{{i}}[EDGESTATSRAM_SIZE];
 	keyvalue_t globalcapsule{{i}}[BLOCKRAM_SIZE];
 	collection_t collections{{i}}[COLLECTIONS_BUFFERSZ];	
-	// #pragma HLS ARRAY_PARTITION variable = collections{{i}} complete	
 	{%endif%}{%endfor%}
+	
 	pmask_dt pmask_curr[BLOCKRAM_CURRPMASK_SIZE];
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
@@ -504,7 +504,7 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 						if(globalposition.EN_REDUCE == ON){ enablereduce = ON; } else { enablereduce = OFF; }
 						
 						// read vertices & vmasks
-						#ifdef TOP_ENABLE_BROADCASTUPROPS	
+						#ifdef TOP_ENABLE_BROADCASTUPROPS_XXXXXXXXXXXX
 						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
 						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
 							unsigned int depth_i = 0, transfsz_kvs = 0;
@@ -530,7 +530,6 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 									transfsz_kvs += xload_kvs[n].size + REPORT__DRAM_ACCESS_LATENCY;
 									#endif 
-									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:sparse: xload_kvs["<<n<<"].size: "<<xload_kvs[n].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
 							} else {
 								depth_i = 0;
@@ -541,14 +540,25 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 									#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 									transfsz_kvs += xload_kvs[0].size + REPORT__DRAM_ACCESS_LATENCY;
 									#endif 
-									// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:dense: xload_kvs[0].size: "<<xload_kvs[0].size<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<endl; }
 								}
 							}
 							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
 							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
 							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
 							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
-							// if(globalparamsK.ACTSPARAMS_INSTID == 0 && globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 3){ cout<<"-------------- topkernelP:: instid: "<<globalparamsK.ACTSPARAMS_INSTID<<", sparse_readu: "<<sparse_readu<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<", source_partition: "<<source_partition<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl; }
+							#endif
+						}
+						#endif 
+						
+						// read vertices & vmasks
+						#ifdef TOP_ENABLE_BROADCASTUPROPS	
+						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
+						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
+							unsigned int transfsz_kvs = MERGE{{context['id']}}__broadcastACTVVs(vdram, {%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} source_partition, globalparamsK, globalparamsV);
+							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+							collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+							collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
+							collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
 							#endif
 						}
 						#endif 
@@ -583,7 +593,7 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 	unsigned int transfsz_kvs = 0;
 	if(globalparamsV.ENABLE_MERGECOMMAND == ON){	
 		{%for i in context['T_seq']%}{%if(i<n)%}	
-		transfsz_kvs += MERGE{{context['id']}}_mergeVs(kvdram{{i}}, vdram); 
+		transfsz_kvs += MERGE{{context['id']}}_mergeACTVVs(kvdram{{i}}, vdram); 
 		{%endif%}{%endfor%}
 	}
 	#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST

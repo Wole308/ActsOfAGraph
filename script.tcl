@@ -7,9 +7,12 @@
 
 # faketime -f "-1y" vitis_hls -f script.tcl
 
-open_project acts_vitishls
-set_top TOPP0_topkernelP1
+# open_project acts_vitishls
+open_project acts_vitishls3
+# set_top TOPP0_topkernelP1
 # set_top TOPP0_topkernelP9
+# set_top TOPP0_topkernelP6
+set_top TOPP0_topkernelP1
 add_files acts/acts_all.cpp
 open_solution "solution1"
 set_part {xcu280-fsvh2892-2L-e}
