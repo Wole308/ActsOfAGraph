@@ -66,6 +66,7 @@ public:
 	
 	void verifyresults(uint512_vec_dt * vbuffer, globalparams_t globalparams, universalparams_t universalparams);
 	void verifyresults2(uint512_vec_dt * vbuffer, globalparams_t globalparams, universalparams_t universalparams);
+	void verifyresults3(uint512_vec_dt * vbuffer, globalparams_t globalparams, universalparams_t universalparams);
 	
 private:
 	utility * utilityobj;

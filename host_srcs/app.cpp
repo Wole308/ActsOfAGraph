@@ -86,7 +86,7 @@ universalparams_t app::get_universalparams(std::string algo, unsigned int numite
 	universalparams.KVDATA_RANGE_POW = ceil(log2((double)(universalparams.NUM_VERTICES)));
 	universalparams.KVDATA_RANGE = universalparams.NUM_VERTICES;
 
-	universalparams.BATCH_RANGE = ((universalparams.NUM_VERTICES + (NUM_PEs - 1)) / NUM_PEs) + 1024; // NEWCHANGE NOW.
+	universalparams.BATCH_RANGE = ((universalparams.NUM_VERTICES + (NUM_PEs - 1)) / NUM_PEs) + 1024; 
 	universalparams.BATCH_RANGE_POW = 0; for(unsigned int t=0; t<64; t++){ if(pow (2, t) >= universalparams.BATCH_RANGE){ universalparams.BATCH_RANGE_POW = t; break; }}
 	universalparams.BATCH_RANGE_KVS = universalparams.BATCH_RANGE / VECTOR_SIZE;
 	cout<<"app: universalparams.BATCH_RANGE_POW: "<<universalparams.BATCH_RANGE_POW<<", universalparams.BATCH_RANGE: "<<universalparams.BATCH_RANGE<<", universalparams.BATCH_RANGE_KVS: "<<universalparams.BATCH_RANGE_KVS<<endl;
@@ -103,7 +103,8 @@ universalparams_t app::get_universalparams(std::string algo, unsigned int numite
 	universalparams.REDUCESZ_POW = universalparams.RED_SRAMSZ_POW; // NEWCHANGE
 	universalparams.REDUCESZ = (1 << universalparams.REDUCESZ_POW); 
 	
-	universalparams.REDUCEPARTITIONSZ = VDATA_PACKING_PERCHANNEL * NUM_ACTVVSPARTITIONS_PER_VPARTITION * VECTOR2_SIZE; 			// universalparams.RED_SRAMSZ * VDATA_PACKINGSIZE; // NEWCHANGE
+	// 8192 * 16;// 
+	universalparams.REDUCEPARTITIONSZ = VDATA_PACKING_PERCHANNEL * NUM_ACTVVSPARTITIONS_PER_VPARTITION * VECTOR2_SIZE; // CRITICAL FIXME NOW. 			// universalparams.RED_SRAMSZ * VDATA_PACKINGSIZE; // NEWCHANGE
 	if(universalparams.REDUCEPARTITIONSZ > universalparams.BATCH_RANGE){ universalparams.REDUCEPARTITIONSZ = universalparams.BATCH_RANGE; } ///// NEWCHANGE.
 	universalparams.REDUCEPARTITIONSZ_KVS2 = universalparams.REDUCEPARTITIONSZ / VECTOR2_SIZE;
 	if(universalparams.ALGORITHM == BFS){ 
@@ -115,7 +116,7 @@ universalparams_t app::get_universalparams(std::string algo, unsigned int numite
 	}
 	else { universalparams.NUMREDUCEPARTITIONS = ((universalparams.KVDATA_RANGE / NUM_PEs) + (universalparams.REDUCEPARTITIONSZ - 1)) / universalparams.REDUCEPARTITIONSZ; }
 	
-	universalparams.PROCESSPARTITIONSZ = VDATA_PACKING_PERCHANNEL * NUM_ACTVVSPARTITIONS_PER_VPARTITION * VECTOR2_SIZE; 			// VDATA_PACKING_PERCHANNEL * NUM_PEs * VECTOR2_SIZE; // NUM_VERTICES_PER_UPROPBLOCK * NUM_UPROPBLOCKS_PER_VPARTITION; // (=122880vertices/vpartition)(=7680kvs/vpartition)(=320kvs/vpartition/channel)
+	universalparams.PROCESSPARTITIONSZ = VDATA_PACKING_PERCHANNEL * NUM_ACTVVSPARTITIONS_PER_VPARTITION * VECTOR2_SIZE; // CRITICAL FIXME NOW. 			// VDATA_PACKING_PERCHANNEL * NUM_PEs * VECTOR2_SIZE; // NUM_VERTICES_PER_UPROPBLOCK * NUM_UPROPBLOCKS_PER_VPARTITION; // (=122880vertices/vpartition)(=7680kvs/vpartition)(=320kvs/vpartition/channel)
 	universalparams.PROCESSPARTITIONSZ_KVS2 = (universalparams.PROCESSPARTITIONSZ / VECTOR2_SIZE);
 	universalparams.NUMPROCESSEDGESPARTITIONS = ((universalparams.KVDATA_RANGE + (universalparams.PROCESSPARTITIONSZ - 1)) / universalparams.PROCESSPARTITIONSZ);
 	universalparams.NUMVERTEXBLOCKPARTITIONS = utilityobj->allignhigher_FACTOR(((universalparams.KVDATA_RANGE + (NUM_VERTICES_PER_UPROPBLOCK - 1)) / NUM_VERTICES_PER_UPROPBLOCK), VECTOR2_SIZE);
@@ -399,7 +400,8 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	globalparams.globalparamsE.BASEOFFSETKVS_SRCVERTICESDATA = globalparams.globalparamsE.BASEOFFSETKVS_VERTEXPTR + (globalparams.globalparamsE.SIZE_VERTEXPTRS / VALUEDATA_PACKINGSIZE) + 1 + universalparams.DRAMPADD_KVS;
 	globalparams.globalparamsE.SIZE_SRCVERTICESDATA = 0;
 	globalparams.globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA = globalparams.globalparamsV.BASEOFFSETKVS_VERTEXPTR + (globalparams.globalparamsV.SIZE_VERTEXPTRS / VALUEDATA_PACKINGSIZE) + 1 + universalparams.DRAMPADD_KVS;
-	globalparams.globalparamsV.SIZE_SRCVERTICESDATA = NUM_PEs * universalparams.NUMREDUCEPARTITIONS * universalparams.REDUCEPARTITIONSZ_KVS2 * VECTOR2_SIZE;
+	// globalparams.globalparamsV.SIZE_SRCVERTICESDATA = NUM_PEs * universalparams.NUMREDUCEPARTITIONS * universalparams.REDUCEPARTITIONSZ_KVS2 * VECTOR2_SIZE;
+	globalparams.globalparamsV.SIZE_SRCVERTICESDATA = 256 * VECTOR2_SIZE; 
 		if(globalparams.globalparamsV.SIZE_SRCVERTICESDATA > universalparams.MAXHBMCAPACITY_UINT32 - 4000000){ globalparams.globalparamsV.SIZE_SRCVERTICESDATA = universalparams.MAXHBMCAPACITY_UINT32 - 4000000; cout<<"app: RE-ASSIGN. globalparams.globalparamsV.SIZE_SRCVERTICESDATA. reduced to ensure fit."<<endl; } // FIXME.
 	globalparams.globalparamsM.BASEOFFSETKVS_SRCVERTICESDATA = globalparams.globalparamsM.BASEOFFSETKVS_VERTEXPTR + (globalparams.globalparamsM.SIZE_VERTEXPTRS / VALUEDATA_PACKINGSIZE) + 1 + universalparams.DRAMPADD_KVS;
 	globalparams.globalparamsM.SIZE_SRCVERTICESDATA = 0; 
@@ -484,7 +486,8 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	#endif 
 	globalparams = loadgraphobj->loadmessages(mdram, vdram, edges, kvbuffer, &container, globalparams, universalparams);
 	#endif
-
+	// exit(EXIT_SUCCESS); //
+	
 	// others
 	#ifdef _DEBUGMODE_HOSTPRINTS4
 	cout<<"app::experiements: resetting kvdram & kvdram workspaces..."<<endl;
@@ -569,7 +572,8 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 					num_edges_processed, vertexptrbuffer, edgedatabuffer, universalparams);
 					
 				float total__latency_ms = actshelperobj->get_results("app", graph_path, vdram, vdram, vdram, vdram, kvbuffer, universalparams);
-				actshelperobj->verifyresults2(vdram, globalparams.globalparamsV, universalparams);
+				// actshelperobj->verifyresults2(vdram, globalparams.globalparamsV, universalparams);
+				actshelperobj->verifyresults3(vdram, globalparams.globalparamsV, universalparams);
 				total_time_elapsed = total__latency_ms;
 			}
 		}

@@ -1113,7 +1113,7 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 	unsigned int num_LLPset = (num_LLPs + (universalparams.NUM_PARTITIONS - 1)) / universalparams.NUM_PARTITIONS;
 	
 	unsigned int _NUM_PEs = NUM_PEs;
-	unsigned int _num_vPs = num_vPs;
+	unsigned int _num_vPs = num_vPs; // 256, num_vPs; // CRIICAL REMOVEME NOW.
 	unsigned int _num_LLPs = num_LLPs;
 	unsigned int _num_LLPset = num_LLPset;
 	unsigned int _num_vblockPs = utilityobj->allignhigher_FACTOR(((universalparams.KVDATA_RANGE + (NUM_VERTICES_PER_UPROPBLOCK - 1)) / NUM_VERTICES_PER_UPROPBLOCK), VECTOR2_SIZE);
@@ -1143,7 +1143,7 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 	cout<<"loadedges:: [num_LLPs: "<<num_LLPs<<", num_LLPset: "<<num_LLPset<<", vsize_LLP: "<<vsize_LLP<<", num_vPs: "<<num_vPs<<", vsize_vP: "<<vsize_vP<<", INVALIDDATA: "<<INVALIDDATA<<"] "<<endl;
 	#endif 
 	
-	// partiition into HBM channels 
+	// [STAGE 0]: distributing edges into HBM channels
 	#ifdef _DEBUGMODE_HOSTPRINTS4
 	cout<<"loading edges [STAGE 0]: distributing edges into HBM channels "<<endl;
 	#endif 
@@ -1168,26 +1168,10 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 			if(edge.srcvid >= universalparams.KVDATA_RANGE || edge.dstvid >= universalparams.KVDATA_RANGE){ continue; } // edge.dstvid = edge.dstvid % universalparams.KVDATA_RANGE; } // CRIICAL FIXME.
 			#endif 
 			
-			/* unsigned int H = (edge.dstvid % (EDGEDATA_PACKINGSIZE * NUM_PEs)) / EDGEDATA_PACKINGSIZE;
-			unsigned int lvid = utilityobj->UTIL_GETLOCALVID(edge.dstvid, H);
-			unsigned int vid = utilityobj->UTIL_GETREALVID(lvid, H);
-			edge.dstvid = lvid; */
-			
-			// edge.dstvid = 9216;
-			// edge.dstvid = 5;
-			// edge.dstvid = 31;
-			// edge.dstvid = 35;
-			
 			unsigned int H = (edge.dstvid % (VDATA_PACKINGNUMSETS_OFFLINE * EDGEDATA_PACKINGSIZE * NUM_PEs)) / (VDATA_PACKINGNUMSETS_OFFLINE * EDGEDATA_PACKINGSIZE);
 			unsigned int lvid = utilityobj->UTIL_GETLOCALVID(edge.dstvid, H);
 			unsigned int vid = utilityobj->UTIL_GETREALVID(lvid, H);
 			edge.dstvid = lvid;
-			
-			// cout<<"loadedges:: H: "<<H<<endl;
-			// cout<<"loadedges:: lvid: "<<lvid<<endl;
-			// cout<<"loadedges:: vid: "<<vid<<endl;
-			// cout<<"loadedges:: H: "<<H<<endl;
-			// exit(EXIT_SUCCESS);
 			
 			#ifdef _DEBUGMODE_HOSTCHECKS3
 			utilityobj->checkoutofbounds("loadedges::ERROR 223::", H, NUM_PEs, edge.srcvid, edge.dstvid, vsize_vP);
@@ -1210,6 +1194,7 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 	#endif 
 	// exit(EXIT_SUCCESS);
 	
+	// [STAGE 1]: preparing edges
 	#ifdef _DEBUGMODE_HOSTPRINTS4
 	cout<<"loading edges [STAGE 1]: preparing edges 0..."<<endl;
 	#endif
@@ -1218,7 +1203,14 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 		for(unsigned int i=0; i<NUM_PEs; i++){
 			value_t * edges_vec = (value_t *)&edges[i][globalparams.globalparamsE.BASEOFFSETKVS_EDGES0DATA];
 			for(unsigned int t=0; t<edges_in_channel[i].size(); t++){
-				edges_vec[t] = edges_in_channel[i][t].dstvid; 
+				// edges_vec[t] = edges_in_channel[i][t].dstvid; 
+				
+				unsigned int lsrcvid = (edges_in_channel[i][t].srcvid % NUM_VERTICES_PER_UPROPBLOCK) & 0x00000FF;
+				unsigned int ldstvid = (edges_in_channel[i][t].dstvid) & 0x00FFFFFF;
+				edges_vec[t] = (lsrcvid << 24) | ldstvid;
+				#ifdef _DEBUGMODE_HOSTPRINTS4
+				if(i==0 && t<16){ cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~ loading edges["<<i<<"]["<<t<<"]: lsrcvid: "<<lsrcvid<<", ldstvid: "<<ldstvid<<", combo: "<<edges_vec[t]<<endl; }
+				#endif 
 			}
 		}
 		unsigned int max_e0=0; for(unsigned int i=0; i<_NUM_PEs; i++){ if(max_e0 < edges_in_channel[i].size() && utilityobj->isbufferused(i) == true){ max_e0 = edges_in_channel[i].size(); }}
@@ -1235,9 +1227,11 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 	#endif 
 	globalparams.globalparamsK.BASEOFFSETKVS_EDGESDATA = globalparams.globalparamsK.BASEOFFSETKVS_EDGES0DATA + globalparams.globalparamsK.SIZE_EDGES0;
 	globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA = globalparams.globalparamsE.BASEOFFSETKVS_EDGES0DATA + globalparams.globalparamsE.SIZE_EDGES0 / VECTOR2_SIZE; 
+	// exit(EXIT_SUCCESS);
 	
+	// [STAGE 2]: preparing edges..
 	#ifdef _DEBUGMODE_HOSTPRINTS4
-	cout<<"loading edges [STAGE 1]: preparing edges..."<<endl;
+	cout<<"loading edges [STAGE 2]: preparing edges..."<<endl;
 	#endif 
 	for(unsigned int i=0; i<_NUM_PEs; i++){
 		#ifdef _DEBUGMODE_HOSTPRINTS3
@@ -1295,17 +1289,39 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 					edgesin_srcvp_lldstvp_srcv2p[ll_p][edge.srcvid % EDGEDATA_PACKINGSIZE].push_back(edge);
 				}
 			}
-			// filling... ensure every [ll_p][srcv] have at least one element
-			for(unsigned int ll_p=0; ll_p<_num_LLPs; ll_p++){ 
-				for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ 
-					if(edgesin_srcvp_lldstvp_srcv2p[ll_p][v].size() == 0){ 
-						edge2_type edge; 
-						edge.srcvid = (v_p * vsize_vP) + v; 
-						edge.dstvid = ((ll_p / EDGEDATA_PACKINGSIZE) * (vsize_LLP * EDGEDATA_PACKINGSIZE)) + (ll_p % EDGEDATA_PACKINGSIZE);
-						edgesin_srcvp_lldstvp_srcv2p[ll_p][v].push_back(edge);
-					}
+			
+			unsigned int allzero = 0;
+			for(unsigned int t=0; t<_num_LLPs; t++){
+				for(unsigned int v=0; v<OPT_NUM_PARTITIONS; v++){
+					if(edgesin_srcvp_lldstvp_srcv2p[t][v].size() > 0){ allzero += 1; }
 				}
 			}
+			
+			// filling... ensure every [ll_p][srcv] have at least one element
+			if(allzero > 0){
+				for(unsigned int ll_p=0; ll_p<_num_LLPs; ll_p++){ 
+					for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ 
+						if(edgesin_srcvp_lldstvp_srcv2p[ll_p][v].size() == 0){ 
+							edge2_type edge; 
+							edge.srcvid = (v_p * vsize_vP) + v; 
+							edge.dstvid = ((ll_p / EDGEDATA_PACKINGSIZE) * (vsize_LLP * EDGEDATA_PACKINGSIZE)) + (ll_p % EDGEDATA_PACKINGSIZE);
+							edgesin_srcvp_lldstvp_srcv2p[ll_p][v].push_back(edge);
+						}
+					}
+				}
+			} else {
+				cout<<"--- loadedges:: all elements in edgesin_srcvp_lldstvp_srcv2p are zero. _num_LLPs: "<<_num_LLPs<<endl;
+				continue;
+			}
+			
+			// cout<<"-------"<<endl;
+			// for(unsigned int t=0; t<_num_LLPs; t++){
+				// for(unsigned int v=0; v<OPT_NUM_PARTITIONS; v++){
+					// cout<<"--- loadedges:: edgesin_srcvp_lldstvp_srcv2p["<<t<<"]["<<v<<"].size(): "<<edgesin_srcvp_lldstvp_srcv2p[t][v].size()<<endl;
+				// }
+			// }
+			// cout<<"-------"<<endl;
+			// vector<edge2_type> edgesin_srcvp_lldstvp_srcv2p[num_LLPs][OPT_NUM_PARTITIONS]; 
 			
 			// witihin a LLP, re-arrange by srcvids
 			if(debug){ cout<<"STAGE 4: preparing edges and loading into dram..."<<endl; }
@@ -1491,6 +1507,7 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 	} // iteration end: i(NUM_PEs) end here
 	// exit(EXIT_SUCCESS);
 	
+	// [STAGE 3]: calculating edge-map offsets (for ACTS edge-packing format)
 	#ifdef _DEBUGMODE_HOSTPRINTS4
 	cout<<"loading edges [STAGE 4]: calculating edge-map offsets..."<<endl;
 	#endif 
@@ -1506,7 +1523,7 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 		}
 	}
 	
-	// load vptrs into dram.
+	// [STAGE 4]: calculating vptrs and loading into dram (for coarse-CSR format)
 	#ifdef _DEBUGMODE_HOSTPRINTS4
 	cout<<"loading edges [STAGE 3]: calculating vptrs and loading into dram..."<<endl;
 	#endif 
@@ -1530,7 +1547,7 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 		vptrs[i][vptr_baseoffset + 0].key = 0;
 		for(unsigned int vblock_p=1; vblock_p<_num_vblockPs; vblock_p++){
 			vptrs[i][vptr_baseoffset + vblock_p].key = vptrs[i][vptr_baseoffset + vblock_p - 1].key + vptrs_temp[i][vblock_p - 1]; 
-			// if(i==0){ cout<<"--- loadedges:: vptrs["<<i<<"][vptr_baseoffset + "<<vblock_p<<"].key: "<<vptrs[i][vptr_baseoffset + vblock_p].key<<endl; }
+			if(i==0 && vblock_p < 64){ cout<<"--- loadedges:: vptrs["<<i<<"][vptr_baseoffset + "<<vblock_p<<"].key: "<<vptrs[i][vptr_baseoffset + vblock_p].key<<" [_num_vblockPs: "<<_num_vblockPs<<"]"<<endl; }
 		}
 		for(unsigned int vblock_p=_num_vblockPs; vblock_p<_num_vblockPs + universalparams.DRAMPADD_VPTRS; vblock_p++){ // dummy filling...
 			vptrs[i][vptr_baseoffset + vblock_p].key = vptrs[i][vptr_baseoffset + _num_vblockPs - 1].key; 

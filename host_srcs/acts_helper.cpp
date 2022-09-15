@@ -547,6 +547,20 @@ void acts_helper::verifyresults2(uint512_vec_dt * vbuffer, globalparams_t global
 	return;
 }
 
+void acts_helper::verifyresults3(uint512_vec_dt * vbuffer, globalparams_t globalparams, universalparams_t universalparams){
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<endl<<"acts_helper::verifyresults: verifying results... "<<endl;
+	#endif
+	
+	if(universalparams.ALGORITHM == BFS || universalparams.ALGORITHM == SSSP){} else { return; }
+	
+	unsigned int * vbufferINT32 = (unsigned int *)&vbuffer[globalparams.BASEOFFSETKVS_SRCVERTICESDATA];
+	#ifdef _DEBUGMODE_HOSTPRINTS4
+	utilityobj->printvalues("acts_helper::verifyresults: results after kernel run", vbufferINT32, 16);
+	#endif 
+	return;
+}
+
 
 
 

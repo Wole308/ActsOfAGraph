@@ -418,33 +418,22 @@ void utility::WRITEBITSTO_UINTV(unsigned int * data, unsigned int index, unsigne
 	return; 
 }
 unsigned int utility::UTIL_GETLOCALVID(unsigned int vid, unsigned int instid){
-	// unsigned int W = EDGEDATA_PACKINGSIZE * NUM_PEs;
-	// unsigned int y = vid / W; 
-	// unsigned int x = vid % EDGEDATA_PACKINGSIZE;
-	// unsigned int lvid = (y * EDGEDATA_PACKINGSIZE) + x;
-	// return lvid;
-	
 	unsigned int W = (VDATA_PACKINGNUMSETS_OFFLINE * EDGEDATA_PACKINGSIZE) * NUM_PEs;
 	unsigned int y = vid / W; 
 	unsigned int x = vid % (VDATA_PACKINGNUMSETS_OFFLINE * EDGEDATA_PACKINGSIZE);
 	unsigned int lvid = (y * (VDATA_PACKINGNUMSETS_OFFLINE * EDGEDATA_PACKINGSIZE)) + x;
-	
-	// cout<<"UTIL_GETLOCALVID:: vid: "<<vid<<endl;
-	// cout<<"UTIL_GETLOCALVID:: W: "<<W<<endl;
-	// cout<<"UTIL_GETLOCALVID:: y: "<<y<<endl;
-	// cout<<"UTIL_GETLOCALVID:: x: "<<x<<endl;
-	// cout<<"UTIL_GETLOCALVID:: lvid: "<<lvid<<endl;
-	// exit(EXIT_SUCCESS);
 	return lvid;
+	
+	// return (vid - instid) / NUM_PEs;
 }
 unsigned int utility::UTIL_GETREALVID(unsigned int lvid, unsigned int instid){
-	#pragma HLS INLINE
-
 	unsigned int W = (VDATA_PACKINGNUMSETS_OFFLINE * EDGEDATA_PACKINGSIZE) * NUM_PEs;
 	unsigned int y2 = lvid / (VDATA_PACKINGNUMSETS_OFFLINE * EDGEDATA_PACKINGSIZE);
 	unsigned int x2 = lvid % (VDATA_PACKINGNUMSETS_OFFLINE * EDGEDATA_PACKINGSIZE);		
 	unsigned int vid = (y2 * W) + (instid * (VDATA_PACKINGNUMSETS_OFFLINE * EDGEDATA_PACKINGSIZE)) + x2;
 	return vid;
+	
+	// return (lvid * NUM_PEs) + instid;
 }
 
 void utility::writedata(uint512_vec_dt * kvdram, unsigned int offset_kvs, unsigned int index, unsigned int data){

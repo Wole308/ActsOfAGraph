@@ -16,7 +16,9 @@ unsigned int MEMACCESS{{context['id']}}_process_and_buffer(unsigned int chunk_id
 
 void store(unsigned int chunk_id, uint512_dt *out, uint512_evec_dt in[VDATA_PACKINGSIZE], workload_t workload_kvs, unsigned int offsetkvs, unsigned int sizekvs, collection_t collections[COLLECTIONS_BUFFERSZ], globalparams_t globalparamsK);
 
-unsigned int MEMACCESS{{context['id']}}_write__process_base(unsigned int mode, unsigned int llp_set, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], stats_t stats[STATS_PACKINGSIZE][BLOCKRAM_SIZE], workload_t workload_kvs, collection_t collections[COLLECTIONS_BUFFERSZ], globalparams_t globalparamsK);
+unsigned int MEMACCESS{{context['id']}}_processEP_base(unsigned int mode, unsigned int llp_set, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], stats_t stats[STATS_PACKINGSIZE][BLOCKRAM_SIZE], workload_t workload_kvs, collection_t collections[COLLECTIONS_BUFFERSZ], globalparams_t globalparamsK, globalparams_t globalparamsE);
+	
+unsigned int MEMACCESS{{context['id']}}_processCSR_base(unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], stats_t stats[STATS_PACKINGSIZE][BLOCKRAM_SIZE], keyvalue_t globalcapsule[BLOCKRAM_GLOBALSTATS_SIZE], workload_t workload_kvs, collection_t collections[COLLECTIONS_BUFFERSZ], unsigned int voffset_kvs, globalparams_t globalparamsK, globalparams_t globalparamsE);
 	
 void reduce_update(unsigned int mode, bool enx, unsigned int v, unsigned int loc, keyvalue_t update_data, keyvalue_vbuffer_t vbuffer[MAX_BLOCKRAM_VDESTDATA_SIZE], unsigned int stats[BLOCKRAM_SIZE], unsigned int memory[1], globalparams_t globalparams);
 			
@@ -48,16 +50,6 @@ void MEMACCESS{{context['id']}}_readglobalstats(bool_type enable, uint512_dt * k
 void MEMACCESS{{context['id']}}_readhelperstats(uint512_dt * vdram, pmask_dt pmask[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs, unsigned int GraphIter, globalparams_t globalparams);
 
 void MEMACCESS{{context['id']}}_savehelperstats(uint512_dt * vdram, pmask_dt pmask[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs, unsigned int GraphIter, globalparams_t globalparams);
-
-// -------------------- workload (obsolete) -------------------- //
-
-// void MEMACCESS{{context['id']}}_readV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalposition_t globalposition, globalparams_t globalparams);
-
-// void MEMACCESS{{context['id']}}_saveV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalposition_t globalposition, globalparams_t globalparams);				
-
-// {%for n in context['T_seq']%}{%if(n>=1)%}
-// void MEMACCESS{{context['id']}}_readANDRVchunks{{n}}(bool_type enable, uint512_dt * kvdram, {%for i in context['T_seq']%}{%if(i<n)%}keyvalue_vbuffer_t buffer{{i}}[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],{%endif%}{%endfor%} batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalposition_t globalposition, globalparams_t globalparamsV);					
-// {%endif%}{%endfor%}
 
 
 

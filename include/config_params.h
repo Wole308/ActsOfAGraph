@@ -33,7 +33,9 @@ loadgraph.cpp
 #define CONFIG_RELEASE_FULLKERNEL // { (1) full kernel run fixed. }
 #define CONFIG_RELEASE_VERSION6 // readV, saveV
 #define CONFIG_RELEASE_VERSION7 // mask included
-// #define CONFIG_RELEASE_VERSION_DUPLICATEEDGES 
+
+// >>> host.cpp <<<
+#define CONFIG_RELEASE_VERSION_DUPLICATEEDGES 
 
 // >>> top_usrcv_nudstv.cpp <<<
 // #define TOP_ENABLE_SHRINKVBUFFER // { loadgraph.cpp }

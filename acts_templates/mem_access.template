@@ -540,21 +540,71 @@ void {{context['classname__acts']}}store(unsigned int chunk_id, uint512_dt *out,
 	
 }
  
-unsigned int {{context['classname__acts']}}MEMACCESS{{context['id']}}_write__process_base(unsigned int mode, unsigned int llp_set, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], stats_t stats[STATS_PACKINGSIZE][BLOCKRAM_SIZE], workload_t workload_kvs, collection_t collections[COLLECTIONS_BUFFERSZ], globalparams_t globalparamsK){
+unsigned int {{context['classname__acts']}}MEMACCESS{{context['id']}}_processEP_base(unsigned int mode, unsigned int llp_set, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], stats_t stats[STATS_PACKINGSIZE][BLOCKRAM_SIZE], workload_t workload_kvs, collection_t collections[COLLECTIONS_BUFFERSZ], globalparams_t globalparamsK, globalparams_t globalparamsE){
 	#pragma HLS INLINE OFF
 	uint512_evec_dt c1[BLOCKRAM_SIZE]; 
-	
 	unsigned int offsetkvs = 0, transfsz_kvs = 0;
 	
 	for (int chunk_id = 0; chunk_id < (workload_kvs.size + (BLOCKRAM_SIZE - 1)) / BLOCKRAM_SIZE; chunk_id++){
 		unsigned int sizekvs = MEMACCESS{{context['id']}}_process_and_buffer(chunk_id, mode, llp_set, kvdram, c1, vbuffer_source, stats, workload_kvs, collections, globalparamsK);
-		// cout<<"---------- _write__process_base: chunk_id: "<<chunk_id<<": sizekvs ("<<sizekvs<<"), of BLOCKRAM_SIZE ("<<BLOCKRAM_SIZE<<"). workload_kvs.size: "<<workload_kvs.size<<endl;
-		
+		// cout<<"---------- _processEP_base: chunk_id: "<<chunk_id<<": sizekvs ("<<sizekvs<<"), of BLOCKRAM_SIZE ("<<BLOCKRAM_SIZE<<"). workload_kvs.size: "<<workload_kvs.size<<endl;
 		store(chunk_id, kvdram, c1, workload_kvs, offsetkvs, sizekvs, collections, globalparamsK);
 		offsetkvs += sizekvs;
 		transfsz_kvs += sizekvs;
 	}
 	return transfsz_kvs;
+}
+
+unsigned int {{context['classname__acts']}}MEMACCESS{{context['id']}}_processCSR_base(unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], stats_t stats[STATS_PACKINGSIZE][BLOCKRAM_SIZE], keyvalue_t globalcapsule[BLOCKRAM_GLOBALSTATS_SIZE], workload_t workload_kvs, collection_t collections[COLLECTIONS_BUFFERSZ], unsigned int voffset_kvs, globalparams_t globalparamsK, globalparams_t globalparamsE){
+	unsigned int * T = (unsigned int *)&kvdram[globalparamsE.BASEOFFSETKVS_EDGES0DATA];
+	unsigned int numkvs_vertices_per_updateblock = ((1 << globalparamsK.POW_BATCHRANGE) / VDATA_PACKINGSIZE) / BLOCKRAM_UPDATEBLOCK_SIZE; 
+	unsigned int numkvs_updateblocks_per_reducepartition = (1 << MAX_RED_SRAMSZ_POW) / numkvs_vertices_per_updateblock;	
+	// unsigned int offsetkvs_stats = llp_set * numkvs_vertices_per_updateblock;	
+	
+	for(unsigned int t=workload_kvs.offset_begin; t<workload_kvs.offset_begin + workload_kvs.size; t++){
+		unsigned int combo = T[t];
+		unsigned int lsrcvid = combo >> 24;
+		unsigned int ldstvid = combo & 0x00FFFFFF;
+		
+		unsigned int llp_set = ldstvid / (globalparamsK.SIZEKVS2_REDUCEPARTITION * VECTOR2_SIZE);
+		unsigned int offsetkvs_stats = llp_set * numkvs_vertices_per_updateblock;	
+		#ifdef _DEBUGMODE_CHECKS3
+		actsutilityobj->checkoutofbounds("mem_access:_processCSR_base(2)", voffset_kvs + (lsrcvid/VDATA_PACKINGSIZE), globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION, NAp, NAp, NAp);
+		actsutilityobj->checkoutofbounds("mem_access:_processCSR_base(3)", 1 + llp_set, BLOCKRAM_GLOBALSTATS_SIZE, NAp, NAp, NAp);
+		#endif
+		
+		combo = vbuffer_source[lsrcvid % VDATA_PACKINGSIZE][voffset_kvs + (lsrcvid/VDATA_PACKINGSIZE)].data;
+		value_t mask; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS == ALGORITHMCLASS_ALLVERTEXISACTIVE){ mask = 1; } else { mask = combo & 0x1; }
+		value_t udata = combo >> 1;		
+		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+		if(mask == 1){ cout<<">>> PROCESS VECTOR [CSR-]:: PROCESS EDGE SEEN @ loc: "<<t<<", ldstvid: "<<ldstvid<<", lsrcvid: "<<lsrcvid<<", mask: "<<mask<<", llp_set: "<<llp_set<<", voffset_kvs: "<<voffset_kvs<<", srcvid: "<<voffset_kvs + (lsrcvid/VDATA_PACKINGSIZE) + (lsrcvid%VDATA_PACKINGSIZE)<<", dstvid*: "<<UTIL{{context['id']}}_GETREALVID(ldstvid, globalparamsK.ACTSPARAMS_INSTID)<<endl; }
+		#endif
+		
+		value_t res = process_func(udata, 1, globalparamsK.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvaluemask_t res_out; res_out.key = ldstvid; res_out.value = res; res_out.mask = 1;
+		
+		unsigned int datas2 = 0;
+		if(mask == 1){ 	
+			datas2 = (res_out.value << DSTVID_BITSZ) | res_out.key; 
+			// UTIL{{context['id']}}_WriteData(kvdram, workload_kvs.offset_dstbase, globalcapsule[1 + llp_set].key + globalcapsule[1 + llp_set].value, datas2);
+			UTIL{{context['id']}}_WriteData(kvdram, workload_kvs.offset_dstbase, ldstvid, datas2); //////////////////////////////// 
+			globalcapsule[1 + llp_set].value += 1;
+		}
+		
+		// collect stats
+		unsigned int loc = (ldstvid / VDATA_PACKINGSIZE) / (((1 << globalparamsK.POW_BATCHRANGE) / VDATA_PACKINGSIZE) / BLOCKRAM_UPDATEBLOCK_SIZE);
+		#ifdef _DEBUGMODE_CHECKS3
+		actsutilityobj->checkoutofbounds("actit:processCSR_base(112)::DEBUG CODE 112::1", loc, numkvs_updateblocks_per_reducepartition, ldstvid, globalparamsK.POW_BATCHRANGE, globalparamsK.NUM_REDUCEPARTITIONS); 
+		 actsutilityobj->checkoutofbounds("actit:processCSR_base(112b)::DEBUG CODE 112::1", loc, BLOCKRAM_UPDATEBLOCK_SIZE, ldstvid, globalparamsK.POW_BATCHRANGE, globalparamsK.NUM_REDUCEPARTITIONS); 
+		#endif	
+		stats[0][offsetkvs_stats + loc] = 0xFFFFFFFF; 
+	}
+	
+	// cout<<"----- mem_access:_processCSR_base: kvdram[globalparamsE.BASEOFFSETKVS_EDGES0DATA + "<<workload_kvs.offset_begin<<"]"<<endl;
+	// actsutilityobj->printvalues("----- mem_access:_processCSR_base: kvdram[globalparamsE.BASEOFFSETKVS_EDGES0DATA + workload_kvs.offset_begin] -----", (unsigned int *)&kvdram[globalparamsE.BASEOFFSETKVS_EDGES0DATA + workload_kvs.offset_begin], 16);
+	// exit(EXIT_SUCCESS);
+	
+	return 0;
 }
  
 void {{context['classname__acts']}}reduce_update(unsigned int mode, bool enx, unsigned int v, unsigned int loc, keyvalue_t update_data, keyvalue_vbuffer_t vbuffer[MAX_BLOCKRAM_VDESTDATA_SIZE], unsigned int stats[BLOCKRAM_SIZE], unsigned int memory[1], globalparams_t globalparams){
@@ -570,45 +620,34 @@ void {{context['classname__acts']}}reduce_update(unsigned int mode, bool enx, un
 	#ifdef _DEBUGMODE_CHECKS3
 	if(enx == true && loc >= (globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE)){ cout<<"reduce_update::ERROR SEEN @ loc("<<loc<<") >= globalparams.SIZEKVS2_REDUCEPARTITION("<<globalparams.SIZEKVS2_REDUCEPARTITION<<"). update_data.key: "<<update_data.key<<", update_data.value: "<<update_data.value<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
 	#endif 	
-	// #ifdef MEMACCESS_ENABLE_ATOMICREDUCE
-	// if(enx == true && mode == ACTSREDUCEMODE){ if(loc == memory[0]){ loc = (loc + 1) % 8; } memory[0] = loc; } // CRITICAL FIXME.
-	// #endif 	
+	#ifdef MEMACCESS_ENABLE_ATOMICREDUCE_____NOTUSED_____
+	if(enx == true && mode == ACTSREDUCEMODE){ if(loc == memory[0]){ loc = (loc + 1) % 8; } memory[0] = loc; } // CRITICAL FIXME.
+	#endif 	
 	#ifdef _DEBUGMODE_CHECKS3
 	if(enx == true){ actsutilityobj->checkoutofbounds("reducevector(114)::DEBUG CODE 113::1", loc, MAX_BLOCKRAM_VDESTDATA_SIZE, update_data.key, update_data.value, mode); }
 	#endif
 	
 	// read & reduce 
 	value_t new_combo; value_t mask; value_t vdata_tmp; value_t new_vprop;
-	if(mode == ACTSREDUCEMODE){ 
-		value_t combo = 0;
-		#ifdef MEMACCESS_ENABLE_ATOMICREDUCE
-		if(enx == true){ combo = vbuffer[loc].data; }
-		#else 
-		if(enx == true){ combo = loc & 0x10; } // CRITICAL FIXME.
-		#endif 
-		if(globalparams.ALGORITHMINFO_GRAPHALGORITHMCLASS == ALGORITHMCLASS_ALLVERTEXISACTIVE){ mask = 1; } else { 
-			mask = combo & 0x1; 	
-		}
-		
-		vdata_tmp = combo >> 1; 	
-		
-		new_vprop = reduce_func(vdata_tmp, vdata_tmp, update_data.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		new_combo = (new_vprop << 1) | 0x1;
-		if(enx == true && new_vprop != vdata_tmp){ en = true; } else { en = false; }
-	} else { new_combo = update_data.value; }
+	value_t combo = 0;
+	#ifdef MEMACCESS_ENABLE_ATOMICREDUCE
+	if(enx == true){ combo = vbuffer[loc].data; }
+	#else 
+	if(enx == true){ combo = loc & 0x10; } // CRITICAL FIXME.
+	#endif 
+	if(globalparams.ALGORITHMINFO_GRAPHALGORITHMCLASS == ALGORITHMCLASS_ALLVERTEXISACTIVE){ mask = 1; } else { mask = combo & 0x1; }
+	vdata_tmp = combo >> 1; 
+
+	new_vprop = reduce_func(vdata_tmp, vdata_tmp, update_data.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+	new_combo = (new_vprop << 1) | 0x1;
+	if(enx == true && new_vprop != vdata_tmp){ en = true; } else { en = false; }
 	
 	// write-back
-	if(en == true){ // REMOVEME.
-		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3  // REMOVEME.
+	if(en == true){ 
+		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 		if(mode == ACTSREDUCEMODE){ cout<<">>> REDUCE VECTOR:: REDUCE UPDATE SEEN @: v: "<<v<<", loc: "<<loc<<", mask: "<<mask<<", update_data.key: "<<update_data.key<<", update_data.value: "<<update_data.value<<", new_vprop: "<<new_vprop<<", new combo: "<<((new_vprop << 1) | 0x1)<<", dstvid: "<<UTIL{{context['id']}}_GETREALVID(update_data.key, globalparams.ACTSPARAMS_INSTID)<<", vdata_tmp: "<<vdata_tmp<<endl; }
 		#endif
-		
 		vbuffer[loc].data = new_combo;
-		
-		// unsigned int p_ = 0; 
-		// vbuffer[base + actvv_index[p_]].acttv.key = update_data.key;
-		// vbuffer[actvv_index[p_]].acttv.value = new_combo;
-		// actvv_index[p_] += 1;
 	}
 	return;
 }
@@ -658,60 +697,17 @@ void {{context['classname__acts']}}MEMACCESS{{context['id']}}_read__reduce(unsig
 		UTIL{{context['id']}}_ReadDatas(kvdram, workload_kvs.offset_srcbase + offset_kvs, datas);
 		
 		// decode
-		if(mode == ACTSREDUCEMODE){
-			for(int v = 0; v < VECTOR2_SIZE; v++){
-			#pragma HLS UNROLL 
-				if(datas[v] != INVALIDDATA){ updates_in[v].key = datas[v] & MASK_DSTVID; updates_in[v].value = (datas[v] >> DSTVID_BITSZ) & MASK_SRCVID; } // 16, 18, srcvid is upper, dstvid is lower 
-				else { updates_in[v].key = INVALIDDATA; updates_in[v].value = INVALIDDATA; }
-			}
-		} else {
-			#ifndef MEMACCESS_ENABLE_SEPERATEINTERFACEFORDRAMREADS
-			if(mode == READUPROPERTYMODE){
-				for(int v = 0; v < VECTOR2_SIZE; v++){
-				#pragma HLS UNROLL 
-					datas2[v] = datas[v]; // & 0xFFFFFFFE; 
-				}
-			} else if (mode == READVPROPERTYMODE) {
-				for(int v = 0; v < VECTOR2_SIZE; v++){
-				#pragma HLS UNROLL 
-					datas2[v] = datas[v] & 0xFFFFFFFE; 
-				}
-			} else {
-				for(int v = 0; v < VECTOR2_SIZE; v++){
-				#pragma HLS UNROLL 
-					datas2[v] = datas[v]; 
-				}
-			}
-			#endif 
+		for(int v = 0; v < VECTOR2_SIZE; v++){
+		#pragma HLS UNROLL 
+			if(datas[v] != INVALIDDATA){ updates_in[v].key = datas[v] & MASK_DSTVID; updates_in[v].value = (datas[v] >> DSTVID_BITSZ) & MASK_SRCVID; } // 16, 18, srcvid is upper, dstvid is lower 
+			else { updates_in[v].key = INVALIDDATA; updates_in[v].value = INVALIDDATA; }
 		}
 		
 		// prepare inputs
-		if(mode == ACTSREDUCEMODE){
-			for(int v = 0; v < VECTOR2_SIZE; v++){ 
-			#pragma HLS UNROLL 
-				index[v] = (updates_in[v].key / UPDATEDATA_PACKINGSIZE) % 8192; data[v] = updates_in[v]; if(updates_in[v].key != INVALIDDATA || updates_in[v].key >= 131072){ en[v] = true; } else { en[v] = false; } // NEWCHANGE NOW.
-				// index[v] = updates_in[v].key / UPDATEDATA_PACKINGSIZE; data[v] = updates_in[v]; if(updates_in[v].key != INVALIDDATA){ en[v] = true; } else { en[v] = false; }
-			}
-		} else {
-			#ifndef MEMACCESS_ENABLE_SEPERATEINTERFACEFORDRAMREADS
-			if(mode == READUPROPERTYMODE){
-				for(int v = 0; v < VECTOR2_SIZE; v++){ 
-				#pragma HLS UNROLL
-					index[v] = workload_kvs.offset_buffer_begin + ind; data[v].value = datas2[v]; en[v] = true;
-				}
-				ind += NUM_PEs;
-			} else { // if (mode == READVPROPERTYMODE) {
-				for(int v = 0; v < VECTOR2_SIZE; v++){ 
-				#pragma HLS UNROLL 
-					index[v] = workload_kvs.offset_buffer_begin + (offset_kvs - workload_kvs.offset_begin); data[v].value = datas2[v]; en[v] = true;
-					#ifdef _DEBUGMODE_CHECKS3
-					actsutilityobj->checkoutofbounds("read__reduce(112)::DEBUG CODE 112::1", index[v], MAX_BLOCKRAM_VDESTDATA_SIZE, v, workload_kvs.offset_buffer_begin, mode); 
-					actsutilityobj->checkoutofbounds("read__reduce(112)::DEBUG CODE 112::1", index[v], MAX_BLOCKRAM_VDESTDATA_SIZE, v, workload_kvs.offset_buffer_begin, offset_kvs); 
-					actsutilityobj->checkoutofbounds("read__reduce(112)::DEBUG CODE 112b::1", index[v], MAX_BLOCKRAM_VDESTDATA_SIZE, workload_kvs.offset_buffer_begin, offset_kvs, workload_kvs.offset_begin); 
-					#endif	
-				}
-			}
-			#endif 
+		for(int v = 0; v < VECTOR2_SIZE; v++){ 
+		#pragma HLS UNROLL 
+			index[v] = (updates_in[v].key / UPDATEDATA_PACKINGSIZE) % 8192; data[v] = updates_in[v]; if(updates_in[v].key != INVALIDDATA || updates_in[v].key >= 131072){ en[v] = true; } else { en[v] = false; } // NEWCHANGE NOW.
+			// index[v] = updates_in[v].key / UPDATEDATA_PACKINGSIZE; data[v] = updates_in[v]; if(updates_in[v].key != INVALIDDATA){ en[v] = true; } else { en[v] = false; }
 		}
 		
 		// reduce	
@@ -720,7 +716,6 @@ void {{context['classname__acts']}}MEMACCESS{{context['id']}}_read__reduce(unsig
 			reduce_update(mode, en[v], v, index[v], data[v], vbuffer_dest[v], stats[v], memory[v], globalparamsK);
 		}
 	}
-	// exit(EXIT_SUCCESS);
 }
 
 // -------------------- stats -------------------- //
@@ -892,19 +887,19 @@ unsigned int {{context['classname__acts_merge']}}MEMACCESS{{context['id']}}_get_
 			#ifdef MEMACCESS_ENABLE_SPARSEEDGEBLOCKS
 			vertexblock_id = vertexblock_ids[n % VECTOR2_SIZE][n / VECTOR2_SIZE];
 			// if(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID==14 && n<8){ cout<<"+++ _get_edgeblock_workload:: vertexblock_id: "<<vertexblock_id<<", (of "<<num_active_edgeblocks<<" workloads)"<<endl; }
-			if(vertexblock_id >= globalparamsE.SIZE_VERTEXPTRS){ vertexblock_id = 0; } // FIXME.
+			// if(vertexblock_id >= globalparamsE.SIZE_VERTEXPTRS){ vertexblock_id = 0; } // FIXME.
 			#ifdef _DEBUGMODE_CHECKS3
 			actsutilityobj->checkoutofbounds("_get_edgeblock_workload(0)", globalparamsE.BASEOFFSETKVS_VERTEXPTR + (vertexblock_id / VECTOR2_SIZE), ((1 << 28) / 4) / 16, vertexblock_id, num_its, n);
 			#endif
 			workload_kvs.offset_begin = UTIL{{context['id']}}_ReadData(dram, globalparamsE.BASEOFFSETKVS_VERTEXPTR, vertexblock_id) / EDGEDATA_PACKINGSIZE; 
-			workload_kvs.offset_end = UTIL{{context['id']}}_ReadData(dram, globalparamsE.BASEOFFSETKVS_VERTEXPTR, vertexblock_id + 1) / EDGEDATA_PACKINGSIZE; 
+			workload_kvs.offset_end = (UTIL{{context['id']}}_ReadData(dram, globalparamsE.BASEOFFSETKVS_VERTEXPTR, vertexblock_id + 1) + (EDGEDATA_PACKINGSIZE - 1)) / EDGEDATA_PACKINGSIZE; 
 			workload_kvs.size = workload_kvs.offset_end - workload_kvs.offset_begin;	
 			#ifdef _DEBUGMODE_CHECKS3
 			actsutilityobj->checkoutofbounds("_get_edgeblock_workload(2)", workload_kvs.offset_begin, ((1 << 28) / 4) / 16, NAp, NAp, n);
 			actsutilityobj->checkoutofbounds("_get_edgeblock_workload(3)", workload_kvs.size, ((1 << 28) / 4) / 16, NAp, NAp, n);
 			#endif
-			#ifdef _DEBUGMODE_KERNELPRINTS//4
-			cout<<"_get_edgeblock_workload/sparse_process:: active edge-block seen @ ["<<globalparamsK.ACTSPARAMS_INSTID<<"]["<<process_partition<<"]["<<llp_set<<"]: edgeblock-id: "<<vertexblock_id<<", edgeblock-map: "<<"["<<workload_kvs.offset_begin<<", "<<workload_kvs.size<<"]"<<endl;
+			#ifdef _DEBUGMODE_KERNELPRINTS4
+			cout<<"_get_edgeblock_workload/sparse_process:: active edge-block seen @ ["<<globalparamsK.ACTSPARAMS_INSTID<<"]["<<process_partition<<"]["<<llp_set<<"]: vertexblock_id: "<<vertexblock_id<<", workload: "<<"["<<workload_kvs.offset_begin<<", "<<workload_kvs.size<<"]"<<endl;
 			#endif 
 			#endif 
 		} else {
@@ -922,13 +917,8 @@ unsigned int {{context['classname__acts_merge']}}MEMACCESS{{context['id']}}_get_
 			cout<<"_get_edgeblock_workload/dense_process:: full edge-block seen @ ["<<globalparamsK.ACTSPARAMS_INSTID<<"]["<<process_partition<<"]: edgeblock-id: NAp, edgeblock-map: "<<"["<<workload_kvs.offset_begin<<", "<<workload_kvs.size<<", "<<workload_kvs.offset_end<<"]"<<endl;
 			#endif 
 		}
-	
+		
 		if(workload_kvs.offset_end < workload_kvs.offset_begin){ workload_kvs.size = 0; }
-		#ifdef _DEBUGMODE_KERNELPRINTS//4
-		if(n==0 && false){ if(sparse_process == true){ cout<<"<sparse><num_its:"<<num_its<<">:: "; } else { cout<<"<dense><num_its:"<<num_its<<">:: "; }
-		cout<<"<instid:"<<globalparamsK.ACTSPARAMS_INSTID<<"><v_p:"<<process_partition<<"><llp_set:"<<llp_set<<"><n:"<<n<<"><vertexblock_id:"<<vertexblock_id<<"><num_active_edgeblocks:"<<num_active_edgeblocks<<">:: ";
-		cout<<"[offset_begin: "<<workload_kvs.offset_begin<<", offset_end: "<<workload_kvs.offset_end<<", size: "<<workload_kvs.size<<"] "<<endl; }
-		#endif
 		xload_kvs[n] = workload_kvs;
 	}
 	return num_its;
