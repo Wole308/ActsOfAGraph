@@ -173,10 +173,10 @@ unsigned int {{context['classname__acts_util']}}UTIL{{context['id']}}_GETLOCALVI
 	// unsigned int x = vid % EDGEDATA_PACKINGSIZE;
 	// unsigned int lvid = (y * EDGEDATA_PACKINGSIZE) + x;
 	
-	unsigned int W = (VDATA_PACKING_PERCHANNEL * EDGEDATA_PACKINGSIZE) * NUM_PEs;
+	unsigned int W = (VDATA_SUBPARTITION_SIZE * EDGEDATA_PACKINGSIZE) * NUM_PEs;
 	unsigned int y = vid / W; 
-	unsigned int x = vid % (VDATA_PACKING_PERCHANNEL * EDGEDATA_PACKINGSIZE);
-	unsigned int lvid = (y * (VDATA_PACKING_PERCHANNEL * EDGEDATA_PACKINGSIZE)) + x;
+	unsigned int x = vid % (VDATA_SUBPARTITION_SIZE * EDGEDATA_PACKINGSIZE);
+	unsigned int lvid = (y * (VDATA_SUBPARTITION_SIZE * EDGEDATA_PACKINGSIZE)) + x;
 	
 	return lvid;
 }
@@ -188,10 +188,10 @@ unsigned int {{context['classname__acts_util']}}UTIL{{context['id']}}_GETREALVID
 	// unsigned int x2 = lvid % EDGEDATA_PACKINGSIZE;		
 	// unsigned int vid = (y2 * W) + (instid * EDGEDATA_PACKINGSIZE) + x2;
 	
-	unsigned int W = (VDATA_PACKING_PERCHANNEL * EDGEDATA_PACKINGSIZE) * NUM_PEs;
-	unsigned int y2 = lvid / (VDATA_PACKING_PERCHANNEL * EDGEDATA_PACKINGSIZE);
-	unsigned int x2 = lvid % (VDATA_PACKING_PERCHANNEL * EDGEDATA_PACKINGSIZE);		
-	unsigned int vid = (y2 * W) + (instid * (VDATA_PACKING_PERCHANNEL * EDGEDATA_PACKINGSIZE)) + x2;
+	unsigned int W = (VDATA_SUBPARTITION_SIZE * EDGEDATA_PACKINGSIZE) * NUM_PEs;
+	unsigned int y2 = lvid / (VDATA_SUBPARTITION_SIZE * EDGEDATA_PACKINGSIZE);
+	unsigned int x2 = lvid % (VDATA_SUBPARTITION_SIZE * EDGEDATA_PACKINGSIZE);		
+	unsigned int vid = (y2 * W) + (instid * (VDATA_SUBPARTITION_SIZE * EDGEDATA_PACKINGSIZE)) + x2;
 	
 	return vid;
 }

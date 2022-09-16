@@ -20,12 +20,12 @@ unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}__broadca
 	unsigned int transfsz_kvs = 0;
 	
 	for(unsigned int s=0; s<NUM_PEs; s++){
-		unsigned int v_offset = (((s * globalparamsV.NUM_REDUCEPARTITIONS) + source_partition) * NUM_ACTVVSPARTITIONS_PER_VPARTITION) * VDATA_PACKING_PERCHANNEL;
-		unsigned int offset = s * VDATA_PACKING_PERCHANNEL;
+		unsigned int v_offset = (((s * globalparamsV.NUM_REDUCEPARTITIONS) + source_partition) * NUM_SUBPARTITIONS_PER_VPARTITION) * VDATA_SUBPARTITION_SIZE;
+		unsigned int offset = s * VDATA_SUBPARTITION_SIZE;
 		
 		UTIL{{context['id']}}_ReadDatas(vdram, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICESDATA + v_offset + offset, datas);
 		unsigned int max = 0; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ if(datas[v]>max){ max = datas[v]; } }
-		if(max > VDATA_PACKING_PERCHANNEL){ max = 0; }
+		if(max > VDATA_SUBPARTITION_SIZE){ max = 0; }
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3 
 		// if(max>0){ for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<">>> BROADCAST:ACTVV BUFFER:: datas["<<v<<"]: "<<datas[v]<<endl; }}
 		if(max>0){ cout<<">>> BROADCAST:ACTVV BUFFER:: max: "<<max<<endl; }
@@ -49,7 +49,7 @@ unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}__broadca
 		}
 	}
 	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS//3
 	cout<<"broadcastACTVVs:: broadcast operation finished. "<<transfsz_kvs*VECTOR2_SIZE<<" vertices transferred."<<endl;  
 	#endif
 	// exit(EXIT_SUCCESS); // 
@@ -81,15 +81,15 @@ unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}_mergeACT
 	globalparams_t globalparamsv = UTIL{{context['id']}}_getglobalparams(vdram, 0);
 
 	MERGE{{context['id']}}_MERGEVSLOOP2: for(unsigned int reduce_partition=0; reduce_partition<globalparams.NUM_REDUCEPARTITIONS; reduce_partition++){
-		unsigned int v_offset = (globalparams.ACTSPARAMS_INSTID * globalparams.NUM_REDUCEPARTITIONS * NUM_ACTVVSPARTITIONS_PER_VPARTITION) * VDATA_PACKING_PERCHANNEL;
+		unsigned int v_offset = (globalparams.ACTSPARAMS_INSTID * globalparams.NUM_REDUCEPARTITIONS * NUM_SUBPARTITIONS_PER_VPARTITION) * VDATA_SUBPARTITION_SIZE;
 		
-		for(unsigned int p_=0; p_<NUM_ACTVVSPARTITIONS_PER_VPARTITION; p_++){
-			unsigned int offset = ((reduce_partition * NUM_ACTVVSPARTITIONS_PER_VPARTITION) + p_) * VDATA_PACKING_PERCHANNEL;
+		for(unsigned int p_=0; p_<NUM_SUBPARTITIONS_PER_VPARTITION; p_++){
+			unsigned int offset = ((reduce_partition * NUM_SUBPARTITIONS_PER_VPARTITION) + p_) * VDATA_SUBPARTITION_SIZE;
 
 			UTIL{{context['id']}}_ReadDatas(kvdram, globalparams.BASEOFFSETKVS_ACTIVEVERTICESDATA + offset, datas);
 			
 			unsigned int max = 0; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ if(datas[v]>max){ max = datas[v]; } }
-			if(max > VDATA_PACKING_PERCHANNEL || offset >= globalparams.SIZE_BATCHRANGE){ max = 0; }
+			if(max > VDATA_SUBPARTITION_SIZE || offset >= globalparams.SIZE_BATCHRANGE){ max = 0; }
 			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3 
 			// if(max>0){ for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<">>> MERGE:ACTVV BUFFER:: datas["<<v<<"]: "<<datas[v]<<endl; }}
 			if(max>0){ cout<<">>> MERGE:ACTVV BUFFER:: max: "<<max<<endl; }
@@ -145,15 +145,15 @@ unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}_copyACTV
 
 	for(unsigned int i=begin_computeunitid; i<(begin_computeunitid + num_compute_units); i++){
 		for(unsigned int reduce_partition=0; reduce_partition<globalparamsv.NUM_REDUCEPARTITIONS; reduce_partition++){
-			unsigned int v_offset = (i * globalparamsv.NUM_REDUCEPARTITIONS * NUM_ACTVVSPARTITIONS_PER_VPARTITION) * VDATA_PACKING_PERCHANNEL;
+			unsigned int v_offset = (i * globalparamsv.NUM_REDUCEPARTITIONS * NUM_SUBPARTITIONS_PER_VPARTITION) * VDATA_SUBPARTITION_SIZE;
 			
-			for(unsigned int p_=0; p_<NUM_ACTVVSPARTITIONS_PER_VPARTITION; p_++){
-				unsigned int offset = ((reduce_partition * NUM_ACTVVSPARTITIONS_PER_VPARTITION) + p_) * VDATA_PACKING_PERCHANNEL;
+			for(unsigned int p_=0; p_<NUM_SUBPARTITIONS_PER_VPARTITION; p_++){
+				unsigned int offset = ((reduce_partition * NUM_SUBPARTITIONS_PER_VPARTITION) + p_) * VDATA_SUBPARTITION_SIZE;
 
 				UTIL{{context['id']}}_ReadDatas(vdramA, globalparamsv.BASEOFFSETKVS_ACTIVEVERTICESDATA + v_offset + offset, datas);
 			
 				unsigned int max = 0; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ if(datas[v]>max){ max = datas[v]; } }
-				if(max > VDATA_PACKING_PERCHANNEL || offset >= globalparamsv.SIZE_BATCHRANGE){ max = 0; }
+				if(max > VDATA_SUBPARTITION_SIZE || offset >= globalparamsv.SIZE_BATCHRANGE){ max = 0; }
 				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3 
 				// if(max>0){ for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<">>> SYNC:ACTVV BUFFER:: datas["<<v<<"]: "<<datas[v]<<endl; }}
 				if(max>0){ cout<<">>> SYNC:ACTVV BUFFER:: max: "<<max<<endl; }

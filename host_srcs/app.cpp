@@ -104,7 +104,7 @@ universalparams_t app::get_universalparams(std::string algo, unsigned int numite
 	universalparams.REDUCESZ = (1 << universalparams.REDUCESZ_POW); 
 	
 	// 8192 * 16;// 
-	universalparams.REDUCEPARTITIONSZ = VDATA_PACKING_PERCHANNEL * NUM_ACTVVSPARTITIONS_PER_VPARTITION * VECTOR2_SIZE; // CRITICAL FIXME NOW. 			// universalparams.RED_SRAMSZ * VDATA_PACKINGSIZE; // NEWCHANGE
+	universalparams.REDUCEPARTITIONSZ = VDATA_SUBPARTITION_SIZE * NUM_SUBPARTITIONS_PER_VPARTITION * VECTOR2_SIZE; // CRITICAL FIXME NOW. 			// universalparams.RED_SRAMSZ * VDATA_PACKINGSIZE; // NEWCHANGE
 	if(universalparams.REDUCEPARTITIONSZ > universalparams.BATCH_RANGE){ universalparams.REDUCEPARTITIONSZ = universalparams.BATCH_RANGE; } ///// NEWCHANGE.
 	universalparams.REDUCEPARTITIONSZ_KVS2 = universalparams.REDUCEPARTITIONSZ / VECTOR2_SIZE;
 	if(universalparams.ALGORITHM == BFS){ 
@@ -116,7 +116,7 @@ universalparams_t app::get_universalparams(std::string algo, unsigned int numite
 	}
 	else { universalparams.NUMREDUCEPARTITIONS = ((universalparams.KVDATA_RANGE / NUM_PEs) + (universalparams.REDUCEPARTITIONSZ - 1)) / universalparams.REDUCEPARTITIONSZ; }
 	
-	universalparams.PROCESSPARTITIONSZ = VDATA_PACKING_PERCHANNEL * NUM_ACTVVSPARTITIONS_PER_VPARTITION * VECTOR2_SIZE; // CRITICAL FIXME NOW. 			// VDATA_PACKING_PERCHANNEL * NUM_PEs * VECTOR2_SIZE; // NUM_VERTICES_PER_UPROPBLOCK * NUM_UPROPBLOCKS_PER_VPARTITION; // (=122880vertices/vpartition)(=7680kvs/vpartition)(=320kvs/vpartition/channel)
+	universalparams.PROCESSPARTITIONSZ = VDATA_SUBPARTITION_SIZE * NUM_SUBPARTITIONS_PER_VPARTITION * VECTOR2_SIZE; // CRITICAL FIXME NOW. 			// VDATA_SUBPARTITION_SIZE * NUM_PEs * VECTOR2_SIZE; // NUM_VERTICES_PER_UPROPBLOCK * NUM_UPROPBLOCKS_PER_VPARTITION; // (=122880vertices/vpartition)(=7680kvs/vpartition)(=320kvs/vpartition/channel)
 	universalparams.PROCESSPARTITIONSZ_KVS2 = (universalparams.PROCESSPARTITIONSZ / VECTOR2_SIZE);
 	universalparams.NUMPROCESSEDGESPARTITIONS = ((universalparams.KVDATA_RANGE + (universalparams.PROCESSPARTITIONSZ - 1)) / universalparams.PROCESSPARTITIONSZ);
 	universalparams.NUMVERTEXBLOCKPARTITIONS = utilityobj->allignhigher_FACTOR(((universalparams.KVDATA_RANGE + (NUM_VERTICES_PER_UPROPBLOCK - 1)) / NUM_VERTICES_PER_UPROPBLOCK), VECTOR2_SIZE);
@@ -550,7 +550,8 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 				// maxlimit_actvedgeblocks_per_vpartition = 0; maxlimit_actvupropblocks_per_vpartition = 0; maxlimit_actvupdateblocks_per_vpartition = 0;
 				// maxlimit_actvedgeblocks_per_vpartition = 256; maxlimit_actvupropblocks_per_vpartition = 16; maxlimit_actvupdateblocks_per_vpartition = 64; 
 				// maxlimit_actvedgeblocks_per_vpartition = 1024; maxlimit_actvupropblocks_per_vpartition = 128; maxlimit_actvupdateblocks_per_vpartition = 64; 
-				maxlimit_actvedgeblocks_per_vpartition = 1024; maxlimit_actvupropblocks_per_vpartition = 1024; maxlimit_actvupdateblocks_per_vpartition = 64; 
+				maxlimit_actvedgeblocks_per_vpartition = 1024; maxlimit_actvupropblocks_per_vpartition = 1024; maxlimit_actvupdateblocks_per_vpartition = 0; 
+				// maxlimit_actvedgeblocks_per_vpartition = 1024; maxlimit_actvupropblocks_per_vpartition = 1024; maxlimit_actvupdateblocks_per_vpartition = 64; 
 				
 				// uprop needs fixing...
 				for(unsigned int i=0; i<NUM_PEs; i++){
@@ -595,12 +596,12 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	summary(GRAPH_PATH, vdram, globalparams.globalparamsV);
 	#endif 
 	
-	cout<<"------------------------------------------ app::printdataset: VDATA_PACKING_PERCHANNEL: "<<VDATA_PACKING_PERCHANNEL<<endl;
+	cout<<"------------------------------------------ app::printdataset: VDATA_SUBPARTITION_SIZE: "<<VDATA_SUBPARTITION_SIZE<<endl;
 	cout<<"------------------------------------------ app::printdataset: NUM_VERTICES_PER_UPROPBLOCK: "<<NUM_VERTICES_PER_UPROPBLOCK<<endl;
 	cout<<"------------------------------------------ app::printdataset: NUM_VERTICESKVS_PER_UPROPBLOCK: "<<NUM_VERTICESKVS_PER_UPROPBLOCK<<endl;
 	cout<<"------------------------------------------ app::printdataset: NUM_UPROPBLOCKS_PER_VPARTITION: "<<NUM_UPROPBLOCKS_PER_VPARTITION<<endl;
-	cout<<"------------------------------------------ app::printdataset: VDATA_PACKING_PERCHANNEL: "<<VDATA_PACKING_PERCHANNEL<<endl;
-	cout<<"------------------------------------------ app::printdataset: VDATA_PACKING_PERCHANNEL: "<<VDATA_PACKING_PERCHANNEL<<endl;
+	cout<<"------------------------------------------ app::printdataset: VDATA_SUBPARTITION_SIZE: "<<VDATA_SUBPARTITION_SIZE<<endl;
+	cout<<"------------------------------------------ app::printdataset: VDATA_SUBPARTITION_SIZE: "<<VDATA_SUBPARTITION_SIZE<<endl;
 
 	#ifdef _DEBUGMODE_HOSTPRINTS4
 	cout<<endl;

@@ -418,19 +418,19 @@ void utility::WRITEBITSTO_UINTV(unsigned int * data, unsigned int index, unsigne
 	return; 
 }
 unsigned int utility::UTIL_GETLOCALVID(unsigned int vid, unsigned int instid){
-	unsigned int W = (VDATA_PACKINGNUMSETS_OFFLINE * EDGEDATA_PACKINGSIZE) * NUM_PEs;
+	unsigned int W = (VDATA_SUBPARTITION_OFFLINESIZE * EDGEDATA_PACKINGSIZE) * NUM_PEs;
 	unsigned int y = vid / W; 
-	unsigned int x = vid % (VDATA_PACKINGNUMSETS_OFFLINE * EDGEDATA_PACKINGSIZE);
-	unsigned int lvid = (y * (VDATA_PACKINGNUMSETS_OFFLINE * EDGEDATA_PACKINGSIZE)) + x;
+	unsigned int x = vid % (VDATA_SUBPARTITION_OFFLINESIZE * EDGEDATA_PACKINGSIZE);
+	unsigned int lvid = (y * (VDATA_SUBPARTITION_OFFLINESIZE * EDGEDATA_PACKINGSIZE)) + x;
 	return lvid;
 	
 	// return (vid - instid) / NUM_PEs;
 }
 unsigned int utility::UTIL_GETREALVID(unsigned int lvid, unsigned int instid){
-	unsigned int W = (VDATA_PACKINGNUMSETS_OFFLINE * EDGEDATA_PACKINGSIZE) * NUM_PEs;
-	unsigned int y2 = lvid / (VDATA_PACKINGNUMSETS_OFFLINE * EDGEDATA_PACKINGSIZE);
-	unsigned int x2 = lvid % (VDATA_PACKINGNUMSETS_OFFLINE * EDGEDATA_PACKINGSIZE);		
-	unsigned int vid = (y2 * W) + (instid * (VDATA_PACKINGNUMSETS_OFFLINE * EDGEDATA_PACKINGSIZE)) + x2;
+	unsigned int W = (VDATA_SUBPARTITION_OFFLINESIZE * EDGEDATA_PACKINGSIZE) * NUM_PEs;
+	unsigned int y2 = lvid / (VDATA_SUBPARTITION_OFFLINESIZE * EDGEDATA_PACKINGSIZE);
+	unsigned int x2 = lvid % (VDATA_SUBPARTITION_OFFLINESIZE * EDGEDATA_PACKINGSIZE);		
+	unsigned int vid = (y2 * W) + (instid * (VDATA_SUBPARTITION_OFFLINESIZE * EDGEDATA_PACKINGSIZE)) + x2;
 	return vid;
 	
 	// return (lvid * NUM_PEs) + instid;

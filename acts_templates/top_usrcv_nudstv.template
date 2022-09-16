@@ -306,6 +306,8 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 {%endif%}{%endfor%}
 #pragma HLS DATA_PACK variable = vdram
 
+	cout<<"--+++=================)))))))))))))))))=--- globalcapsu topkernelP 564. NUM_UPROPBLOCKS_PER_VPARTITION: "<<NUM_UPROPBLOCKS_PER_VPARTITION<<endl;
+
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
@@ -579,7 +581,8 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 	#ifdef _DEBUGMODE_STATS
 	actsutilityobj->clearglobalvars();
 	#endif
-	// exit(EXIT_SUCCESS); //
+	// cout<<"--+++=================)))))))))))))))))=--- globalcapsu topkernelP 564. NUM_UPROPBLOCKS_PER_VPARTITION: "<<NUM_UPROPBLOCKS_PER_VPARTITION<<endl;
+	exit(EXIT_SUCCESS); //
 	return;
 }
 }
