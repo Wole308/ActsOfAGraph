@@ -94,7 +94,7 @@ unsigned int acts_helper::extract_stats(uint512_vec_dt * vdram, uint512_vec_dt *
 	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){ for(unsigned int t=0; t<myuniversalparams.NUMPROCESSEDGESPARTITIONS; t++){ iteration_stats[iter][t].A = 0; iteration_stats[iter][t].B = 0; }}
 	bool onetime = false;
 	
-	for(GraphIter=0; GraphIter<MAXNUMGRAPHITERATIONS; GraphIter++){
+	for(GraphIter=0; GraphIter<MAXNUMGRAPHITERATIONS; GraphIter++){ // MAXNUMGRAPHITERATIONS
 		for(unsigned int i=0; i<MAXNUM_PEs; i++){ for(unsigned int t=0; t<MAXNUM_LLPSETs; t++){ indexes[i][t] = 0; }}
 		
 		// processing phase 
@@ -114,6 +114,7 @@ unsigned int acts_helper::extract_stats(uint512_vec_dt * vdram, uint512_vec_dt *
 			
 			for(unsigned int k=0; k<edges_size; k++){
 				unsigned int dstvid = edgedatabuffer[vptr_begin + k].dstvid;
+				if(GraphIter==0){ cout<<"---- acts_helper:: vid: "<<vid<<", dstvid: "<<dstvid<<endl; }
 				
 				// if(universalparams.ALGORITHM == BFS || universalparams.ALGORITHM == SSSP)
 				if(myuniversalparams.ALGORITHM == BFS){
@@ -137,6 +138,7 @@ unsigned int acts_helper::extract_stats(uint512_vec_dt * vdram, uint512_vec_dt *
 				edgesprocessed_totals[GraphIter] += 1; 
 			}			
 		}
+		// exit(EXIT_SUCCESS);
 		
 		// apply phase 
 		unsigned int v_p = 0;
@@ -159,6 +161,7 @@ unsigned int acts_helper::extract_stats(uint512_vec_dt * vdram, uint512_vec_dt *
 				// load vpartition & upropblock stats
 				unsigned int v_p_ = vid / myuniversalparams.PROCESSPARTITIONSZ;
 				unsigned int lvid = vid - (v_p_ * myuniversalparams.PROCESSPARTITIONSZ);
+				if(GraphIter==0){ cout<<"---- acts_helper:: vid: "<<vid<<", lvid: "<<lvid<<", v_p_: "<<v_p_<<", -: "<<NAp<<endl; }
 			
 				if(upropblock_stats[GraphIter+1][v_p_][lvid / NUM_VERTICES_PER_UPROPBLOCK] == 0
 					// && H==7

@@ -1203,12 +1203,10 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 		for(unsigned int i=0; i<NUM_PEs; i++){
 			value_t * edges_vec = (value_t *)&edges[i][globalparams.globalparamsE.BASEOFFSETKVS_EDGES0DATA];
 			for(unsigned int t=0; t<edges_in_channel[i].size(); t++){
-				// edges_vec[t] = edges_in_channel[i][t].dstvid; 
-				
 				unsigned int lsrcvid = (edges_in_channel[i][t].srcvid % NUM_VERTICES_PER_UPROPBLOCK) & 0x00000FF;
 				unsigned int ldstvid = (edges_in_channel[i][t].dstvid) & 0x00FFFFFF;
 				edges_vec[t] = (lsrcvid << 24) | ldstvid;
-				#ifdef _DEBUGMODE_HOSTPRINTS4
+				#ifdef _DEBUGMODE_HOSTPRINTS//4
 				if(i==0 && t<16){ cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~ loading edges["<<i<<"]["<<t<<"]: lsrcvid: "<<lsrcvid<<", ldstvid: "<<ldstvid<<", combo: "<<edges_vec[t]<<endl; }
 				#endif 
 			}
