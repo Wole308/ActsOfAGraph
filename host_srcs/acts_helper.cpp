@@ -93,7 +93,7 @@ unsigned int acts_helper::extract_stats(uint512_vec_dt * vdram, uint512_vec_dt *
 	unsigned int num_iters = MAXNUMGRAPHITERATIONS; if(myuniversalparams.NUM_ITERATIONS < 5){ num_iters = myuniversalparams.NUM_ITERATIONS; }
 	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){ for(unsigned int t=0; t<myuniversalparams.NUMPROCESSEDGESPARTITIONS; t++){ iteration_stats[iter][t].A = 0; iteration_stats[iter][t].B = 0; }}
 	bool onetime = false;
-	
+
 	for(GraphIter=0; GraphIter<MAXNUMGRAPHITERATIONS; GraphIter++){ // MAXNUMGRAPHITERATIONS
 		for(unsigned int i=0; i<MAXNUM_PEs; i++){ for(unsigned int t=0; t<MAXNUM_LLPSETs; t++){ indexes[i][t] = 0; }}
 		
@@ -114,7 +114,7 @@ unsigned int acts_helper::extract_stats(uint512_vec_dt * vdram, uint512_vec_dt *
 			
 			for(unsigned int k=0; k<edges_size; k++){
 				unsigned int dstvid = edgedatabuffer[vptr_begin + k].dstvid;
-				if(GraphIter==0){ cout<<"---- acts_helper:: vid: "<<vid<<", dstvid: "<<dstvid<<endl; }
+				if(GraphIter<2){ cout<<"---- acts_helper:: iter: "<<GraphIter<<", srcvid: "<<vid<<", dstvid: "<<dstvid<<" ----"<<endl; }
 				
 				// if(universalparams.ALGORITHM == BFS || universalparams.ALGORITHM == SSSP)
 				if(myuniversalparams.ALGORITHM == BFS){
@@ -161,7 +161,7 @@ unsigned int acts_helper::extract_stats(uint512_vec_dt * vdram, uint512_vec_dt *
 				// load vpartition & upropblock stats
 				unsigned int v_p_ = vid / myuniversalparams.PROCESSPARTITIONSZ;
 				unsigned int lvid = vid - (v_p_ * myuniversalparams.PROCESSPARTITIONSZ);
-				if(GraphIter==0){ cout<<"---- acts_helper:: vid: "<<vid<<", lvid: "<<lvid<<", v_p_: "<<v_p_<<", -: "<<NAp<<endl; }
+				// if(GraphIter<2){ cout<<"---- acts_helper:: iter: "<<GraphIter<<", vid: "<<vid<<", lvid: "<<lvid<<", v_p_: "<<v_p_<<", -: "<<NAp<<endl; }
 			
 				if(upropblock_stats[GraphIter+1][v_p_][lvid / NUM_VERTICES_PER_UPROPBLOCK] == 0
 					// && H==7
@@ -243,6 +243,7 @@ unsigned int acts_helper::extract_stats(uint512_vec_dt * vdram, uint512_vec_dt *
 						
 						
 						unsigned int block_id = (v_p * NUM_UPROPBLOCKS_PER_VPARTITION) + t;
+						if(iter < 2){ cout<<"################ acts_helper: iter: "<<iter<<", vertex_block_id: "<<block_id<<endl; }
 						tempvdram[vdram_BASEOFFSETKVS_ACTIVEUPROPBLOCKS + offset + (index / VECTOR2_SIZE)].data[index % VECTOR2_SIZE] = block_id; 
 						for(unsigned int i=0; i<NUM_PEs; i++){ 
 							tempkvdram[i][kvdram_BASEOFFSETKVS_ACTIVEUPROPBLOCKS + offset + (index / VECTOR2_SIZE)].data[index % VECTOR2_SIZE] = block_id; 

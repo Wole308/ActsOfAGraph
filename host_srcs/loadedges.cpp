@@ -1203,6 +1203,20 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 		for(unsigned int i=0; i<NUM_PEs; i++){
 			value_t * edges_vec = (value_t *)&edges[i][globalparams.globalparamsE.BASEOFFSETKVS_EDGES0DATA];
 			for(unsigned int t=0; t<edges_in_channel[i].size(); t++){
+				
+				
+				
+				
+				unsigned int vertexblockid = edges_in_channel[i][t].srcvid / NUM_VERTICES_PER_UPROPBLOCK;
+				// unsigned int vertexblockid = edges_in_channel[i][t].srcvid / universalparams.PROCESSPARTITIONSZ;
+				if(edges_in_channel[i][t].srcvid == 42518 || edges_in_channel[i][t].srcvid == 96136){
+					cout<<"--- edges_in_channel["<<i<<"]["<<t<<"].srcvid: "<<edges_in_channel[i][t].srcvid<<", edges_in_channel["<<i<<"]["<<t<<"].dstvid: "<<edges_in_channel[i][t].dstvid<<", vertexblockid: "<<vertexblockid<<endl;
+				}
+				
+				
+				
+				
+				
 				unsigned int lsrcvid = (edges_in_channel[i][t].srcvid % NUM_VERTICES_PER_UPROPBLOCK) & 0x00000FF;
 				unsigned int ldstvid = (edges_in_channel[i][t].dstvid) & 0x00FFFFFF;
 				edges_vec[t] = (lsrcvid << 24) | ldstvid;

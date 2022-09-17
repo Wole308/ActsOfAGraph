@@ -641,7 +641,7 @@ unsigned int {{context['classname__acts']}}MEMACCESS{{context['id']}}_processEP_
 	// cout<<"MEMACCESS{{context['id']}}_processCSR_base ended..... 343"<<endl;
 	return (transfsz / VECTOR2_SIZE);
 } */
-unsigned int {{context['classname__acts']}}MEMACCESS{{context['id']}}_processCSR_base(unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], stats_t stats[STATS_PACKINGSIZE][BLOCKRAM_SIZE], keyvalue_t globalcapsule[BLOCKRAM_GLOBALSTATS_SIZE], workload_t workload_kvs, collection_t collections[COLLECTIONS_BUFFERSZ], unsigned int voffset_kvs, globalparams_t globalparamsK, globalparams_t globalparamsE){
+unsigned int {{context['classname__acts']}}MEMACCESS{{context['id']}}_processCSR_base(unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], stats_t stats[STATS_PACKINGSIZE][BLOCKRAM_SIZE], keyvalue_t globalcapsule[BLOCKRAM_GLOBALSTATS_SIZE], workload_t workload_kvs, collection_t collections[COLLECTIONS_BUFFERSZ], unsigned int voffset_kvs, unsigned int vertexblock_id, sweepparams_t sweepparams, globalparams_t globalparamsK, globalparams_t globalparamsE){				
 	unsigned int * T = (unsigned int *)&kvdram[globalparamsE.BASEOFFSETKVS_EDGES0DATA];
 	uint512_ivec_dt * KV = (uint512_ivec_dt *)&kvdram[0];
 	unsigned int numkvs_vertices_per_updateblock = ((1 << globalparamsK.POW_BATCHRANGE) / VDATA_PACKINGSIZE) / BLOCKRAM_UPDATEBLOCK_SIZE; 
@@ -678,6 +678,8 @@ unsigned int {{context['classname__acts']}}MEMACCESS{{context['id']}}_processCSR
 		value_t mask; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS == ALGORITHMCLASS_ALLVERTEXISACTIVE){ mask = 1; } else { mask = combo & 0x1; }
 		value_t udata = combo >> 1;		
 		// #ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+		unsigned int vid_wrtglobal = vertexblock_id * NUM_VERTICESKVS_PER_UPROPBLOCK * VECTOR2_SIZE;
+		if(mask == 1){ cout<<">>> PROCESS[CSR-]: PROCESS EDGE SEEN @["<<globalparamsK.ACTSPARAMS_INSTID<<"]: vid[w.r.t. vec]: "<<NAp<<", vid[w.r.t vpartitionsz]: "<<NAp<<", vid[w.r.t hbm]: "<<NAp<<", vid[w.r.t globe]: "<<vid_wrtglobal<<endl; }			
 		if(mask == 1){ cout<<">>> PROCESS[CSR-]: PROCESS EDGE SEEN @["<<globalparamsK.ACTSPARAMS_INSTID<<"] loc: "<<t<<", ldstvid: "<<ldstvid<<", lsrcvid: "<<lsrcvid<<", dstvid: "<<dstvid<<", mask: "<<mask<<", srcvid: "<<voffset_kvs + (lsrcvid/VDATA_PACKINGSIZE) + (lsrcvid%VDATA_PACKINGSIZE)<<", dstvid*: "<<UTIL{{context['id']}}_GETREALVID(ldstvid, globalparamsK.ACTSPARAMS_INSTID)<<endl; }
 		if(mask == 1 && false){ cout<<">>> PROCESS[CSR-]: PROCESS EDGE SEEN @["<<globalparamsK.ACTSPARAMS_INSTID<<"] reduce_partition: "<<reduce_partition<<", voffset_kvs: "<<voffset_kvs<<endl; }
 		// #endif
@@ -728,7 +730,7 @@ unsigned int {{context['classname__acts']}}MEMACCESS{{context['id']}}_processCSR
 	return (transfsz / VECTOR2_SIZE);
 }
 
-void {{context['classname__acts']}}reduce_update(unsigned int mode, bool enx, unsigned int v, unsigned int loc, keyvalue_t update_data, keyvalue_vbuffer_t vbuffer[MAX_BLOCKRAM_VDESTDATA_SIZE], unsigned int stats[BLOCKRAM_SIZE], unsigned int memory[1], globalparams_t globalparams){
+void {{context['classname__acts']}}reduce_update(unsigned int mode, bool enx, unsigned int v, unsigned int loc, keyvalue_t update_data, keyvalue_vbuffer_t vbuffer[MAX_BLOCKRAM_VDESTDATA_SIZE], unsigned int stats[BLOCKRAM_SIZE], unsigned int memory[1], sweepparams_t sweepparams, globalparams_t globalparams){
 	#pragma HLS INLINE
 
 	// flag 
@@ -768,6 +770,9 @@ void {{context['classname__acts']}}reduce_update(unsigned int mode, bool enx, un
 	// write-back
 	if(en == true){ 
 		// #ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+		unsigned int vid_wrtvpartitionsz = (loc * EDGEDATA_PACKINGSIZE) + v;
+		unsigned int voffset = sweepparams.source_partition * globalparams.SIZEKVS2_REDUCEPARTITION * VECTOR2_SIZE;
+		cout<<">>> REDUCE:: REDUCE UPDATE SEEN @["<<globalparams.ACTSPARAMS_INSTID<<"]: vid[w.r.t. vec]: "<<loc<<", vid[w.r.t vpartitionsz]: "<<vid_wrtvpartitionsz<<", vid[w.r.t hbm]: "<<voffset + vid_wrtvpartitionsz<<", vid[w.r.t globe]: "<<UTIL{{context['id']}}_GETREALVID((voffset + vid_wrtvpartitionsz), globalparams.ACTSPARAMS_INSTID)<<endl; 		
 		cout<<">>> REDUCE:: REDUCE UPDATE SEEN @["<<globalparams.ACTSPARAMS_INSTID<<"]: v: "<<v<<", loc: "<<loc<<", mask: "<<mask<<", update_data.key: "<<update_data.key<<", update_data.value: "<<update_data.value<<", new_vprop: "<<new_vprop<<", new combo: "<<((new_vprop << 1) | 0x1)<<", dstvid: "<<UTIL{{context['id']}}_GETREALVID(update_data.key, globalparams.ACTSPARAMS_INSTID)<<endl; 
 		if(false){ cout<<">>> REDUCE:: REDUCE UPDATE SEEN @["<<globalparams.ACTSPARAMS_INSTID<<"]: vdata_tmp: "<<vdata_tmp<<endl; }
 		// #endif
@@ -777,7 +782,7 @@ void {{context['classname__acts']}}reduce_update(unsigned int mode, bool enx, un
 }
 
 void {{context['classname__acts']}}MEMACCESS{{context['id']}}_read__reduce(unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], stats_t stats[STATS_PACKINGSIZE][BLOCKRAM_SIZE],
-			workload_t workload_kvs, collection_t collections[COLLECTIONS_BUFFERSZ], globalparams_t globalparamsK){
+			workload_t workload_kvs, collection_t collections[COLLECTIONS_BUFFERSZ], sweepparams_t sweepparams, globalparams_t globalparamsK){
 	#pragma HLS INLINE OFF
 	
 	unsigned int memory[VECTOR2_SIZE][1];
@@ -837,7 +842,7 @@ void {{context['classname__acts']}}MEMACCESS{{context['id']}}_read__reduce(unsig
 		// reduce	
 		for(int v = 0; v < UPDATEDATA_PACKINGSIZE; v++){ 
 		#pragma HLS UNROLL 
-			reduce_update(mode, en[v], v, index[v], data[v], vbuffer_dest[v], stats[v], memory[v], globalparamsK);
+			reduce_update(mode, en[v], v, index[v], data[v], vbuffer_dest[v], stats[v], memory[v], sweepparams, globalparamsK);
 		}
 	}
 }

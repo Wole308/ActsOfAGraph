@@ -177,7 +177,7 @@ unsigned int {{context['classname__acts_util']}}UTIL{{context['id']}}_GETLOCALVI
 	unsigned int y = vid / W; 
 	unsigned int x = vid % (VDATA_SUBPARTITION_SIZE * EDGEDATA_PACKINGSIZE);
 	unsigned int lvid = (y * (VDATA_SUBPARTITION_SIZE * EDGEDATA_PACKINGSIZE)) + x;
-	
+
 	return lvid;
 }
 unsigned int {{context['classname__acts_util']}}UTIL{{context['id']}}_GETREALVID(unsigned int lvid, unsigned int instid){ 
