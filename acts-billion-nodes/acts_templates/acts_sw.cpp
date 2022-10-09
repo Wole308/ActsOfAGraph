@@ -804,9 +804,11 @@ void acts_sw::run(vector<unsigned int> &vertexptrbuffer, vector<edge2_type> &edg
 	
 			// broadcast active frontiers
 			for(unsigned int t=0; t<cfrontier_dram___size[0][p_u]; t++){
+			#pragma HLS PIPELINE II=1
 				keyvalue_t data[EDGE_PACK_SIZE];
 				retrieve_cfrontierdram(p_u, t, data, cfrontier_dram);
 				for(unsigned int inst=0; inst<NUM_PEs; inst++){
+				#pragma HLS UNROLL
 					insert_cfrontierdram_i(t, data, cfrontier_dram_i[inst]);
 				}
 			}
