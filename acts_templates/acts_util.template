@@ -1003,6 +1003,7 @@ void {{context['classname__acts_util']}}UTIL{{context['id']}}_resetenvbuffer(key
 // checks 
 bool {{context['classname__acts_util']}}UTIL{{context['id']}}_isbufferused(unsigned int id){
 	if(id==0 || id==NUMCOMPUTEUNITS_SLR2 || id==NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1){ return true; } else { return false; } ///////////////
+	// if(id==0 || id==10 || id==NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1){ return true; } else { return false; } ///////////////
 	return true;
 }
 void {{context['classname__acts_util']}}UTIL{{context['id']}}_check_capsule(keyvalue_t capsule[MAX_NUM_PARTITIONS], unsigned int num_partitions, unsigned int max_value){

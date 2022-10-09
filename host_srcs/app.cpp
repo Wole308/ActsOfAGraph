@@ -550,8 +550,12 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 				// maxlimit_actvedgeblocks_per_vpartition = 0; maxlimit_actvupropblocks_per_vpartition = 0; maxlimit_actvupdateblocks_per_vpartition = 0;
 				// maxlimit_actvedgeblocks_per_vpartition = 256; maxlimit_actvupropblocks_per_vpartition = 16; maxlimit_actvupdateblocks_per_vpartition = 64; 
 				// maxlimit_actvedgeblocks_per_vpartition = 1024; maxlimit_actvupropblocks_per_vpartition = 128; maxlimit_actvupdateblocks_per_vpartition = 64; 
-				maxlimit_actvedgeblocks_per_vpartition = 1024; maxlimit_actvupropblocks_per_vpartition = 1024; maxlimit_actvupdateblocks_per_vpartition = 0; 
+				// maxlimit_actvedgeblocks_per_vpartition = 64; maxlimit_actvupropblocks_per_vpartition = 1024; maxlimit_actvupdateblocks_per_vpartition = 64; 
+				// maxlimit_actvedgeblocks_per_vpartition = 1024; maxlimit_actvupropblocks_per_vpartition = 1024; maxlimit_actvupdateblocks_per_vpartition = 0; 
 				// maxlimit_actvedgeblocks_per_vpartition = 1024; maxlimit_actvupropblocks_per_vpartition = 1024; maxlimit_actvupdateblocks_per_vpartition = 64; 
+				
+				maxlimit_actvedgeblocks_per_vpartition = 0; maxlimit_actvupropblocks_per_vpartition = NAp; maxlimit_actvupdateblocks_per_vpartition = 0; 
+				// maxlimit_actvedgeblocks_per_vpartition = 1024; maxlimit_actvupropblocks_per_vpartition = NAp; maxlimit_actvupdateblocks_per_vpartition = 0; 
 				
 				// uprop needs fixing...
 				for(unsigned int i=0; i<NUM_PEs; i++){

@@ -20,18 +20,14 @@ unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}__broadca
 	unsigned int transfsz_kvs = 0;
 	
 	for(unsigned int s=0; s<NUM_PEs; s++){
-		// unsigned int v_offset = (((s * globalparamsV.NUM_REDUCEPARTITIONS) + source_partition) * NUM_SUBPARTITIONS_PER_VPARTITION) * VDATA_SUBPARTITION_SIZE;
-		unsigned int v_offset = (s * globalparamsV.NUM_REDUCEPARTITIONS * VDATA_SUBPARTITION_SIZE) + (source_partition * VDATA_SUBPARTITION_SIZE);
+		unsigned int v_offset = (s * globalparamsV.NUM_REDUCEPARTITIONS * NUM_SUBPARTITIONS_PER_VPARTITION * VDATA_SUBPARTITION_SIZE) + (source_partition * VDATA_SUBPARTITION_SIZE);
 		unsigned int offset = s * VDATA_SUBPARTITION_SIZE;
-		
-		// cout<<"+++++++++++++++ BROADCAST acitivty: instid: "<<globalparamsK.ACTSPARAMS_INSTID<<", s: "<<s<<", source_partition: "<<source_partition<<", ^^^kvoffset-startreadfrom: "<<v_offset + offset<<", ^^^voffset-startwriteto["<<globalparamsK.ACTSPARAMS_INSTID<<"]: "<<offset<<endl;
 		
 		UTIL{{context['id']}}_ReadDatas(vdram, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICESDATA + v_offset + offset, datas);
 		unsigned int max = 0; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ if(datas[v]>max){ max = datas[v]; } }
 		if(max > VDATA_SUBPARTITION_SIZE){ max = 0; }
-		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3 
-		// if(max>0){ for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<">>> BROADCAST:ACTVV BUFFER:: datas["<<v<<"]: "<<datas[v]<<endl; }}
-		if(max>0){ cout<<">>> BROADCAST:ACTVV BUFFER:: max: "<<max<<endl; }
+		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+		if(max>0){ cout<<">>> BROADCAST:ACTVV BUFFER:: max: "<<max<<", source_partition: "<<source_partition<<endl; }
 		#endif
 		if(max > 0){
 			for (buffer_type t=0; t<max+1; t++){
@@ -42,20 +38,24 @@ unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}__broadca
 				{%endif%}{%endfor%}
 				transfsz_kvs += 1;
 				
-				// #ifdef _DEBUGMODE_KERNELPRINTS_TRACE3 
-				if(t>0){ for(unsigned int v=0; v<VECTOR2_SIZE; v++){ 
-					value_t combo = datas2[v]; value_t lvid = combo >> ACTVVATA_BITSZ; value_t vdata = combo & 0xFFFF;
-					if(datas[v]>0){ cout<<">>> BROADCAST:ACTVV BUFFER:: ACTVV SEEN @: v: "<<v<<", lvid: "<<lvid<<", vdata: "<<vdata<<", num items: "<<datas[v]<<", source_partition: "<<source_partition<<", #voffset-readfrom: "<<v_offset + offset + t<<", #kvoffset-writeto["<<globalparamsK.ACTSPARAMS_INSTID<<"]: "<<offset + t<<endl; }
+				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3 
+				if(t>0){ for(unsigned int v=0; v<VECTOR2_SIZE; v++){
+					value_t combo = datas2[v]; value_t gvid = combo & MASK_ACTVVID; value_t udata = (combo >> ACTVVID_BITSZ) & MASK_ACTVATA;
+					if(datas[v]>0){ cout<<">>> BROADCAST:ACTVV BUFFER:: ACTVV SEEN @: v: "<<v<<", gvid: "<<gvid<<", udata: "<<udata<<", num items: "<<datas[v]<<", source_partition: "<<source_partition<<", v_offset: "<<v_offset<<", #voffset-readfrom: "<<v_offset + offset + t<<", #kvoffset-writeto["<<globalparamsK.ACTSPARAMS_INSTID<<"]: "<<offset + t<<endl; }					
 				}}
-				// #endif
+				#endif
 			}
+		} else { // CRITICAL FIXME, OPTIMIZEME
+			for(unsigned int v=0; v<VECTOR2_SIZE; v++){ datas2[v] = 0; }
+			{%for i in context['T_seq']%}{%if(i<n)%}	
+			UTIL{{context['id']}}_WriteDatas(kvdram{{i}}, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + offset + 0, datas2);
+			{%endif%}{%endfor%}
 		}
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS//3
 	cout<<"broadcastACTVVs:: broadcast operation finished. "<<transfsz_kvs*VECTOR2_SIZE<<" vertices transferred."<<endl;  
-	#endif
-	// exit(EXIT_SUCCESS); // 
+	#endif	
 	return transfsz_kvs;
 }
 {%endif%}{%endfor%}
@@ -93,8 +93,7 @@ unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}_mergeACT
 			
 			unsigned int max = 0; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ if(datas[v]>max){ max = datas[v]; } }
 			if(max > VDATA_SUBPARTITION_SIZE || offset >= globalparams.SIZE_BATCHRANGE){ max = 0; }
-			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3 
-			// if(max>0){ for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<">>> MERGE:ACTVV BUFFER:: datas["<<v<<"]: "<<datas[v]<<endl; }}
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 			if(max>0){ cout<<">>> MERGE:ACTVV BUFFER:: max: "<<max<<endl; }
 			#endif
 			if(max > 0){
@@ -104,12 +103,12 @@ unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}_mergeACT
 					UTIL{{context['id']}}_WriteDatas(vdram, globalparamsv.BASEOFFSETKVS_ACTIVEVERTICESDATA + v_offset + offset + t, datas2);
 					transfsz_kvs += 1;
 					
-					// #ifdef _DEBUGMODE_KERNELPRINTS_TRACE3 
+					#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3 
 					if(t>0){ for(unsigned int v=0; v<VECTOR2_SIZE; v++){ 
-						value_t combo = datas2[v]; value_t lvid = combo >> ACTVVATA_BITSZ; value_t vdata = combo & 0xFFFF;
-						if(datas[v]>0){ cout<<">>> MERGE VECTOR: MERGE SEEN @: v: "<<v<<", lvid: "<<lvid<<", vdata: "<<vdata<<", num items: "<<datas[v]<<", instid: "<<globalparams.ACTSPARAMS_INSTID<<", reduce_partition: "<<reduce_partition<<", ^^^kvoffset-readfrom["<<globalparams.ACTSPARAMS_INSTID<<"]: "<<offset + t<<", #voffset-writeto: "<<v_offset + offset + t<<endl; }
+						value_t combo = datas2[v]; value_t gvid = combo & MASK_ACTVVID; value_t vdata = (combo >> ACTVVID_BITSZ) & MASK_ACTVATA;
+						if(datas[v]>0){ cout<<">>> MERGE VECTOR: MERGE SEEN @: v: "<<v<<", gvid: "<<gvid<<", vdata: "<<vdata<<", num items: "<<datas[v]<<", instid: "<<globalparams.ACTSPARAMS_INSTID<<", reduce_partition: "<<reduce_partition<<", ^^^kvoffset-readfrom["<<globalparams.ACTSPARAMS_INSTID<<"]: "<<offset + t<<", #voffset-writeto: "<<v_offset + offset + t<<endl; }			
 					}}
-					// #endif
+					#endif
 				}
 			}
 		}
@@ -117,11 +116,10 @@ unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}_mergeACT
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"mergeVs:: merge operation finished. "<<transfsz_kvs*VECTOR2_SIZE<<" vertices transferred."<<endl; 
 	#endif
-	// exit(EXIT_SUCCESS); // 
 	return transfsz_kvs;
 }
 
-unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}_copyACTVVs(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, unsigned int begin_computeunitid, unsigned int num_compute_units){
+unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}_copyACTVVs(unsigned int id, uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uint512_dt * vbufferRES, unsigned int begin_computeunitid, unsigned int num_compute_units){
 	#ifdef _DEBUGMODE_KERNELPRINTS//4
 	cout<< TIMINGRESULTSCOLOR << ">>> copyACTVVs:: synchronizing frontier vertices..."<< RESET <<endl; 
 	#endif
@@ -143,7 +141,7 @@ unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}_copyACTV
 	
 	globalparams_t globalparamsv = UTIL{{context['id']}}_getglobalparams(vdramA, 0);
 	#ifdef _DEBUGMODE_KERNELPRINTS4 
-	unsigned int * vbufferINT32 = (unsigned int *)&vdramA[globalparamsv.BASEOFFSETKVS_SRCVERTICESDATA];
+	unsigned int * vbufferINT32 = (unsigned int *)&vbufferRES[globalparamsv.BASEOFFSETKVS_SRCVERTICESDATA];
 	#endif 
 
 	for(unsigned int i=begin_computeunitid; i<(begin_computeunitid + num_compute_units); i++){
@@ -157,8 +155,7 @@ unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}_copyACTV
 			
 				unsigned int max = 0; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ if(datas[v]>max){ max = datas[v]; } }
 				if(max > VDATA_SUBPARTITION_SIZE || offset >= globalparamsv.SIZE_BATCHRANGE){ max = 0; }
-				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3 
-				// if(max>0){ for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<">>> SYNC:ACTVV BUFFER:: datas["<<v<<"]: "<<datas[v]<<endl; }}
+				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 				if(max>0){ cout<<">>> SYNC:ACTVV BUFFER:: max: "<<max<<endl; }
 				#endif
 				if(max > 0){
@@ -170,14 +167,13 @@ unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}_copyACTV
 						transfsz_kvs += 1;
 							
 						#ifdef _DEBUGMODE_KERNELPRINTS4 
-						if(t>0){ for(unsigned int v=0; v<VECTOR2_SIZE; v++){ 
-							value_t combo = datas2[v]; value_t lvid = combo >> ACTVVATA_BITSZ; value_t vdata = combo & 0xFFFF;
+						if(t>0){ for(unsigned int v=0; v<VECTOR2_SIZE; v++){
+							value_t combo = datas2[v]; value_t gvid = combo & MASK_ACTVVID; value_t vdata = (combo >> ACTVVID_BITSZ) & MASK_ACTVATA;
 							unsigned int actvvid = UTIL{{context['id']}}_GETREALVID(((offset + t - 1) * VECTOR2_SIZE) + v, i);
-							// #ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-							if(datas[v]>0){ cout<<">>> SYNC VECTOR SEEN @: v: "<<v<<", lvid: "<<lvid<<", vdata: "<<vdata<<", num items: "<<datas[v]<<", lvid: "<<((offset + t - 1) * VECTOR2_SIZE) + v<<", actvvid: "<<UTIL{{context['id']}}_GETREALVID(((offset + t - 1) * VECTOR2_SIZE) + v, i)<<", reduce_partition: "<<reduce_partition<<endl; }			 
+							#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+							if(datas[v]>0){ cout<<">>> SYNC VECTOR SEEN @: v: "<<v<<", gvid: "<<gvid<<", vdata: "<<vdata<<", num items: "<<datas[v]<<", actvvid: "<<((offset + t - 1) * VECTOR2_SIZE) + v<<", actvvid: "<<UTIL{{context['id']}}_GETREALVID(((offset + t - 1) * VECTOR2_SIZE) + v, i)<<", reduce_partition: "<<reduce_partition<<endl; }			 
 							if(datas[v]>0 && false){ cout<<">>> SYNC VECTOR SEEN @: #voffset-readfrom: "<<v_offset + offset + t<<", #voffset-writeto: "<<v_offset + offset + t<<endl; }			 
-							// #endif 
-							// if(t-1<datas[v]){ vbufferINT32[actvvid] = vdata; }
+							#endif
 							if(t-1<datas[v] && vdata < 64){ vbufferINT32[vdata] += 1; }
 						}}
 						#endif
@@ -199,9 +195,9 @@ unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}_exchange
 	#endif
 
 	unsigned int transfsz_kvs = 0;
-	transfsz_kvs += MERGE{{context['id']}}_copyACTVVs(vdramA, vdramB, vdramC, 0, NUMCOMPUTEUNITS_SLR2);
-	transfsz_kvs += MERGE{{context['id']}}_copyACTVVs(vdramB, vdramA, vdramC, NUMCOMPUTEUNITS_SLR2, NUMCOMPUTEUNITS_SLR1);
-	transfsz_kvs += MERGE{{context['id']}}_copyACTVVs(vdramC, vdramA, vdramB, NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1, NUMCOMPUTEUNITS_SLR0);
+	transfsz_kvs += MERGE{{context['id']}}_copyACTVVs(0, vdramA, vdramB, vdramC, vdramA, 0, NUMCOMPUTEUNITS_SLR2);
+	transfsz_kvs += MERGE{{context['id']}}_copyACTVVs(1, vdramB, vdramA, vdramC, vdramA, NUMCOMPUTEUNITS_SLR2, NUMCOMPUTEUNITS_SLR1);
+	transfsz_kvs += MERGE{{context['id']}}_copyACTVVs(2, vdramC, vdramA, vdramB, vdramA, NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1, NUMCOMPUTEUNITS_SLR0);
 	return transfsz_kvs;
 }
 

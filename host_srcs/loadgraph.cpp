@@ -492,8 +492,9 @@ void loadgraph::setrootvid(std::string algo, uint512_vec_dt * vbuffer, vector<ve
 	
 	for(unsigned int v=0; v<VECTOR2_SIZE; v++){ datas[0] = 0; }
 	unsigned int index = 0; unsigned int vdata = 0;
-	datas[1] = (index << 16) | vdata;
-	utilityobj->writedata(vbuffer, globalparams.BASEOFFSETKVS_ACTIVEVERTICESDATA + 1, 1, ((index << 16) | vdata));
+	// datas[1] = (index << 16) | vdata;
+	datas[1] = (vdata << ACTVVID_BITSZ) | 1;	
+	utilityobj->writedata(vbuffer, globalparams.BASEOFFSETKVS_ACTIVEVERTICESDATA + 1, 1, ((vdata << ACTVVID_BITSZ) | 1));
 	
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"loadgraph::setrootvid: data: "<<data<<", depth: "<<depth<<", ldstvid / VECTOR2_SIZE: "<<ldstvid / VECTOR2_SIZE<<", ldstvid % VECTOR2_SIZE: "<<ldstvid % VECTOR2_SIZE<<", vbuffer["<<globalparams.BASEOFFSETKVS_SRCVERTICESDATA + depth + (ldstvid / VECTOR2_SIZE)<<"].data[0].key: "<<vbuffer[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + depth + (ldstvid / VECTOR2_SIZE)].data[0].key<<endl;			

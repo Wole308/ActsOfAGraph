@@ -198,6 +198,7 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelpro
 	cout<<">>> ====================== ACTS Launched @ instance: "<<globalid<<" ====================== "<<endl;
 	#endif
 		
+	// #ifdef SW
 	#ifdef TESTKERNEL 
 	if(UTIL{{context['id']}}_isbufferused(globalid) == false){ return; }
 	#endif 
@@ -490,7 +491,7 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 						#endif 
 						if(globalposition.EN_PROCESS == ON){ if(num_active_edgeblocks_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }} 
 						else { enable_readandreplicatevdata = OFF; }
-						globalposition.num_active_edgeblocks = num_active_edgeblocks_in_partition;
+						globalposition.num_active_edgeblocks = num_active_edgeblocks_in_partition + 1; ///////////////////////// CRITICAL FIXME.
 						total_num_active_edgeblocks_in_iteration += num_active_edgeblocks_in_partition;		
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
@@ -507,7 +508,7 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 						
 						// read vertices & vmasks
 						#ifdef TOP_ENABLE_BROADCASTUPROPS	
-						bool en = true; if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
+						bool en = true; //if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
 						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON && en == true){
 							unsigned int transfsz_kvs = MERGE{{context['id']}}__broadcastACTVVs(vdram, {%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} source_partition, globalparamsK, globalparamsV);
 							#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	

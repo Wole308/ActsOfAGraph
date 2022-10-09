@@ -4,7 +4,7 @@ unsigned int MERGE{{context['id']}}__broadcastACTVVs(uint512_dt * vdram, {%for i
 
 unsigned int MERGE{{context['id']}}_mergeACTVVs(uint512_dt * kvdram, uint512_dt * vdram);
 
-unsigned int MERGE{{context['id']}}_copyACTVVs(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, unsigned int begin_computeunitid, unsigned int num_compute_units);
+unsigned int MERGE{{context['id']}}_copyACTVVs(unsigned int id, uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uint512_dt * vbufferRES, unsigned int begin_computeunitid, unsigned int num_compute_units);
 
 unsigned int MERGE{{context['id']}}_exchangeACTVVs(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC);
 

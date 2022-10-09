@@ -233,6 +233,9 @@ void utility::stopTIME(string caption, std::chrono::steady_clock::time_point beg
 bool utility::isbufferused(unsigned int id){
 	#ifdef TESTKERNEL 
 	if(id==0 || id==NUMCOMPUTEUNITS_SLR2 || id==NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1){ return true; } else { return false; } ///////////////
+	
+	// if(id==0 || id==10 || id==NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1){ return true; } else { return false; } ///////////////
+	
 	// if(id==8){ return true; } else { return false; }
 	// if(id==0 || id==8 || id==NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1){ return true; } else { return false; }
 	// if(id==0 || id==NUMCOMPUTEUNITS_SLR2 || id==23){ return true; } else { return false; }

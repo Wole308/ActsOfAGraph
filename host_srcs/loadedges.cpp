@@ -1181,7 +1181,7 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 			#ifdef _DEBUGMODE_HOSTCHECKS3
 			utilityobj->checkoutofbounds("loadedges::ERROR 222::", edge.srcvid / NUM_VERTICES_PER_UPROPBLOCK, _num_vblockPs, edge.srcvid, edge.dstvid, NUM_VERTICES_PER_UPROPBLOCK);
 			#endif 
-			vptrs_temp[H][edge.srcvid / NUM_VERTICES_PER_UPROPBLOCK] += 1;	
+			// vptrs_temp[H][edge.srcvid / NUM_VERTICES_PER_UPROPBLOCK] += 1;	
 			
 			edge_index += 1;
 		}
@@ -1207,19 +1207,26 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 				
 				
 				
-				unsigned int vertexblockid = edges_in_channel[i][t].srcvid / NUM_VERTICES_PER_UPROPBLOCK;
-				// unsigned int vertexblockid = edges_in_channel[i][t].srcvid / universalparams.PROCESSPARTITIONSZ;
-				if(edges_in_channel[i][t].srcvid == 42518 || edges_in_channel[i][t].srcvid == 96136){
-					cout<<"--- edges_in_channel["<<i<<"]["<<t<<"].srcvid: "<<edges_in_channel[i][t].srcvid<<", edges_in_channel["<<i<<"]["<<t<<"].dstvid: "<<edges_in_channel[i][t].dstvid<<", vertexblockid: "<<vertexblockid<<endl;
+				unsigned int vertexblockid_ = edges_in_channel[i][t].srcvid / NUM_VERTICES_PER_UPROPBLOCK;
+				// unsigned int vertexblockid_ = edges_in_channel[i][t].srcvid / universalparams.PROCESSPARTITIONSZ;
+				// if(edges_in_channel[i][t].srcvid == 42518 || edges_in_channel[i][t].srcvid == 96136){
+					// cout<<"--- edges_in_channel["<<i<<"]["<<t<<"].srcvid: "<<edges_in_channel[i][t].srcvid<<", edges_in_channel["<<i<<"]["<<t<<"].dstvid: "<<edges_in_channel[i][t].dstvid<<", vertexblockid_: "<<vertexblockid_<<endl;
+				// }	
+				if(edges_in_channel[i][t].srcvid == 6882838 || edges_in_channel[i][t].srcvid == 16961416){
+					cout<<"--- loadedges: edges_in_channel["<<i<<"]["<<t<<"].srcvid: "<<edges_in_channel[i][t].srcvid<<", edges_in_channel["<<i<<"]["<<t<<"].dstvid: "<<edges_in_channel[i][t].dstvid<<", vertexblockid_: "<<vertexblockid_<<endl;
 				}
 				
 				
 				
 				
-				
+				unsigned int vertexblockid = edges_in_channel[i][t].srcvid / NUM_VERTICES_PER_UPROPBLOCK;
 				unsigned int lsrcvid = (edges_in_channel[i][t].srcvid % NUM_VERTICES_PER_UPROPBLOCK) & 0x00000FF;
 				unsigned int ldstvid = (edges_in_channel[i][t].dstvid) & 0x00FFFFFF;
 				edges_vec[t] = (lsrcvid << 24) | ldstvid;
+				
+				
+				vptrs_temp[i][vertexblockid_] += 1;	///////////////////////
+				
 				#ifdef _DEBUGMODE_HOSTPRINTS//4
 				if(i==0 && t<16){ cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~ loading edges["<<i<<"]["<<t<<"]: lsrcvid: "<<lsrcvid<<", ldstvid: "<<ldstvid<<", combo: "<<edges_vec[t]<<endl; }
 				#endif 
