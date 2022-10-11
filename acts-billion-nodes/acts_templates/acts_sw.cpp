@@ -1,9 +1,6 @@
 #include "acts_sw.h"
 using namespace std;
 
-#define AAAAA
-// #define BBBBB
-
 #define FOLD_SIZE 1
 #define EDGE_PACK_SIZE 16 // 16, *1
 
@@ -630,23 +627,38 @@ void check_if_contiguous(keyvalue_t keyvalue[EDGE_PACK_SIZE], keyvalue_t msg1[ED
 	#endif
 }
 
-void cache_vdatadram(unsigned int p_v, vprop_vec_t * vdatas[MAX_NUM_APPLYPARTITIONS], vprop_t ** vdata_buffer){
+void cache_vdatadram(unsigned int p_v, vprop_vec_t * vdatas_dram[MAX_NUM_APPLYPARTITIONS], vprop_t ** vdata_buffer){
 	for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE; t++){
 	#pragma HLS PIPELINE II=1
 		for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 		#pragma HLS UNROLL
-			vdata_buffer[v][t] = vdatas[p_v][t].data[v];
+			vdata_buffer[v][t] = vdatas_dram[p_v][t].data[v];
 		}
 	}
 	return;
 }
-void commit_vdatadram(unsigned int p_v, vprop_vec_t * vdatas[MAX_NUM_APPLYPARTITIONS], vprop_t ** vdata_buffer){
+void commit_vdatadram(unsigned int p_v, vprop_vec_t * vdatas_dram[MAX_NUM_APPLYPARTITIONS], vprop_t ** vdata_buffer){
 	for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE; t++){
 	#pragma HLS PIPELINE II=1
 		for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 		#pragma HLS UNROLL
-			vdatas[p_v][t].data[v] = vdata_buffer[v][t];
+			vdatas_dram[p_v][t].data[v] = vdata_buffer[v][t];
 		}
+	}
+	return;
+}
+
+void insert_vdatadram(unsigned int p_v, unsigned int index, vprop_t data[EDGE_PACK_SIZE], vprop_vec_t * vdatas_dram[MAX_NUM_APPLYPARTITIONS]){
+	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+	#pragma HLS UNROLL
+		vdatas_dram[p_v][index].data[v] = data[v];
+	}
+	return;
+}
+void retrieve_vdatadram(unsigned int p_v, unsigned int index, vprop_t data[EDGE_PACK_SIZE], vprop_vec_t * vdatas_dram[MAX_NUM_APPLYPARTITIONS]){
+	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+	#pragma HLS UNROLL
+		data[v] = vdatas_dram[p_v][index].data[v];
 	}
 	return;
 }
@@ -728,17 +740,30 @@ keyvalue_t retrievefrom_actvvsnextit(unsigned int index, unsigned int t, vector<
 	return actvvs_nextit[index][t];
 }
 
+void insert_actpackupdatesdram(unsigned int llp_set, unsigned int index, uint512_uvec_dt data, uint512_uvec_dt * actpackupdatesdram[MAX_NUM_APPLYPARTITIONS]){
+	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
+	#pragma HLS UNROLL
+		actpackupdatesdram[llp_set][index] = data;					
+	}
+}
+void retrieve_actpackupdatesdram(unsigned int llp_set, unsigned int index, uint512_uvec_dt * data, uint512_uvec_dt * actpackupdatesdram[MAX_NUM_APPLYPARTITIONS]){
+	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
+	#pragma HLS UNROLL
+		*data = actpackupdatesdram[llp_set][index];					
+	}
+	return; 
+}
+
 void acts_sw::run(vector<unsigned int> &vertexptrbuffer, vector<edge2_type> &edgedatabuffer, unsigned int * v_ptr[NUM_PEs], vector<edge2_type> edges_in_channel[NUM_PEs], vector<edge3_vec_dt> (&act_pack_edges)[NUM_PEs], map_t * act_pack_map[NUM_PEs][MAX_NUM_UPARTITIONS]){						
 	
 	unsigned int __NUM_UPARTITIONS = (universalparams.NUM_VERTICES + (MAX_UPARTITION_SIZE - 1)) /  MAX_UPARTITION_SIZE;
 	unsigned int __NUM_APPLYPARTITIONS = ((universalparams.NUM_VERTICES / NUM_PEs) + (MAX_APPLYPARTITION_SIZE - 1)) /  MAX_APPLYPARTITION_SIZE; // NUM_PEs
 	cout<<"acts_sw::run:: universalparams.NUM_VERTICES: "<<universalparams.NUM_VERTICES<<", universalparams.NUM_EDGES: "<<universalparams.NUM_EDGES<<", MAX_UPARTITION_SIZE: "<<MAX_UPARTITION_SIZE<<", __NUM_UPARTITIONS: "<<__NUM_UPARTITIONS<<", MAX_APPLYPARTITION_SIZE: "<<MAX_APPLYPARTITION_SIZE<<", __NUM_APPLYPARTITIONS: "<<__NUM_APPLYPARTITIONS<<endl;			
-	// exit(EXIT_SUCCESS);
 	
-	vprop_vec_t * vdatas[NUM_PEs][MAX_NUM_APPLYPARTITIONS]; for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p=0; p<MAX_NUM_APPLYPARTITIONS; p++){ vdatas[i][p] = new vprop_vec_t[MAX_APPLYPARTITION_VECSIZE]; }}
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p=0; p<__NUM_APPLYPARTITIONS; p++){ for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE; t++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ vdatas[i][p][t].data[v].data = algorithmobj->vertex_initdata(universalparams.ALGORITHM); vdatas[i][p][t].data[v].mask = 0; }}}}		
+	vprop_vec_t * vdatas_dram[NUM_PEs][MAX_NUM_APPLYPARTITIONS]; for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p=0; p<MAX_NUM_APPLYPARTITIONS; p++){ vdatas_dram[i][p] = new vprop_vec_t[MAX_APPLYPARTITION_VECSIZE]; }}
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p=0; p<__NUM_APPLYPARTITIONS; p++){ for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE; t++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ vdatas_dram[i][p][t].data[v].data = algorithmobj->vertex_initdata(universalparams.ALGORITHM); vdatas_dram[i][p][t].data[v].mask = 0; }}}}		
 	
-	keyvalue_t * cfrontier_dram[EDGE_PACK_SIZE][MAX_NUM_UPARTITIONS]; for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ for(unsigned int p=0; p<MAX_NUM_UPARTITIONS; p++){ cfrontier_dram[v][p] = new keyvalue_t[MAX_APPLYPARTITION_VECSIZE]; }}
+	keyvalue_t * cfrontier_dram[EDGE_PACK_SIZE][MAX_NUM_UPARTITIONS]; for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ for(unsigned int p=0; p<MAX_NUM_UPARTITIONS; p++){ cfrontier_dram[v][p] = new keyvalue_t[MAX_UPARTITION_SIZE]; }}
 	unsigned int * cfrontier_dram___size[EDGE_PACK_SIZE]; for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ cfrontier_dram___size[v] = new unsigned int[MAX_NUM_UPARTITIONS]; }
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ for(unsigned int p=0; p<MAX_NUM_UPARTITIONS; p++){ cfrontier_dram___size[v][p] = 0; }}
 	
@@ -756,18 +781,33 @@ void acts_sw::run(vector<unsigned int> &vertexptrbuffer, vector<edge2_type> &edg
 	keyvalue_t * cfrontier_buffer_i[NUM_PEs][EDGE_PACK_SIZE]; 
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ cfrontier_buffer_i[i][v] = new keyvalue_t[MAX_APPLYPARTITION_VECSIZE]; }}
 	
-	// keyvalue_t * actvvs_buffer[NUM_PEs][EDGE_PACK_SIZE]; 
-	// for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ actvvs_buffer[i][v] = new keyvalue_t[MAX_APPLYPARTITION_VECSIZE]; }}
+	unsigned int * stats_tmpbuffer[NUM_PEs][EDGE_PACK_SIZE]; 
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ stats_tmpbuffer[i][v] = new unsigned int[BLOCKRAM_SIZE]; }}
+	
+	unsigned int * stats_buffer[NUM_PEs][MAX_NUM_APPLYPARTITIONS]; 
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<MAX_NUM_APPLYPARTITIONS; v++){ stats_buffer[i][v] = new unsigned int[BLOCKRAM_SIZE]; }}
+	unsigned int stats_buffer___size[NUM_PEs][MAX_NUM_APPLYPARTITIONS]; 
 	
 	offset_t * upartition_vertices = new offset_t[MAX_NUM_UPARTITIONS]; 
 	for(unsigned int p=0; p<__NUM_UPARTITIONS; p++){ upartition_vertices[p].offset = 0; upartition_vertices[p].size = 0; upartition_vertices[p].count = 0; } upartition_vertices[0].count = 1;
 	
+	offset_t * vpartition_vertices[NUM_PEs]; 
+	for(unsigned int i=0; i<NUM_PEs; i++){ vpartition_vertices[i] = new offset_t[MAX_NUM_APPLYPARTITIONS];  }
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p=0; p<__NUM_APPLYPARTITIONS; p++){ vpartition_vertices[i][p].offset = 0; vpartition_vertices[i][p].size = 0; vpartition_vertices[i][p].count = 0; }}
+	
 	vector<keyvalue_t> csrupdates_dram[NUM_PEs][MAX_NUM_APPLYPARTITIONS]; 
 	vector<keyvalue_t> csrupdates_buffer[NUM_PEs][NUM_PEs]; 
 	
-	uint512_uvec_dt * actpackupdates_dram[NUM_PEs][__NUM_APPLYPARTITIONS]; 
+	keyvalue_t * csrupdates2_dram[NUM_PEs][MAX_NUM_APPLYPARTITIONS]; 
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p=0; p<__NUM_APPLYPARTITIONS; p++){ csrupdates2_dram[i][p] = new keyvalue_t[DOUBLE_BLOCKRAM_SIZE]; }}
+	
+	keyvalue_t * csrupdates2_buffer[NUM_PEs][NUM_PEs]; 
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p=0; p<NUM_PEs; p++){ csrupdates2_buffer[i][p] = new keyvalue_t[CSRBUFFER_SIZE]; }} // CSRBUFFER_SIZE
+	unsigned int csrupdates2_buffer___size[NUM_PEs][NUM_PEs]; 
+	
+	uint512_uvec_dt * actpackupdates_dram[NUM_PEs][MAX_NUM_APPLYPARTITIONS]; 
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p=0; p<__NUM_APPLYPARTITIONS; p++){ actpackupdates_dram[i][p] = new uint512_uvec_dt[HBM_CHANNEL_SIZE]; }}
-	unsigned int actpackupdates_dram___size[NUM_PEs][__NUM_APPLYPARTITIONS]; 
+	unsigned int actpackupdates_dram___size[NUM_PEs][MAX_NUM_APPLYPARTITIONS]; 
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p=0; p<__NUM_APPLYPARTITIONS; p++){ actpackupdates_dram___size[i][p] = 0; }}
 	
 	vprop_t * udata_buffer[NUM_PEs][EDGE_PACK_SIZE]; 
@@ -786,11 +826,19 @@ void acts_sw::run(vector<unsigned int> &vertexptrbuffer, vector<edge2_type> &edg
 						
 	unsigned int num_LLPs = universalparams.NUM_APPLYPARTITIONS * universalparams.NUM_PARTITIONS; 
 	unsigned int num_LLPset = (num_LLPs + (universalparams.NUM_PARTITIONS - 1)) / universalparams.NUM_PARTITIONS;
+	unsigned int maxGraphIter = 0;
 	
-	bool run_vertex_centric = true; // false, true;
+	bool run_vertex_centric = true;
+	unsigned int * hybrid_map[MAXNUMGRAPHITERATIONS];
+	for(unsigned int i=0; i<MAXNUMGRAPHITERATIONS; i++){ hybrid_map[i] = new unsigned int[MAX_NUM_UPARTITIONS]; }
+	for(unsigned int i=0; i<MAXNUMGRAPHITERATIONS; i++){ for(unsigned int t=0; t<MAX_NUM_UPARTITIONS; t++){ hybrid_map[i][t] = NAp; }}
+	bool enable___vertexcentric = true;
+	bool enable___collectactivedstvids = false;
+	unsigned int threshold___activefrontiers = 128;
+	unsigned int threshold___activedstvids = 0xFFFFFFFF;
+	
 	unsigned int rootvid = 1; keyvalue_t root; root.key = rootvid; root.value = 0; keyvalue_t invalid; invalid.key = INVALIDDATA; invalid.value = INVALIDDATA; 
-	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ if(v==1){ cfrontier_dram[v][0][0] = root; } else { cfrontier_dram[1][v][0] = invalid; } cfrontier_dram___size[v][0] = 1; }
-	// cfrontier_dram[1][0][0] = root; cfrontier_dram___size[1][0] = 1;
+	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ if(v==1){ cfrontier_dram[v][0][0] = root; } else { cfrontier_dram[v][0][0] = invalid; } cfrontier_dram___size[v][0] = 1; }
 	
 	if(run_vertex_centric == true){ cout<<"### Vertex-Centric GAS iteration: 0 [1 active vertices]"<<endl; } else { cout<<"### Edge-Centric GAS iteration: 0 [1 active vertices]"<<endl; }
 	
@@ -799,6 +847,13 @@ void acts_sw::run(vector<unsigned int> &vertexptrbuffer, vector<edge2_type> &edg
 		for(unsigned int p_=0; p_<__NUM_APPLYPARTITIONS; p_++){ for(unsigned int inst=0; inst<NUM_PEs; inst++){ csrupdates_dram[inst][p_].clear(); }}
 		for(unsigned int p_=0; p_<__NUM_APPLYPARTITIONS; p_++){ for(unsigned int inst=0; inst<NUM_PEs; inst++){ actpackupdates_dram___size[inst][p_] = 0; }}
 		
+		// clear stats_buffer
+		for(unsigned int inst=0; inst<NUM_PEs; inst++){ for(unsigned int t=0; t<BLOCKRAM_SIZE; t++){ for(unsigned int p_v=0; p_v<MAX_NUM_APPLYPARTITIONS; p_v++){ stats_buffer[inst][p_v][t] = 0; }}}
+		for(unsigned int inst=0; inst<NUM_PEs; inst++){ for(unsigned int p_v=0; p_v<MAX_NUM_APPLYPARTITIONS; p_v++){ stats_buffer___size[inst][p_v] = 0; }}
+		
+		// clear vpartition_vertices // FIXME.
+		for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p=0; p<__NUM_APPLYPARTITIONS; p++){ vpartition_vertices[i][p].offset = 0; vpartition_vertices[i][p].size = 0; vpartition_vertices[i][p].count = 0; }}
+	
 		// process-edges and partition-updates
 		for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){
 	
@@ -826,8 +881,11 @@ void acts_sw::run(vector<unsigned int> &vertexptrbuffer, vector<edge2_type> &edg
 				}
 			}
 			
-			// clear ubuffer
+			// clear ubuffer // FIXME.
 			for(unsigned int inst=0; inst<NUM_PEs; inst++){ for(unsigned int t=0; t<MAX_UPARTITION_VECSIZE; t++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ udata_buffer[inst][v][t].data = 0; udata_buffer[inst][v][t].mask = 0; }}}
+			
+			// clear stats buffer // FIXME.
+			for(unsigned int inst=0; inst<NUM_PEs; inst++){ for(unsigned int t=0; t<BLOCKRAM_SIZE; t++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ stats_tmpbuffer[inst][v][t] = 0; }}}
 			
 			// load active frontiers  properties 
 			for(unsigned int inst=0; inst<NUM_PEs; inst++){
@@ -838,7 +896,8 @@ void acts_sw::run(vector<unsigned int> &vertexptrbuffer, vector<edge2_type> &edg
 					for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 					#pragma HLS UNROLL
 						if(actvv[v].key != INVALIDDATA){
-							unsigned int srcvid_lp  = get_local_to_upartition(actvv[v].key); unsigned int srcvid_lpv = srcvid_lp / EDGE_PACK_SIZE;
+							unsigned int srcvid_lp  = get_local_to_upartition(actvv[v].key); 
+							unsigned int srcvid_lpv = srcvid_lp / EDGE_PACK_SIZE;
 							vprop_t prop; prop.data = actvv[v].value; prop.mask = 1;
 							insert_udatabuffer(v, srcvid_lpv, prop, udata_buffer[inst]);
 						}
@@ -848,8 +907,10 @@ void acts_sw::run(vector<unsigned int> &vertexptrbuffer, vector<edge2_type> &edg
 			
 			// process-edges and partition-updates
 			if(upartition_vertices[p_u].count > 0){
-				if(run_vertex_centric == true){ // vertex-centric
-					for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int j=0; j<NUM_PEs; j++){ csrupdates_buffer[i][j].clear(); }}
+				if(upartition_vertices[p_u].count < threshold___activefrontiers && enable___vertexcentric == true){ // vertex-centric
+					hybrid_map[GraphIter][p_u] = 0;
+					
+					for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int j=0; j<NUM_PEs; j++){ csrupdates_buffer[i][j].clear(); csrupdates2_buffer___size[i][j] = 0; }}
 						
 					// process edges 
 					for(unsigned int inst=0; inst<NUM_PEs; inst++){
@@ -885,6 +946,19 @@ void acts_sw::run(vector<unsigned int> &vertexptrbuffer, vector<edge2_type> &edg
 										unsigned int inst_mirror = get_H(edge.dstvid);
 										keyvalue_t update; update.key = edge.dstvid; update.value = vtemp; // res;
 										insert_csrupdatesbuffer(inst_mirror, update, csrupdates_buffer[inst]);
+										
+										// utilityobj->checkoutofbounds("acts_sw::ERROR 113::", csrupdates2_buffer___size[inst][inst_mirror], CSRBUFFER_SIZE, NAp, NAp, NAp);
+										// csrupdates2_buffer[inst][inst_mirror][csrupdates2_buffer___size[inst][inst_mirror]] = update;
+										// csrupdates2_buffer___size[inst][inst_mirror] += 1;
+										
+										// collect stats information 
+										if(enable___collectactivedstvids == true){ 
+											unsigned int dstvid_lp = get_local_to_vpartition(get_local(edge.dstvid));
+											unsigned int dstvid_lpv = get_local_to_vpartition(get_local(edge.dstvid)) / EDGE_PACK_SIZE;
+											unsigned int index = dstvid_lpv / ACTVUPDATESBLOCK_VECSIZE;
+											utilityobj->checkoutofbounds("acts_sw::ERROR 123::", index, BLOCKRAM_SIZE, update_out[inst][v].key, dstvid_lpv, (MAX_APPLYPARTITION_VECSIZE / BLOCKRAM_SIZE));
+											stats_tmpbuffer[inst][0][index] = 1; 
+										}
 									}
 								}
 							}
@@ -899,9 +973,16 @@ void acts_sw::run(vector<unsigned int> &vertexptrbuffer, vector<edge2_type> &edg
 								unsigned int p_v = get_local(update.key) / MAX_APPLYPARTITION_SIZE;
 								insert_csrupdatesdram(p_v, update, csrupdates_dram[inst_mirror]);
 							}
+							// for(unsigned int t=0; t<csrupdates2_buffer___size[inst][inst_mirror]; t++){
+								// keyvalue_t update = csrupdates2_buffer[inst][inst_mirror][t];
+								// unsigned int p_v = get_local(update.key) / MAX_APPLYPARTITION_SIZE;
+								// insert_csrupdatesdram(p_v, update, csrupdates_dram[inst_mirror]);
+							// }
 						}
 					}
 				} else { // edge-centric
+					hybrid_map[GraphIter][p_u] = 1;
+					
 					for(unsigned int llp_set=0; llp_set<num_LLPset; llp_set++){ // num_LLPset
 						for(unsigned int inst=0; inst<NUM_PEs; inst++){
 							for(unsigned int t=act_pack_map[inst][p_u][llp_set].offset; t<act_pack_map[inst][p_u][llp_set].offset + act_pack_map[inst][p_u][llp_set].size; t++){
@@ -925,7 +1006,7 @@ void acts_sw::run(vector<unsigned int> &vertexptrbuffer, vector<edge2_type> &edg
 										update_in[inst][v].key = edges[inst][v].dstvid; update_in[inst][v].value = vtemp_in[inst][v];
 										if(uprop[inst][v].mask != 1){ update_in[inst][v].key = INVALIDDATA; update_in[inst][v].value = INVALIDDATA; }
 										#ifdef _DEBUGMODE_KERNELPRINTS//4
-										if(uprop[v].mask == 1){ cout<<"EC - PROCESS EDGE SEEN @: inst: ["<<inst<<"], [srcvid_lp: "<<srcvid_lp<<", dstvid: "<<edges[inst][v].dstvid % MAX_APPLYPARTITION_SIZE<<"], [edge.srcvid: "<<edges[inst][v].srcvid<<", dstvid: "<<edges[inst][v].dstvid<<"]"<<endl; }
+										if(uprop[inst][v].mask == 1){ cout<<"EC - PROCESS EDGE SEEN @: inst: ["<<inst<<"], [srcvid_lp: "<<srcvid_lp<<", dstvid: "<<edges[inst][v].dstvid % MAX_APPLYPARTITION_SIZE<<"], [edge.srcvid: "<<edges[inst][v].srcvid<<", dstvid: "<<edges[inst][v].dstvid<<"]"<<endl; }
 										#endif 
 									} else {
 										uprop[inst][v].mask = 0; update_in[inst][v].key = INVALIDDATA; update_in[inst][v].value = INVALIDDATA;
@@ -943,8 +1024,39 @@ void acts_sw::run(vector<unsigned int> &vertexptrbuffer, vector<edge2_type> &edg
 								
 								// partition updates
 								uint512_uvec_dt updates_vec; for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ updates_vec.data[v] = update_out[inst][v]; }
-								bool isvalid = false; for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ if(update_out[inst][v].key != INVALIDDATA){ isvalid = true; }}
-								if(isvalid == true){ actpackupdates_dram[inst][llp_set][actpackupdates_dram___size[inst][llp_set]] = updates_vec; actpackupdates_dram___size[inst][llp_set] += 1; }
+								bool isvalid = false; for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ if(update_out[inst][v].key != INVALIDDATA){ isvalid = true; }} // FIXME.
+								// if(isvalid == true){ actpackupdates_dram[inst][llp_set][actpackupdates_dram___size[inst][llp_set]] = updates_vec; actpackupdates_dram___size[inst][llp_set] += 1; }
+								if(isvalid == true){ insert_actpackupdatesdram(llp_set, actpackupdates_dram___size[inst][llp_set], updates_vec, actpackupdates_dram[inst]); actpackupdates_dram___size[inst][llp_set] += 1; } // NEW
+							
+								// collect stats information 
+								if(enable___collectactivedstvids == true && isvalid == true){ 
+									for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+										if(update_out[inst][v].key != INVALIDDATA){
+											unsigned int dstvid_lp = get_local_to_vpartition(get_local(update_out[inst][v].key));
+											unsigned int dstvid_lpv = get_local_to_vpartition(get_local(update_out[inst][v].key)) / EDGE_PACK_SIZE;
+											unsigned int index = dstvid_lpv / ACTVUPDATESBLOCK_VECSIZE;
+											utilityobj->checkoutofbounds("acts_sw::ERROR 123::", index, BLOCKRAM_SIZE, update_out[inst][v].key, dstvid_lpv, (MAX_APPLYPARTITION_VECSIZE / BLOCKRAM_SIZE));
+											stats_tmpbuffer[inst][v][index] = 1; 
+										}
+									}
+								}
+							}
+							
+							// gather stats 
+							if(enable___collectactivedstvids == true){
+								unsigned int data[EDGE_PACK_SIZE];
+								for(unsigned int t=0; t<BLOCKRAM_SIZE; t++){
+								#pragma HLS PIPELINE II=1
+									for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+									#pragma HLS UNROLL
+										data[v] = stats_tmpbuffer[inst][v][t];
+									}
+									utilityobj->checkoutofbounds("acts_sw::ERROR 023::", t, BLOCKRAM_SIZE, NAp, NAp, NAp);
+									if(data[0]==1 || data[1]==1 || data[2]==1 || data[3]==1 || data[4]==1 || data[5]==1 || data[6]==1 || data[7]==1 || data[8]==1 || data[9]==1 || data[10]==1 || data[11]==1 || data[12]==1 || data[13]==1 || data[14]==1 || data[15]==1){ 
+										stats_buffer[inst][llp_set][t] = 1; vpartition_vertices[inst][llp_set].count = 1;
+										// stats_buffer[inst][llp_set][stats_buffer___size[inst][llp_set]] = t; stats_buffer___size[inst][llp_set] += 1; vpartition_vertices[inst][llp_set].count = 1;
+									}
+								}
 							}
 						}
 					}
@@ -954,107 +1066,194 @@ void acts_sw::run(vector<unsigned int> &vertexptrbuffer, vector<edge2_type> &edg
 		
 		// apply updatess
 		for(unsigned int p_v=0; p_v<__NUM_APPLYPARTITIONS; p_v++){
-			// read destination properties 
-			for(unsigned int inst=0; inst<NUM_PEs; inst++){ cache_vdatadram(p_v, vdatas[inst], vdata_buffer[inst]); }
-			
-			// apply 2 (csr)
-			for(unsigned int inst=0; inst<NUM_PEs; inst++){
-				for(unsigned int t=0; t<csrupdates_dram[inst][p_v].size(); t++){			
-					keyvalue_t update = retrieve_csrupdatesdram(p_v, t, csrupdates_dram[inst]);
-					if(update.key != INVALIDDATA){
-						unsigned int dstvid_lp = get_local(update.key) % MAX_APPLYPARTITION_SIZE; // hashing
-						utilityobj->checkoutofbounds("acts_sw::ERROR 227::", dstvid_lp, MAX_APPLYPARTITION_SIZE, NAp, NAp, NAp);
-						
-						vprop_t vprop =  retrieve_vdatabuffer(dstvid_lp % EDGE_PACK_SIZE, dstvid_lp / EDGE_PACK_SIZE, vdata_buffer[inst]);
-						unsigned int new_vprop = 0; if(update.value < vprop.data){ new_vprop = update.value; } else { new_vprop = vprop.data; }
-						if(new_vprop != vprop.data){
-							#ifdef _DEBUGMODE_KERNELPRINTS//4
-							cout<<"APPLY (CSR) UPDATE SEEN @: inst: ["<<inst<<"]: local dstvid: "<<dstvid_lp<<", new_vprop: "<<new_vprop<<", vid: "<<update.key<<endl;
-							#endif
-							vprop_t newprop; newprop.data = new_vprop; newprop.mask = 1; 
-							insert_vdatabuffer(dstvid_lp % EDGE_PACK_SIZE, dstvid_lp / EDGE_PACK_SIZE, newprop, vdata_buffer[inst]);
+			// if(vpartition_vertices[0][p_v].count > 0){
+			if(true){
+				// read destination properties 
+				for(unsigned int inst=0; inst<NUM_PEs; inst++){
+					if(stats_buffer___size[inst][p_v] <= threshold___activedstvids && enable___collectactivedstvids == true){
+						for(unsigned int t=0; t<BLOCKRAM_SIZE; t++){
+							unsigned int offset = t * ACTVUPDATESBLOCK_VECSIZE;
+							utilityobj->checkoutofbounds("acts_sw::ERROR 117::", offset, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
+							if(stats_buffer[inst][p_v][t] == 1){
+								for(unsigned int t=0; t<ACTVUPDATESBLOCK_VECSIZE; t++){
+								#pragma HLS PIPELINE II=1
+									for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+									#pragma HLS UNROLL
+										vdata_buffer[inst][v][offset + t] = vdatas_dram[inst][p_v][offset + t].data[v];
+									}
+								}
+							}
 						}
-					}
-				}
-			}
-			
-			// apply 1 (act-pack)
-			for(unsigned int inst=0; inst<NUM_PEs; inst++){
-				for(unsigned int t=0; t<actpackupdates_dram___size[inst][p_v]; t++){
-					uint512_uvec_dt updates_vec = actpackupdates_dram[inst][p_v][t];
-					for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-						keyvalue_t update = updates_vec.data[v];
-						unsigned int dstvid_lp = get_local_to_vpartition(get_local(update.key));
-						unsigned int dstvid_lpv = get_local_to_vpartition(get_local(update.key)) / EDGE_PACK_SIZE;
-						if(update.key != INVALIDDATA){
-							if((dstvid_lp % EDGE_PACK_SIZE) != v){ cout<<"acts_sw 234:: dstvid_lp("<<dstvid_lp<<") % v("<<v<<") != 0. EXITING..."<<endl; exit(EXIT_FAILURE); }
-							utilityobj->checkoutofbounds("acts_sw::ERROR 227::", dstvid_lp, MAX_APPLYPARTITION_SIZE, NAp, NAp, NAp);
-							vprop_t vprop =  retrieve_vdatabuffer(v, dstvid_lpv, vdata_buffer[inst]);
-							unsigned int new_vprop = 0; if(update.value < vprop.data){ new_vprop = update.value; } else { new_vprop = vprop.data; }
-							if(new_vprop != vprop.data){
-								#ifdef _DEBUGMODE_KERNELPRINTS//4
-								cout<<"APPLY (ACT-PACK) UPDATE SEEN @: inst: ["<<inst<<"]: dstvid_lp: "<<dstvid_lp<<", dstvid_lpv: "<<dstvid_lpv<<", new_vprop: "<<new_vprop<<", vid: "<<update.key<<endl;
-								#endif
-								vprop_t newprop; newprop.data = new_vprop; newprop.mask = 1; 
-								insert_vdatabuffer(v, dstvid_lpv, newprop, vdata_buffer[inst]);
+					} else if (false){ // NOT YET IMPLEMENTED.
+						for(unsigned int k=0; k<stats_buffer___size[inst][p_v]; k++){
+							unsigned int offset = stats_buffer[inst][p_v][k] * ACTVUPDATESBLOCK_VECSIZE;
+							utilityobj->checkoutofbounds("acts_sw::ERROR 117::", offset, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
+							for(unsigned int t=0; t<ACTVUPDATESBLOCK_VECSIZE; t++){
+							#pragma HLS PIPELINE II=1
+								for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+								#pragma HLS UNROLL
+									vdata_buffer[inst][v][offset + t] = vdatas_dram[inst][p_v][offset + t].data[v];
+								}
+							}
+						}	
+					} else {
+						for(unsigned int inst=0; inst<NUM_PEs; inst++){ 
+							for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE; t++){
+							#pragma HLS PIPELINE II=1
+								for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+								#pragma HLS UNROLL
+									vdata_buffer[inst][v][t] = vdatas_dram[inst][p_v][t].data[v];
+								}
 							}
 						}
 					}
 				}
-			}
-			
-			// collect frontier information (vid-based)
-			for(unsigned int inst=0; inst<NUM_PEs; inst++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ for(unsigned int p_actvv=0; p_actvv<NUM_ACTVVPARTITIONS_PER_APPLYPARTITION; p_actvv++){ nfrontier_buffer___size[inst][v][p_actvv] = 0; }}}
-			for(unsigned int inst=0; inst<NUM_PEs; inst++){
-				for(unsigned int dstvid_lpv=0; dstvid_lpv<MAX_APPLYPARTITION_VECSIZE; dstvid_lpv++){
-				#pragma HLS PIPELINE II=1
-					for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-					#pragma HLS UNROLL
-						vprop_t vprop =  retrieve_vdatabuffer(v, dstvid_lpv, vdata_buffer[inst]);
-						unsigned int vid = get_global(((p_v * MAX_APPLYPARTITION_SIZE) +  (dstvid_lpv * EDGE_PACK_SIZE + v)), inst); // unhashing
-						#ifdef _DEBUGMODE_CHECKS3
-						if(vid % EDGE_PACK_SIZE != v){ cout<<"acts_sw:: ERROR 234. vid("<<vid<<") % EDGE_PACK_SIZE("<<EDGE_PACK_SIZE<<")(="<<vid % EDGE_PACK_SIZE<<") != v("<<v<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }
-						#endif
-						unsigned int pl__actv__ = dstvid_lpv / MAX_ACTVV_VECSIZE;
-						if(vprop.mask == 1){
-							#ifdef _DEBUGMODE_KERNELPRINTS//4
-							cout<<"COLLECT FRONTIER INFORMATION SEEN @: inst: ["<<inst<<"]: dstvid_lpv: "<<dstvid_lpv<<", v: "<<v<<", p__u__: "<<(vid / MAX_UPARTITION_SIZE)<<", vid: "<<vid<<endl;
-							#endif
-							keyvalue_t actvv; actvv.key = vid;  actvv.value = vprop.data; 
-							nfrontier_buffer[inst][v][(pl__actv__ * MAX_ACTVV_VECSIZE) + nfrontier_buffer___size[inst][v][pl__actv__]] = actvv; nfrontier_buffer___size[inst][v][pl__actv__] += 1;
-						}
-					}
-				}
-			}
-			
-			// commit frontier information
-			for(unsigned int inst=0; inst<NUM_PEs; inst++){
-				for(unsigned int p_actvv=0; p_actvv<NUM_ACTVVPARTITIONS_PER_APPLYPARTITION; p_actvv++){
-					unsigned int p_actvv_ = (p_v * NUM_ACTVVPARTITIONS_PER_APPLYPARTITION) + p_actvv;
-					unsigned int max = 0; for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ if(max < nfrontier_buffer___size[inst][v][p_actvv]){ max = nfrontier_buffer___size[inst][v][p_actvv]; }}
-					for(unsigned int t=0; t<max; t++){
+				
+				// apply 2 (csr)
+				for(unsigned int inst=0; inst<NUM_PEs; inst++){
+					for(unsigned int t=0; t<csrupdates_dram[inst][p_v].size(); t++){	
 					#pragma HLS PIPELINE II=1
-						keyvalue_t actvv[EDGE_PACK_SIZE];
-						for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-						#pragma HLS UNROLL
-							if(t < nfrontier_buffer___size[inst][v][p_actvv]){ actvv[v] = nfrontier_buffer[inst][v][p_actvv * MAX_ACTVV_VECSIZE + t]; } else { actvv[v].key = INVALIDDATA; actvv[v].value = INVALIDDATA; }
-						}
-						for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-						#pragma HLS UNROLL
-							nfrontier_dram[inst][v][p_actvv_][nfrontier_dram___size[inst][v][p_actvv_]] = actvv[v]; nfrontier_dram___size[inst][v][p_actvv_] += 1;
+						keyvalue_t update = retrieve_csrupdatesdram(p_v, t, csrupdates_dram[inst]);
+						if(update.key != INVALIDDATA){
+							unsigned int dstvid_lp = get_local(update.key) % MAX_APPLYPARTITION_SIZE; // hashing
+							utilityobj->checkoutofbounds("acts_sw::ERROR 227::", dstvid_lp, MAX_APPLYPARTITION_SIZE, NAp, NAp, NAp);
+							
+							vprop_t vprop =  retrieve_vdatabuffer(dstvid_lp % EDGE_PACK_SIZE, dstvid_lp / EDGE_PACK_SIZE, vdata_buffer[inst]);
+							unsigned int new_vprop = 0; if(update.value < vprop.data){ new_vprop = update.value; } else { new_vprop = vprop.data; }
+							if(new_vprop != vprop.data){
+								#ifdef _DEBUGMODE_KERNELPRINTS//4
+								cout<<"APPLY (CSR) UPDATE SEEN @: inst: ["<<inst<<"]: local dstvid: "<<dstvid_lp<<", new_vprop: "<<new_vprop<<", vid: "<<update.key<<endl;
+								#endif
+								vprop_t newprop; newprop.data = new_vprop; newprop.mask = 1; 
+								insert_vdatabuffer(dstvid_lp % EDGE_PACK_SIZE, dstvid_lp / EDGE_PACK_SIZE, newprop, vdata_buffer[inst]);
+							}
 						}
 					}
 				}
+				
+				// apply 1 (act-pack)
+				for(unsigned int inst=0; inst<NUM_PEs; inst++){
+					for(unsigned int t=0; t<actpackupdates_dram___size[inst][p_v]; t++){
+					#pragma HLS PIPELINE II=1
+						// uint512_uvec_dt updates_vec = actpackupdates_dram[inst][p_v][t];
+						uint512_uvec_dt updates_vec;
+						retrieve_actpackupdatesdram(p_v, t, &updates_vec, actpackupdates_dram[inst]); // NEW
+							
+						for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+						#pragma HLS UNROLL
+							keyvalue_t update = updates_vec.data[v];
+							unsigned int dstvid_lp = get_local_to_vpartition(get_local(update.key));
+							unsigned int dstvid_lpv = get_local_to_vpartition(get_local(update.key)) / EDGE_PACK_SIZE;
+							if(update.key != INVALIDDATA){
+								if((dstvid_lp % EDGE_PACK_SIZE) != v){ cout<<"acts_sw 234:: dstvid_lp("<<dstvid_lp<<") % v("<<v<<") != 0. EXITING..."<<endl; exit(EXIT_FAILURE); }
+								utilityobj->checkoutofbounds("acts_sw::ERROR 227::", dstvid_lp, MAX_APPLYPARTITION_SIZE, NAp, NAp, NAp);
+								vprop_t vprop =  retrieve_vdatabuffer(v, dstvid_lpv, vdata_buffer[inst]);
+								unsigned int new_vprop = 0; if(update.value < vprop.data){ new_vprop = update.value; } else { new_vprop = vprop.data; }
+								if(new_vprop != vprop.data){
+									#ifdef _DEBUGMODE_KERNELPRINTS//4
+									cout<<"APPLY (ACT-PACK) UPDATE SEEN @: inst: ["<<inst<<"]: dstvid_lp: "<<dstvid_lp<<", dstvid_lpv: "<<dstvid_lpv<<", new_vprop: "<<new_vprop<<", vid: "<<update.key<<endl;
+									#endif
+									vprop_t newprop; newprop.data = new_vprop; newprop.mask = 1; 
+									insert_vdatabuffer(v, dstvid_lpv, newprop, vdata_buffer[inst]);
+								}
+							}
+						}
+					}
+				}
+				
+				// collect frontier information (vid-based)
+				for(unsigned int inst=0; inst<NUM_PEs; inst++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ for(unsigned int p_actvv=0; p_actvv<NUM_ACTVVPARTITIONS_PER_APPLYPARTITION; p_actvv++){ nfrontier_buffer___size[inst][v][p_actvv] = 0; }}}
+				for(unsigned int inst=0; inst<NUM_PEs; inst++){
+					for(unsigned int dstvid_lpv=0; dstvid_lpv<MAX_APPLYPARTITION_VECSIZE; dstvid_lpv++){
+					#pragma HLS PIPELINE II=1
+						for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+						#pragma HLS UNROLL
+							vprop_t vprop =  retrieve_vdatabuffer(v, dstvid_lpv, vdata_buffer[inst]);
+							unsigned int vid = get_global(((p_v * MAX_APPLYPARTITION_SIZE) +  (dstvid_lpv * EDGE_PACK_SIZE + v)), inst); // unhashing
+							#ifdef _DEBUGMODE_CHECKS3
+							if(vid % EDGE_PACK_SIZE != v){ cout<<"acts_sw:: ERROR 234. vid("<<vid<<") % EDGE_PACK_SIZE("<<EDGE_PACK_SIZE<<")(="<<vid % EDGE_PACK_SIZE<<") != v("<<v<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }
+							#endif
+							unsigned int pl__actv__ = dstvid_lpv / MAX_ACTVV_VECSIZE;
+							if(vprop.mask == 1){
+								#ifdef _DEBUGMODE_KERNELPRINTS//4
+								cout<<"COLLECT FRONTIER INFORMATION SEEN @: inst: ["<<inst<<"]: dstvid_lpv: "<<dstvid_lpv<<", v: "<<v<<", p__u__: "<<(vid / MAX_UPARTITION_SIZE)<<", vid: "<<vid<<endl;
+								#endif
+								keyvalue_t actvv; actvv.key = vid;  actvv.value = vprop.data; 
+								nfrontier_buffer[inst][v][(pl__actv__ * MAX_ACTVV_VECSIZE) + nfrontier_buffer___size[inst][v][pl__actv__]] = actvv; nfrontier_buffer___size[inst][v][pl__actv__] += 1;
+							}
+						}
+					}
+				}
+				
+				// commit frontier information
+				for(unsigned int inst=0; inst<NUM_PEs; inst++){
+					for(unsigned int p_actvv=0; p_actvv<NUM_ACTVVPARTITIONS_PER_APPLYPARTITION; p_actvv++){
+						unsigned int p_actvv_ = (p_v * NUM_ACTVVPARTITIONS_PER_APPLYPARTITION) + p_actvv;
+						unsigned int max = 0; for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ if(max < nfrontier_buffer___size[inst][v][p_actvv]){ max = nfrontier_buffer___size[inst][v][p_actvv]; }}
+						for(unsigned int t=0; t<max; t++){
+						#pragma HLS PIPELINE II=1
+							keyvalue_t actvv[EDGE_PACK_SIZE];
+							for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+							#pragma HLS UNROLL
+								if(t < nfrontier_buffer___size[inst][v][p_actvv]){ actvv[v] = nfrontier_buffer[inst][v][p_actvv * MAX_ACTVV_VECSIZE + t]; } else { actvv[v].key = INVALIDDATA; actvv[v].value = INVALIDDATA; }
+							}
+							for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+							#pragma HLS UNROLL
+								nfrontier_dram[inst][v][p_actvv_][nfrontier_dram___size[inst][v][p_actvv_]] = actvv[v]; nfrontier_dram___size[inst][v][p_actvv_] += 1;
+							}
+						}
+					}
+				}
+				
+				// clear vbuffer. FIXME.
+				for(unsigned int inst=0; inst<NUM_PEs; inst++){ for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE; t++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ vdata_buffer[inst][v][t].mask = 0; }}}
+				
+				// commit destination properties 
+				// for(unsigned int inst=0; inst<NUM_PEs; inst++){ commit_vdatadram(p_v, vdatas_dram[inst], vdata_buffer[inst]); }
+				for(unsigned int inst=0; inst<NUM_PEs; inst++){
+					if(stats_buffer___size[inst][p_v] <= threshold___activedstvids && enable___collectactivedstvids == true){
+						for(unsigned int t=0; t<BLOCKRAM_SIZE; t++){
+							unsigned int offset = t * ACTVUPDATESBLOCK_VECSIZE;
+							utilityobj->checkoutofbounds("acts_sw::ERROR 117::", offset, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
+							if(stats_buffer[inst][p_v][t] == 1){
+								for(unsigned int t=0; t<ACTVUPDATESBLOCK_VECSIZE; t++){
+								#pragma HLS PIPELINE II=1
+									for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+									#pragma HLS UNROLL
+										vdatas_dram[inst][p_v][offset + t].data[v] = vdata_buffer[inst][v][offset + t];
+									}
+								}
+							}
+						}
+					} else if(false){
+						for(unsigned int k=0; k<stats_buffer___size[inst][p_v]; k++){	
+							unsigned int offset = stats_buffer[inst][p_v][k] * ACTVUPDATESBLOCK_VECSIZE;
+							utilityobj->checkoutofbounds("acts_sw::ERROR 217::", offset, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
+							for(unsigned int t=0; t<ACTVUPDATESBLOCK_VECSIZE; t++){
+							#pragma HLS PIPELINE II=1
+								for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+								#pragma HLS UNROLL
+									vdatas_dram[inst][p_v][offset + t].data[v] = vdata_buffer[inst][v][offset + t];
+								}
+							}
+						}							
+					} else {
+						for(unsigned int inst=0; inst<NUM_PEs; inst++){ 
+							for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE; t++){
+							#pragma HLS PIPELINE II=1
+								for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+								#pragma HLS UNROLL
+									vdatas_dram[inst][p_v][t].data[v] = vdata_buffer[inst][v][t];
+								}
+							}
+						}
+					}
+				}
+				
 			}
-			
-			// clear vbuffer
-			for(unsigned int inst=0; inst<NUM_PEs; inst++){ for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE; t++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ vdata_buffer[inst][v][t].mask = 0; }}}
-			
-			// commit destination properties 
-			for(unsigned int inst=0; inst<NUM_PEs; inst++){ commit_vdatadram(p_v, vdatas[inst], vdata_buffer[inst]); }
 		}
 		
-		// synchronize frontier properties between HBMs
+		// gather frontier information
 		unsigned int totalactvvs2 = 0;
 		for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){ upartition_vertices[p_u].count = 0; }
 		for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ cfrontier_dram___size[v][p_u] = 0; }}
@@ -1065,7 +1264,7 @@ void acts_sw::run(vector<unsigned int> &vertexptrbuffer, vector<edge2_type> &edg
 					utilityobj->checkoutofbounds("acts_sw::ERROR 225::", p_actvv_, MAX_NUM_UPARTITIONS, NAp, NAp, NAp);
 					for(unsigned int t=0; t<nfrontier_dram___size[inst][0][p_actvv_]; t++){
 					#pragma HLS PIPELINE II=1
-						upartition_vertices[p_actvv_].count = 1; 
+						upartition_vertices[p_actvv_].count += 1; 
 						for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 						#pragma HLS UNROLL
 							keyvalue_t actvv = nfrontier_dram[inst][v][p_actvv_][t];
@@ -1084,9 +1283,13 @@ void acts_sw::run(vector<unsigned int> &vertexptrbuffer, vector<edge2_type> &edg
 		for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){ cout<<upartition_vertices[p_u].count<<", "; } cout<<endl;
 		if(run_vertex_centric == true){ cout<<"### Vertex-Centric GAS iteration: "<<GraphIter + 1<<" ["<<totalactvvs2<<" active vertices]"<<endl; } 
 		else { cout<<"### Edge-Centric GAS iteration: "<<GraphIter + 1<<" ["<<totalactvvs2<<" active vertices]"<<endl;	 }
-		if(totalactvvs2 == 0 || GraphIter >= MAXNUMGRAPHITERATIONS){ cout<<"no more active vertices to process. breaking out... "<<endl; break; }
+		if(totalactvvs2 == 0 || GraphIter >= MAXNUMGRAPHITERATIONS){ cout<<"no more active vertices to process. breaking out... "<<endl; maxGraphIter = GraphIter; break; }
 		for(unsigned int inst=0; inst<NUM_PEs; inst++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){ nfrontier_dram___size[inst][v][p_u] = 0; }}}
 	} // NUM_ITs
+	
+	for(unsigned int GraphIter=0; GraphIter<maxGraphIter; GraphIter++){ 
+		cout<<"### Hybrid Map for GraphIter "<<GraphIter<<": "; for(unsigned int t=0; t<__NUM_UPARTITIONS; t++){ if(hybrid_map[GraphIter][t] == 0){ cout<<"V, "; } else if(hybrid_map[GraphIter][t] == 1){ cout<<"E, "; } else { cout<<"-, "; }} cout<<endl;
+	}
 	return;
 }
 
