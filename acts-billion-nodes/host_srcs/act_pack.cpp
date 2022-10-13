@@ -51,7 +51,7 @@ edge3_vec_dt rearrangeLayoutVB(unsigned int s, edge3_vec_dt edge_vec){
 	return edge_vec3;
 }
 
-void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge2_type> &edgedatabuffer, vector<edge3_vec_dt> (&act_pack_edges)[NUM_PEs], map_t * act_pack_map[NUM_PEs][MAX_NUM_UPARTITIONS]){
+void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedatabuffer, vector<edge3_vec_dt> (&act_pack_edges)[NUM_PEs], map_t * act_pack_map[NUM_PEs][MAX_NUM_UPARTITIONS]){
 	unsigned int num_vPs = universalparams.NUM_UPARTITIONS;
 	unsigned int vsize_vP = MAX_UPARTITION_SIZE;
 	unsigned int num_LLPs = universalparams.NUM_APPLYPARTITIONS * universalparams.NUM_PARTITIONS; // EDGE_PACK_SIZE; // 
@@ -80,7 +80,7 @@ void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge2_type> &edgedat
 		if(vptr_end < vptr_begin){ continue; }
 		
 		for(unsigned int i=0; i<edges_size; i++){
-			edge2_type this_edge = edgedatabuffer[vptr_begin + i];
+			edge3_type this_edge = edgedatabuffer[vptr_begin + i];
 			edge3_type edge; edge.srcvid = this_edge.srcvid; edge.dstvid = this_edge.dstvid; edge.valid = true;
 			if(edge.srcvid >= universalparams.NUM_VERTICES || edge.dstvid >= universalparams.NUM_VERTICES){ continue; } 
 			

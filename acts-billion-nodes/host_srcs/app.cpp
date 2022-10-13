@@ -52,14 +52,16 @@ github.com/GRAND-Lab/graph_datasets
 #define APP_RUNSWVERSION
 #define APP_RUNHWVERSION 
 	
-app::app(){}
+app::app(){
+	algorithmobj = new algorithm();
+}
 app::~app(){
 	cout<<"app::~app:: finish destroying memory structures... "<<endl;
 }
 
 universalparams_t app::get_universalparams(std::string algo, unsigned int numiterations, unsigned int rootvid, unsigned int num_vertices, unsigned int num_edges, bool graphisundirected){
 	universalparams_t universalparams;
-	algorithm * algorithmobj = new algorithm();
+	// algorithm * algorithmobj = new algorithm();
 	
 	universalparams.ALGORITHM = algorithmobj->get_algorithm_id(algo);
 	universalparams.NUM_ITERATIONS = numiterations; if(universalparams.ALGORITHM != BFS && universalparams.ALGORITHM != SSSP){ universalparams.NUM_ITERATIONS = 1; }
@@ -80,7 +82,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	
 	std::cout << std::setprecision(2) << std::fixed;
 	
-	vector<edge2_type> edgedatabuffer;
+	vector<edge3_type> edgedatabuffer;
 	vector<edge_t> vertexptrbuffer;
 
 	string GRAPH_NAME = ""; 
@@ -97,17 +99,19 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	utility * utilityobj = new utility(universalparams);
 	// utilityobj->printallparameters();
 	
+	unsigned int __NUM_UPARTITIONS = (universalparams.NUM_VERTICES + (MAX_UPARTITION_SIZE - 1)) /  MAX_UPARTITION_SIZE;
+	unsigned int __NUM_APPLYPARTITIONS = ((universalparams.NUM_VERTICES / NUM_PEs) + (MAX_APPLYPARTITION_SIZE - 1)) /  MAX_APPLYPARTITION_SIZE; // NUM_PEs
+	
 	// create act-pack format
 	map_t * act_pack_map[NUM_PEs][MAX_NUM_UPARTITIONS];
 	vector<edge3_vec_dt> act_pack_edges[NUM_PEs];
+	edge3_vec_dt * act_pack_edges_arr[NUM_PEs];
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v_p=0; v_p<MAX_NUM_UPARTITIONS; v_p++){ act_pack_map[i][v_p] = new map_t[MAX_NUM_LLPSETS]; }}
 	act_pack * pack = new act_pack(universalparams);
 	pack->pack(vertexptrbuffer, edgedatabuffer, act_pack_edges, act_pack_map);
-	// exit(EXIT_SUCCESS);
 	
 	// create csr format
-	unsigned int __NUM_UPARTITIONS = (universalparams.NUM_VERTICES + (MAX_UPARTITION_SIZE - 1)) /  MAX_UPARTITION_SIZE;
-	vector<edge2_type> edges_in_channel[NUM_PEs]; 
+	vector<edge3_type> csr_pack_edges[NUM_PEs]; 
 	unsigned int * degrees[NUM_PEs]; for(unsigned int i=0; i<NUM_PEs; i++){ degrees[i] = new unsigned int[(universalparams.NUM_VERTICES / NUM_PEs) + 64]; }
 	unsigned int * v_ptr[NUM_PEs]; for(unsigned int i=0; i<NUM_PEs; i++){ v_ptr[i] = new unsigned int[(universalparams.NUM_VERTICES / NUM_PEs) + 64]; }
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<(universalparams.NUM_VERTICES / NUM_PEs) + 64; t++){ v_ptr[i][t] = 0; degrees[i][t] = 0; }}
@@ -120,19 +124,43 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 		utilityobj->checkoutofbounds("app::ERROR 211::", vid / MAX_UPARTITION_SIZE, __NUM_UPARTITIONS, NAp, NAp, NAp);
 		for(unsigned int i=0; i<edges_size; i++){
 			unsigned int H_hash = H % NUM_PEs;
-			edge2_type edge = edgedatabuffer[vptr_begin + i];
-			// edge.weight = rand() % 10 - 1;
-			edges_in_channel[H_hash].push_back(edge);
+			edge3_type edge = edgedatabuffer[vptr_begin + i];
+			csr_pack_edges[H_hash].push_back(edge);
 			degrees[H_hash][edge.srcvid / NUM_PEs] += 1;
 		}
 		H += 1;
 	}
 	for(unsigned int i=0; i<NUM_PEs; i++){ unsigned int index = 0, ind = 0; for(unsigned int vid=0; vid<universalparams.NUM_VERTICES; vid++){ if(vid % NUM_PEs == i){ v_ptr[i][vid / NUM_PEs] = index; index += degrees[i][vid / NUM_PEs]; ind += 1; }}}
-	for(unsigned int i=0; i<NUM_PEs; i++){ cout<<"-------- app:csr: edges_in_channel["<<i<<"].size(): "<<edges_in_channel[i].size()<<endl; }
+	for(unsigned int i=0; i<NUM_PEs; i++){ cout<<"-------- app:csr: csr_pack_edges["<<i<<"].size(): "<<csr_pack_edges[i].size()<<endl; }
+	unsigned int max = 0; for(unsigned int i=0; i<NUM_PEs; i++){ if(max < act_pack_edges[i].size()){ max = act_pack_edges[i].size(); }} 
+	for(unsigned int i=0; i<NUM_PEs; i++){ act_pack_edges_arr[i] = new edge3_vec_dt[max]; }
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<max; t++){ act_pack_edges_arr[i][t] =  act_pack_edges[i][t]; }}
+	
+	HBM_center_t HBM_center;
+	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ for(unsigned int p=0; p<MAX_NUM_UPARTITIONS; p++){ HBM_center.cfrontier_dram[v][p] = new keyvalue_t[MAX_UPARTITION_SIZE]; }}
+	
+	HBM_channel_t HBM_channel[NUM_PEs];
+	max = 0; for(unsigned int i=0; i<NUM_PEs; i++){ if(max < csr_pack_edges[i].size()){ max = csr_pack_edges[i].size(); }}
+		for(unsigned int i=0; i<NUM_PEs; i++){ HBM_channel[i].csr_pack_edges_arr = new edge3_vec_dt[(max / EDGE_PACK_SIZE) + 1]; }
+		for(unsigned int i=0; i<NUM_PEs; i++){ unsigned int index = 0; for(unsigned int t=0; t<max; t++){ HBM_channel[i].csr_pack_edges_arr[index / EDGE_PACK_SIZE].data[index % EDGE_PACK_SIZE] = csr_pack_edges[i][t]; index += 1; }}
+	max = 0; for(unsigned int i=0; i<NUM_PEs; i++){ if(max < act_pack_edges[i].size()){ max = act_pack_edges[i].size(); }} 
+		for(unsigned int i=0; i<NUM_PEs; i++){ HBM_channel[i].act_pack_edges_arr = new edge3_vec_dt[max]; }
+		for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<max; t++){ HBM_channel[i].act_pack_edges_arr[t] =  act_pack_edges[i][t]; }}
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p=0; p<MAX_NUM_APPLYPARTITIONS; p++){ HBM_channel[i].vdatas_dram[p] = new vprop_vec_t[MAX_APPLYPARTITION_VECSIZE]; }}
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p=0; p<__NUM_APPLYPARTITIONS; p++){ for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE; t++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ HBM_channel[i].vdatas_dram[p][t].data[v].data = algorithmobj->vertex_initdata(universalparams.ALGORITHM); HBM_channel[i].vdatas_dram[p][t].data[v].mask = 0; }}}}		
+	for(unsigned int i=0; i<NUM_PEs; i++){ HBM_channel[i].cfrontier_dram_i = new uint512_vec_dt[MAX_APPLYPARTITION_VECSIZE]; }
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p=0; p<MAX_NUM_UPARTITIONS; p++){ HBM_channel[i].nfrontier_dram[p] = new uint512_vec_dt[MAX_APPLYPARTITION_VECSIZE]; }}
+	#ifdef ENABLE__SPARSEPROC
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p=0; p<__NUM_APPLYPARTITIONS; p++){ HBM_channel[i].csrupdates_dram[p] = new keyvalue_t[CSRDRAM_SIZE]; }}
+	#endif 
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p=0; p<__NUM_APPLYPARTITIONS; p++){ HBM_channel[i].actpackupdates_dram[p] = new uint512_uvec_dt[HBM_CHANNEL_SIZE]; }}
+	
+	// clear 
+	for(unsigned int i=0; i<NUM_PEs; i++){ csr_pack_edges[i].clear(); act_pack_edges[i].clear(); } // clear 
 	
 	// run acts
 	acts_sw * acts = new acts_sw(universalparams);
-	acts->run(vertexptrbuffer, edgedatabuffer, v_ptr, edges_in_channel, act_pack_edges, act_pack_map);
+	acts->run(v_ptr, act_pack_map, &HBM_center, HBM_channel);
 	return;
 }
 

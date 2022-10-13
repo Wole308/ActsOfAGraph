@@ -118,6 +118,10 @@
 
 ////////////////
 
+#define ENABLE__SPARSEPROC
+
+////////////////
+
 #if NUM_PEs==3
 #define NUMCOMPUTEUNITS_SLR0 1
 #define NUMCOMPUTEUNITS_SLR1 1
@@ -205,11 +209,13 @@ typedef struct {
 	keyy_t srcvid;
 	keyy_t dstvid;
 	unsigned int weight;
+	bool valid;
 } edge2_type; 
 
 typedef struct {
 	keyy_t srcvid;
 	keyy_t dstvid;
+	unsigned int weight;
 	bool valid;
 } edge3_type; 
 
@@ -259,9 +265,12 @@ typedef struct {
 } uint512_ivec_dt;
 
 typedef struct {
-	unsigned int offset;
+	unsigned int begin;
+	unsigned int end;
     unsigned int size;
-} metadata_t;
+	unsigned int vid;
+	unsigned int prop;
+} vtr_t;
 
 typedef struct {
 	unsigned int A;
@@ -286,145 +295,6 @@ typedef unsigned int vtxbuffer_type;
 #endif 
 
 typedef struct {
-	unsigned int DRAM_BASE_KVS;
-	
-	unsigned int ENABLE_RUNKERNELCOMMAND;
-	unsigned int ENABLE_PROCESSCOMMAND;
-	unsigned int ENABLE_PARTITIONCOMMAND;
-	unsigned int ENABLE_APPLYUPDATESCOMMAND;
-	unsigned int ENABLE_MERGECOMMAND;
-	unsigned int ENABLE_EXCHANGECOMMAND;
-	unsigned int GPMODE;
-	unsigned int ACTSCONFIG_INSERTSTATSMETADATAINEDGES;
-	
-	unsigned int EVALUATION_ACTS_MEMORYLAYOUT;
-	unsigned int EVALUATION_ACTS_PARTITIONINGLOGIC;
-	unsigned int EVALUATION_ACTS_RECURSIVEPARTITIONINGLOGIC;
-	unsigned int EVALUATION_ACTS_HYBRIDLOGIC;
-	unsigned int EVALUATION_ACTS_VERYBARE;
-	
-	unsigned int THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD;
-	unsigned int THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPDATEBLOCKS_PER_VPARTITION;
-	unsigned int THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVEDGEBLOCKS_PER_VPARTITION;
-	unsigned int THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPROPBLOCKS_PER_VPARTITION;
-
-	unsigned int BASEOFFSETKVS_MESSAGESDATA;
-	unsigned int VOLUMEOFFSETKVS_WORKDATA;
-	unsigned int VOLUMEOFFSETKVS_WORKSPACEDATA;
-	unsigned int BASEOFFSETKVS_EDGES0DATA;
-	unsigned int BASEOFFSETKVS_EDGESDATA;
-	unsigned int BASEOFFSETKVS_VERTEXPTR;
-	unsigned int BASEOFFSETKVS_SRCVERTICESDATA;
-	unsigned int BASEOFFSETKVS_DESTVERTICESDATA;
-	unsigned int BASEOFFSETKVS_ACTIVEVERTICESDATA;
-	unsigned int BASEOFFSETKVS_ACTIVEUPROPBLOCKS;
-	unsigned int BASEOFFSETKVS_ACTIVEEDGEBLOCKS;
-	unsigned int BASEOFFSETKVS_ACTIVEUPDATEBLOCKS;
-	unsigned int BASEOFFSETKVS_EDGESMAP;
-	unsigned int BASEOFFSETKVS_EDGEBLOCKMAP;
-	unsigned int BASEOFFSETKVS_VERTICESPARTITIONMASK;
-	unsigned int BASEOFFSETKVS_STATSDRAM;
-	unsigned int BASEOFFSETKVS_EDGESSTATSDRAM;
-	unsigned int BASEOFFSETKVS_VERTEXUPDATESDATA;
-	unsigned int BASEOFFSETKVS_KVDRAM;
-	unsigned int BASEOFFSETKVS_KVDRAMWORKSPACE;
-	unsigned int BASEOFFSETKVS_OTHERINFOS;
-	unsigned int BASEOFFSETKVS_ENDOFFILE;
-	
-	unsigned int BUFFERBASEOFFSETKVS_VDATA1;
-	unsigned int BUFFERBASEOFFSETKVS_VDATA2;
-	unsigned int BUFFERBASEOFFSETKVS_VDATA3;
-	unsigned int BUFFERBASEOFFSETKVS_VDATA4;
-	unsigned int BUFFERBASEOFFSETKVS_VDATA5;
-
-	unsigned int SIZE_MESSAGESDRAM;
-	unsigned int VOLUMESIZEU32_WORKDATA;
-	unsigned int VOLUMESIZEU32_WORKSPACEDATA;
-	unsigned int SIZE_EDGES0;
-	unsigned int SIZE_EDGES;
-	unsigned int SIZE_VERTEXPTRS;
-	unsigned int SIZE_SRCVERTICESDATA;
-	unsigned int SIZE_DESTVERTICESDATA;
-	unsigned int SIZE_ACTIVEVERTICESDATA;
-	unsigned int SIZE_ACTIVEUPROPBLOCKS;
-	unsigned int SIZE_ACTIVEEDGEBLOCKS;
-	unsigned int SIZE_ACTIVEUPDATEBLOCKS;
-	unsigned int SIZE_EDGESMAP;
-	unsigned int SIZE_EDGEBLOCKMAP;
-	unsigned int SIZE_VERTICESPARTITIONMASK;
-	unsigned int SIZE_KVSTATSDRAM;
-	unsigned int SIZE_EDGESSTATSDRAM;
-	unsigned int SIZE_VERTEXUPDATESDATA;
-	unsigned int SIZE_KVDRAM;
-	unsigned int SIZE_KVDRAMWORKSPACE;
-	unsigned int SIZE_OTHERINFOS;
-	unsigned int SIZEKVS2_PROCESSEDGESPARTITION;
-	unsigned int SIZE_REDUCE;
-	unsigned int SIZEKVS2_REDUCEPARTITION;
-	unsigned int SIZEKVS_VMASKBUFFER;
-	unsigned int SIZE_BATCHRANGE;
-	unsigned int SIZE_RUN;
-
-	unsigned int POW_MESSAGESDRAM;
-	unsigned int POW_EDGES0;
-	unsigned int POW_EDGES;
-	unsigned int POW_VERTEXPTRS;
-	unsigned int POW_SRCVERTICESDATA;
-	unsigned int POW_DESTVERTICESDATA;
-	unsigned int POW_ACTIVEEDGEBLOCKS;
-	unsigned int POW_VERTICESDATAMASK;
-	unsigned int POW_KVSTATSDRAM;
-	unsigned int POW_EDGESSTATSDRAM;
-	unsigned int POW_VERTEXUPDATESDATA;
-	unsigned int POW_KVDRAM;
-	unsigned int POW_KVDRAMWORKSPACE;
-	unsigned int POW_REDUCE;
-	unsigned int POW_BATCHRANGE;
-	
-	unsigned int NUM_PROCESSEDGESPARTITIONS;
-	unsigned int NUM_REDUCEPARTITIONS;
-
-	unsigned int ALGORITHMINFO_GRAPHITERATIONID;
-	unsigned int ALGORITHMINFO_GRAPHALGORITHMID;
-	unsigned int ALGORITHMINFO_GRAPHALGORITHMCLASS; // computed online
-
-	unsigned int ACTSPARAMS_BEGINLOP;
-	unsigned int ACTSPARAMS_NUMLOPS;
-	unsigned int ACTSPARAMS_TREEDEPTH;
-	unsigned int ACTSPARAMS_FINALNUMPARTITIONS;
-	unsigned int ACTSPARAMS_SRCVOFFSET;
-	unsigned int ACTSPARAMS_SRCVSIZE;
-	unsigned int ACTSPARAMS_DESTVOFFSET;
-	unsigned int ACTSPARAMS_NUMEDGECHUNKSINABUFFER;
-	unsigned int ACTSPARAMS_INSTID;
-	unsigned int ACTSPARAMS_NUM_EDGE_BANKS;
-	unsigned int ACTSPARAMS_EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM;
-	unsigned int ACTSPARAMS_NUM_PARTITIONS;
-	unsigned int ACTSPARAMS_NUM_PARTITIONS_LOP1;
-	unsigned int ACTSPARAMS_NUM_PARTITIONS_LOP2;
-	unsigned int ACTSPARAMS_BATCH_RANGE;
-	unsigned int ACTSPARAMS_POW_PARTITIONS;
-	unsigned int ACTSPARAMS_POW_PARTITIONS_LOP1;
-	unsigned int ACTSPARAMS_POW_PARTITIONS_LOP2;
-	unsigned int ACTSPARAMS_POW_PARTITIONS_LOP3;
-	unsigned int ACTSPARAMS_WORKBUFFER_SIZE;
-	unsigned int ACTSPARAMS_MAXHBMCAPACITY_KVS;
-	unsigned int ACTSPARAMS_VPTR_SHRINK_RATIO;
-	unsigned int ACTSPARAMS_READOFFLINESTATS;
-	unsigned int ACTSPARAMS_UNUSED4;
-	unsigned int ACTSPARAMS_NUMCOMPUTEUNITS_SLR2;
-	unsigned int ACTSPARAMS_NUMCOMPUTEUNITS_SLR1;
-	unsigned int ACTSPARAMS_NUMCOMPUTEUNITS_SLR0;
-	
-	unsigned int DUMMYCHKPOINT;
-	unsigned int BASEOFFSETKVS_INMESSAGES_EDGESSTATSDRAM;
-	unsigned int RETURNVALUES;
-	unsigned int MAILBOX;
-
-	unsigned int VARS_WORKBATCH;
-} globalparams_t;
-
-typedef struct {
 	unsigned int ALGORITHM; 
 	unsigned int NUM_ITERATIONS;
 	unsigned int ROOTVID;
@@ -444,6 +314,34 @@ typedef struct {
 	unsigned int size;
 	unsigned int count;
 } offset_t;
-#endif
 
+typedef struct {
+	keyvalue_t * cfrontier_dram[EDGE_PACK_SIZE][MAX_NUM_UPARTITIONS]; 
+} HBM_center_t;
+
+typedef struct {
+	edge3_vec_dt * csr_pack_edges_arr; // [~fit]
+	edge3_vec_dt * act_pack_edges_arr; // [~fit]
+	unsigned int * v_ptr;
+	map_t * act_pack_map[MAX_NUM_UPARTITIONS];
+	uint512_vec_dt * cfrontier_dram_i;  // [MAX_APPLYPARTITION_VECSIZE]
+	uint512_vec_dt * nfrontier_dram[MAX_NUM_UPARTITIONS];  // [MAX_NUM_UPARTITIONS][MAX_APPLYPARTITION_VECSIZE]
+	vprop_vec_t * vdatas_dram[MAX_NUM_APPLYPARTITIONS]; // [MAX_NUM_APPLYPARTITIONS][MAX_APPLYPARTITION_VECSIZE]
+	#ifdef ENABLE__SPARSEPROC
+	keyvalue_t * csrupdates_dram[MAX_NUM_APPLYPARTITIONS]; // [MAX_NUM_APPLYPARTITIONS][CSRDRAM_SIZE]
+	#endif 
+	uint512_uvec_dt * actpackupdates_dram[MAX_NUM_APPLYPARTITIONS]; // [MAX_NUM_APPLYPARTITIONS][HBM_CHANNEL_SIZE]
+} HBM_channel_t;
+
+typedef struct {
+	keyvalue_t * nfrontier_buffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][MAX_APPLYPARTITION_VECSIZE]
+	keyvalue_t * cfrontier_buffer_i[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][MAX_APPLYPARTITION_VECSIZE]
+	unsigned int * stats_tmpbuffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][BLOCKRAM_SIZE]
+	unsigned int * stats_buffer[MAX_NUM_APPLYPARTITIONS]; // [MAX_NUM_APPLYPARTITIONS][BLOCKRAM_SIZE]
+	#ifdef ENABLE__SPARSEPROC
+	keyvalue_t * csrupdates_buffer[NUM_PEs]; // [NUM_PEs][CSRBUFFER_SIZE]
+	#endif 
+	vprop_t * vertex_buffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][MAX_UPARTITION_VECSIZE]
+} BRAM_channel_t;
+#endif
 

@@ -23,7 +23,7 @@ public:
 	act_pack(universalparams_t _universalparams);
 	~act_pack();
 
-	void pack(vector<edge_t> &vertexptrbuffer, vector<edge2_type> &edgedatabuffer, vector<edge3_vec_dt> (&edges_temp)[NUM_PEs], map_t * edges_map[NUM_PEs][MAX_NUM_UPARTITIONS]);
+	void pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedatabuffer, vector<edge3_vec_dt> (&edges_temp)[NUM_PEs], map_t * edges_map[NUM_PEs][MAX_NUM_UPARTITIONS]);
 	
 private:
 	utility * utilityobj;

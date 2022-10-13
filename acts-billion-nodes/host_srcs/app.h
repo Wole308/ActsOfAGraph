@@ -40,7 +40,7 @@ public:
 	
 private:
 	utility * utilityobj;
-	// universalparams_t universalparams;
+	algorithm * algorithmobj;
 };
 #endif
 

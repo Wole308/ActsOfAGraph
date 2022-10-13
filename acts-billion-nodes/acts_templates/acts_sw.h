@@ -50,7 +50,7 @@ public:
 	acts_sw(universalparams_t universalparams);
 	~acts_sw();
 	
-	void run(vector<edge_t> &vertexptrbuffer, vector<edge2_type> &edgedatabuffer, unsigned int * v_ptr[NUM_PEs], vector<edge2_type> edges_in_channel[NUM_PEs], vector<edge3_vec_dt> (&edges_temp)[NUM_PEs], map_t * edges_map[NUM_PEs][MAX_NUM_UPARTITIONS]);
+	void run(unsigned int * v_ptr[NUM_PEs], map_t * act_pack_map[NUM_PEs][MAX_NUM_UPARTITIONS], HBM_center_t * HBM_center___, HBM_channel_t HBM_channel___[NUM_PEs]);						
 
 private:
 	utility * utilityobj;
