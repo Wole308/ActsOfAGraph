@@ -286,7 +286,7 @@ typedef struct {
 typedef unsigned int vdata_t;
 
 typedef struct {
-	unsigned int data;
+	unsigned int prop;
 	unsigned int message;
 	unsigned int mask;
 } vprop_t;

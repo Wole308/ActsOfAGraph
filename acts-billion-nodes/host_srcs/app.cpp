@@ -147,7 +147,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 		for(unsigned int i=0; i<NUM_PEs; i++){ HBM_channel[i].act_pack_edges_arr = new edge3_vec_dt[max]; }
 		for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<max; t++){ HBM_channel[i].act_pack_edges_arr[t] =  act_pack_edges[i][t]; }}
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p=0; p<MAX_NUM_APPLYPARTITIONS; p++){ HBM_channel[i].vdatas_dram[p] = new vprop_vec_t[MAX_APPLYPARTITION_VECSIZE]; }}
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p=0; p<__NUM_APPLYPARTITIONS; p++){ for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE; t++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ HBM_channel[i].vdatas_dram[p][t].data[v].data = algorithmobj->vertex_initdata(universalparams.ALGORITHM); HBM_channel[i].vdatas_dram[p][t].data[v].mask = 0; }}}}		
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p=0; p<__NUM_APPLYPARTITIONS; p++){ for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE; t++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ HBM_channel[i].vdatas_dram[p][t].data[v].prop = algorithmobj->vertex_initdata(universalparams.ALGORITHM); HBM_channel[i].vdatas_dram[p][t].data[v].mask = 0; }}}}		
 	for(unsigned int i=0; i<NUM_PEs; i++){ HBM_channel[i].cfrontier_dram_i = new uint512_vec_dt[MAX_APPLYPARTITION_VECSIZE]; }
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p=0; p<MAX_NUM_UPARTITIONS; p++){ HBM_channel[i].nfrontier_dram[p] = new uint512_vec_dt[MAX_APPLYPARTITION_VECSIZE]; }}
 	#ifdef ENABLE__SPARSEPROC
