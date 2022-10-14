@@ -136,8 +136,6 @@ void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedat
 				edgesin_srcvp_lldstvp[newll_p].push_back(edge);
 			}
 			if(false){ cout<<"act_pack[STAGE 2 check]:: {srcvid, dstvid}"<<endl; }
-			// cout<<"#######################################################################"<<endl;
-			// exit(EXIT_SUCCESS);//////////////
 			
 			// witihin a LLP, re-arrange by srcvids 
 			if(debug){ cout<<"STAGE 3: witihin a LLP, re-arrange by srcvids "<<endl; }
@@ -240,6 +238,15 @@ void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedat
 						utilityobj->checkoutofbounds("loadedges::ERROR 59. rotatebyy::", rotatebyy, EDGE_PACK_SIZE, sample_keyy, t, NAp);	
 						edge_vec3.data[EDGE_PACK_SIZE].srcvid = rotate_forwardd;
 						edge_vec3.data[EDGE_PACK_SIZE + 1].srcvid = rotatebyy; 
+						
+						
+						// #ifdef CONFIG_SEND_LOCAL_VERTEXIDS_ONLY
+						for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+							if(edge_vec3.data[v].dstvid != INVALIDDATA){
+								edge_vec3.data[v].dstvid = get_local2(edge_vec3.data[v].dstvid) % MAX_UPARTITION_SIZE; 
+							}
+						}
+						// #endif 
 						
 						act_pack_edges[i].push_back(edge_vec3);
 						act_pack_map[i][v_p][llp_set].size += 1; // EDGE_PACK_SIZE; 

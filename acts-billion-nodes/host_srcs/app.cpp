@@ -131,7 +131,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 		H += 1;
 	}
 	for(unsigned int i=0; i<NUM_PEs; i++){ unsigned int index = 0, ind = 0; for(unsigned int vid=0; vid<universalparams.NUM_VERTICES; vid++){ if(vid % NUM_PEs == i){ v_ptr[i][vid / NUM_PEs] = index; index += degrees[i][vid / NUM_PEs]; ind += 1; }}}
-	for(unsigned int i=0; i<NUM_PEs; i++){ cout<<"-------- app:csr: csr_pack_edges["<<i<<"].size(): "<<csr_pack_edges[i].size()<<endl; }
+	for(unsigned int i=0; i<NUM_PEs; i++){ cout<<"csr-pack:: PE: 21: act_pack_edges["<<i<<"].size(): "<<csr_pack_edges[i].size()<<endl; }
 	unsigned int max = 0; for(unsigned int i=0; i<NUM_PEs; i++){ if(max < act_pack_edges[i].size()){ max = act_pack_edges[i].size(); }} 
 	for(unsigned int i=0; i<NUM_PEs; i++){ act_pack_edges_arr[i] = new edge3_vec_dt[max]; }
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<max; t++){ act_pack_edges_arr[i][t] =  act_pack_edges[i][t]; }}
@@ -141,7 +141,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	
 	HBM_channel_t HBM_channel[NUM_PEs];
 	max = 0; for(unsigned int i=0; i<NUM_PEs; i++){ if(max < csr_pack_edges[i].size()){ max = csr_pack_edges[i].size(); }}
-		for(unsigned int i=0; i<NUM_PEs; i++){ HBM_channel[i].csr_pack_edges_arr = new edge3_vec_dt[(max / EDGE_PACK_SIZE) + 1]; }
+		for(unsigned int i=0; i<NUM_PEs; i++){ HBM_channel[i].csr_pack_edges_arr = new edge3_vec_dt[(max / EDGE_PACK_SIZE) + 16]; }
 		for(unsigned int i=0; i<NUM_PEs; i++){ unsigned int index = 0; for(unsigned int t=0; t<max; t++){ HBM_channel[i].csr_pack_edges_arr[index / EDGE_PACK_SIZE].data[index % EDGE_PACK_SIZE] = csr_pack_edges[i][t]; index += 1; }}
 	max = 0; for(unsigned int i=0; i<NUM_PEs; i++){ if(max < act_pack_edges[i].size()){ max = act_pack_edges[i].size(); }} 
 		for(unsigned int i=0; i<NUM_PEs; i++){ HBM_channel[i].act_pack_edges_arr = new edge3_vec_dt[max]; }

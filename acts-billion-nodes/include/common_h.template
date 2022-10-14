@@ -98,7 +98,7 @@
 #define MAX_NUM_LLPSETS 16
 #define NAp 666
 #define MAXNUMGRAPHITERATIONS 16
-#define MAX_NUM_PARTITIONS 16
+#define MAX_NUM_PARTITIONS 16 
 #define INVALIDDATA 0xFFFFFFFF 
 
 #define MAX_UPARTITION_VECSIZE 8184 // 8192
@@ -111,6 +111,7 @@
 #define MAX_NUM_ACTVVPARTITIONS (MAX_NUM_APPLYPARTITIONS * NUM_ACTVVPARTITIONS_PER_APPLYPARTITION * NUM_PEs) // 384
 
 #define CSRBUFFER_SIZE 4096 // 512
+#define MAX_CSRUPDATES_VECSIZE_PER__APPLYPARTITION 1024
 #define CSRDRAM_SIZE 16384 // 4096
 #define ACTVUPDATESBLOCK_VECSIZE 16
 #define BLOCKRAM_SIZE 512
@@ -193,7 +194,15 @@ typedef unsigned int value_t;
 typedef struct {
 	unsigned int key;
 	unsigned int value;
+	// unsigned int message; // REMOVEME.
 } keyvalue_t;
+
+// typedef struct {
+	// unsigned int key;
+	// unsigned int value;
+	// unsigned int valid;
+// } frontier_t;
+typedef keyvalue_t frontier_t;
 
 #ifdef _WIDEWORD
 typedef ap_uint<1> unit1_type;
@@ -253,6 +262,10 @@ typedef struct {
 } uint512_vec_dt;
 
 typedef struct {
+	frontier_t data[EDGE_PACK_SIZE];
+} uint512_fvec_dt;
+
+typedef struct {
 	value_t data[EDGE_PACK_SIZE];
 } uint512_evec_dt;
 
@@ -281,6 +294,7 @@ typedef unsigned int vdata_t;
 
 typedef struct {
 	unsigned int data;
+	// unsigned int message;
 	unsigned int mask;
 } vprop_t;
 
@@ -316,7 +330,7 @@ typedef struct {
 } offset_t;
 
 typedef struct {
-	keyvalue_t * cfrontier_dram[EDGE_PACK_SIZE][MAX_NUM_UPARTITIONS]; 
+	keyvalue_t * cfrontier_dram[EDGE_PACK_SIZE][MAX_NUM_UPARTITIONS]; // [MAX_UPARTITION_SIZE]
 } HBM_center_t;
 
 typedef struct {
@@ -338,10 +352,12 @@ typedef struct {
 	keyvalue_t * cfrontier_buffer_i[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][MAX_APPLYPARTITION_VECSIZE]
 	unsigned int * stats_tmpbuffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][BLOCKRAM_SIZE]
 	unsigned int * stats_buffer[MAX_NUM_APPLYPARTITIONS]; // [MAX_NUM_APPLYPARTITIONS][BLOCKRAM_SIZE]
+	unsigned int * stats2_buffer[MAX_NUM_APPLYPARTITIONS]; // [MAX_NUM_APPLYPARTITIONS][BLOCKRAM_SIZE]
 	#ifdef ENABLE__SPARSEPROC
 	keyvalue_t * csrupdates_buffer[NUM_PEs]; // [NUM_PEs][CSRBUFFER_SIZE]
 	#endif 
-	vprop_t * vertex_buffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][MAX_UPARTITION_VECSIZE]
+	vprop_t * vertex_buffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][MAX_APPLYPARTITION_VECSIZE]
+	keyvalue_t * updates_buffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][MAX_APPLYPARTITION_VECSIZE]
 } BRAM_channel_t;
 #endif
 
