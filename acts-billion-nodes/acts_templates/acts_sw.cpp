@@ -752,7 +752,7 @@ void clear_vdatabuffer(unsigned int v, unsigned int index, BRAM_channel_t * BRAM
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_sw::ERROR 106::", index, MAX_UPARTITION_VECSIZE, NAp, NAp, NAp);
 	#endif 
-	BRAM_channel->vertex_buffer[v][index].mask = 0; // vdata_buffer
+	BRAM_channel->vertex_buffer[v][index].mask = INVALIDMASK; // vdata_buffer
 }
 
 void insert_updatesbuffer(unsigned int v, unsigned int index, keyvalue_t data, BRAM_channel_t * BRAM_channel){
@@ -899,9 +899,8 @@ void acts_sw::run(unsigned int * v_ptr[NUM_PEs], map_t * act_pack_map[NUM_PEs][M
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ BRAM_channel[i].vertex_buffer[v] = new vprop_t[MAX_APPLYPARTITION_VECSIZE]; }}
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ BRAM_channel[i].updates_buffer[v] = new keyvalue_t[MAX_APPLYPARTITION_VECSIZE]; }}
 	
-	unsigned int * cfrontier_dram___size[EDGE_PACK_SIZE]; 
-	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ cfrontier_dram___size[v] = new unsigned int[MAX_NUM_UPARTITIONS]; }
-	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ for(unsigned int p=0; p<MAX_NUM_UPARTITIONS; p++){ cfrontier_dram___size[v][p] = 0; }}
+	unsigned int * cfrontier_dram___size = new unsigned int[MAX_NUM_UPARTITIONS]; 
+	for(unsigned int p=0; p<MAX_NUM_UPARTITIONS; p++){ cfrontier_dram___size[p] = 0; }
 	
 	unsigned int * nfrontier_dram___size[NUM_PEs][EDGE_PACK_SIZE]; 
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ nfrontier_dram___size[i][v] = new unsigned int[MAX_NUM_UPARTITIONS]; }}
@@ -957,22 +956,24 @@ void acts_sw::run(unsigned int * v_ptr[NUM_PEs], map_t * act_pack_map[NUM_PEs][M
 	bool enable___collectactivedstvids = false; // false
 	unsigned int threshold___activedstvids = 0xFFFFFFFF;
 	unsigned int limits[NUM_PEs];
+	#pragma HLS ARRAY_PARTITION variable = limits complete
 	unsigned int max_limits[NUM_PEs];
+	#pragma HLS ARRAY_PARTITION variable = max_limits complete
 	unsigned int max_limit = 0; 
 	
 	unsigned int rootvid = 1; keyvalue_t root; root.key = rootvid; root.value = 0; keyvalue_t invalid; invalid.key = INVALIDDATA; invalid.value = INVALIDDATA; 
-	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ if(v==1){ HBM_center->cfrontier_dram[v][0][0] = root; } else { HBM_center->cfrontier_dram[v][0][0] = invalid; } cfrontier_dram___size[v][0] = 1; }
+	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ if(v==1){ HBM_center->cfrontier_dram[v][0][0] = root; } else { HBM_center->cfrontier_dram[v][0][0] = invalid; } cfrontier_dram___size[0] = 1; }
 	
 	if(run_vertex_centric == true){ cout<<"### Vertex-Centric GAS iteration: 0 [1 active vertices]"<<endl; } else { cout<<"### Edge-Centric GAS iteration: 0 [1 active vertices]"<<endl; }
 	
 	// reset ubuffer 
-	vprop_t prop; prop.prop = 0; prop.mask = 0; 
+	vprop_t prop; prop.prop = 0; prop.mask = INVALIDMASK; 
 	for(unsigned int inst=0; inst<NUM_PEs; inst++){ for(unsigned int t=0; t<MAX_UPARTITION_VECSIZE; t++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ insert_udatabuffer(v, t, prop, &BRAM_channel[inst]); }}} // 
 			
 	for(unsigned int GraphIter=0; GraphIter<12; GraphIter++){ // MAXNUMGRAPHITERATIONS
-		// unsigned int MASK_CODE = 1; // NEW-MASK*
-		// unsigned int MASK_CODE = 7;
-		unsigned int MASK_CODE = 5 + GraphIter;
+		unsigned int MASK_CODE = 1 + GraphIter;
+		unsigned int MASK_CODE_PE = 1 + GraphIter;
+		unsigned int MASK_CODE_AU = 4094 + 1 + GraphIter;
 		
 		// clear counters 
 		for(unsigned int inst=0; inst<NUM_PEs; inst++){ 
@@ -992,10 +993,11 @@ void acts_sw::run(unsigned int * v_ptr[NUM_PEs], map_t * act_pack_map[NUM_PEs][M
 		// process-edges and partition-updates
 		for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){
 			keyvalue_t data[EDGE_PACK_SIZE];
+			MASK_CODE_PE = ((1 + GraphIter) * MAX_NUM_UPARTITIONS) + p_u;
 			bool ___use_vertex_centric___ = false; if(upartition_vertices[p_u].count < threshold___activefrontiers && enable___vertexcentric == true){ ___use_vertex_centric___ = true; }
 	
 			// broadcast active frontiers
-			for(unsigned int t=0; t<cfrontier_dram___size[0][p_u]; t++){
+			for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t++){
 			#pragma HLS PIPELINE II=1
 				retrieve_cfrontierdram(p_u, t, data, HBM_center);
 				for(unsigned int inst=0; inst<NUM_PEs; inst++){
@@ -1006,7 +1008,7 @@ void acts_sw::run(unsigned int * v_ptr[NUM_PEs], map_t * act_pack_map[NUM_PEs][M
 			
 			// parallel-read active frontiers
 			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-				for(unsigned int t=0; t<cfrontier_dram___size[0][p_u]; t++){
+				for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t++){
 				#pragma HLS PIPELINE II=1
 					for(unsigned int inst=0; inst<NUM_PEs; inst++){
 					#pragma HLS UNROLL
@@ -1015,10 +1017,6 @@ void acts_sw::run(unsigned int * v_ptr[NUM_PEs], map_t * act_pack_map[NUM_PEs][M
 					}
 				}
 			}
-			
-			// clear ubuffer // FIXME.
-			// vprop_t prop; prop.prop = 0; prop.mask = 0; 
-			// for(unsigned int inst=0; inst<NUM_PEs; inst++){ for(unsigned int t=0; t<MAX_UPARTITION_VECSIZE; t++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ insert_udatabuffer(v, t, prop, &BRAM_channel[inst]); }}} // 
 			
 			// clear temp stats buffer
 			if(___use_vertex_centric___ == false){
@@ -1034,7 +1032,7 @@ void acts_sw::run(unsigned int * v_ptr[NUM_PEs], map_t * act_pack_map[NUM_PEs][M
 			}
 			
 			// load active frontiers: convert from vertexID-based to bitmask-based
-			for(unsigned int t=0; t<cfrontier_dram___size[0][p_u]; t++){
+			for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t++){
 			#pragma HLS PIPELINE II=1
 				for(unsigned int inst=0; inst<NUM_PEs; inst++){
 					keyvalue_t actvv[EDGE_PACK_SIZE];
@@ -1043,7 +1041,7 @@ void acts_sw::run(unsigned int * v_ptr[NUM_PEs], map_t * act_pack_map[NUM_PEs][M
 					#pragma HLS UNROLL
 						if(actvv[v].key != INVALIDDATA){
 							unsigned int srcvid_lpv = get_local_to_upartition(actvv[v].key) / EDGE_PACK_SIZE; 
-							vprop_t prop; prop.prop = actvv[v].value; prop.mask = MASK_CODE; // NEW-MASK*
+							vprop_t prop; prop.prop = actvv[v].value; prop.mask = MASK_CODE_PE; // NEW-MASK*
 							insert_udatabuffer(v, srcvid_lpv, prop, &BRAM_channel[inst]); 
 						}
 					}
@@ -1052,20 +1050,20 @@ void acts_sw::run(unsigned int * v_ptr[NUM_PEs], map_t * act_pack_map[NUM_PEs][M
 			
 			for(unsigned int i=0; i<NUM_PEs; i++){ 
 			#pragma HLS UNROLL
-				for(unsigned int j=0; j<NUM_PEs; j++){ csrupdates_buffer___size[i][j] = 0; }
-			} // clear
+				for(unsigned int j=0; j<NUM_PEs; j++){ csrupdates_buffer___size[i][j] = 0; } // reset
+			} 
 			
 			// process-edges and partition-updates
 			if(upartition_vertices[p_u].count > 0){
-				// if(upartition_vertices[p_u].count < threshold___activefrontiers && enable___vertexcentric == true){ // vertex-centric
-				if(___use_vertex_centric___ == true){
+				if(upartition_vertices[p_u].count < threshold___activefrontiers && enable___vertexcentric == true){ // vertex-centric
+				// if(___use_vertex_centric___ == true){
 					hybrid_map[GraphIter][p_u] = 0;
 					
 					for(unsigned int inst=0; inst<NUM_PEs; inst++){ vptr_buffer___size[inst] = 0; }
 					for(unsigned int inst=0; inst<NUM_PEs; inst++){
 						// read edge locations
 						VC_READVPTRS_LOOP1: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-							VC_READVPTRS_LOOP1B: for(unsigned int t=0; t<cfrontier_dram___size[0][p_u]; t++){ 
+							VC_READVPTRS_LOOP1B: for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t++){ 
 							#pragma HLS PIPELINE II=1
 								frontier_t actvv = retrieve_cfrontierbuffer_i(v, t, &BRAM_channel[inst]);
 								unsigned int vid = actvv.key; 
@@ -1172,12 +1170,12 @@ void acts_sw::run(unsigned int * v_ptr[NUM_PEs], map_t * act_pack_map[NUM_PEs][M
 										res[inst][v] = uprop[inst][v].prop + 1;
 										vtemp_in[inst][v] = min(uprop[inst][v].prop, res[inst][v]);
 										update_in[inst][v].key = edges[inst][v].dstvid; update_in[inst][v].value = vtemp_in[inst][v];
-										if(uprop[inst][v].mask != MASK_CODE){ update_in[inst][v].key = INVALIDDATA; update_in[inst][v].value = INVALIDDATA; } // NEW-MASK*
+										if(uprop[inst][v].mask != MASK_CODE_PE){ update_in[inst][v].key = INVALIDDATA; update_in[inst][v].value = INVALIDDATA; } // NEW-MASK*
 										#ifdef _DEBUGMODE_KERNELPRINTS//4
-										if(uprop[inst][v].mask == MASK_CODE){ cout<<"EC - PROCESS EDGE SEEN @: inst: ["<<inst<<"], [srcvid_lp: "<<srcvid_lp<<", dstvid: "<<edges[inst][v].dstvid % MAX_APPLYPARTITION_SIZE<<"], [edge.srcvid: "<<edges[inst][v].srcvid<<", dstvid: "<<edges[inst][v].dstvid<<"]"<<endl; }
+										if(uprop[inst][v].mask == MASK_CODE_PE){ cout<<"EC - PROCESS EDGE SEEN @: inst: ["<<inst<<"], [srcvid_lp: "<<srcvid_lp<<", dstvid: "<<edges[inst][v].dstvid % MAX_APPLYPARTITION_SIZE<<"], [edge.srcvid: "<<edges[inst][v].srcvid<<", dstvid: "<<edges[inst][v].dstvid<<"]"<<endl; }
 										#endif 
 									} else {
-										uprop[inst][v].mask = 0; update_in[inst][v].key = INVALIDDATA; update_in[inst][v].value = INVALIDDATA;
+										uprop[inst][v].mask = INVALIDMASK; update_in[inst][v].key = INVALIDDATA; update_in[inst][v].value = INVALIDDATA;
 									}
 								}
 								
@@ -1228,13 +1226,13 @@ void acts_sw::run(unsigned int * v_ptr[NUM_PEs], map_t * act_pack_map[NUM_PEs][M
 			}
 		}
 		
-		// save csr updates
-		for(unsigned int inst=0; inst<NUM_PEs; inst++){ 
-			for(unsigned int p_v=0; p_v<__NUM_APPLYPARTITIONS; p_v++){
+		/* // save csr updates
+		SAVE_CSR_UPDATES_LOOP1: for(unsigned int inst=0; inst<NUM_PEs; inst++){ 
+			SAVE_CSR_UPDATES_LOOP1B: for(unsigned int p_v=0; p_v<__NUM_APPLYPARTITIONS; p_v++){
 				unsigned int max = 0; for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ if(max < updates_buffer___size[inst][v][p_v]){ max = updates_buffer___size[inst][v][p_v]; }}
-				for(unsigned int t=0; t<max; t++){
+				SAVE_CSR_UPDATES_LOOP1C: for(unsigned int t=0; t<max; t++){
 					uint512_uvec_dt updates_vec;
-					for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+					SAVE_CSR_UPDATES_LOOP1D: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 						if(t < updates_buffer___size[inst][v][p_v]){
 							updates_vec.data[v] = retrieve_updatesbuffer(v, (p_v * MAX_CSRUPDATES_VECSIZE_PER__APPLYPARTITION) + t, &BRAM_channel[inst]);
 							#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
@@ -1249,13 +1247,44 @@ void acts_sw::run(unsigned int * v_ptr[NUM_PEs], map_t * act_pack_map[NUM_PEs][M
 					actpackupdates_dram___size[inst][p_v] += 1;
 				}
 			}
+		} */
+		// save csr updates // NEW*
+		SAVE_CSR_UPDATES_LOOP1: for(unsigned int p_v=0; p_v<__NUM_APPLYPARTITIONS; p_v++){
+			max_limit = 0; for(unsigned int inst=0; inst<NUM_PEs; inst++){ max_limits[inst] = 0; }
+			for(unsigned int inst=0; inst<NUM_PEs; inst++){
+			#pragma HLS UNROLL
+				for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ if(max_limits[inst] < updates_buffer___size[inst][v][p_v]){ max_limits[inst] = updates_buffer___size[inst][v][p_v]; }}
+			} for(unsigned int inst=0; inst<NUM_PEs; inst++){ if(max_limit < max_limits[inst]){ max_limit = max_limits[inst]; }}
+			
+			SAVE_CSR_UPDATES_LOOP1B: for(unsigned int t=0; t<max_limit; t++){
+				SAVE_CSR_UPDATES_LOOP1C: for(unsigned int inst=0; inst<NUM_PEs; inst++){ if(t < max_limits[inst]){
+				#pragma HLS UNROLL
+					uint512_uvec_dt updates_vec;
+					SAVE_CSR_UPDATES_LOOP1D: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+					#pragma HLS UNROLL
+						if(t < updates_buffer___size[inst][v][p_v]){
+							updates_vec.data[v] = retrieve_updatesbuffer(v, (p_v * MAX_CSRUPDATES_VECSIZE_PER__APPLYPARTITION) + t, &BRAM_channel[inst]);
+							#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+							cout<<"VC - COMMIT CSR UPDATES SEEN @: [inst: "<<inst<<"], [updates_vec.data["<<v<<"].key: "<<updates_vec.data[v].key<<", updates_vec.data["<<v<<"].value: "<<updates_vec.data[v].value<<"]"<<endl;
+							#endif
+						} else {
+							updates_vec.data[v].key = INVALIDDATA; updates_vec.data[v].value = INVALIDDATA; 
+						}
+					}
+					checkoutofbounds("acts_sw::ERROR 152::", actpackupdates_dram___size[inst][p_v], HBM_CHANNEL_SIZE, NAp, NAp, NAp);
+					insert_actpackupdatesdram(p_v, actpackupdates_dram___size[inst][p_v], updates_vec, &HBM_channel[inst]);
+					actpackupdates_dram___size[inst][p_v] += 1;
+				}}
+			}
 		}
 		
 		// prepare active destID stats
 		if(enable___collectactivedstvids == true){
-			for(unsigned int inst=0; inst<NUM_PEs; inst++){
-				for(unsigned int p_v=0; p_v<__NUM_APPLYPARTITIONS; p_v++){
-					for(unsigned int t=0; t<BLOCKRAM_SIZE; t++){
+			PREPARE_ACTIVE_DESTIDSTATS_LOOP1: for(unsigned int inst=0; inst<NUM_PEs; inst++){
+			#pragma HLS UNROLL
+				PREPARE_ACTIVE_DESTIDSTATS_LOOP1B: for(unsigned int p_v=0; p_v<__NUM_APPLYPARTITIONS; p_v++){
+				#pragma HLS UNROLL
+					PREPARE_ACTIVE_DESTIDSTATS_LOOP1C: for(unsigned int t=0; t<BLOCKRAM_SIZE; t++){
 						if(retrieve_statsbuffer(t, p_v, &BRAM_channel[inst]) == 1){ 
 							#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 							cout<<"VC - PREPARE ACTIVE DESTIDS SEEN @: [inst: "<<inst<<"], [p_v: "<<p_v<<", t: "<<t<<"]"<<endl;
@@ -1276,7 +1305,7 @@ void acts_sw::run(unsigned int * v_ptr[NUM_PEs], map_t * act_pack_map[NUM_PEs][M
 				vprop_t data[EDGE_PACK_SIZE];
 				if(stats_buffer___size[0][p_v] <= threshold___activedstvids && enable___collectactivedstvids == true){
 				// if(false){
-					for(unsigned int inst=0; inst<NUM_PEs; inst++){
+					for(unsigned int inst=0; inst<NUM_PEs; inst++){ // FIXME.
 						for(unsigned int k=0; k<stats2_buffer___size[inst][p_v]; k++){
 							unsigned int offset = retrieve_stats2buffer(k, p_v, &BRAM_channel[inst]) * ACTVUPDATESBLOCK_VECSIZE;
 							checkoutofbounds("acts_sw::ERROR 117::", offset, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
@@ -1322,7 +1351,7 @@ void acts_sw::run(unsigned int * v_ptr[NUM_PEs], map_t * act_pack_map[NUM_PEs][M
 									#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 									cout<<"APPLY (ACT-PACK) UPDATE SEEN @: inst: ["<<inst<<"]: dstvid_lp: "<<dstvid_lp<<", dstvid_lpv: "<<dstvid_lpv<<", new_vprop: "<<new_vprop<<", vid: "<<update.key<<endl;
 									#endif
-									vprop_t newprop; newprop.prop = new_vprop; newprop.mask = MASK_CODE; // 1; // NEW-MASK*
+									vprop_t newprop; newprop.prop = new_vprop; newprop.mask = MASK_CODE_AU; // 1; // NEW-MASK*
 									insert_vdatabuffer(v, dstvid_lpv, newprop, &BRAM_channel[inst]);
 								}
 							}
@@ -1331,16 +1360,22 @@ void acts_sw::run(unsigned int * v_ptr[NUM_PEs], map_t * act_pack_map[NUM_PEs][M
 				}
 
 				// collect frontier information
-				unsigned int vid_first000[NUM_PEs];
-				unsigned int vid_first01s[NUM_PEs]; 
-				for(unsigned int inst=0; inst<NUM_PEs; inst++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ for(unsigned int p_actvv=0; p_actvv<NUM_ACTVVPARTITIONS_PER_APPLYPARTITION; p_actvv++){ nfrontier_buffer___size[inst][v][p_actvv] = 0; }}}
-				for(unsigned int inst=0; inst<NUM_PEs; inst++){ vid_first000[inst] = get_global(((p_v * MAX_APPLYPARTITION_SIZE) + ((0 * MAX_ACTVV_VECSIZE + 0) * EDGE_PACK_SIZE + 0)), inst); }
+				unsigned int vid_first0[NUM_PEs];
+				#pragma HLS ARRAY_PARTITION variable = vid_first0 complete
+				unsigned int vid_first1[NUM_PEs]; 
+				#pragma HLS ARRAY_PARTITION variable = vid_first1 complete
+				unsigned int CONST1 = NUM_PEs * EDGE_PACK_SIZE; unsigned int CONST2 = MAX_ACTVV_VECSIZE * NUM_PEs * EDGE_PACK_SIZE;
+				for(unsigned int inst=0; inst<NUM_PEs; inst++){ 
+				#pragma HLS UNROLL
+					for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
+					#pragma HLS UNROLL
+						for(unsigned int p_actvv=0; p_actvv<NUM_ACTVVPARTITIONS_PER_APPLYPARTITION; p_actvv++){ nfrontier_buffer___size[inst][v][p_actvv] = 0; }
+					}
+				}
+				for(unsigned int inst=0; inst<NUM_PEs; inst++){ vid_first0[inst] = get_global(((p_v * MAX_APPLYPARTITION_SIZE) + ((0 * MAX_ACTVV_VECSIZE + 0) * EDGE_PACK_SIZE + 0)), inst); }
 				for(unsigned int n=0; n<NUM_ACTVVPARTITIONS_PER_APPLYPARTITION; n++){
 					max_limit = 0; for(unsigned int inst=0; inst<NUM_PEs; inst++){ limits[inst] = MAX_ACTVV_VECSIZE; } for(unsigned int inst=0; inst<NUM_PEs; inst++){ if(max_limit < limits[inst]){ max_limit = limits[inst]; }}
-					for(unsigned int inst=0; inst<NUM_PEs; inst++){ 
-					#pragma HLS UNROLL
-						vid_first01s[inst] = vid_first000[inst]; 
-					}
+					for(unsigned int inst=0; inst<NUM_PEs; inst++){ vid_first1[inst] = vid_first0[inst]; }
 					for(unsigned int t=0; t<max_limit; t++){
 					#pragma HLS PIPELINE II=1
 						unsigned int dstvid_lpv = n * MAX_ACTVV_VECSIZE + t;
@@ -1350,12 +1385,12 @@ void acts_sw::run(unsigned int * v_ptr[NUM_PEs], map_t * act_pack_map[NUM_PEs][M
 							#pragma HLS UNROLL
 								checkoutofbounds("acts_sw::ERROR 713::", dstvid_lpv, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
 								vprop_t vprop =  retrieve_vdatabuffer(v, dstvid_lpv, &BRAM_channel[inst]);
-								unsigned int vid = vid_first01s[inst] + v;
+								unsigned int vid = vid_first1[inst] + v;
 								#ifdef _DEBUGMODE_CHECKS3
 								if(vid % EDGE_PACK_SIZE != v){ cout<<"acts_sw:: ERROR 234. vid("<<vid<<") % EDGE_PACK_SIZE("<<EDGE_PACK_SIZE<<")(="<<vid % EDGE_PACK_SIZE<<") != v("<<v<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }
 								#endif
 								unsigned int p_actvv = dstvid_lpv / MAX_ACTVV_VECSIZE;
-								if(vprop.mask == MASK_CODE){ // NEW-MASK*
+								if(vprop.mask == MASK_CODE_AU){ // NEW-MASK*
 									#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 									cout<<"COLLECT FRONTIER INFORMATION SEEN @: inst: ["<<inst<<"]: dstvid_lpv: "<<dstvid_lpv<<", v: "<<v<<", p__u__: "<<(vid / MAX_UPARTITION_SIZE)<<", vid: "<<vid<<endl;
 									#endif
@@ -1367,16 +1402,17 @@ void acts_sw::run(unsigned int * v_ptr[NUM_PEs], map_t * act_pack_map[NUM_PEs][M
 						}}
 						for(unsigned int inst=0; inst<NUM_PEs; inst++){ 
 						#pragma HLS UNROLL
-							vid_first01s[inst] += (NUM_PEs * EDGE_PACK_SIZE); 
+							vid_first1[inst] += CONST1; 
 						} 
 					}
 					for(unsigned int inst=0; inst<NUM_PEs; inst++){ 
 					#pragma HLS UNROLL
-						vid_first000[inst] += (MAX_ACTVV_VECSIZE * NUM_PEs * EDGE_PACK_SIZE); 
+						vid_first0[inst] += CONST2; 
 					}
 				}
 				
 				// commit frontier information
+				frontier_t actvv[EDGE_PACK_SIZE];
 				for(unsigned int p_actvv=0; p_actvv<NUM_ACTVVPARTITIONS_PER_APPLYPARTITION; p_actvv++){
 					unsigned int max_limit = 0; for(unsigned int inst=0; inst<NUM_PEs; inst++){ max_limits[inst] = 0; }
 					for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
@@ -1387,7 +1423,6 @@ void acts_sw::run(unsigned int * v_ptr[NUM_PEs], map_t * act_pack_map[NUM_PEs][M
 					}
 					for(unsigned int inst=0; inst<NUM_PEs; inst++){ if(max_limit < max_limits[inst]){ max_limit = max_limits[inst]; }}
 					unsigned int p_actvv_ = (p_v * NUM_ACTVVPARTITIONS_PER_APPLYPARTITION) + p_actvv;
-					frontier_t actvv[EDGE_PACK_SIZE];
 					for(unsigned int t=0; t<max_limit; t++){
 					#pragma HLS PIPELINE II=1
 						for(unsigned int inst=0; inst<NUM_PEs; inst++){ if(t < max_limits[inst]){
@@ -1404,7 +1439,7 @@ void acts_sw::run(unsigned int * v_ptr[NUM_PEs], map_t * act_pack_map[NUM_PEs][M
 				
 				// commit destination properties
 				if(stats_buffer___size[0][p_v] <= threshold___activedstvids && enable___collectactivedstvids == true){
-					for(unsigned int inst=0; inst<NUM_PEs; inst++){
+					for(unsigned int inst=0; inst<NUM_PEs; inst++){ // FIXME.
 						for(unsigned int k=0; k<stats2_buffer___size[inst][p_v]; k++){	
 							unsigned int offset = retrieve_stats2buffer(k, p_v, &BRAM_channel[inst]) * ACTVUPDATESBLOCK_VECSIZE;
 							for(unsigned int t=0; t<ACTVUPDATESBLOCK_VECSIZE; t++){
@@ -1414,7 +1449,7 @@ void acts_sw::run(unsigned int * v_ptr[NUM_PEs], map_t * act_pack_map[NUM_PEs][M
 									retrieve_vdatabuffer(offset + t, data, &BRAM_channel[inst]);
 									for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 									#pragma HLS UNROLL
-										data[v].mask = 0; // clear mask. // NEW-MASK*
+										data[v].mask = INVALIDMASK; // clear mask. // NEW-MASK*
 									} 
 									insert_vdatadram(p_v, offset + t, data, &HBM_channel[inst]);
 								}
@@ -1429,7 +1464,7 @@ void acts_sw::run(unsigned int * v_ptr[NUM_PEs], map_t * act_pack_map[NUM_PEs][M
 							retrieve_vdatabuffer(t, data, &BRAM_channel[inst]);
 							for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 							#pragma HLS UNROLL
-								data[v].mask = 0; // clear mask. NEW-MASK*
+								data[v].mask = INVALIDMASK; // clear mask. NEW-MASK*
 							} 
 							insert_vdatadram(p_v, t, data, &HBM_channel[inst]);
 						}
@@ -1441,7 +1476,7 @@ void acts_sw::run(unsigned int * v_ptr[NUM_PEs], map_t * act_pack_map[NUM_PEs][M
 		// end of GAS iteration - gathering frontier information
 		unsigned int totalactvvs2 = 0; frontier_t actvv[EDGE_PACK_SIZE]; 
 		for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){ upartition_vertices[p_u].count = 0; }
-		for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ cfrontier_dram___size[v][p_u] = 0; }} // reset
+		for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){ cfrontier_dram___size[p_u] = 0; } // reset
 		for(unsigned int p_v=0; p_v<__NUM_APPLYPARTITIONS; p_v++){
 			for(unsigned int inst=0; inst<NUM_PEs; inst++){
 				for(unsigned int p_actvv=0; p_actvv<NUM_ACTVVPARTITIONS_PER_APPLYPARTITION; p_actvv++){
@@ -1456,7 +1491,7 @@ void acts_sw::run(unsigned int * v_ptr[NUM_PEs], map_t * act_pack_map[NUM_PEs][M
 						for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ if(actvv[v].key != INVALIDDATA && actvv[v].key / MAX_UPARTITION_SIZE != p_actvv_){ cout<<"ERROR 234: actvv["<<v<<"].key("<<actvv[v].key<<") / MAX_UPARTITION_SIZE("<<MAX_UPARTITION_SIZE<<")(="<<actvv[v].key / MAX_UPARTITION_SIZE<<") != p_actvv_("<<p_actvv_<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }}				
 						#endif 
 						for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ if(actvv[v].key != INVALIDDATA){ totalactvvs2 += 1; }} // FIXME.
-						insert_cfrontierdram(p_actvv_, cfrontier_dram___size[0][p_actvv_], actvv, HBM_center); cfrontier_dram___size[0][p_actvv_] += 1;
+						insert_cfrontierdram(p_actvv_, cfrontier_dram___size[p_actvv_], actvv, HBM_center); cfrontier_dram___size[p_actvv_] += 1;
 					}
 				}
 			}
