@@ -81,13 +81,13 @@
 #define VECTOR_SIZE 8
 #define VECTOR2_SIZE 16
 #define HBM_CHANNEL_VECTOR_SIZE 16
-#define HBM_CHANNEL_SIZE (((1 << 28) / 4) / 16)
 #define VDATA_PACKINGSIZE 16 
 #define EDGE_PACK_SIZE 16
+#define HBM_CHANNEL_PACK_SIZE 32
+#define HBM_CHANNEL_SIZE (((1 << 28) / 4) / EDGE_PACK_SIZE) // in EDGE_PACK_SIZE
 #define FOLD_SIZE 1
 #define MAX_NUM_UPARTITIONS 512
-// #define MAX_NUM_APPLYPARTITIONS 6 
-#define MAX_NUM_APPLYPARTITIONS 16 // FIXME.
+#define MAX_NUM_APPLYPARTITIONS 16 
 #define MAX_NUM_LLPSETS 16
 #define NAp 666
 #define MAXNUMGRAPHITERATIONS 16
@@ -110,6 +110,18 @@
 #define ACTVUPDATESBLOCK_VECSIZE 16
 #define BLOCKRAM_SIZE 512
 #define DOUBLE_BLOCKRAM_SIZE (BLOCKRAM_SIZE * 2)
+#define VPTR_BUFFER_SIZE 512
+#define VPTR_BUFFERMETADATA_SIZE 512
+#define EDGE_BUFFER_SIZE 512//8192// 512 // FIXME.
+
+#define GLOBALPARAMSCODE__CSRVPTRS 0
+#define GLOBALPARAMSCODE__ACTPACKVPTRS 1
+#define GLOBALPARAMSCODE__CSREDGES 2
+#define GLOBALPARAMSCODE__ACTPACKEDGES 3
+#define GLOBALPARAMSCODE__UPDATES 4
+#define GLOBALPARAMSCODE__VDATAS 5
+#define GLOBALPARAMSCODE__CFRONTIERSTMP 6
+#define GLOBALPARAMSCODE__NFRONTIERS 7
 
 ////////////////
 
@@ -188,46 +200,34 @@ typedef unsigned int value_t;
 typedef struct {
 	unsigned int key;
 	unsigned int value;
-	// unsigned int message; // REMOVEME.
 } keyvalue_t;
 
-// typedef struct {
-	// unsigned int key;
-	// unsigned int value;
-	// unsigned int valid;
-// } frontier_t;
 typedef keyvalue_t frontier_t;
 
-#ifdef _WIDEWORD
-typedef ap_uint<1> unit1_type;
-#else 
-typedef unsigned int unit1_type;
-#endif 
+// #ifdef _WIDEWORD
+// typedef ap_uint<1> unit1_type;
+// #else 
+// typedef unsigned int unit1_type;
+// #endif 
 
 typedef struct {
 	keyy_t dstvid; 
 } edge_type;
 
 typedef struct {
-	keyy_t srcvid;
-	keyy_t dstvid;
-	unsigned int weight;
-	bool valid;
-} edge2_type; 
+	keyy_t srcvid;	
+	keyy_t dstvid; 
+} edge2_type;
 
 typedef struct {
 	keyy_t srcvid;
 	keyy_t dstvid;
 	unsigned int weight;
-	bool valid;
+	unsigned int valid;
 } edge3_type; 
 
 typedef struct {
-	edge2_type data[EDGE_PACK_SIZE + 2];
-} edge2_vec_dt;
-
-typedef struct {
-	edge3_type data[EDGE_PACK_SIZE + 2];
+	edge3_type data[EDGE_PACK_SIZE];
 } edge3_vec_dt;
 
 typedef struct {
@@ -256,19 +256,7 @@ typedef struct {
 } uint512_vec_dt;
 
 typedef struct {
-	frontier_t data[EDGE_PACK_SIZE];
-} uint512_fvec_dt;
-
-typedef struct {
-	value_t data[EDGE_PACK_SIZE];
-} uint512_evec_dt;
-
-typedef struct {
-	keyvalue_t data[EDGE_PACK_SIZE];
-} uint512_uvec_dt;
-
-typedef struct {
-	unsigned int data[EDGE_PACK_SIZE];
+	unsigned int data[HBM_CHANNEL_PACK_SIZE];
 } uint512_ivec_dt;
 
 typedef struct {
@@ -288,7 +276,6 @@ typedef unsigned int vdata_t;
 
 typedef struct {
 	unsigned int prop;
-	unsigned int message;
 	unsigned int mask;
 } vprop_t;
 
@@ -318,6 +305,10 @@ typedef struct {
 } universalparams_t;
 
 typedef struct {
+	unsigned int BASEOFFSET_VPROP;
+} globalparams_t;
+
+typedef struct {
 	unsigned int offset;
 	unsigned int size;
 	unsigned int count;
@@ -328,29 +319,30 @@ typedef struct {
 } HBM_center_t;
 
 typedef struct {
-	edge3_vec_dt * csr_pack_edges_arr; // [~fit]
-	edge3_vec_dt * act_pack_edges_arr; // [~fit]
-	unsigned int * v_ptr;
-	map_t * act_pack_map[MAX_NUM_UPARTITIONS];
-	uint512_vec_dt * cfrontier_dram_i;  // [MAX_APPLYPARTITION_VECSIZE]
-	uint512_vec_dt * nfrontier_dram[MAX_NUM_UPARTITIONS];  // [MAX_NUM_UPARTITIONS][MAX_APPLYPARTITION_VECSIZE]
+	unsigned int * v_ptr; // [NUM_VERTICES / NUM_PEs]
+	map_t * vptr_actpack[MAX_NUM_UPARTITIONS];
+	edge3_vec_dt * csr_pack_edges; // [~fit] 
+	edge3_vec_dt * act_pack_edges; // [~fit]
+	uint512_vec_dt * updates_dram[MAX_NUM_APPLYPARTITIONS]; // [MAX_NUM_APPLYPARTITIONS][HBM_CHANNEL_SIZE]
 	vprop_vec_t * vdatas_dram[MAX_NUM_APPLYPARTITIONS]; // [MAX_NUM_APPLYPARTITIONS][MAX_APPLYPARTITION_VECSIZE]
-	#ifdef ENABLE__SPARSEPROC
-	keyvalue_t * csrupdates_dram[MAX_NUM_APPLYPARTITIONS]; // [MAX_NUM_APPLYPARTITIONS][CSRDRAM_SIZE]
-	#endif 
-	uint512_uvec_dt * actpackupdates_dram[MAX_NUM_APPLYPARTITIONS]; // [MAX_NUM_APPLYPARTITIONS][HBM_CHANNEL_SIZE]
+	uint512_vec_dt * cfrontier_dram_tmp;  // [MAX_APPLYPARTITION_VECSIZE]
+	uint512_vec_dt * nfrontier_dram[MAX_NUM_UPARTITIONS];  // [MAX_NUM_UPARTITIONS][MAX_APPLYPARTITION_VECSIZE]
+	
+	// {vptrs, edges, updates, vertexprops, frontiers}
+	uint512_ivec_dt * globalparams;
+	uint512_ivec_dt * HBM; // [~]
 } HBM_channel_t;
 
 typedef struct {
 	keyvalue_t * nfrontier_buffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][MAX_APPLYPARTITION_VECSIZE]
-	keyvalue_t * cfrontier_buffer_i[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][MAX_APPLYPARTITION_VECSIZE]
+	keyvalue_t * cfrontier_buffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][MAX_APPLYPARTITION_VECSIZE]
 	unsigned int * stats_tmpbuffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][BLOCKRAM_SIZE]
 	unsigned int * stats_buffer[MAX_NUM_APPLYPARTITIONS]; // [MAX_NUM_APPLYPARTITIONS][BLOCKRAM_SIZE]
 	unsigned int * stats2_buffer[MAX_NUM_APPLYPARTITIONS]; // [MAX_NUM_APPLYPARTITIONS][BLOCKRAM_SIZE]
-	#ifdef ENABLE__SPARSEPROC
-	keyvalue_t * csrupdates_buffer[NUM_PEs]; // [NUM_PEs][CSRBUFFER_SIZE]
-	#endif 
-	vprop_t * vertex_buffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][MAX_APPLYPARTITION_VECSIZE]
+	keyvalue_t * updates_tmpbuffer[NUM_PEs]; // [NUM_PEs][CSRBUFFER_SIZE(//FIXME.)]
 	keyvalue_t * updates_buffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][MAX_APPLYPARTITION_VECSIZE]
+	vtr_t * vptr_buffer; // [NUM_PEs][VPTR_BUFFER_SIZE]
+	edge3_type * edges_buffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][EDGE_BUFFER_SIZE]
+	vprop_t * vertex_buffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][MAX_APPLYPARTITION_VECSIZE]
 } BRAM_channel_t;
 #endif

@@ -81,7 +81,7 @@ void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedat
 		
 		for(unsigned int i=0; i<edges_size; i++){
 			edge3_type this_edge = edgedatabuffer[vptr_begin + i];
-			edge3_type edge; edge.srcvid = this_edge.srcvid; edge.dstvid = this_edge.dstvid; edge.valid = true;
+			edge3_type edge; edge.srcvid = this_edge.srcvid; edge.dstvid = this_edge.dstvid; edge.valid = 1;
 			if(edge.srcvid >= universalparams.NUM_VERTICES || edge.dstvid >= universalparams.NUM_VERTICES){ continue; } 
 			
 			unsigned int H = get_H2(edge.dstvid);
@@ -130,7 +130,7 @@ void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedat
 				unsigned int newll_p = ((ll_p / EDGE_PACK_SIZE) * EDGE_PACK_SIZE) + (local_dstvid % EDGE_PACK_SIZE);
 				#ifdef _DEBUGMODE_HOSTCHECKS3
 				utilityobj->checkoutofbounds("act_pack::ERROR 23::", newll_p, num_LLPs, local_dstvid, vsize_LLP, ll_p);
-				// if(local_dstvid % EDGE_PACK_SIZE != newll_p){ cout<<"act-pack:   ll_p: "<<ll_p<<",                        local_dstvid("<<local_dstvid<<") % EDGE_PACK_SIZE("<<EDGE_PACK_SIZE<<")(="<<local_dstvid % EDGE_PACK_SIZE<<") != newll_p("<<newll_p<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }
+				// if(local_dstvid % EDGE_PACK_SIZE != newll_p){ cout<<"act-pack:   ll_p: "<<ll_p<<", local_dstvid("<<local_dstvid<<") % EDGE_PACK_SIZE("<<EDGE_PACK_SIZE<<")(="<<local_dstvid % EDGE_PACK_SIZE<<") != newll_p("<<newll_p<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }
 				#endif 
 				
 				edgesin_srcvp_lldstvp[newll_p].push_back(edge);
@@ -173,12 +173,12 @@ void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedat
 						for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 							if(t < edgesin_srcvp_lldstvp_srcv2p[offset_llpset + v][depths[v]].size()){ 
 								edge_vec.data[v] = edgesin_srcvp_lldstvp_srcv2p[offset_llpset + v][depths[v]][t]; 
-								edge_vec.data[v].valid = true; 
+								edge_vec.data[v].valid = 1; 
 							} 
 							else {	
 								edge_vec.data[v].srcvid = INVALIDDATA;
 								edge_vec.data[v].dstvid = INVALIDDATA; 
-								edge_vec.data[v].valid = false;
+								edge_vec.data[v].valid = 0;
 							} 
 						}
 						
@@ -233,23 +233,24 @@ void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedat
 						#endif
 						
 						// encode rotateby information in header
-						unsigned int sample_keyy = INVALIDDATA; unsigned int sample_uu = 0; for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ if(edge_vec3.data[v].valid == true){ sample_keyy = get_local2(edge_vec3.data[v].dstvid) % EDGE_PACK_SIZE; sample_uu = v; }} 
-						unsigned int rotate_forwardd = 1; unsigned int rotatebyy = 0; if(sample_keyy > sample_uu){ rotatebyy = sample_keyy - sample_uu; rotate_forwardd = 0; } else { rotatebyy = sample_uu - sample_keyy; rotate_forwardd = 1; }
-						utilityobj->checkoutofbounds("loadedges::ERROR 59. rotatebyy::", rotatebyy, EDGE_PACK_SIZE, sample_keyy, t, NAp);	
-						edge_vec3.data[EDGE_PACK_SIZE].srcvid = rotate_forwardd;
-						edge_vec3.data[EDGE_PACK_SIZE + 1].srcvid = rotatebyy; 
-						
+						unsigned int _sample_key = INVALIDDATA; unsigned int _sample_u = 0; for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ if(edge_vec3.data[v].valid == 1){ _sample_key = edge_vec3.data[v].dstvid % EDGE_PACK_SIZE; _sample_u = v; }} 
+						unsigned int _rotate_forward = 1; unsigned int _rotateby = 0; if(_sample_key > _sample_u){ _rotateby = _sample_key - _sample_u; _rotate_forward = 0; } else { _rotateby = _sample_u - _sample_key; _rotate_forward = 1; }
+						utilityobj->checkoutofbounds("loadedges::ERROR 59. _rotateby::", _rotateby, EDGE_PACK_SIZE, _sample_key, _sample_u, NAp);	
+						if(edge_vec3.data[0].valid == 0){
+							edge_vec3.data[0].srcvid = INVALIDDATA;
+							edge_vec3.data[0].dstvid = _sample_key + (EDGE_PACK_SIZE - _sample_u);
+						}
 						
 						// #ifdef CONFIG_SEND_LOCAL_VERTEXIDS_ONLY
 						for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-							if(edge_vec3.data[v].dstvid != INVALIDDATA){
+							if(edge_vec3.data[v].valid == 1){
 								edge_vec3.data[v].dstvid = get_local2(edge_vec3.data[v].dstvid) % MAX_UPARTITION_SIZE; 
 							}
 						}
 						// #endif 
 						
 						act_pack_edges[i].push_back(edge_vec3);
-						act_pack_map[i][v_p][llp_set].size += 1; // EDGE_PACK_SIZE; 
+						act_pack_map[i][v_p][llp_set].size += 1;
 					}
 				} // iteration end: llp_id:EDGE_PACK_SIZE
 			} // iteration end: llp_set:num_LLPset

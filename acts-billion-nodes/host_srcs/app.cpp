@@ -103,12 +103,12 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	unsigned int __NUM_APPLYPARTITIONS = ((universalparams.NUM_VERTICES / NUM_PEs) + (MAX_APPLYPARTITION_SIZE - 1)) /  MAX_APPLYPARTITION_SIZE; // NUM_PEs
 	
 	// create act-pack format
-	map_t * act_pack_map[NUM_PEs][MAX_NUM_UPARTITIONS];
+	map_t * vptr_actpack[NUM_PEs][MAX_NUM_UPARTITIONS];
 	vector<edge3_vec_dt> act_pack_edges[NUM_PEs];
 	edge3_vec_dt * act_pack_edges_arr[NUM_PEs];
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v_p=0; v_p<MAX_NUM_UPARTITIONS; v_p++){ act_pack_map[i][v_p] = new map_t[MAX_NUM_LLPSETS]; }}
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p_v=0; p_v<MAX_NUM_UPARTITIONS; p_v++){ vptr_actpack[i][p_v] = new map_t[MAX_NUM_LLPSETS]; }}
 	act_pack * pack = new act_pack(universalparams);
-	pack->pack(vertexptrbuffer, edgedatabuffer, act_pack_edges, act_pack_map);
+	pack->pack(vertexptrbuffer, edgedatabuffer, act_pack_edges, vptr_actpack);
 	
 	// create csr format
 	vector<edge3_type> csr_pack_edges[NUM_PEs]; 
@@ -119,7 +119,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	for(unsigned int vid=0; vid<universalparams.NUM_VERTICES-1; vid++){
 		unsigned int vptr_begin = vertexptrbuffer[vid];
 		unsigned int vptr_end = vertexptrbuffer[vid+1];
-		unsigned int edges_size = vptr_end - vptr_begin; 
+		unsigned int edges_size = vptr_end - vptr_begin;
 		if(vptr_end < vptr_begin){ continue; }
 		utilityobj->checkoutofbounds("app::ERROR 211::", vid / MAX_UPARTITION_SIZE, __NUM_UPARTITIONS, NAp, NAp, NAp);
 		for(unsigned int i=0; i<edges_size; i++){
@@ -139,28 +139,170 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	HBM_center_t HBM_center;
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ for(unsigned int p=0; p<MAX_NUM_UPARTITIONS; p++){ HBM_center.cfrontier_dram[v][p] = new keyvalue_t[MAX_UPARTITION_SIZE]; }}
 	
-	HBM_channel_t HBM_channel[NUM_PEs];
-	max = 0; for(unsigned int i=0; i<NUM_PEs; i++){ if(max < csr_pack_edges[i].size()){ max = csr_pack_edges[i].size(); }}
-		for(unsigned int i=0; i<NUM_PEs; i++){ HBM_channel[i].csr_pack_edges_arr = new edge3_vec_dt[(max / EDGE_PACK_SIZE) + 16]; }
-		for(unsigned int i=0; i<NUM_PEs; i++){ unsigned int index = 0; for(unsigned int t=0; t<max; t++){ HBM_channel[i].csr_pack_edges_arr[index / EDGE_PACK_SIZE].data[index % EDGE_PACK_SIZE] = csr_pack_edges[i][t]; index += 1; }}
-	max = 0; for(unsigned int i=0; i<NUM_PEs; i++){ if(max < act_pack_edges[i].size()){ max = act_pack_edges[i].size(); }} 
-		for(unsigned int i=0; i<NUM_PEs; i++){ HBM_channel[i].act_pack_edges_arr = new edge3_vec_dt[max]; }
-		for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<max; t++){ HBM_channel[i].act_pack_edges_arr[t] =  act_pack_edges[i][t]; }}
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p=0; p<MAX_NUM_APPLYPARTITIONS; p++){ HBM_channel[i].vdatas_dram[p] = new vprop_vec_t[MAX_APPLYPARTITION_VECSIZE]; }}
+	HBM_channel_t HBM_channel[NUM_PEs]; 
+	// load all datas to HBM
+	for(unsigned int i=0; i<NUM_PEs; i++){ HBM_channel[i].v_ptr = new unsigned int[(universalparams.NUM_VERTICES / NUM_PEs) + 64]; }
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<(universalparams.NUM_VERTICES / NUM_PEs) + 64; t++){ HBM_channel[i].v_ptr[t] = v_ptr[i][t];; }}
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p_v=0; p_v<MAX_NUM_UPARTITIONS; p_v++){ HBM_channel[i].vptr_actpack[p_v] = new map_t[MAX_NUM_LLPSETS]; }}
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p_v=0; p_v<MAX_NUM_UPARTITIONS; p_v++){ for(unsigned int t=0; t<MAX_NUM_LLPSETS; t++){ HBM_channel[i].vptr_actpack[p_v][t] = vptr_actpack[i][p_v][t]; }}}
+	unsigned int numcsredges = 0; for(unsigned int i=0; i<NUM_PEs; i++){ if(numcsredges < csr_pack_edges[i].size()){ numcsredges = csr_pack_edges[i].size(); }} 
+	unsigned int numww_csredges = (numcsredges / EDGE_PACK_SIZE) + 16;
+		for(unsigned int i=0; i<NUM_PEs; i++){ HBM_channel[i].csr_pack_edges = new edge3_vec_dt[numww_csredges]; }
+		for(unsigned int i=0; i<NUM_PEs; i++){ unsigned int index = 0; for(unsigned int t=0; t<numcsredges; t++){ HBM_channel[i].csr_pack_edges[index / EDGE_PACK_SIZE].data[index % EDGE_PACK_SIZE] = csr_pack_edges[i][t]; index += 1; }}
+	unsigned int numww_actpackedges = 0; for(unsigned int i=0; i<NUM_PEs; i++){ if(numww_actpackedges < act_pack_edges[i].size()){ numww_actpackedges = act_pack_edges[i].size(); }} 
+		for(unsigned int i=0; i<NUM_PEs; i++){ HBM_channel[i].act_pack_edges = new edge3_vec_dt[numww_actpackedges]; }
+		for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<numww_actpackedges; t++){ HBM_channel[i].act_pack_edges[t] =  act_pack_edges[i][t]; }}
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p=0; p<__NUM_APPLYPARTITIONS; p++){ HBM_channel[i].vdatas_dram[p] = new vprop_vec_t[MAX_APPLYPARTITION_VECSIZE]; }}
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p=0; p<__NUM_APPLYPARTITIONS; p++){ for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE; t++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ HBM_channel[i].vdatas_dram[p][t].data[v].prop = algorithmobj->vertex_initdata(universalparams.ALGORITHM); HBM_channel[i].vdatas_dram[p][t].data[v].mask = 0; }}}}		
-	for(unsigned int i=0; i<NUM_PEs; i++){ HBM_channel[i].cfrontier_dram_i = new uint512_vec_dt[MAX_APPLYPARTITION_VECSIZE]; }
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p=0; p<MAX_NUM_UPARTITIONS; p++){ HBM_channel[i].nfrontier_dram[p] = new uint512_vec_dt[MAX_APPLYPARTITION_VECSIZE]; }}
-	#ifdef ENABLE__SPARSEPROC
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p=0; p<__NUM_APPLYPARTITIONS; p++){ HBM_channel[i].csrupdates_dram[p] = new keyvalue_t[CSRDRAM_SIZE]; }}
-	#endif 
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p=0; p<__NUM_APPLYPARTITIONS; p++){ HBM_channel[i].actpackupdates_dram[p] = new uint512_uvec_dt[HBM_CHANNEL_SIZE]; }}
+	for(unsigned int i=0; i<NUM_PEs; i++){ HBM_channel[i].cfrontier_dram_tmp = new uint512_vec_dt[MAX_APPLYPARTITION_VECSIZE]; }
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p=0; p<MAX_NUM_UPARTITIONS; p++){ HBM_channel[i].nfrontier_dram[p] = new uint512_vec_dt[MAX_APPLYPARTITION_VECSIZE]; }} // FIXME.
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p=0; p<__NUM_APPLYPARTITIONS; p++){ HBM_channel[i].updates_dram[p] = new uint512_vec_dt[HBM_CHANNEL_SIZE]; }}
+	
+	// allocate HBM memory
+	cout<<"app: allocating HBM memory..."<<endl;
+	for(unsigned int i=0; i<NUM_PEs; i++){ HBM_channel[i].globalparams = new uint512_ivec_dt[1024]; }
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<1024; t++){ for(unsigned int v=0; v<HBM_CHANNEL_PACK_SIZE; v++){ HBM_channel[i].globalparams[t].data[v] = 0; }}}
+	for(unsigned int i=0; i<NUM_PEs; i++){ HBM_channel[i].HBM = new uint512_ivec_dt[HBM_CHANNEL_SIZE]; }
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<HBM_CHANNEL_SIZE; t++){ for(unsigned int v=0; v<HBM_CHANNEL_PACK_SIZE; v++){ HBM_channel[i].HBM[t].data[v] = 0; }}}
+	
+	// load globalparams: {vptrs, edges, updates, vertexprops, frontiers}
+	cout<<"app: loading global addresses: {vptrs, edges, updates, vertexprops, frontiers}..."<<endl;
+	unsigned int csrvptrsz_u32 = ((universalparams.NUM_VERTICES / NUM_PEs) + 64); //  / EDGE_PACK_SIZE;
+	unsigned int actpackvptrsz_u32 = (MAX_NUM_UPARTITIONS * MAX_NUM_LLPSETS); // / (HBM_CHANNEL_PACK_SIZE / 2);
+	unsigned int csredgessz_u32 = numcsredges * 2; // * HBM_CHANNEL_PACK_SIZE;
+	unsigned int actpackedgessz_u32 = numww_actpackedges * EDGE_PACK_SIZE * 2;
+	unsigned int updatessz_u32 = actpackedgessz_u32 + (1 << 20);
+	unsigned int vdatasz_u32 = __NUM_APPLYPARTITIONS * MAX_APPLYPARTITION_VECSIZE * EDGE_PACK_SIZE * 2;
+	unsigned int cfrontiersz_u32 = 1 * MAX_APPLYPARTITION_VECSIZE * EDGE_PACK_SIZE * 2;
+	unsigned int nfrontiersz_u32 = __NUM_UPARTITIONS * MAX_APPLYPARTITION_VECSIZE * EDGE_PACK_SIZE * 2;
+	cout<<"------------- app:: [csrvptrsz_u32: "<<csrvptrsz_u32<<"]"<<endl;
+	cout<<"------------- app:: [actpackvptrsz_u32: "<<actpackvptrsz_u32<<"]"<<endl;
+	cout<<"------------- app:: [csredgessz_u32: "<<csredgessz_u32<<"]"<<endl;
+	cout<<"------------- app:: [actpackedgessz_u32: "<<actpackedgessz_u32<<"]"<<endl;
+	cout<<"------------- app:: [updatessz_u32: "<<updatessz_u32<<"]"<<endl;
+	cout<<"------------- app:: [vdatasz_u32: "<<vdatasz_u32<<"]"<<endl;
+	cout<<"------------- app:: [cfrontiersz_u32: "<<cfrontiersz_u32<<"]"<<endl;
+	cout<<"------------- app:: [nfrontiersz_u32: "<<nfrontiersz_u32<<"]"<<endl;
+	cout<<"------------- app:: [total: "<<csrvptrsz_u32 + actpackvptrsz_u32 + csredgessz_u32 + actpackedgessz_u32 + updatessz_u32 + vdatasz_u32 + cfrontiersz_u32 + nfrontiersz_u32<<"]"<<endl;
+	cout<<"------------- app:: [total (uint 32): "<<csrvptrsz_u32 + actpackvptrsz_u32 + csredgessz_u32 + actpackedgessz_u32 + updatessz_u32 + vdatasz_u32 + cfrontiersz_u32 + nfrontiersz_u32<<"]"<<endl;
+		
+	/* // load act-pack edges 
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		unsigned int base_offset = 0;
+		for(unsigned int t=0; t<numww_actpackedges; t++){ 
+			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+				HBM_channel[i].HBM[base_offset + t].data[2 * v] = HBM_channel[i].act_pack_edges[t].data[v].srcvid;
+				// HBM_channel[i].HBM[base_offset + t].data[2 * v + 1] = HBM_channel[i].act_pack_edges[t].data[v].dstvid;
+				HBM_channel[i].HBM[base_offset + t].data[2 * v + 1] = (HBM_channel[i].act_pack_edges[t].data[v].dstvid << 1) | HBM_channel[i].act_pack_edges[t].data[v].valid; 
+			}
+		}
+	} */
+		
+	// #ifdef ___NOT___USED___
+	// load csr vptrs  
+	unsigned int size_u32 = 0;
+	for(unsigned int i=0; i<NUM_PEs; i++){ HBM_channel[i].globalparams[GLOBALPARAMSCODE__CSRVPTRS].data[0] = 0; }
+	for(unsigned int i=0; i<NUM_PEs; i++){ 
+		unsigned int index = 0;
+		unsigned int base_offset = HBM_channel[i].globalparams[GLOBALPARAMSCODE__CSRVPTRS].data[0];
+		unsigned int * T = (unsigned int *)&HBM_channel[i].HBM[0];
+		for(unsigned int t=0; t<csrvptrsz_u32; t++){
+			T[index] = HBM_channel[i].v_ptr[base_offset + t];
+			index += 1;
+			if(i==0){ size_u32 += 1; }
+		}
+	}
+	
+	// load act-pack vptrs  
+	for(unsigned int i=0; i<NUM_PEs; i++){ HBM_channel[i].globalparams[GLOBALPARAMSCODE__ACTPACKVPTRS].data[0] = HBM_channel[i].globalparams[GLOBALPARAMSCODE__CSRVPTRS].data[0] + (size_u32 / HBM_CHANNEL_PACK_SIZE) + 16; }
+	size_u32 = 0;
+	for(unsigned int i=0; i<NUM_PEs; i++){ 
+		unsigned int index = 0;
+		unsigned int base_offset = HBM_channel[i].globalparams[GLOBALPARAMSCODE__ACTPACKVPTRS].data[0];
+		unsigned int * T = (unsigned int *)&HBM_channel[i].HBM[0];
+		for(unsigned int p_v=0; p_v<MAX_NUM_UPARTITIONS; p_v++){ 
+			for(unsigned int t=0; t<MAX_NUM_LLPSETS; t++){
+				T[2 * index] = HBM_channel[i].vptr_actpack[p_v][base_offset + t].offset;
+				T[2 * index + 1] = HBM_channel[i].vptr_actpack[p_v][base_offset + t].size;
+				index += 2;
+				if(i==0){ size_u32 += 2; }
+			}
+		}
+	}
+	
+	// load csr edges 
+	for(unsigned int i=0; i<NUM_PEs; i++){ HBM_channel[i].globalparams[GLOBALPARAMSCODE__CSREDGES].data[0] = HBM_channel[i].globalparams[GLOBALPARAMSCODE__ACTPACKVPTRS].data[0] + (size_u32 / HBM_CHANNEL_PACK_SIZE) + 16; }
+	for(unsigned int i=0; i<NUM_PEs; i++){ 
+		unsigned int base_offset = HBM_channel[i].globalparams[GLOBALPARAMSCODE__CSREDGES].data[0];
+		for(unsigned int t=0; t<numww_csredges; t++){ 
+			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+				HBM_channel[i].HBM[base_offset + t].data[2 * v] = HBM_channel[i].csr_pack_edges[t].data[v].srcvid;
+				// HBM_channel[i].HBM[base_offset + t].data[2 * v + 1] = HBM_channel[i].csr_pack_edges[t].data[v].dstvid;
+				HBM_channel[i].HBM[base_offset + t].data[2 * v + 1] = (HBM_channel[i].csr_pack_edges[t].data[v].dstvid << 1) | HBM_channel[i].csr_pack_edges[t].data[v].valid; 
+				if(i==0){ size_u32 += 2; }
+			}
+		}
+	}
+	
+	// load act-pack edges 
+	for(unsigned int i=0; i<NUM_PEs; i++){ HBM_channel[i].globalparams[GLOBALPARAMSCODE__ACTPACKEDGES].data[0] = HBM_channel[i].globalparams[GLOBALPARAMSCODE__CSREDGES].data[0] + (size_u32 / HBM_CHANNEL_PACK_SIZE) + 16; }
+	size_u32 = 0;
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		unsigned int base_offset = HBM_channel[i].globalparams[GLOBALPARAMSCODE__ACTPACKEDGES].data[0];
+		for(unsigned int t=0; t<numww_actpackedges; t++){ 
+			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+				HBM_channel[i].HBM[base_offset + t].data[2 * v] = HBM_channel[i].act_pack_edges[t].data[v].srcvid;
+				// HBM_channel[i].HBM[base_offset + t].data[2 * v + 1] = HBM_channel[i].act_pack_edges[t].data[v].dstvid;
+				HBM_channel[i].HBM[base_offset + t].data[2 * v + 1] = (HBM_channel[i].act_pack_edges[t].data[v].dstvid << 1) | HBM_channel[i].act_pack_edges[t].data[v].valid; 
+				if(i==0){ size_u32 += 2; }
+			}
+		}
+	}
+	
+	// load updates (NAp)
+	for(unsigned int i=0; i<NUM_PEs; i++){ HBM_channel[i].globalparams[GLOBALPARAMSCODE__UPDATES].data[0] = HBM_channel[i].globalparams[GLOBALPARAMSCODE__ACTPACKEDGES].data[0] + (size_u32 / HBM_CHANNEL_PACK_SIZE) + 16; }
+	
+	// load vertex properties
+	for(unsigned int i=0; i<NUM_PEs; i++){ HBM_channel[i].globalparams[GLOBALPARAMSCODE__VDATAS].data[0] = HBM_channel[i].globalparams[GLOBALPARAMSCODE__UPDATES].data[0] + (updatessz_u32 / HBM_CHANNEL_PACK_SIZE) + 16; }
+	size_u32 = 0;
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		unsigned int base_offset = HBM_channel[i].globalparams[GLOBALPARAMSCODE__VDATAS].data[0];
+		for(unsigned int p=0; p<__NUM_APPLYPARTITIONS; p++){ 
+			for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE; t++){ 
+				for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+					HBM_channel[i].HBM[base_offset + (p * MAX_APPLYPARTITION_VECSIZE + t)].data[2 * v] = HBM_channel[i].vdatas_dram[p][t].data[v].prop;
+					HBM_channel[i].HBM[base_offset + (p * MAX_APPLYPARTITION_VECSIZE + t)].data[2 * v + 1] = HBM_channel[i].vdatas_dram[p][t].data[v].mask;
+					if(i==0){ size_u32 += 2; }
+				}
+			}
+		}
+	}
+	
+	// cfrontier 
+	for(unsigned int i=0; i<NUM_PEs; i++){ HBM_channel[i].globalparams[GLOBALPARAMSCODE__CFRONTIERSTMP].data[0] = HBM_channel[i].globalparams[GLOBALPARAMSCODE__VDATAS].data[0] + (vdatasz_u32 / HBM_CHANNEL_PACK_SIZE) + 16; }
+	
+	// nfrontier
+	for(unsigned int i=0; i<NUM_PEs; i++){ HBM_channel[i].globalparams[GLOBALPARAMSCODE__NFRONTIERS].data[0] = HBM_channel[i].globalparams[GLOBALPARAMSCODE__CFRONTIERSTMP].data[0] + (cfrontiersz_u32 / HBM_CHANNEL_PACK_SIZE) + 16; }
+	
+	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__CSRVPTRS: "<<HBM_channel[0].globalparams[GLOBALPARAMSCODE__CSRVPTRS].data[0]<<endl;
+	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__ACTPACKVPTRS: "<<HBM_channel[0].globalparams[GLOBALPARAMSCODE__ACTPACKVPTRS].data[0]<<endl;
+	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__CSREDGES: "<<HBM_channel[0].globalparams[GLOBALPARAMSCODE__CSREDGES].data[0]<<endl;
+	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__ACTPACKEDGES: "<<HBM_channel[0].globalparams[GLOBALPARAMSCODE__ACTPACKEDGES].data[0]<<endl;
+	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__UPDATES: "<<HBM_channel[0].globalparams[GLOBALPARAMSCODE__UPDATES].data[0]<<endl;
+	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__VDATAS: "<<HBM_channel[0].globalparams[GLOBALPARAMSCODE__VDATAS].data[0]<<endl;
+	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__CFRONTIERSTMP: "<<HBM_channel[0].globalparams[GLOBALPARAMSCODE__CFRONTIERSTMP].data[0]<<endl;
+	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__NFRONTIERS: "<<HBM_channel[0].globalparams[GLOBALPARAMSCODE__NFRONTIERS].data[0]<<endl;
+	unsigned int lastww_addr = HBM_channel[0].globalparams[GLOBALPARAMSCODE__NFRONTIERS].data[0] + (nfrontiersz_u32 / HBM_CHANNEL_PACK_SIZE / 2);
+	cout<<"------------- app:: last address in HBM 0: "<<lastww_addr<<" ("<<lastww_addr * HBM_CHANNEL_PACK_SIZE * 4<<" bytes)"<<endl;
+	utilityobj->checkoutofbounds("app::ERROR 2234::", lastww_addr * HBM_CHANNEL_PACK_SIZE * 4, (1 << 28), __NUM_APPLYPARTITIONS, MAX_APPLYPARTITION_VECSIZE, NAp);
+	// #endif 
 	
 	// clear 
 	for(unsigned int i=0; i<NUM_PEs; i++){ csr_pack_edges[i].clear(); act_pack_edges[i].clear(); } // clear 
 	
 	// run acts
 	acts_sw * acts = new acts_sw(universalparams);
-	acts->run(v_ptr, act_pack_map, &HBM_center, HBM_channel);
+	acts->run(v_ptr, vptr_actpack, &HBM_center, HBM_channel);
 	return;
 }
 
