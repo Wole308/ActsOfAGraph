@@ -3,6 +3,8 @@ using namespace std;
 // __NOT__YET__IMPLEMENTED___
 // __OBSOLETE___
 
+unsigned int * globalparams_debug;
+
 #ifndef FPGA_IMPL
 acts_sw::acts_sw(universalparams_t _universalparams){
 	utilityobj = new utility(_universalparams);
@@ -629,599 +631,901 @@ void check_if_contiguous(keyvalue_t keyvalue[EDGE_PACK_SIZE], keyvalue_t msg1[ED
 }
 
 //////////////////////////////////////////////////////////////////
-void insert_cfrontierdram(unsigned int p_u, unsigned int t, keyvalue_t data[EDGE_PACK_SIZE], HBM_center_t * HBM_center){
-	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
-	#pragma HLS UNROLL
-		HBM_center->cfrontier_dram[v][p_u][t] = data[v];
-	}
+void M_I(unsigned int offset, unsigned int v, unsigned int data, HBM_channel_t * channel){
+	channel->HBM[offset].data[v] = data;
+	return;
 }
-void retrieve_cfrontierdram(unsigned int p_u, unsigned int t, keyvalue_t data[EDGE_PACK_SIZE], HBM_center_t * HBM_center){
+unsigned int M_R(unsigned int offset, unsigned int v, HBM_channel_t * channel){
+	return channel->HBM[offset].data[v];
+}
+void M_Is(unsigned int offset, unsigned int v, unsigned int data, HBM_channelTHIS_t * channel, unsigned int inst){
+	channel[inst].HBM[offset].data[v] = data;
+	return;
+}
+unsigned int M_Rs(unsigned int offset, unsigned int v, HBM_channelTHIS_t * channel, unsigned int inst){
+	return channel[inst].HBM[offset].data[v];
+}
+
+
+//////////////////////////////////////////////////////////////////
+void master_centerinsert_vec(unsigned int offset, unsigned int data[HBM_CHANNEL_PACK_SIZE], HBM_channel_t * HBM_center){
+	for(unsigned int v=0; v<HBM_CHANNEL_PACK_SIZE; v++){
+	#pragma HLS UNROLL
+		M_I(offset, v, data[v], HBM_center);
+	}
+	return;
+}
+void master_centerretrieve_vec(unsigned int offset, unsigned int data[HBM_CHANNEL_PACK_SIZE], HBM_channel_t * HBM_center){
+	for(unsigned int v=0; v<HBM_CHANNEL_PACK_SIZE; v++){
+	#pragma HLS UNROLL
+		data[v] = M_R(offset, v, HBM_center);
+	}
+	return;
+}
+
+void master_insert(unsigned int offset, unsigned int v, unsigned int data, HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB, unsigned int inst){
+	#ifdef ___USE_AXI_CHANNEL___
+		if(v < HBM_AXI_PACK_SIZE){
+			M_Is(offset, v, data, HBM_channelA, inst);
+		} else {
+			M_Is(offset, v - HBM_AXI_PACK_SIZE, data, HBM_channelB, inst);
+		}
+	#else 
+	M_Is(offset, v, data, HBM_channelA, inst);
+	#endif 
+	return;
+}
+unsigned int master_retrieve(unsigned int offset, unsigned int v, HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB, unsigned int inst){
+	unsigned int data = 0;
+	#ifdef ___USE_AXI_CHANNEL___
+		if(v < HBM_AXI_PACK_SIZE){
+			data = M_Rs(offset, v, HBM_channelA, inst);
+		} else {
+			data = M_Rs(offset, v - HBM_AXI_PACK_SIZE, HBM_channelB, inst);
+		}
+	#else 
+	data = M_Rs(offset, v, HBM_channelA, inst);
+	#endif 
+	return data;
+}
+void master_insertmany(unsigned int offsets[NUM_PEs], unsigned int v, unsigned int ens[NUM_PEs], unsigned int data[NUM_PEs], HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB){
+	#ifdef ___USE_AXI_CHANNEL___
+		if(v < HBM_AXI_PACK_SIZE){
+			for(unsigned int n=0; n<NUM_PEs; n++){
+				M_Is(offsets[n], v, data[n], HBM_channelA, n);
+			}
+		} else {
+			for(unsigned int n=0; n<NUM_PEs; n++){
+				M_Is(offsets[n], v - HBM_AXI_PACK_SIZE, data[n], HBM_channelB, n);
+			}
+		}
+	#else 
+	for(unsigned int n=0; n<NUM_PEs; n++){
+		if(ens[n]==true){
+			M_Is(offsets[n], v, data[n], HBM_channelA, n);
+		}
+	}
+	#endif 
+	return;
+}
+void master_retrievemany(unsigned int offsets[NUM_PEs], unsigned int v, unsigned int data[NUM_PEs], HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB){
+	#ifdef ___USE_AXI_CHANNEL___
+		if(v < HBM_AXI_PACK_SIZE){
+			for(unsigned int n=0; n<NUM_PEs; n++){
+				data[n] = M_Rs(offsets[n], v, HBM_channelA, n);
+			}
+		} else {
+			for(unsigned int n=0; n<NUM_PEs; n++){
+				data[n] = M_Rs(offsets[n], v - HBM_AXI_PACK_SIZE, HBM_channelB, n);
+			}
+		}
+	#else 
+	for(unsigned int n=0; n<NUM_PEs; n++){
+		data[n] = M_Rs(offsets[n], v, HBM_channelA, n);
+	}
+	#endif 
+	return;
+}
+
+void master_insert_vec(unsigned int offset, unsigned int data[HBM_CHANNEL_PACK_SIZE], HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB, unsigned int inst){
+	#ifdef ___USE_AXI_CHANNEL___
+		for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){
+		#pragma HLS UNROLL
+			M_Is(offset, v, data[v], HBM_channelA, inst);
+		}
+		for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){
+		#pragma HLS UNROLL
+			M_Is(offset, v, data[HBM_AXI_PACK_SIZE + v], HBM_channelB, inst);
+		}
+	#else 
+	for(unsigned int v=0; v<HBM_CHANNEL_PACK_SIZE; v++){
+	#pragma HLS UNROLL
+		M_Is(offset, v, data[v], HBM_channelA, inst);
+	}
+	#endif 
+	return;
+}
+void master_retrieve_vec(unsigned int offset, unsigned int data[HBM_CHANNEL_PACK_SIZE], HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB, unsigned int inst){
+	#ifdef ___USE_AXI_CHANNEL___
+		for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){
+		#pragma HLS UNROLL
+			data[v] = M_Rs(offset, v, HBM_channelA, inst);
+		}
+		for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){
+		#pragma HLS UNROLL
+			data[HBM_AXI_PACK_SIZE + v] = M_Rs(offset, v, HBM_channelB, inst);
+		}
+	#else 
+	for(unsigned int v=0; v<HBM_CHANNEL_PACK_SIZE; v++){
+	#pragma HLS UNROLL
+		data[v] = M_Rs(offset, v, HBM_channelA, inst);
+	}
+	#endif 
+	return;
+}
+void master_insertmany_vec(unsigned int offsets[NUM_PEs], unsigned int ens[NUM_PEs], unsigned int data[NUM_PEs][HBM_CHANNEL_PACK_SIZE], HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB){
+	#ifdef ___USE_AXI_CHANNEL___
+		for(unsigned int n=0; n<NUM_PEs; n++){
+		#pragma HLS UNROLL
+			if(ens[n]==true){
+				for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){
+				#pragma HLS UNROLL
+					M_Is(offsets[n], v, data[n][v], HBM_channelA, n);
+				}
+				for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){
+				#pragma HLS UNROLL
+					M_Is(offsets[n], v, data[n][HBM_AXI_PACK_SIZE + v], HBM_channelB, n);
+				}
+			}
+		}
+	#else 
+	for(unsigned int v=0; v<HBM_CHANNEL_PACK_SIZE; v++){
+	#pragma HLS UNROLL
+		for(unsigned int n=0; n<NUM_PEs; n++){
+			if(ens[n]==true){
+				M_Is(offsets[n], v, data[n][v], HBM_channelA, n);
+			}
+		}
+	}
+	#endif 
+	return;
+}
+void master_retrievemany_vec(unsigned int offsets[NUM_PEs], unsigned int data[NUM_PEs][HBM_CHANNEL_PACK_SIZE], HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB){
+	#ifdef ___USE_AXI_CHANNEL___
+		for(unsigned int n=0; n<NUM_PEs; n++){
+		#pragma HLS UNROLL
+			for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){
+			#pragma HLS UNROLL
+				data[n][v] = M_Rs(offsets[n], v, HBM_channelA, n);
+			}
+			for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){
+			#pragma HLS UNROLL
+				data[n][HBM_AXI_PACK_SIZE + v] = M_Rs(offsets[n], v, HBM_channelB, n);
+			}
+		}
+	#else 
+	for(unsigned int v=0; v<HBM_CHANNEL_PACK_SIZE; v++){
+	#pragma HLS UNROLL
+		for(unsigned int n=0; n<NUM_PEs; n++){
+			data[n][v] = M_Rs(offsets[n], v, HBM_channelA, n);
+		}
+	}
+	#endif 
+	return;
+}
+
+//////////////////////////////////////////////////////////////////
+// #ifdef __OBSOLETE___
+void insert_cfrontierdram(unsigned int p_u, unsigned int t, keyvalue_t data[EDGE_PACK_SIZE], HBM_channel_t * HBM_center){
+	unsigned int data_[HBM_CHANNEL_PACK_SIZE];
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 	#pragma HLS UNROLL
-		data[v] = HBM_center->cfrontier_dram[v][p_u][t];
+		data_[2*v] = data[v].key;
+		data_[2*v + 1] = data[v].value;
+	}
+	master_centerinsert_vec((p_u * MAX_UPARTITION_VECSIZE) + t, data_, HBM_center);
+}
+void retrieve_cfrontierdram(unsigned int p_u, unsigned int t, keyvalue_t data[EDGE_PACK_SIZE], HBM_channel_t * HBM_center){
+	unsigned int data_[HBM_CHANNEL_PACK_SIZE];
+	master_centerretrieve_vec((p_u * MAX_UPARTITION_VECSIZE) + t, data_, HBM_center);
+	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+	#pragma HLS UNROLL
+		data[v].key = data_[2*v];
+		data[v].value = data_[2*v+1];
 	}
 	return; 
 }
 
 ////////////////////////////////////////////////////////////////
-unsigned int retrieve_globalparams(unsigned int base_offset__, unsigned int index, HBM_channel_t * HBM_channel, unsigned int inst){
-	return HBM_channel[inst].HBM[base_offset__ + index].data[0];
+unsigned int retrieve_globalparams(unsigned int base_offset__, unsigned int index, HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB, unsigned int inst){
+	return master_retrieve(base_offset__ + index, 0, HBM_channelA, HBM_channelB, inst); // NEW
 }
 
-unsigned int retrieve_updatesptrs(unsigned int base_offset__, unsigned int index, HBM_channel_t * HBM_channel, unsigned int inst){
+unsigned int retrieve_vptrdram(unsigned int base_offset__, unsigned int index, HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB, unsigned int inst){
 	#ifdef _DEBUGMODE_CHECKS3
-	unsigned int wwsize = HBM_channel[inst].globalparams[GLOBALPARAMSCODE__WWSIZE__CSRVPTRS].data[0];
-	checkoutofbounds("acts_sw::ERROR 701::", (index / HBM_CHANNEL_PACK_SIZE), wwsize, NAp, NAp, NAp);
+	unsigned int wwsize = HBM_channelA[inst].globalparams[GLOBALPARAMSCODE__WWSIZE__CSRVPTRS].data[0];
+	checkoutofbounds("acts_sw::ERROR 901::", (index / HBM_CHANNEL_PACK_SIZE), wwsize, NAp, NAp, NAp);
 	#endif 
-	return HBM_channel[inst].HBM[base_offset__ + index].data[0];
-}
-
-unsigned int retrieve_vptrdram(unsigned int base_offset__, unsigned int index, HBM_channel_t * HBM_channel, unsigned int inst){
-	#ifdef _DEBUGMODE_CHECKS3
-	unsigned int wwsize = HBM_channel[inst].globalparams[GLOBALPARAMSCODE__WWSIZE__CSRVPTRS].data[0];
-	checkoutofbounds("acts_sw::ERROR 701::", (index / HBM_CHANNEL_PACK_SIZE), wwsize, NAp, NAp, NAp);
-	#endif 
-	return HBM_channel[inst].HBM[base_offset__ + (index / HBM_CHANNEL_PACK_SIZE)].data[index % HBM_CHANNEL_PACK_SIZE];
+	return master_retrieve(base_offset__ + (index / HBM_CHANNEL_PACK_SIZE), index % HBM_CHANNEL_PACK_SIZE, HBM_channelA, HBM_channelB, inst);
 }	
 
-map_t retrieve_actpackvptrdram(unsigned int base_offset__, unsigned int p_u, unsigned int llp_set, HBM_channel_t * HBM_channel, unsigned int inst){
+map_t retrieve_actpackvptrdram(unsigned int base_offset__, unsigned int p_u, unsigned int llp_set, HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB, unsigned int inst){
 	unsigned int offset = ((p_u * MAX_NUM_LLPSETS) + llp_set) * 2;
 	#ifdef _DEBUGMODE_CHECKS3
-	unsigned int wwsize = HBM_channel->globalparams[GLOBALPARAMSCODE__WWSIZE__ACTPACKVPTRS].data[0];
+	unsigned int wwsize = HBM_channelA[inst].globalparams[GLOBALPARAMSCODE__WWSIZE__ACTPACKVPTRS].data[0];
 	checkoutofbounds("acts_sw::ERROR 702::", offset / HBM_CHANNEL_PACK_SIZE, wwsize, NAp, NAp, NAp);
 	#endif 
 	map_t map;
 	unsigned int i = offset / HBM_CHANNEL_PACK_SIZE;
 	unsigned int j = offset % HBM_CHANNEL_PACK_SIZE;
-	map.offset = HBM_channel[inst].HBM[base_offset__ + i].data[j];
-	map.size = HBM_channel[inst].HBM[base_offset__ + i].data[j + 1];
+	map.offset = master_retrieve(base_offset__ + i, j, HBM_channelA, HBM_channelB, inst);
+	map.size = master_retrieve(base_offset__ + i, j + 1, HBM_channelA, HBM_channelB, inst);
 	return map;
 }
-void retrievemany_actpackvptrdram(unsigned int base_offset__, unsigned int p_u, unsigned int llp_set, map_t maps[NUM_PEs], HBM_channel_t * HBM_channel){
+void retrievemany_actpackvptrdram(unsigned int base_offset__, unsigned int p_u, unsigned int llp_set, map_t maps[NUM_PEs], HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB){
 	unsigned int offset = ((p_u * MAX_NUM_LLPSETS) + llp_set) * 2;
 	#ifdef _DEBUGMODE_CHECKS3
-	unsigned int wwsize = HBM_channel[0].globalparams[GLOBALPARAMSCODE__WWSIZE__ACTPACKVPTRS].data[0];
+	unsigned int wwsize = HBM_channelA[0].globalparams[GLOBALPARAMSCODE__WWSIZE__ACTPACKVPTRS].data[0];
 	checkoutofbounds("acts_sw::ERROR 702::", offset / HBM_CHANNEL_PACK_SIZE, wwsize, NAp, NAp, NAp);
 	#endif 
+	
 	unsigned int i = offset / HBM_CHANNEL_PACK_SIZE;
 	unsigned int j = offset % HBM_CHANNEL_PACK_SIZE;
+	
+	unsigned int data_[NUM_PEs];
+	unsigned int offsets_[NUM_PEs];
 	for(unsigned int n=0; n<NUM_PEs; n++){
-		maps[n].offset = HBM_channel[n].HBM[base_offset__ + i].data[j];
-		maps[n].size = HBM_channel[n].HBM[base_offset__ + i].data[j + 1];
+	#pragma HLS UNROLL
+		offsets_[n] = base_offset__ + i;
+	}
+	master_retrievemany(offsets_, j, data_, HBM_channelA, HBM_channelB);
+	for(unsigned int n=0; n<NUM_PEs; n++){
+	#pragma HLS UNROLL
+		maps[n].offset = data_[n];
+	}
+	master_retrievemany(offsets_, j + 1, data_, HBM_channelA, HBM_channelB);
+	for(unsigned int n=0; n<NUM_PEs; n++){
+		maps[n].size = data_[n];
 	}
 	return;
 }
 
-edge3_vec_dt retrieve_csr_pack_edges(unsigned int base_offset__, unsigned int index, HBM_channel_t * HBM_channel, unsigned int inst){
+edge3_vec_dt dretrieve_csr_pack_edges(unsigned int base_offset__, unsigned int index, HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB, unsigned int inst){
 	edge3_vec_dt edge3_vec;
 	#ifdef _DEBUGMODE_CHECKS3
-	unsigned int wwsize = HBM_channel->globalparams[GLOBALPARAMSCODE__WWSIZE__CSREDGES].data[0];
+	unsigned int wwsize = HBM_channelA[0].globalparams[GLOBALPARAMSCODE__WWSIZE__CSREDGES].data[0];
 	checkoutofbounds("acts_sw::ERROR 703::", index, wwsize, NAp, NAp, NAp);
 	#endif 
+	
+	unsigned int data[HBM_CHANNEL_PACK_SIZE];
+	master_retrieve_vec(base_offset__ + index, data, HBM_channelA, HBM_channelB, inst);
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 	#pragma HLS UNROLL
-		unsigned int srcvid = HBM_channel[inst].HBM[base_offset__ + index].data[2*v];
-		unsigned int dstvid = HBM_channel[inst].HBM[base_offset__ + index].data[2*v + 1];
-		edge3_vec.data[v].srcvid = srcvid;
-		edge3_vec.data[v].dstvid = (dstvid >> 1) & 0xFFFFFFFF;
+		edge3_vec.data[v].srcvid = data[2*v];
+		edge3_vec.data[v].dstvid = (data[2*v+1] >> 1) & 0xFFFFFFFF;
 		edge3_vec.data[v].weight = 1;
-		edge3_vec.data[v].valid = dstvid & 0x1;
+		edge3_vec.data[v].valid = data[2*v+1] & 0x1;
 	}
 	return edge3_vec;
 }
 
-edge3_vec_dt retrieve_act_pack_edges(unsigned int base_offset__, unsigned int index, HBM_channel_t * HBM_channel, unsigned int inst){
+edge3_vec_dt dretrieve_act_pack_edges(unsigned int base_offset__, unsigned int index, HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB, unsigned int inst){
 	edge3_vec_dt edge3_vec;
 	#ifdef _DEBUGMODE_CHECKS3
-	unsigned int wwsize = HBM_channel->globalparams[GLOBALPARAMSCODE__WWSIZE__ACTPACKEDGES].data[0];
+	unsigned int wwsize = HBM_channelA[inst].globalparams[GLOBALPARAMSCODE__WWSIZE__ACTPACKEDGES].data[0];
 	checkoutofbounds("acts_sw::ERROR 704::", index, wwsize, NAp, NAp, NAp);
 	#endif 
+	
+	unsigned int data_[HBM_CHANNEL_PACK_SIZE];
+	master_retrieve_vec(base_offset__ + index, data_, HBM_channelA, HBM_channelB, inst);
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 	#pragma HLS UNROLL
-		unsigned int srcvid = HBM_channel[inst].HBM[base_offset__ + index].data[2*v];
-		unsigned int dstvid = HBM_channel[inst].HBM[base_offset__ + index].data[2*v + 1];
-		edge3_vec.data[v].srcvid = srcvid;
-		edge3_vec.data[v].dstvid = (dstvid >> 1) & 0xFFFFFFFF;
+		edge3_vec.data[v].srcvid = data_[2*v];
+		edge3_vec.data[v].dstvid = (data_[2*v+1] >> 1) & 0xFFFFFFFF;
 		edge3_vec.data[v].weight = 1;
-		edge3_vec.data[v].valid = dstvid & 0x1;
+		edge3_vec.data[v].valid = data_[2*v+1] & 0x1;
 	}
 	return edge3_vec;
 }
-void retrievemany_act_pack_edges(unsigned int base_offset__, unsigned int offsets[NUM_PEs], unsigned int t, edge3_vec_dt edge3_vecs[NUM_PEs], HBM_channel_t * HBM_channel){
+void dretrievemany_act_pack_edges(unsigned int base_offset__, unsigned int offsets[NUM_PEs], unsigned int t, edge3_vec_dt edge3_vecs[NUM_PEs], HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB){
 	#ifdef _DEBUGMODE_CHECKS3
-	unsigned int wwsize = HBM_channel[0].globalparams[GLOBALPARAMSCODE__WWSIZE__ACTPACKEDGES].data[0];
+	unsigned int wwsize = HBM_channelA[0].globalparams[GLOBALPARAMSCODE__WWSIZE__ACTPACKEDGES].data[0];
 	checkoutofbounds("acts_sw::ERROR 704f::", offsets[0] + t, wwsize, NAp, NAp, NAp);
 	#endif 
+	
+	unsigned int data_[NUM_PEs][HBM_CHANNEL_PACK_SIZE];
+	unsigned int offsets_[NUM_PEs];
+	for(unsigned int n=0; n<NUM_PEs; n++){
+	#pragma HLS UNROLL
+		offsets_[n] = base_offset__ + offsets[n] + t;
+	}
+	master_retrievemany_vec(offsets_, data_, HBM_channelA, HBM_channelB);
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 	#pragma HLS UNROLL
 		for(unsigned int n=0; n<NUM_PEs; n++){
-			unsigned int srcvid = HBM_channel[n].HBM[base_offset__ + offsets[n] + t].data[2*v];
-			unsigned int dstvid = HBM_channel[n].HBM[base_offset__ + offsets[n] + t].data[2*v + 1];
-			edge3_vecs[n].data[v].srcvid = srcvid;
-			edge3_vecs[n].data[v].dstvid = (dstvid >> 1) & 0xFFFFFFFF;
+			edge3_vecs[n].data[v].srcvid = data_[n][2*v];
+			edge3_vecs[n].data[v].dstvid = (data_[n][2*v+1] >> 1) & 0xFFFFFFFF;
 			edge3_vecs[n].data[v].weight = 1;
-			edge3_vecs[n].data[v].valid = dstvid & 0x1;
+			edge3_vecs[n].data[v].valid = data_[n][2*v+1] & 0x1;
 		}
 	}
 	return;
 }
 
-void insert_updatesdram(unsigned int offset__, unsigned int llp_set, unsigned int index, uint512_vec_dt data, HBM_channel_t * HBM_channel, unsigned int inst, unsigned int globalparams[32], unsigned int updatesptrs[MAX_NUM_LLPSETS]){
+unsigned int dretrieve_updatesptrs(unsigned int base_offset__, unsigned int index, HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB, unsigned int inst){
 	#ifdef _DEBUGMODE_CHECKS3
-	unsigned int wwsize = HBM_channel->globalparams[GLOBALPARAMSCODE__WWSIZE__UPDATES].data[0];
+	unsigned int wwsize = HBM_channelA[inst].globalparams[GLOBALPARAMSCODE__WWSIZE__CSRVPTRS].data[0];
+	checkoutofbounds("acts_sw::ERROR 701::", (index / HBM_CHANNEL_PACK_SIZE), wwsize, inst, NAp, NAp);
+	#endif 
+	return master_retrieve(base_offset__ + index, 0, HBM_channelA, HBM_channelB, inst); // NEW
+}
+
+void dinsert_updatesdram(unsigned int offset__, unsigned int llp_set, unsigned int index, uint512_vec_dt data, HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB, unsigned int inst, unsigned int globalparams[32], unsigned int updatesptrs[MAX_NUM_LLPSETS]){
+	#ifdef _DEBUGMODE_CHECKS3
+	unsigned int wwsize = HBM_channelA[inst].globalparams[GLOBALPARAMSCODE__WWSIZE__UPDATES].data[0];
 	checkoutofbounds("acts_sw::ERROR 708a::", updatesptrs[llp_set] + index, updatesptrs[llp_set + 1], NAp, NAp, NAp);
 	#endif 
+	
+	unsigned int data_[HBM_CHANNEL_PACK_SIZE];
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 	#pragma HLS UNROLL
 		#ifdef _DEBUGMODE_CHECKS3
 		checkoutofbounds("acts_sw::ERROR 708b::", llp_set, MAX_NUM_APPLYPARTITIONS, index, v, NAp);
 		checkoutofbounds("acts_sw::ERROR 708c::", index, HBM_CHANNEL_SIZE, index, v, NAp);
 		#endif 
-		HBM_channel[inst].HBM[offset__ + index].data[2*v] = data.data[v].key;
-		HBM_channel[inst].HBM[offset__ + index].data[2*v + 1] = data.data[v].value;
+		data_[2*v] = data.data[v].key;
+		data_[2*v + 1] = data.data[v].value;
 	}
+	master_insert_vec(offset__ + index, data_, HBM_channelA, HBM_channelB, inst);
 }
-void retrieve_udatesdram(unsigned int offset__, unsigned int llp_set, unsigned int index, uint512_vec_dt * data, HBM_channel_t * HBM_channel, unsigned int inst, unsigned int globalparams[32], unsigned int updatesptrs[MAX_NUM_LLPSETS]){
+void dretrieve_udatesdram(unsigned int offset__, unsigned int llp_set, unsigned int index, uint512_vec_dt * data, HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB, unsigned int inst, unsigned int globalparams[32], unsigned int updatesptrs[MAX_NUM_LLPSETS]){
 	#ifdef _DEBUGMODE_CHECKS3
-	unsigned int wwsize = HBM_channel->globalparams[GLOBALPARAMSCODE__WWSIZE__UPDATES].data[0];
+	unsigned int wwsize = HBM_channelA[inst].globalparams[GLOBALPARAMSCODE__WWSIZE__UPDATES].data[0];
 	checkoutofbounds("acts_sw::ERROR 710a::", updatesptrs[llp_set] + index, updatesptrs[llp_set + 1], NAp, NAp, NAp);
 	#endif 
+	
+	unsigned int data_[HBM_CHANNEL_PACK_SIZE];
+	master_retrieve_vec(offset__ + index, data_, HBM_channelA, HBM_channelB, inst);
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 	#pragma HLS UNROLL
 		#ifdef _DEBUGMODE_CHECKS3
 		checkoutofbounds("acts_sw::ERROR 710b::", llp_set, MAX_NUM_APPLYPARTITIONS, index, v, NAp);
 		checkoutofbounds("acts_sw::ERROR 710c::", index, HBM_CHANNEL_SIZE, index, v, NAp);
 		#endif 
-		data->data[v].key = HBM_channel[inst].HBM[offset__ + index].data[2*v]; 
-		data->data[v].value = HBM_channel[inst].HBM[offset__ + index].data[2*v + 1];		
+		data->data[v].key = data_[2*v]; 
+		data->data[v].value = data_[2*v + 1];		
 	}
 	return; 
 }
-void insertmany_updatesdram(unsigned int offset__, unsigned int llp_set, unsigned int offsets[NUM_PEs], unsigned int t, uint512_vec_dt data[NUM_PEs], bool ens[NUM_PEs][EDGE_PACK_SIZE], HBM_channel_t * HBM_channel, unsigned int updatesptrs[MAX_NUM_LLPSETS]){
+void dinsertmany_updatesdram(unsigned int offset__, unsigned int llp_set, unsigned int offsets[NUM_PEs], unsigned int t, uint512_vec_dt data[NUM_PEs], bool ens[NUM_PEs][EDGE_PACK_SIZE], HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB, unsigned int updatesptrs[MAX_NUM_LLPSETS]){
 	#ifdef _DEBUGMODE_CHECKS3
-	unsigned int wwsize = HBM_channel[0].globalparams[GLOBALPARAMSCODE__WWSIZE__UPDATES].data[0];
+	unsigned int wwsize = HBM_channelA[0].globalparams[GLOBALPARAMSCODE__WWSIZE__UPDATES].data[0];
 	checkoutofbounds("acts_sw::ERROR 708a::", updatesptrs[llp_set] + offsets[0], updatesptrs[llp_set + 1], NAp, NAp, NAp);
 	#endif 
-	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
+	
+	unsigned int data_[NUM_PEs][HBM_CHANNEL_PACK_SIZE];
+	unsigned int offsets_[NUM_PEs];
+	unsigned int ens_[NUM_PEs];
+	for(unsigned int n=0; n<NUM_PEs; n++){
 	#pragma HLS UNROLL
-		#ifdef _DEBUGMODE_CHECKS3
-		checkoutofbounds("acts_sw::ERROR 708b::", llp_set, MAX_NUM_APPLYPARTITIONS, offsets[0], v, NAp);
-		checkoutofbounds("acts_sw::ERROR 708c::", offsets[0], HBM_CHANNEL_SIZE, offsets[0], v, NAp);
-		#endif 
+		offsets_[n] = offset__ + offsets[n] + t;
+	}
+	for(unsigned int n=0; n<NUM_PEs; n++){
+	#pragma HLS UNROLL
+		ens_[n] = ens[n][0];
+	}
+	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+	#pragma HLS UNROLL
 		for(unsigned int n=0; n<NUM_PEs; n++){
-			if(ens[n][v]==true){
-				HBM_channel[n].HBM[offset__ + offsets[n] + t].data[2*v] = data[n].data[v].key;
-				HBM_channel[n].HBM[offset__ + offsets[n] + t].data[2*v + 1] = data[n].data[v].value;
-			}
+			data_[n][2*v] = data[n].data[v].key;
+			data_[n][2*v+1] = data[n].data[v].value;
 		}
 	}
+	master_insertmany_vec(offsets_, ens_, data_, HBM_channelA, HBM_channelB);
 }
-void retrievemany_udatesdram(unsigned int offset__, unsigned int llp_set, unsigned int index, uint512_vec_dt data[NUM_PEs], HBM_channel_t * HBM_channel, unsigned int updatesptrs[MAX_NUM_LLPSETS]){
+void dretrievemany_udatesdram(unsigned int offset__, unsigned int llp_set, unsigned int index, uint512_vec_dt data[NUM_PEs], HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB, unsigned int updatesptrs[MAX_NUM_LLPSETS]){
 	#ifdef _DEBUGMODE_CHECKS3
-	unsigned int wwsize = HBM_channel[0].globalparams[GLOBALPARAMSCODE__WWSIZE__UPDATES].data[0];
+	unsigned int wwsize = HBM_channelA[0].globalparams[GLOBALPARAMSCODE__WWSIZE__UPDATES].data[0];
 	checkoutofbounds("acts_sw::ERROR 710a::", updatesptrs[llp_set] + index, updatesptrs[llp_set + 1], NAp, NAp, NAp);
 	#endif 
-	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
+
+	unsigned int data_[NUM_PEs][HBM_CHANNEL_PACK_SIZE]; 
+	unsigned int offsets_[NUM_PEs];
+	for(unsigned int n=0; n<NUM_PEs; n++){
 	#pragma HLS UNROLL
-		#ifdef _DEBUGMODE_CHECKS3
-		checkoutofbounds("acts_sw::ERROR 710b::", llp_set, MAX_NUM_APPLYPARTITIONS, index, v, NAp);
-		checkoutofbounds("acts_sw::ERROR 710c::", index, HBM_CHANNEL_SIZE, index, v, NAp);
-		#endif 
+		offsets_[n] = offset__ + index;
+	}
+	master_retrievemany_vec(offsets_, data_, HBM_channelA, HBM_channelB);
+	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+	#pragma HLS UNROLL
 		for(unsigned int n=0; n<NUM_PEs; n++){
-			data[n].data[v].key = HBM_channel[n].HBM[offset__ + index].data[2*v]; 
-			data[n].data[v].value = HBM_channel[n].HBM[offset__ + index].data[2*v + 1];		
+			data[n].data[v].key = data_[n][2*v];
+			data[n].data[v].value = data_[n][2*v+1];
 		}
 	}
 	return; 
 }
 
-void insert_vdatadram(unsigned int offset__, unsigned int index, vprop_t data[EDGE_PACK_SIZE], HBM_channel_t * HBM_channel, unsigned int inst){
+void dinsert_vdatadram(unsigned int offset__, unsigned int index, vprop_t data[EDGE_PACK_SIZE], HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB, unsigned int inst){
 	#ifdef _DEBUGMODE_CHECKS3
-	unsigned int wwsize = HBM_channel->globalparams[GLOBALPARAMSCODE__WWSIZE__VDATAS].data[0];
+	unsigned int wwsize = HBM_channelA[inst].globalparams[GLOBALPARAMSCODE__WWSIZE__VDATAS].data[0];
 	checkoutofbounds("acts_sw::ERROR 711::", index, wwsize, NAp, NAp, NAp);
 	#endif 
+	
+	unsigned int data_[HBM_CHANNEL_PACK_SIZE];
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 	#pragma HLS UNROLL
-		HBM_channel[inst].HBM[offset__ + index].data[2*v] = data[v].prop;
-		HBM_channel[inst].HBM[offset__ + index].data[2*v + 1] = data[v].mask;
+		data_[2*v] = data[v].prop;
+		data_[2*v + 1] = data[v].mask;
 	}
+	master_insert_vec(offset__ + index, data_, HBM_channelA, HBM_channelB, inst);
 	return;
 }
-void retrieve_vdatadram(unsigned int offset__, unsigned int index, vprop_t data[EDGE_PACK_SIZE], HBM_channel_t * HBM_channel, unsigned int inst){
+void dretrieve_vdatadram(unsigned int offset__, unsigned int index, vprop_t data[EDGE_PACK_SIZE], HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB, unsigned int inst){
 	#ifdef _DEBUGMODE_CHECKS3
-	unsigned int wwsize = HBM_channel->globalparams[GLOBALPARAMSCODE__WWSIZE__VDATAS].data[0];
+	unsigned int wwsize = HBM_channelA[inst].globalparams[GLOBALPARAMSCODE__WWSIZE__VDATAS].data[0];
 	checkoutofbounds("acts_sw::ERROR 712::", index, wwsize, NAp, NAp, NAp);
 	#endif 
+	
+	unsigned int data_[HBM_CHANNEL_PACK_SIZE];
+	master_retrieve_vec(offset__ + index, data_, HBM_channelA, HBM_channelB, inst);
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 	#pragma HLS UNROLL
-		data[v].prop = HBM_channel[inst].HBM[offset__ + index].data[2*v];
-		data[v].mask = HBM_channel[inst].HBM[offset__ + index].data[2*v + 1];
+		data[v].prop = data_[2*v];
+		data[v].mask = data_[2*v + 1];
 	}
 	return;
 }
-void insertmany_vdatadram(unsigned int offset__, unsigned int offsets[NUM_PEs], unsigned int t, vprop_t datas[NUM_PEs][EDGE_PACK_SIZE], HBM_channel_t * HBM_channel){
+void dinsertmany_vdatadram(unsigned int offset__, unsigned int offsets[NUM_PEs], unsigned int t, vprop_t datas[NUM_PEs][EDGE_PACK_SIZE], HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB){
 	#ifdef _DEBUGMODE_CHECKS3
-	unsigned int wwsize = HBM_channel->globalparams[GLOBALPARAMSCODE__WWSIZE__VDATAS].data[0];
+	unsigned int wwsize = HBM_channelA[0].globalparams[GLOBALPARAMSCODE__WWSIZE__VDATAS].data[0];
 	checkoutofbounds("acts_sw::ERROR 711::", offsets[0], wwsize, NAp, NAp, NAp);
 	#endif 
+	
+	unsigned int data_[NUM_PEs][HBM_CHANNEL_PACK_SIZE]; // NEW
+	unsigned int offsets_[NUM_PEs];
+	unsigned int ens_[NUM_PEs];
+	for(unsigned int n=0; n<NUM_PEs; n++){
+	#pragma HLS UNROLL
+		offsets_[n] = offset__ + offsets[n] + t;
+	}
+	for(unsigned int n=0; n<NUM_PEs; n++){
+	#pragma HLS UNROLL
+		ens_[n] = true;
+	}
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 	#pragma HLS UNROLL
 		for(unsigned int n=0; n<NUM_PEs; n++){
-		#pragma HLS UNROLL
-			HBM_channel[n].HBM[offset__ + offsets[n] + t].data[2*v] = datas[n][v].prop;
-			HBM_channel[n].HBM[offset__ + offsets[n] + t].data[2*v + 1] = datas[n][v].mask;
+			data_[n][2*v] = datas[n][v].prop;
+			data_[n][2*v+1] = datas[n][v].mask;
 		}
 	}
+	master_insertmany_vec(offsets_, ens_, data_, HBM_channelA, HBM_channelB);
 	return;
 }
-void retrievemany_vdatadram(unsigned int offset__, unsigned int offsets[NUM_PEs], unsigned int t, vprop_t datas[NUM_PEs][EDGE_PACK_SIZE], HBM_channel_t * HBM_channel){
+void dretrievemany_vdatadram(unsigned int offset__, unsigned int offsets[NUM_PEs], unsigned int t, vprop_t datas[NUM_PEs][EDGE_PACK_SIZE], HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB){
 	#ifdef _DEBUGMODE_CHECKS3
-	unsigned int wwsize = HBM_channel->globalparams[GLOBALPARAMSCODE__WWSIZE__VDATAS].data[0];
+	unsigned int wwsize = HBM_channelA[0].globalparams[GLOBALPARAMSCODE__WWSIZE__VDATAS].data[0];
 	checkoutofbounds("acts_sw::ERROR 712::", offsets[0], wwsize, NAp, NAp, NAp);
 	#endif 
+	
+	unsigned int data_[NUM_PEs][HBM_CHANNEL_PACK_SIZE]; // NEW
+	unsigned int offsets_[NUM_PEs];
+	for(unsigned int n=0; n<NUM_PEs; n++){
+	#pragma HLS UNROLL
+		offsets_[n] = offset__ + offsets[n] + t;
+	}
+	master_retrievemany_vec(offsets_, data_, HBM_channelA, HBM_channelB);
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 	#pragma HLS UNROLL
 		for(unsigned int n=0; n<NUM_PEs; n++){
-		#pragma HLS UNROLL
-			datas[n][v].prop = HBM_channel[n].HBM[offset__ + offsets[n] + t].data[2*v];
-			datas[n][v].mask = HBM_channel[n].HBM[offset__ + offsets[n] + t].data[2*v + 1];
+			datas[n][v].prop = data_[n][2*v];
+			datas[n][v].mask = data_[n][2*v+1];
 		}
 	}
 	return;
 }
 
-void insert_cfrontierdram_tmp(unsigned int base_offset__, unsigned int index, keyvalue_t data[EDGE_PACK_SIZE], HBM_channel_t * HBM_channel, unsigned int inst){
+void dinsert_cfrontierdram_tmp(unsigned int base_offset__, unsigned int index, keyvalue_t data[EDGE_PACK_SIZE], HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB, unsigned int inst){
 	#ifdef _DEBUGMODE_CHECKS3
-	unsigned int wwsize = HBM_channel->globalparams[GLOBALPARAMSCODE__WWSIZE__CFRONTIERSTMP].data[0];
+	unsigned int wwsize = HBM_channelA[inst].globalparams[GLOBALPARAMSCODE__WWSIZE__CFRONTIERSTMP].data[0];
 	checkoutofbounds("acts_sw::ERROR 713a::", index, wwsize, NAp, NAp, NAp);
 	#endif 
-	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
+	
+	unsigned int data_[HBM_CHANNEL_PACK_SIZE];
+	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 	#pragma HLS UNROLL
-		#ifdef _DEBUGMODE_CHECKS3
-		checkoutofbounds("acts_sw::ERROR 713b::", index, MAX_APPLYPARTITION_VECSIZE, index, v, NAp);
-		#endif 
-		HBM_channel[inst].HBM[base_offset__ + index].data[2*v] = data[v].key;
-		HBM_channel[inst].HBM[base_offset__ + index].data[2*v + 1] = data[v].value;
+		data_[2*v] = data[v].key;
+		data_[2*v + 1] = data[v].value;
 	}
+	master_insert_vec(base_offset__ + index, data_, HBM_channelA, HBM_channelB, inst);
 }
-void retrieve_cfrontierdram_tmp(unsigned int base_offset__, unsigned int index, keyvalue_t data[EDGE_PACK_SIZE], HBM_channel_t * HBM_channel, unsigned int inst){
+void dretrieve_cfrontierdram_tmp(unsigned int base_offset__, unsigned int index, keyvalue_t data[EDGE_PACK_SIZE], HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB, unsigned int inst){
 	#ifdef _DEBUGMODE_CHECKS3
-	unsigned int wwsize = HBM_channel->globalparams[GLOBALPARAMSCODE__WWSIZE__CFRONTIERSTMP].data[0];
+	unsigned int wwsize = HBM_channelA[inst].globalparams[GLOBALPARAMSCODE__WWSIZE__CFRONTIERSTMP].data[0];
 	checkoutofbounds("acts_sw::ERROR 714a::", index, wwsize, NAp, NAp, NAp);
 	#endif 
+	
+	unsigned int data_[HBM_CHANNEL_PACK_SIZE];
+	master_retrieve_vec(base_offset__ + index, data_, HBM_channelA, HBM_channelB, inst);
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 	#pragma HLS UNROLL
 		#ifdef _DEBUGMODE_CHECKS3
 		checkoutofbounds("acts_sw::ERROR 714b::", index, MAX_APPLYPARTITION_VECSIZE, index, v, NAp);
 		#endif 
-		data[v].key = HBM_channel[inst].HBM[base_offset__ + index].data[2*v];
-		data[v].value = HBM_channel[inst].HBM[base_offset__ + index].data[2*v + 1];
+		data[v].key = data_[2*v];
+		data[v].value = data_[2*v + 1];
 	}
 	return; 
 }
-void insertmany_cfrontierdram_tmp(unsigned int base_offset__, unsigned int offsets[NUM_PEs], unsigned int t, keyvalue_t datas[NUM_PEs][EDGE_PACK_SIZE], bool ens[NUM_PEs][EDGE_PACK_SIZE], HBM_channel_t * HBM_channel){
+void dinsertmany_cfrontierdram_tmp(unsigned int base_offset__, unsigned int offsets[NUM_PEs], unsigned int t, keyvalue_t datas[NUM_PEs][EDGE_PACK_SIZE], bool ens[NUM_PEs][EDGE_PACK_SIZE], HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB){
 	#ifdef _DEBUGMODE_CHECKS3
-	unsigned int wwsize = HBM_channel->globalparams[GLOBALPARAMSCODE__WWSIZE__CFRONTIERSTMP].data[0];
+	unsigned int wwsize = HBM_channelA[0].globalparams[GLOBALPARAMSCODE__WWSIZE__CFRONTIERSTMP].data[0];
 	checkoutofbounds("acts_sw::ERROR 713a::", offsets[0] + t, wwsize, NAp, NAp, NAp);
 	#endif 
-	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
+	
+	unsigned int data_[NUM_PEs][HBM_CHANNEL_PACK_SIZE];
+	unsigned int offsets_[NUM_PEs];
+	unsigned int ens_[NUM_PEs];
+	for(unsigned int n=0; n<NUM_PEs; n++){
+	#pragma HLS UNROLL
+		offsets_[n] = base_offset__ + offsets[n] + t;
+	}
+	for(unsigned int n=0; n<NUM_PEs; n++){
+	#pragma HLS UNROLL
+		ens_[n] = ens[n][0];
+	}
+	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 	#pragma HLS UNROLL
 		for(unsigned int n=0; n<NUM_PEs; n++){
-		#pragma HLS UNROLL
-			#ifdef _DEBUGMODE_CHECKS3
-			checkoutofbounds("acts_sw::ERROR 713b::", offsets[n] + t, MAX_APPLYPARTITION_VECSIZE, offsets[n] + t, v, NAp);
-			#endif 
-			if(ens[n][v]==true){
-				HBM_channel[n].HBM[base_offset__ + offsets[n] + t].data[2*v] = datas[n][v].key;
-				HBM_channel[n].HBM[base_offset__ + offsets[n] + t].data[2*v + 1] = datas[n][v].value;
-			}
+			data_[n][2*v] = datas[n][v].key;
+			data_[n][2*v+1] = datas[n][v].value;
 		}
 	}
+	master_insertmany_vec(offsets_, ens_, data_, HBM_channelA, HBM_channelB);
+	return;
 }
-void retrievemany_cfrontierdram_tmp(unsigned int base_offset__, unsigned int offsets[NUM_PEs], unsigned int t, keyvalue_t datas[NUM_PEs][EDGE_PACK_SIZE], HBM_channel_t * HBM_channel){
+void dretrievemany_cfrontierdram_tmp(unsigned int base_offset__, unsigned int offsets[NUM_PEs], unsigned int t, keyvalue_t datas[NUM_PEs][EDGE_PACK_SIZE], HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB){
 	#ifdef _DEBUGMODE_CHECKS3
-	unsigned int wwsize = HBM_channel->globalparams[GLOBALPARAMSCODE__WWSIZE__CFRONTIERSTMP].data[0];
+	unsigned int wwsize = HBM_channelA[0].globalparams[GLOBALPARAMSCODE__WWSIZE__CFRONTIERSTMP].data[0];
 	checkoutofbounds("acts_sw::ERROR 714a::", offsets[0] + t, wwsize, NAp, NAp, NAp);
 	#endif 
-	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
+	
+	unsigned int data_[NUM_PEs][HBM_CHANNEL_PACK_SIZE];
+	unsigned int offsets_[NUM_PEs];
+	for(unsigned int n=0; n<NUM_PEs; n++){
+	#pragma HLS UNROLL
+		offsets_[n] = base_offset__ + offsets[n] + t;
+	}
+	master_retrievemany_vec(offsets_, data_, HBM_channelA, HBM_channelB);
+	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 	#pragma HLS UNROLL
 		for(unsigned int n=0; n<NUM_PEs; n++){
-		#pragma HLS UNROLL
-			#ifdef _DEBUGMODE_CHECKS3
-			checkoutofbounds("acts_sw::ERROR 714b::", offsets[n] + t, MAX_APPLYPARTITION_VECSIZE, offsets[n] + t, v, NAp);
-			#endif 
-			datas[n][v].key = HBM_channel[n].HBM[base_offset__ + offsets[n] + t].data[2*v];
-			datas[n][v].value = HBM_channel[n].HBM[base_offset__ + offsets[n] + t].data[2*v + 1];
+			datas[n][v].key = data_[n][2*v];
+			datas[n][v].value = data_[n][2*v+1];
 		}
 	}
 	return; 
 }
 
-void insert_nfrontierdram(unsigned int offset__, unsigned int p_u, unsigned int index, keyvalue_t data[EDGE_PACK_SIZE], HBM_channel_t * HBM_channel, unsigned int inst){
+void dinsert_nfrontierdram(unsigned int offset__, unsigned int p_u, unsigned int index, keyvalue_t data[EDGE_PACK_SIZE], HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB, unsigned int inst){
 	#ifdef _DEBUGMODE_CHECKS3
-	unsigned int wwsize = HBM_channel->globalparams[GLOBALPARAMSCODE__WWSIZE__NFRONTIERS].data[0];
+	unsigned int wwsize = HBM_channelA[inst].globalparams[GLOBALPARAMSCODE__WWSIZE__NFRONTIERS].data[0];
 	checkoutofbounds("acts_sw::ERROR 715a::", index, wwsize, NAp, NAp, NAp);
 	#endif 
-	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
+	
+	unsigned int data_[HBM_CHANNEL_PACK_SIZE];
+	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 	#pragma HLS UNROLL
-		#ifdef _DEBUGMODE_CHECKS3
-		checkoutofbounds("acts_sw::ERROR 715b::", p_u, MAX_NUM_UPARTITIONS, index, v, NAp);
-		checkoutofbounds("acts_sw::ERROR 715c::", index, MAX_APPLYPARTITION_VECSIZE, index, v, NAp);
-		#endif 
-		HBM_channel[inst].HBM[offset__ + index].data[2*v] = data[v].key;
-		HBM_channel[inst].HBM[offset__ + index].data[2*v + 1] = data[v].value;
+		data_[2*v] = data[v].key;
+		data_[2*v + 1] = data[v].value;
 	}
+	master_insert_vec(offset__ + index, data_, HBM_channelA, HBM_channelB, inst);
 }
-void retrieve_nfrontierdram(unsigned int offset__, unsigned int p_u, unsigned int index, keyvalue_t data[EDGE_PACK_SIZE], HBM_channel_t * HBM_channel, unsigned int inst){
+void dretrieve_nfrontierdram(unsigned int offset__, unsigned int p_u, unsigned int index, keyvalue_t data[EDGE_PACK_SIZE], HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB, unsigned int inst){
 	#ifdef _DEBUGMODE_CHECKS3
-	unsigned int wwsize = HBM_channel->globalparams[GLOBALPARAMSCODE__WWSIZE__NFRONTIERS].data[0];
+	unsigned int wwsize = HBM_channelA[inst].globalparams[GLOBALPARAMSCODE__WWSIZE__NFRONTIERS].data[0];
 	checkoutofbounds("acts_sw::ERROR 716a::", index, wwsize, NAp, NAp, NAp);
 	#endif 
+	
+	unsigned int data_[HBM_CHANNEL_PACK_SIZE];
+	master_retrieve_vec(offset__ + index, data_, HBM_channelA, HBM_channelB, inst);
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 	#pragma HLS UNROLL
 		#ifdef _DEBUGMODE_CHECKS3
 		checkoutofbounds("acts_sw::ERROR 716b::", p_u, MAX_NUM_UPARTITIONS, index, v, NAp);
 		checkoutofbounds("acts_sw::ERROR 716c::", index, MAX_APPLYPARTITION_VECSIZE, p_u, v, NAp);
 		#endif 
-		data[v].key = HBM_channel[inst].HBM[offset__ + index].data[2*v];
-		data[v].value = HBM_channel[inst].HBM[offset__ + index].data[2*v + 1];
+		data[v].key = data_[2*v];
+		data[v].value = data_[2*v + 1];
 	}
 	return; 
 }
-void insertmany_nfrontierdram(unsigned int offset__, unsigned int p_u, unsigned int offsets[NUM_PEs], unsigned int t, keyvalue_t datas[NUM_PEs][EDGE_PACK_SIZE], bool ens[NUM_PEs][EDGE_PACK_SIZE], HBM_channel_t * HBM_channel){
+void dinsertmany_nfrontierdram(unsigned int offset__, unsigned int p_u, unsigned int offsets[NUM_PEs], unsigned int t, keyvalue_t datas[NUM_PEs][EDGE_PACK_SIZE], bool ens[NUM_PEs][EDGE_PACK_SIZE], HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB){
 	#ifdef _DEBUGMODE_CHECKS3
-	unsigned int wwsize = HBM_channel->globalparams[GLOBALPARAMSCODE__WWSIZE__NFRONTIERS].data[0];
+	unsigned int wwsize = globalparams_debug[GLOBALPARAMSCODE__WWSIZE__NFRONTIERS];
 	checkoutofbounds("acts_sw::ERROR 715a::", offsets[0] + t, wwsize, NAp, NAp, NAp);
 	#endif 
-	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
+	
+	unsigned int data_[NUM_PEs][HBM_CHANNEL_PACK_SIZE];
+	unsigned int offsets_[NUM_PEs];
+	unsigned int ens_[NUM_PEs];
+	for(unsigned int n=0; n<NUM_PEs; n++){
+	#pragma HLS UNROLL
+		offsets_[n] = offset__ + offsets[n] + t;
+	}
+	for(unsigned int n=0; n<NUM_PEs; n++){
+	#pragma HLS UNROLL
+		ens_[n] = ens[n][0];
+	}
+	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 	#pragma HLS UNROLL
 		for(unsigned int n=0; n<NUM_PEs; n++){
-		#pragma HLS UNROLL
-			#ifdef _DEBUGMODE_CHECKS3
-			checkoutofbounds("acts_sw::ERROR 715b::", p_u, MAX_NUM_UPARTITIONS, offsets[n] + t, v, NAp);
-			checkoutofbounds("acts_sw::ERROR 715c::", offsets[n] + t, MAX_APPLYPARTITION_VECSIZE, offsets[n] + t, v, NAp);
-			#endif 
-			if(ens[n][v]==true){
-				HBM_channel[n].HBM[offset__ + offsets[n] + t].data[2*v] = datas[n][v].key;
-				HBM_channel[n].HBM[offset__ + offsets[n] + t].data[2*v + 1] = datas[n][v].value;
-			}
+			data_[n][2*v] = datas[n][v].key;
+			data_[n][2*v+1] = datas[n][v].value;
 		}
 	}
+	master_insertmany_vec(offsets_, ens_, data_, HBM_channelA, HBM_channelB);
 }
+// #endif 
 
 //////////////////////////////////////////////////////////////////
-void insert_udatabuffer(unsigned int v, unsigned int index, vprop_t data, BRAM_channel_t * BRAM_channel){
+void insert_udatabuffer(unsigned int v, unsigned int index, vprop_t data, vprop_t * vdata_buffer[EDGE_PACK_SIZE]){
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_sw::ERROR 100::", index, MAX_UPARTITION_VECSIZE, NAp, NAp, NAp);
 	#endif 
-	BRAM_channel->vertex_buffer[v][index] = data; // udata_buffer
+	vdata_buffer[v][index] = data;
 }
 
-vprop_t retrieve_udatabuffer(unsigned int v, unsigned int index, BRAM_channel_t * BRAM_channel){
+vprop_t retrieve_udatabuffer(unsigned int v, unsigned int index, vprop_t * vdata_buffer[EDGE_PACK_SIZE]){
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_sw::ERROR 101::", index, MAX_UPARTITION_VECSIZE, NAp, NAp, NAp);
 	#endif 
-	return BRAM_channel->vertex_buffer[v][index]; // udata_buffer
+	return vdata_buffer[v][index];
 }
 
-void insert_vdatabuffer(unsigned int v, unsigned int index, vprop_t data, BRAM_channel_t * BRAM_channel){
+void insert_vdatabuffer(unsigned int v, unsigned int index, vprop_t data, vprop_t * vdata_buffer[EDGE_PACK_SIZE]){
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_sw::ERROR 102::", index, MAX_UPARTITION_VECSIZE, NAp, NAp, NAp);
 	#endif 
-	BRAM_channel->vertex_buffer[v][index] = data; // vdata_buffer
+	vdata_buffer[v][index] = data; // vdata_buffer
 }
-vprop_t retrieve_vdatabuffer(unsigned int v, unsigned int index, BRAM_channel_t * BRAM_channel){
+vprop_t retrieve_vdatabuffer(unsigned int v, unsigned int index, vprop_t * vdata_buffer[EDGE_PACK_SIZE]){
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_sw::ERROR 103::", index, MAX_UPARTITION_VECSIZE, NAp, NAp, NAp);
 	#endif 
-	return BRAM_channel->vertex_buffer[v][index]; // vdata_buffer
+	return vdata_buffer[v][index];
 }
-void insert_vdatabuffer(unsigned int index, vprop_t data[EDGE_PACK_SIZE], BRAM_channel_t * BRAM_channel){
+void insert_vdatabuffer(unsigned int index, vprop_t data[EDGE_PACK_SIZE], vprop_t * vdata_buffer[EDGE_PACK_SIZE]){
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 	#pragma HLS UNROLL
 		#ifdef _DEBUGMODE_CHECKS3
 		checkoutofbounds("acts_sw::ERROR 104::", index, MAX_UPARTITION_VECSIZE, NAp, NAp, NAp);
 		#endif 
-		BRAM_channel->vertex_buffer[v][index] = data[v]; // vdata_buffer
+		vdata_buffer[v][index] = data[v];
 	}
 }
-vprop_t retrieve_vdatabuffer(unsigned int index, vprop_t data[EDGE_PACK_SIZE], BRAM_channel_t * BRAM_channel){
+vprop_t retrieve_vdatabuffer(unsigned int index, vprop_t data[EDGE_PACK_SIZE], vprop_t * vdata_buffer[EDGE_PACK_SIZE]){
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 	#pragma HLS UNROLL
 		#ifdef _DEBUGMODE_CHECKS3
 		checkoutofbounds("acts_sw::ERROR 105::", index, MAX_UPARTITION_VECSIZE, NAp, NAp, NAp);
 		#endif 
-		data[v] = BRAM_channel->vertex_buffer[v][index]; // vdata_buffer
+		data[v] = vdata_buffer[v][index];
 	}
 }
-void clear_vdatabuffer(unsigned int v, unsigned int index, BRAM_channel_t * BRAM_channel){
+
+void insert_edgesbuffer(unsigned int v, unsigned int index, edge3_type data, edge3_type * edges_buffer[EDGE_PACK_SIZE]){
 	#ifdef _DEBUGMODE_CHECKS3
-	checkoutofbounds("acts_sw::ERROR 106::", index, MAX_UPARTITION_VECSIZE, NAp, NAp, NAp);
+	checkoutofbounds("acts_sw::ERROR 192::", index, EDGE_BUFFER_SIZE, NAp, NAp, NAp);
 	#endif 
-	BRAM_channel->vertex_buffer[v][index].mask = INVALIDMASK; // vdata_buffer
+	edges_buffer[v][index] = data; // vdata_buffer
+}
+edge3_type retrieve_edgesbuffer(unsigned int v, unsigned int index, edge3_type * edges_buffer[EDGE_PACK_SIZE]){
+	#ifdef _DEBUGMODE_CHECKS3
+	checkoutofbounds("acts_sw::ERROR 193::", index, EDGE_BUFFER_SIZE, NAp, NAp, NAp);
+	#endif 
+	return edges_buffer[v][index];
 }
 
-void insert_updatesbuffer(unsigned int v, unsigned int index, keyvalue_t data, BRAM_channel_t * BRAM_channel){
+void insert_updatesbuffer(unsigned int v, unsigned int index, keyvalue_t data, keyvalue_t * updates_buffer[EDGE_PACK_SIZE]){
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_sw::ERROR 107::", index, MAX_UPARTITION_VECSIZE, NAp, NAp, NAp);
 	#endif 
-	BRAM_channel->updates_buffer[v][index] = data; // vdata_buffer
+	updates_buffer[v][index] = data;
 }
-keyvalue_t retrieve_updatesbuffer(unsigned int v, unsigned int index, BRAM_channel_t * BRAM_channel){
+keyvalue_t retrieve_updatesbuffer(unsigned int v, unsigned int index, keyvalue_t * updates_buffer[EDGE_PACK_SIZE]){
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_sw::ERROR 108::", index, MAX_UPARTITION_VECSIZE, NAp, NAp, NAp);
 	#endif 
-	return BRAM_channel->updates_buffer[v][index]; // vdata_buffer
+	return updates_buffer[v][index];
 }
 
-void insert_updatestmpbuffer(unsigned int index, unsigned int t, keyvalue_t data, BRAM_channel_t * BRAM_channel){
+void insert_updatestmpbuffer(unsigned int index, unsigned int t, keyvalue_t data, keyvalue_t * updates_tmpbuffer[NUM_PEs]){
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_sw::ERROR 109::", index, NUM_PEs, NAp, NAp, NAp);
 	checkoutofbounds("acts_sw::ERROR 110::", t, CSRBUFFER_SIZE, NAp, NAp, NAp);
 	#endif 
-	BRAM_channel->updates_tmpbuffer[index][t] = data;
+	updates_tmpbuffer[index][t] = data;
 }
-keyvalue_t retrieve_updatestmpbuffer(unsigned int index, unsigned int t, BRAM_channel_t * BRAM_channel){
+keyvalue_t retrieve_updatestmpbuffer(unsigned int index, unsigned int t, keyvalue_t * updates_tmpbuffer[NUM_PEs]){
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_sw::ERROR 111::", index, NUM_PEs, NAp, NAp, NAp);
 	checkoutofbounds("acts_sw::ERROR 112::", t, CSRBUFFER_SIZE, NAp, NAp, NAp);
 	#endif 
-	return BRAM_channel->updates_tmpbuffer[index][t];
+	return updates_tmpbuffer[index][t];
 }
 
-void insert_cfrontierbuffer(unsigned int v, unsigned int t, frontier_t data, BRAM_channel_t * BRAM_channel){
+void insert_cfrontierbuffer(unsigned int v, unsigned int t, frontier_t data, keyvalue_t * cfrontier_buffer[EDGE_PACK_SIZE]){
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_sw::ERROR 113::", t, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
 	#endif 
-	BRAM_channel->cfrontier_buffer[v][t] = data;
+	cfrontier_buffer[v][t] = data;
 }
-frontier_t retrieve_cfrontierbuffer_i(unsigned int v, unsigned int t, BRAM_channel_t * BRAM_channel){
+frontier_t retrieve_cfrontierbuffer(unsigned int v, unsigned int t, keyvalue_t * cfrontier_buffer[EDGE_PACK_SIZE]){
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_sw::ERROR 114::", t, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
 	#endif 
-	return BRAM_channel->cfrontier_buffer[v][t];
+	return cfrontier_buffer[v][t];
 }
-void insert_cfrontierbuffer(unsigned int t, frontier_t data[EDGE_PACK_SIZE], BRAM_channel_t * BRAM_channel){
+void insert_cfrontierbuffer(unsigned int t, frontier_t data[EDGE_PACK_SIZE], keyvalue_t * cfrontier_buffer[EDGE_PACK_SIZE]){
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 	#pragma HLS UNROLL
 		#ifdef _DEBUGMODE_CHECKS3
 		checkoutofbounds("acts_sw::ERROR 115::", t, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
 		#endif 
-		BRAM_channel->cfrontier_buffer[v][t] = data[v];
+		cfrontier_buffer[v][t] = data[v];
 	}
 }
-void retrieve_cfrontierbuffer_i(unsigned int t, frontier_t data[EDGE_PACK_SIZE], BRAM_channel_t * BRAM_channel){
+void retrieve_cfrontierbuffer(unsigned int t, frontier_t data[EDGE_PACK_SIZE], keyvalue_t * cfrontier_buffer[EDGE_PACK_SIZE]){
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 	#pragma HLS UNROLL
 		#ifdef _DEBUGMODE_CHECKS3
 		checkoutofbounds("acts_sw::ERROR 116::", t, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
 		#endif 
-		data[v] = BRAM_channel->cfrontier_buffer[v][t];
+		data[v] = cfrontier_buffer[v][t];
 	}
 	return; 
 }
 
-void insert_nfrontierbuffer(unsigned int t, unsigned int v, frontier_t data, BRAM_channel_t * BRAM_channel){
+void insert_nfrontierbuffer(unsigned int t, unsigned int v, frontier_t data, keyvalue_t * nfrontier_buffer[EDGE_PACK_SIZE]){
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_sw::ERROR 117::", t, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
 	#endif 
-	BRAM_channel->nfrontier_buffer[v][t] = data;
+	nfrontier_buffer[v][t] = data;
 }
-frontier_t retrieve_nfrontierbuffer(unsigned int t, unsigned int v, BRAM_channel_t * BRAM_channel){
+frontier_t retrieve_nfrontierbuffer(unsigned int t, unsigned int v, keyvalue_t * nfrontier_buffer[EDGE_PACK_SIZE]){
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_sw::ERROR 118::", t, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
 	#endif 
-	return BRAM_channel->nfrontier_buffer[v][t];
+	return nfrontier_buffer[v][t];
 }
-void insert_nfrontierbuffer(unsigned int t, frontier_t data[EDGE_PACK_SIZE], BRAM_channel_t * BRAM_channel){
+void insert_nfrontierbuffer(unsigned int t, frontier_t data[EDGE_PACK_SIZE], keyvalue_t * nfrontier_buffer[EDGE_PACK_SIZE]){
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 	#pragma HLS UNROLL
 		#ifdef _DEBUGMODE_CHECKS3
 		checkoutofbounds("acts_sw::ERROR 119::", t, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
 		#endif 
-		BRAM_channel->nfrontier_buffer[v][t] = data[v];
+		nfrontier_buffer[v][t] = data[v];
 	}
 }
-void retrieve_nfrontierbuffer(unsigned int t, frontier_t data[EDGE_PACK_SIZE], BRAM_channel_t * BRAM_channel){
+void retrieve_nfrontierbuffer(unsigned int t, frontier_t data[EDGE_PACK_SIZE], keyvalue_t * nfrontier_buffer[EDGE_PACK_SIZE]){
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 	#pragma HLS UNROLL
 		#ifdef _DEBUGMODE_CHECKS3
 		checkoutofbounds("acts_sw::ERROR 120::", t, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
 		#endif 
-		data[v] = BRAM_channel->nfrontier_buffer[v][t];
+		data[v] = nfrontier_buffer[v][t];
 	}
 	return; 
 }
 
-void insert_statstmpbuffer(unsigned int t, unsigned int v, unsigned int data, BRAM_channel_t * BRAM_channel){
+void insert_statstmpbuffer(unsigned int t, unsigned int v, unsigned int data, unsigned int * stats_tmpbuffer[EDGE_PACK_SIZE]){
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_sw::ERROR 121::", t, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
 	#endif 
-	BRAM_channel->stats_tmpbuffer[v][t] = data;
+	stats_tmpbuffer[v][t] = data;
 }
-unsigned int retrieve_statstmpbuffer(unsigned int t, unsigned int v, BRAM_channel_t * BRAM_channel){
+unsigned int retrieve_statstmpbuffer(unsigned int t, unsigned int v, unsigned int * stats_tmpbuffer[EDGE_PACK_SIZE]){
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_sw::ERROR 122::", t, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
 	#endif 
-	return BRAM_channel->stats_tmpbuffer[v][t]; 
+	return stats_tmpbuffer[v][t]; 
 }
-void insert_statstmpbuffer(unsigned int t, unsigned int data[EDGE_PACK_SIZE], BRAM_channel_t * BRAM_channel){
+void insert_statstmpbuffer(unsigned int t, unsigned int data[EDGE_PACK_SIZE], unsigned int * stats_tmpbuffer[EDGE_PACK_SIZE]){
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 	#pragma HLS UNROLL
 		#ifdef _DEBUGMODE_CHECKS3
 		checkoutofbounds("acts_sw::ERROR 123::", t, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
 		#endif 
-		BRAM_channel->stats_tmpbuffer[v][t] = data[v];
+		stats_tmpbuffer[v][t] = data[v];
 	}
 }
-void retrieve_statstmpbuffer(unsigned int t, unsigned int data[EDGE_PACK_SIZE], BRAM_channel_t * BRAM_channel){
+void retrieve_statstmpbuffer(unsigned int t, unsigned int data[EDGE_PACK_SIZE], unsigned int * stats_tmpbuffer[EDGE_PACK_SIZE]){
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 	#pragma HLS UNROLL
 		#ifdef _DEBUGMODE_CHECKS3
 		checkoutofbounds("acts_sw::ERROR 124::", t, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
 		#endif 
-		data[v] = BRAM_channel->stats_tmpbuffer[v][t];
+		data[v] = stats_tmpbuffer[v][t];
 	}
 	return; 
 }
 
-void insert_statsbuffer(unsigned int t, unsigned int v, unsigned int data, BRAM_channel_t * BRAM_channel){
+void insert_statsbuffer(unsigned int t, unsigned int v, unsigned int data, unsigned int * stats_buffer[MAX_NUM_APPLYPARTITIONS]){
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_sw::ERROR 125::", t, BLOCKRAM_SIZE, NAp, NAp, NAp);
 	#endif 
-	BRAM_channel->stats_buffer[v][t] = data;
+	stats_buffer[v][t] = data;
 }
-unsigned int retrieve_statsbuffer(unsigned int t, unsigned int v, BRAM_channel_t * BRAM_channel){
+unsigned int retrieve_statsbuffer(unsigned int t, unsigned int v, unsigned int * stats_buffer[MAX_NUM_APPLYPARTITIONS]){
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_sw::ERROR 126::", t, BLOCKRAM_SIZE, NAp, NAp, NAp);
 	#endif 
-	return BRAM_channel->stats_buffer[v][t]; 
+	return stats_buffer[v][t]; 
 }
 
-void insert_stats2buffer(unsigned int t, unsigned int v, unsigned int data, BRAM_channel_t * BRAM_channel){
+void insert_stats2buffer(unsigned int t, unsigned int v, unsigned int data, unsigned int * stats2_buffer[MAX_NUM_APPLYPARTITIONS]){
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_sw::ERROR 127::", t, BLOCKRAM_SIZE, NAp, NAp, NAp);
 	#endif 
-	BRAM_channel->stats2_buffer[v][t] = data;
+	stats2_buffer[v][t] = data;
 }
-unsigned int retrieve_stats2buffer(unsigned int t, unsigned int v, BRAM_channel_t * BRAM_channel){
+unsigned int retrieve_stats2buffer(unsigned int t, unsigned int v, unsigned int * stats2_buffer[MAX_NUM_APPLYPARTITIONS]){
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_sw::ERROR 128::", t, BLOCKRAM_SIZE, NAp, NAp, NAp);
 	#endif 
-	return BRAM_channel->stats2_buffer[v][t]; 
+	return stats2_buffer[v][t]; 
 }
 
-void insert_vptrbuffer(unsigned int t, vtr_t data, BRAM_channel_t * BRAM_channel){
+void insert_vptrbuffer(unsigned int t, vtr_t data, vtr_t * vptr_buffer){
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_sw::ERROR 129::", t, VPTR_BUFFER_SIZE, NAp, NAp, NAp);
 	#endif 
-	BRAM_channel->vptr_buffer[t] = data;
+	vptr_buffer[t] = data;
 }
-vtr_t retrieve_vptrbuffer(unsigned int t, BRAM_channel_t * BRAM_channel){
+vtr_t retrieve_vptrbuffer(unsigned int t, vtr_t * vptr_buffer){
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_sw::ERROR 130::", t, VPTR_BUFFER_SIZE, NAp, NAp, NAp);
 	#endif 
-	return BRAM_channel->vptr_buffer[t];
+	return vptr_buffer[t];
 }
 //////////////////////////////////////////////////////////////////
 
-void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){					
+void acts_sw::run(HBM_channel_t * HBM_center, HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB){	
+	#ifdef _DEBUGMODE_KERNELPRINTS4
+	cout<<"acts_sw::run:: acts started "<<endl;
+	#endif 
 
+	// declaration of BRAM variables
+	#ifdef FPGA_IMPL
+	
+	#else 
+	keyvalue_t * nfrontier_buffer[NUM_PEs][EDGE_PACK_SIZE]; // [MAX_APPLYPARTITION_VECSIZE]
+	keyvalue_t * cfrontier_buffer[NUM_PEs][EDGE_PACK_SIZE]; // [MAX_APPLYPARTITION_VECSIZE]
+	unsigned int * stats_tmpbuffer[NUM_PEs][EDGE_PACK_SIZE]; // [BLOCKRAM_SIZE]
+	unsigned int * stats_buffer[NUM_PEs][MAX_NUM_APPLYPARTITIONS]; // [BLOCKRAM_SIZE]
+	unsigned int * stats2_buffer[NUM_PEs][MAX_NUM_APPLYPARTITIONS]; // [BLOCKRAM_SIZE]
+	keyvalue_t * updates_tmpbuffer[NUM_PEs][NUM_PEs]; // [CSRBUFFER_SIZE(//FIXME.)]
+	keyvalue_t * updates_buffer[NUM_PEs][EDGE_PACK_SIZE]; // [MAX_APPLYPARTITION_VECSIZE]
+	vtr_t * vptr_buffer[NUM_PEs]; // [VPTR_BUFFER_SIZE]
+	edge3_type * edges_buffer[NUM_PEs][EDGE_PACK_SIZE]; // [EDGE_BUFFER_SIZE]
+	vprop_t * vdata_buffer[NUM_PEs][EDGE_PACK_SIZE]; // [MAX_APPLYPARTITION_VECSIZE]
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ nfrontier_buffer[i][v] = new keyvalue_t[MAX_APPLYPARTITION_VECSIZE]; }}
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ cfrontier_buffer[i][v] = new keyvalue_t[MAX_APPLYPARTITION_VECSIZE]; }}
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ stats_tmpbuffer[i][v] = new unsigned int[BLOCKRAM_SIZE]; }}
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<MAX_NUM_APPLYPARTITIONS; v++){ stats_buffer[i][v] = new unsigned int[BLOCKRAM_SIZE]; }}
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<MAX_NUM_APPLYPARTITIONS; v++){ stats2_buffer[i][v] = new unsigned int[BLOCKRAM_SIZE]; }}
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p=0; p<NUM_PEs; p++){ updates_tmpbuffer[i][p] = new keyvalue_t[CSRBUFFER_SIZE]; }}
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ updates_buffer[i][v] = new keyvalue_t[MAX_APPLYPARTITION_VECSIZE]; }}
+	for(unsigned int i=0; i<NUM_PEs; i++){ vptr_buffer[i] = new vtr_t[VPTR_BUFFER_SIZE]; }
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ edges_buffer[i][v] = new edge3_type[EDGE_BUFFER_SIZE]; }}
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ vdata_buffer[i][v] = new vprop_t[MAX_APPLYPARTITION_VECSIZE]; }}
+	#endif 
+	
 	unsigned int __NUM_UPARTITIONS = (universalparams.NUM_VERTICES + (MAX_UPARTITION_SIZE - 1)) /  MAX_UPARTITION_SIZE;
 	unsigned int __NUM_APPLYPARTITIONS = ((universalparams.NUM_VERTICES / NUM_PEs) + (MAX_APPLYPARTITION_SIZE - 1)) /  MAX_APPLYPARTITION_SIZE; // NUM_PEs
 	cout<<"acts_sw::run:: universalparams.NUM_VERTICES: "<<universalparams.NUM_VERTICES<<", universalparams.NUM_EDGES: "<<universalparams.NUM_EDGES<<", MAX_UPARTITION_SIZE: "<<MAX_UPARTITION_SIZE<<", __NUM_UPARTITIONS: "<<__NUM_UPARTITIONS<<", MAX_APPLYPARTITION_SIZE: "<<MAX_APPLYPARTITION_SIZE<<", __NUM_APPLYPARTITIONS: "<<__NUM_APPLYPARTITIONS<<endl;			
-	
-	BRAM_channel_t BRAM_channel[NUM_PEs];
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ BRAM_channel[i].nfrontier_buffer[v] = new keyvalue_t[MAX_APPLYPARTITION_VECSIZE]; }}
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ BRAM_channel[i].cfrontier_buffer[v] = new keyvalue_t[MAX_APPLYPARTITION_VECSIZE]; }}
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ BRAM_channel[i].stats_tmpbuffer[v] = new unsigned int[BLOCKRAM_SIZE]; }}
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<MAX_NUM_APPLYPARTITIONS; v++){ BRAM_channel[i].stats_buffer[v] = new unsigned int[BLOCKRAM_SIZE]; }}
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<MAX_NUM_APPLYPARTITIONS; v++){ BRAM_channel[i].stats2_buffer[v] = new unsigned int[BLOCKRAM_SIZE]; }}
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p=0; p<NUM_PEs; p++){ BRAM_channel[i].updates_tmpbuffer[p] = new keyvalue_t[CSRBUFFER_SIZE]; }}
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ BRAM_channel[i].updates_buffer[v] = new keyvalue_t[MAX_APPLYPARTITION_VECSIZE]; }}
-	for(unsigned int i=0; i<NUM_PEs; i++){ BRAM_channel[i].vptr_buffer = new vtr_t[VPTR_BUFFER_SIZE]; }
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ BRAM_channel[i].edges_buffer[v] = new edge3_type[EDGE_BUFFER_SIZE]; }}
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ BRAM_channel[i].vertex_buffer[v] = new vprop_t[MAX_APPLYPARTITION_VECSIZE]; }}
 	
 	unsigned int * cfrontier_dram___size = new unsigned int[MAX_NUM_UPARTITIONS]; 
 	for(unsigned int p=0; p<MAX_NUM_UPARTITIONS; p++){ cfrontier_dram___size[p] = 0; }
@@ -1314,24 +1618,49 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 	#pragma HLS ARRAY_PARTITION variable = max_limits complete
 	unsigned int max_limit = 0; 
 	
-	unsigned int rootvid = 1; keyvalue_t root; root.key = rootvid; root.value = 0; keyvalue_t invalid; invalid.key = INVALIDDATA; invalid.value = INVALIDDATA; 
-	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ if(v==1){ HBM_center->cfrontier_dram[v][0][0] = root; } else { HBM_center->cfrontier_dram[v][0][0] = invalid; } cfrontier_dram___size[0] = 1; }
+	// activate root vid
+	cfrontier_dram___size[0] = 1;
 	
 	if(run_vertex_centric == true){ cout<<"### Vertex-Centric GAS iteration: 0 [1 active vertices]"<<endl; } else { cout<<"### Edge-Centric GAS iteration: 0 [1 active vertices]"<<endl; }
 	
 	// reset ubuffer 
 	vprop_t prop; prop.prop = 0; prop.mask = INVALIDMASK; 
-	for(unsigned int inst=0; inst<NUM_PEs; inst++){ for(unsigned int t=0; t<MAX_UPARTITION_VECSIZE; t++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ insert_udatabuffer(v, t, prop, &BRAM_channel[inst]); }}} // 
+	for(unsigned int inst=0; inst<NUM_PEs; inst++){ for(unsigned int t=0; t<MAX_UPARTITION_VECSIZE; t++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ insert_udatabuffer(v, t, prop, vdata_buffer[inst]); }}} // 
 	
 	// retrieve global parameters
 	unsigned int globalparams[32];
 	unsigned int updatesptrs[MAX_NUM_LLPSETS];
 	#pragma HLS ARRAY_PARTITION variable = globalparams complete
 	for(unsigned int t=0; t<32; t++){
-		globalparams[t] = retrieve_globalparams(0, t, HBM_channel, 0);
+		globalparams[t] = retrieve_globalparams(0, t, HBM_channelA, HBM_channelB, 0);
 	}
+	globalparams_debug = (unsigned int *)&globalparams[0];
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS4
+	cout<<"acts_kernel:: BASEOFFSET: GLOBALPARAMSCODE__WWSIZE__CSRVPTRS: "<<globalparams[GLOBALPARAMSCODE__WWSIZE__CSRVPTRS]<<endl;
+	cout<<"acts_kernel:: BASEOFFSET: GLOBALPARAMSCODE__WWSIZE__ACTPACKVPTRS: "<<globalparams[GLOBALPARAMSCODE__WWSIZE__ACTPACKVPTRS]<<endl;
+	cout<<"acts_kernel:: BASEOFFSET: GLOBALPARAMSCODE__WWSIZE__CSREDGES: "<<globalparams[GLOBALPARAMSCODE__WWSIZE__CSREDGES]<<endl;
+	cout<<"acts_kernel:: BASEOFFSET: GLOBALPARAMSCODE__WWSIZE__ACTPACKEDGES: "<<globalparams[GLOBALPARAMSCODE__WWSIZE__ACTPACKEDGES]<<endl;
+	cout<<"acts_kernel:: BASEOFFSET: GLOBALPARAMSCODE__WWSIZE__UPDATESPTRS: "<<globalparams[GLOBALPARAMSCODE__WWSIZE__UPDATESPTRS]<<endl;
+	cout<<"acts_kernel:: BASEOFFSET: GLOBALPARAMSCODE__WWSIZE__UPDATES: "<<globalparams[GLOBALPARAMSCODE__WWSIZE__UPDATES]<<endl;
+	cout<<"acts_kernel:: BASEOFFSET: GLOBALPARAMSCODE__WWSIZE__VDATAS: "<<globalparams[GLOBALPARAMSCODE__WWSIZE__VDATAS]<<endl;
+	cout<<"acts_kernel:: BASEOFFSET: GLOBALPARAMSCODE__WWSIZE__CFRONTIERSTMP: "<<globalparams[GLOBALPARAMSCODE__WWSIZE__CFRONTIERSTMP]<<endl;
+	cout<<"acts_kernel:: BASEOFFSET: GLOBALPARAMSCODE__WWSIZE__NFRONTIERS: "<<globalparams[GLOBALPARAMSCODE__WWSIZE__NFRONTIERS]<<endl;
+	
+	cout<<"acts_kernel:: BASEOFFSET: GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS: "<<globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS]<<endl;
+	cout<<"acts_kernel:: BASEOFFSET: GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS: "<<globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS]<<endl;
+	cout<<"acts_kernel:: BASEOFFSET: GLOBALPARAMSCODE__BASEOFFSET__CSREDGES: "<<globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSREDGES]<<endl;
+	cout<<"acts_kernel:: BASEOFFSET: GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES: "<<globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES]<<endl;
+	cout<<"acts_kernel:: BASEOFFSET: GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS: "<<globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS]<<endl;
+	cout<<"acts_kernel:: BASEOFFSET: GLOBALPARAMSCODE__BASEOFFSET__UPDATES: "<<globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES]<<endl;
+	cout<<"acts_kernel:: BASEOFFSET: GLOBALPARAMSCODE__BASEOFFSET__VDATAS: "<<globalparams[GLOBALPARAMSCODE__BASEOFFSET__VDATAS]<<endl;
+	cout<<"acts_kernel:: BASEOFFSET: GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP: "<<globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP]<<endl;
+	cout<<"acts_kernel:: BASEOFFSET: GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS: "<<globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS]<<endl;
+	#endif 
+	
 	for(unsigned int t=0; t<MAX_NUM_LLPSETS; t++){
-		updatesptrs[t] = retrieve_updatesptrs(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS], t, HBM_channel, 0);
+	#pragma HLS PIPELINE II=1
+		updatesptrs[t] = dretrieve_updatesptrs(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS], t, HBM_channelA, HBM_channelB, 0);
 		cout<<"--- updatesptrs["<<t<<"]: "<<updatesptrs[t]<<endl;
 	}
 	
@@ -1340,18 +1669,18 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 		unsigned int MASK_CODE_PE = 1 + GraphIter;
 		unsigned int MASK_CODE_AU = 4094 + 1 + GraphIter;
 		
-		// clear counters 
-		for(unsigned int inst=0; inst<NUM_PEs; inst++){ 
+		// clear counters [done]
+		CLEAR_COUNTERS_LOOP1: for(unsigned int inst=0; inst<NUM_PEs; inst++){ 
 		#pragma HLS UNROLL
-			for(unsigned int p_v=0; p_v<__NUM_APPLYPARTITIONS; p_v++){ 
+			CLEAR_COUNTERS_LOOP1B: for(unsigned int p_v=0; p_v<__NUM_APPLYPARTITIONS; p_v++){ 
 				actpackupdates_dram___size[inst][p_v] = 0;
 				stats_buffer___size[inst][p_v] = 0; stats2_buffer___size[inst][p_v] = 0;
 				vpartition_vertices[inst][p_v].offset = 0; vpartition_vertices[inst][p_v].size = 0; vpartition_vertices[inst][p_v].count = 0;
 				for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ updates_buffer___size[inst][v][p_v] = 0; }
 			}	
-			for(unsigned int p_v=0; p_v<__NUM_APPLYPARTITIONS; p_v++){ 
+			CLEAR_COUNTERS_LOOP1C: for(unsigned int p_v=0; p_v<__NUM_APPLYPARTITIONS; p_v++){ 
 			#pragma HLS UNROLL
-				for(unsigned int t=0; t<BLOCKRAM_SIZE; t++){ insert_statsbuffer(t, p_v, 0, &BRAM_channel[inst]); }
+				for(unsigned int t=0; t<BLOCKRAM_SIZE; t++){ insert_statsbuffer(t, p_v, 0, stats_buffer[inst]); }
 			}
 		}
 		
@@ -1375,7 +1704,7 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 						ens[inst][v] = true;
 					}
 				}
-				insertmany_cfrontierdram_tmp(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP], offsets, t, kvdatas, ens, HBM_channel);
+				dinsertmany_cfrontierdram_tmp(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP], offsets, t, kvdatas, ens, HBM_channelA, HBM_channelB);
 			}
 			
 			// parallel-read active frontiers [done]
@@ -1383,10 +1712,10 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 				for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t++){
 				#pragma HLS PIPELINE II=1
-					retrievemany_cfrontierdram_tmp(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP], offsets, t, kvdatas, HBM_channel);
+					dretrievemany_cfrontierdram_tmp(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP], offsets, t, kvdatas, HBM_channelA, HBM_channelB);
 					for(unsigned int inst=0; inst<NUM_PEs; inst++){
 					#pragma HLS UNROLL
-						insert_cfrontierbuffer(t, kvdatas[inst], &BRAM_channel[inst]); // 
+						insert_cfrontierbuffer(t, kvdatas[inst], cfrontier_buffer[inst]); // 
 					}
 				}
 			}
@@ -1399,7 +1728,7 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 					#pragma HLS UNROLL
 						for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 						#pragma HLS UNROLL
-							insert_statstmpbuffer(t, v, 0, &BRAM_channel[inst]); 
+							insert_statstmpbuffer(t, v, 0, stats_tmpbuffer[inst]); 
 						}
 					}
 				}
@@ -1411,17 +1740,40 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 				for(unsigned int inst=0; inst<NUM_PEs; inst++){
 				#pragma HLS UNROLL
 					keyvalue_t actvv[EDGE_PACK_SIZE];
-					retrieve_cfrontierbuffer_i(t, actvv, &BRAM_channel[inst]); 
+					retrieve_cfrontierbuffer(t, actvv, cfrontier_buffer[inst]); 
 					for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 					#pragma HLS UNROLL
 						if(actvv[v].key != INVALIDDATA){
 							unsigned int srcvid_lpv = get_local_to_upartition(actvv[v].key) / EDGE_PACK_SIZE; 
 							vprop_t prop; prop.prop = actvv[v].value; prop.mask = MASK_CODE_PE; // NEW-MASK*
-							insert_udatabuffer(v, srcvid_lpv, prop, &BRAM_channel[inst]); 
+							insert_udatabuffer(v, srcvid_lpv, prop, vdata_buffer[inst]); 
 						}
 					}
 				}
 			}
+			
+			#ifdef __NOT__YET__IMPLEMENTED___
+			// parallel-read and map active frontiers [done]
+			for(unsigned int n=0; n<NUM_PEs; n++){ offsets[n] = 0; }
+			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+				for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t++){
+				#pragma HLS PIPELINE II=1
+					dretrievemany_cfrontierdram_tmp(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP], offsets, t, kvdatas, HBM_channelA, HBM_channelB);
+					// insert_cfrontierbuffer(t, kvdatas[0], cfrontier_buffer[0]);
+					for(unsigned int inst=0; inst<NUM_PEs; inst++){
+					#pragma HLS UNROLL
+						for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+						#pragma HLS UNROLL
+							if(kvdatas[inst][v].key != INVALIDDATA){
+								unsigned int srcvid_lpv = get_local_to_upartition(kvdatas[inst][v].key) / EDGE_PACK_SIZE; // FIXME.
+								vprop_t prop; prop.prop = kvdatas[inst][v].value; prop.mask = MASK_CODE_PE; 
+								insert_udatabuffer(v, srcvid_lpv, prop, vdata_buffer[inst]); 
+							}
+						}
+					}
+				}
+			}
+			#endif 
 			
 			for(unsigned int i=0; i<NUM_PEs; i++){ 
 			#pragma HLS UNROLL
@@ -1445,14 +1797,14 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 						VC_READVPTRS_LOOP1B: for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t++){ 
 							VC_READVPTRS_LOOP1: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 							#pragma HLS PIPELINE II=1
-								frontier_t actvv = retrieve_cfrontierbuffer_i(v, t, &BRAM_channel[inst]);
+								frontier_t actvv = retrieve_cfrontierbuffer(v, t, cfrontier_buffer[inst]);
 								unsigned int vid = actvv.key; 
 								unsigned int hvid = vid / NUM_PEs;
 								
 								vtr_t data;
 								if((actvv.key != INVALIDDATA) && (vid % NUM_PEs == inst)){ 
-									data.begin = retrieve_vptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS], hvid, HBM_channel, inst);
-									data.end = retrieve_vptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS], hvid+1, HBM_channel, inst);
+									data.begin = retrieve_vptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS], hvid, HBM_channelA, HBM_channelB, inst);
+									data.end = retrieve_vptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS], hvid+1, HBM_channelA, HBM_channelB, inst);
 									data.size = data.end - data.begin;
 									if(data.end < data.begin){ data.size = 0; }
 									data.vid = actvv.key; 
@@ -1464,7 +1816,7 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 										chunk.begin = data.begin + b * __BATCH_SIZE;
 										chunk.end = chunk.begin + chunk.size;
 										checkoutofbounds("acts_sw::ERROR 003::", vptrbuffer___size[inst], VPTR_BUFFER_SIZE, NAp, NAp, NAp);
-										insert_vptrbuffer(vptrbuffer___size[inst], chunk, &BRAM_channel[inst]);
+										insert_vptrbuffer(vptrbuffer___size[inst], chunk, vptr_buffer[inst]);
 										vptrbuffer___size[inst] += 1;
 										cummtv2[inst] += chunk.size;
 									}
@@ -1472,7 +1824,13 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 							}
 						}
 					}
-						
+					
+					#ifdef __NOT__YET__IMPLEMENTED___
+					for(unsigned int pingpong=0; pingpong<NUM_PEs; pingpong++){
+						frontier_t actvv = retrieve_cfrontierbuffer(pingpong % EDGE_PACK_SIZE, pingpong / EDGE_PACK_SIZE, cfrontier_buffer[inst]);
+					}
+					#endif 
+					
 					// calculate batches [done]
 					max_limit = 0; for(unsigned int in=0; in<NUM_PEs; in++){ if(max_limit < cummtv2[in]){ max_limit = cummtv2[in]; }} 
 					unsigned int num_batches = 1; unsigned int cummtv2_ = max_limit / EDGE_PACK_SIZE;
@@ -1496,7 +1854,7 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 						VC_READ_EDGES_LOOP1: for(unsigned int k=0; k<batch_size; k++){ 
 						#pragma HLS PIPELINE II=1
 							for(unsigned int inst=0; inst<NUM_PEs; inst++){ if((n * batch_size) + k < vptrbuffer___size[inst]){ 
-								vtr_t vptr_data = retrieve_vptrbuffer((n * batch_size) + k, &BRAM_channel[inst]); 
+								vtr_t vptr_data = retrieve_vptrbuffer((n * batch_size) + k, vptr_buffer[inst]); 
 								unsigned int vid = vptr_data.vid;
 								unsigned int edges_size = vptr_data.end - vptr_data.begin; 
 								unsigned int edgelist_size = (edges_size / EDGE_PACK_SIZE) + 2; if((edges_size == 0) || (vptr_data.end < vptr_data.begin)){ edgelist_size = 0; }
@@ -1504,7 +1862,7 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 								
 								VC_READ_EDGES_LOOP1B: for(unsigned int t=0; t<edgelist_size; t++){
 								#pragma HLS PIPELINE II=1
-									edge3_vec_dt edges = retrieve_csr_pack_edges(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSREDGES], (vptr_data.begin / EDGE_PACK_SIZE) + t, HBM_channel, inst);
+									edge3_vec_dt edges = dretrieve_csr_pack_edges(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSREDGES], (vptr_data.begin / EDGE_PACK_SIZE) + t, HBM_channelA, HBM_channelB, inst);
 									edge3_type edge_list[EDGE_PACK_SIZE];
 									for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 									#pragma HLS UNROLL
@@ -1513,7 +1871,8 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 									for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 									#pragma HLS UNROLL
 										checkoutofbounds("acts_sw::ERROR 812::", edges_buffer___size[inst], EDGE_BUFFER_SIZE, vptrbuffer___size[inst], inst, edgelist_size);
-										BRAM_channel[inst].edges_buffer[v][edges_buffer___size[inst]] = edge_list[v];
+										// edges_buffer[v][edges_buffer___size[inst]] = edge_list[v];
+										insert_edgesbuffer(v, edges_buffer___size[inst], edge_list[v], edges_buffer[inst]); // NEW
 									}
 									edges_buffer___size[inst] += 1;
 								}
@@ -1528,7 +1887,8 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 							#pragma HLS UNROLL
 								for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 								#pragma HLS UNROLL
-									edge3_type edge = BRAM_channel[inst].edges_buffer[v][t];
+									// edge3_type edge = edges_buffer[v][t];
+									edge3_type edge = retrieve_edgesbuffer(v, t, edges_buffer[inst]); // NEW
 									if(edge.dstvid != INVALIDDATA){
 										unsigned int uprop = edge.srcvid; // edge.srcvid has uprop information
 										unsigned int res = uprop + 1;
@@ -1542,7 +1902,7 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 										keyvalue_t update; update.key = edge.dstvid; update.value = vtemp; // res;
 										checkoutofbounds("acts_sw::ERROR 813::", updates_tmpbuffer___size[inst][inst_mirror], CSRBUFFER_SIZE, NAp, NAp, NAp);
 										if(t < edges_buffer___size[inst]){ // NEW
-											insert_updatestmpbuffer(inst_mirror, updates_tmpbuffer___size[inst][inst_mirror], update, &BRAM_channel[inst]); // 
+											insert_updatestmpbuffer(inst_mirror, updates_tmpbuffer___size[inst][inst_mirror], update, updates_tmpbuffer[inst]); // 
 											updates_tmpbuffer___size[inst][inst_mirror] += 1;	
 										}
 									}
@@ -1555,7 +1915,7 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 					VC_EXCHANGE_UPDATES_LOOP1: for(unsigned int inst_mirror=0; inst_mirror<NUM_PEs; inst_mirror++){
 						VC_EXCHANGE_UPDATES_LOOP1B: for(unsigned int inst=0; inst<NUM_PEs; inst++){
 							VC_EXCHANGE_UPDATES_LOOP1C: for(unsigned int t=0; t<updates_tmpbuffer___size[inst][inst_mirror]; t++){
-								keyvalue_t update = retrieve_updatestmpbuffer(inst_mirror, t, &BRAM_channel[inst]); // 
+								keyvalue_t update = retrieve_updatestmpbuffer(inst_mirror, t, updates_tmpbuffer[inst]); // 
 								unsigned int p_v = get_local(update.key) / MAX_APPLYPARTITION_SIZE; // FIXME.
 								keyvalue_t update_local = update; update_local.key = get_local_to_vpartition(get_local(update.key));
 								unsigned int v = update_local.key % EDGE_PACK_SIZE;
@@ -1565,14 +1925,14 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 								
 								checkoutofbounds("acts_sw::ERROR 123::", p_v, __NUM_APPLYPARTITIONS, update.key, get_local(update.key), MAX_APPLYPARTITION_SIZE);
 								checkoutofbounds("acts_sw::ERROR 122::", (p_v * MAX_CSRUPDATES_VECSIZE_PER__APPLYPARTITION) + updates_buffer___size[inst_mirror][v][p_v], MAX_APPLYPARTITION_VECSIZE, updates_buffer___size[inst_mirror][v][p_v], inst_mirror, p_v);
-								insert_updatesbuffer(v, (p_v * MAX_CSRUPDATES_VECSIZE_PER__APPLYPARTITION) + updates_buffer___size[inst_mirror][v][p_v], update_local, &BRAM_channel[inst_mirror]);
+								insert_updatesbuffer(v, (p_v * MAX_CSRUPDATES_VECSIZE_PER__APPLYPARTITION) + updates_buffer___size[inst_mirror][v][p_v], update_local, updates_buffer[inst_mirror]);
 								updates_buffer___size[inst_mirror][v][p_v] += 1;
 								vpartition_vertices[0][p_v].count = 1;
 								
 								unsigned int dstvid_lpv = update_local.key / EDGE_PACK_SIZE; // FIXME.
 								checkoutofbounds("acts_sw::ERROR 171::", dstvid_lpv / ACTVUPDATESBLOCK_VECSIZE, BLOCKRAM_SIZE, NAp, NAp, NAp);
 								checkoutofbounds("acts_sw::ERROR 172::", p_v, __NUM_APPLYPARTITIONS, NAp, NAp, NAp);
-								if(enable___collectactivedstvids == true){ insert_statsbuffer(dstvid_lpv / ACTVUPDATESBLOCK_VECSIZE, p_v, 1, &BRAM_channel[inst_mirror]); }
+								if(enable___collectactivedstvids == true){ insert_statsbuffer(dstvid_lpv / ACTVUPDATESBLOCK_VECSIZE, p_v, 1, stats_buffer[inst_mirror]); }
 							}
 						}
 					}
@@ -1580,7 +1940,7 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 					hybrid_map[GraphIter][p_u] = 1;
 					EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<num_LLPset; llp_set++){
 						map_t maps[NUM_PEs];
-						retrievemany_actpackvptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS], p_u, llp_set, maps, HBM_channel);
+						retrievemany_actpackvptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS], p_u, llp_set, maps, HBM_channelA, HBM_channelB);
 						unsigned int max_sz = 0; for(unsigned int n=0; n<NUM_PEs; n++){ limits[n] = maps[n].size; } for(unsigned int n=0; n<NUM_PEs; n++){ if(max_sz < limits[n]){ max_sz = limits[n]; }}
 						
 						// process edges [done]
@@ -1593,7 +1953,7 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 								unsigned int t = (it * BLOCKRAM_SIZE) + t_;
 								unsigned int offsets[NUM_PEs]; edge3_vec_dt edge3_vecs[NUM_PEs]; for(unsigned int n=0; n<NUM_PEs; n++){ offsets[n] = maps[n].offset; }
 								
-								retrievemany_act_pack_edges(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES], offsets, t, edge3_vecs, HBM_channel);
+								dretrievemany_act_pack_edges(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES], offsets, t, edge3_vecs, HBM_channelA, HBM_channelB);
 								EC_PROCESS_EDGES_LOOP1D: for(unsigned int inst=0; inst<NUM_PEs; inst++){ if(t < limits[inst]){
 								#pragma HLS UNROLL
 									edge3_vec_dt edge_vec = edge3_vecs[inst];
@@ -1608,7 +1968,7 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 											checkoutofbounds("acts_sw::ERROR 223::", srcvid_lp, MAX_UPARTITION_SIZE, NAp, NAp, NAp);
 											if(srcvid_lp % EDGE_PACK_SIZE != v){ cout<<"acts_sw ERROR 2345:: srcvid_lp("<<srcvid_lp<<") % EDGE_PACK_SIZE("<<EDGE_PACK_SIZE<<") != v("<<v<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }
 											
-											uprop[inst][v] = retrieve_udatabuffer(v, srcvid_lpv, &BRAM_channel[inst]);
+											uprop[inst][v] = retrieve_udatabuffer(v, srcvid_lpv, vdata_buffer[inst]);
 											
 											res[inst][v] = uprop[inst][v].prop + 1;
 											vtemp_in[inst][v] = min(uprop[inst][v].prop, res[inst][v]);
@@ -1643,7 +2003,7 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 									if(isvalid == true){ // NEW
 										for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 										#pragma HLS UNROLL
-											insert_updatestmpbuffer(v, updates_tmpbuffer___size[inst][0], updates_vec.data[v], &BRAM_channel[inst]); //
+											insert_updatestmpbuffer(v, updates_tmpbuffer___size[inst][0], updates_vec.data[v], updates_tmpbuffer[inst]); //
 										}
 										updates_tmpbuffer___size[inst][0] += 1;
 									}
@@ -1656,7 +2016,7 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 												unsigned int dstvid_lpv = update_out[inst][v].key / EDGE_PACK_SIZE; 
 												unsigned int index = dstvid_lpv / ACTVUPDATESBLOCK_VECSIZE;
 												checkoutofbounds("acts_sw::ERROR 623::", index, BLOCKRAM_SIZE, update_out[inst][v].key, dstvid_lpv, (MAX_APPLYPARTITION_VECSIZE / BLOCKRAM_SIZE));
-												insert_statstmpbuffer(index, v, 1, &BRAM_channel[inst]);
+												insert_statstmpbuffer(index, v, 1, stats_tmpbuffer[inst]);
 											}
 										}
 									}
@@ -1672,11 +2032,11 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 								#pragma HLS UNROLL
 									EC_PROCESS_EDGES_LOOP1H: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 									#pragma HLS UNROLL
-										updates_vecs[inst].data[v] = retrieve_updatestmpbuffer(v, t, &BRAM_channel[inst]);
+										updates_vecs[inst].data[v] = retrieve_updatestmpbuffer(v, t, updates_tmpbuffer[inst]);
 										if(t < updates_tmpbuffer___size[inst][0]){ ens[inst][v] = true; } else { ens[inst][v] = false; }
 									}
 								}
-								insertmany_updatesdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[llp_set], llp_set, offsets, t, updates_vecs, ens, HBM_channel, updatesptrs);
+								dinsertmany_updatesdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[llp_set], llp_set, offsets, t, updates_vecs, ens, HBM_channelA, HBM_channelB, updatesptrs);
 								for(unsigned int n=0; n<NUM_PEs; n++){ 
 								#pragma HLS UNROLL
 									if(t < updates_tmpbuffer___size[n][0]){ actpackupdates_dram___size[n][llp_set] += 1; }
@@ -1690,10 +2050,10 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 						#pragma HLS PIPELINE II=1
 							for(unsigned int inst=0; inst<NUM_PEs; inst++){
 							#pragma HLS UNROLL
-								if(enable___collectactivedstvids == true){ retrieve_statstmpbuffer(t, data, &BRAM_channel[inst]); }
+								if(enable___collectactivedstvids == true){ retrieve_statstmpbuffer(t, data, stats_tmpbuffer[inst]); }
 								checkoutofbounds("acts_sw::ERROR 023::", t, BLOCKRAM_SIZE, NAp, NAp, NAp);
 								if(data[0]==1 || data[1]==1 || data[2]==1 || data[3]==1 || data[4]==1 || data[5]==1 || data[6]==1 || data[7]==1 || data[8]==1 || data[9]==1 || data[10]==1 || data[11]==1 || data[12]==1 || data[13]==1 || data[14]==1 || data[15]==1){ 
-									if(enable___collectactivedstvids == true){ insert_statsbuffer(t, llp_set, 1, &BRAM_channel[inst]); }
+									if(enable___collectactivedstvids == true){ insert_statsbuffer(t, llp_set, 1, stats_buffer[inst]); }
 									vpartition_vertices[inst][llp_set].count = 1;
 								}
 							}
@@ -1720,7 +2080,7 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 				#pragma HLS UNROLL
 					SAVE_CSR_UPDATES_LOOP1F: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 					#pragma HLS UNROLL
-						if(t < updates_buffer___size[inst][v][p_v]){ updates_vecs[inst].data[v] = retrieve_updatesbuffer(v, (p_v * MAX_CSRUPDATES_VECSIZE_PER__APPLYPARTITION) + t, &BRAM_channel[inst]); }
+						if(t < updates_buffer___size[inst][v][p_v]){ updates_vecs[inst].data[v] = retrieve_updatesbuffer(v, (p_v * MAX_CSRUPDATES_VECSIZE_PER__APPLYPARTITION) + t, updates_buffer[inst]); }
 						else { updates_vecs[inst].data[v].key = INVALIDDATA; updates_vecs[inst].data[v].value = INVALIDDATA;  }
 						if(t < max_limits[inst]){ ens[inst][v] = true; } else { ens[inst][v] = false; }
 						#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
@@ -1729,7 +2089,7 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 					}
 				}
 				checkoutofbounds("acts_sw::ERROR 152::", actpackupdates_dram___size[0][p_v], HBM_CHANNEL_SIZE, NAp, NAp, NAp);
-				insertmany_updatesdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v], p_v, offsets, t, updates_vecs, ens, HBM_channel, updatesptrs);
+				dinsertmany_updatesdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v], p_v, offsets, t, updates_vecs, ens, HBM_channelA, HBM_channelB, updatesptrs);
 				for(unsigned int n=0; n<NUM_PEs; n++){ 
 				#pragma HLS UNROLL
 					if(t < max_limits[n]){ actpackupdates_dram___size[n][p_v] += 1; }
@@ -1745,11 +2105,11 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 				#pragma HLS UNROLL
 					PREPARE_ACTIVE_DESTIDSTATS_LOOP1E: for(unsigned int inst=0; inst<NUM_PEs; inst++){
 					#pragma HLS UNROLL
-						if(retrieve_statsbuffer(t, p_v, &BRAM_channel[inst]) == 1){ 
+						if(retrieve_statsbuffer(t, p_v, stats_buffer[inst]) == 1){ 
 							#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 							cout<<"VC - PREPARE ACTIVE DESTIDS SEEN @: [inst: "<<inst<<"], [p_v: "<<p_v<<", t: "<<t<<"]"<<endl;
 							#endif
-							insert_stats2buffer(stats2_buffer___size[inst][p_v], p_v, t, &BRAM_channel[inst]); 
+							insert_stats2buffer(stats2_buffer___size[inst][p_v], p_v, t, stats2_buffer[inst]); 
 							stats2_buffer___size[inst][p_v] += 1;
 						}
 					}
@@ -1768,13 +2128,13 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 				if(stats_buffer___size[0][p_v] <= threshold___activedstvids && enable___collectactivedstvids == true){
 					for(unsigned int inst=0; inst<NUM_PEs; inst++){ // FIXME.
 						for(unsigned int k=0; k<stats2_buffer___size[inst][p_v]; k++){
-							unsigned int offset = retrieve_stats2buffer(k, p_v, &BRAM_channel[inst]) * ACTVUPDATESBLOCK_VECSIZE;
+							unsigned int offset = retrieve_stats2buffer(k, p_v, stats2_buffer[inst]) * ACTVUPDATESBLOCK_VECSIZE;
 							checkoutofbounds("acts_sw::ERROR 117::", offset, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
 							for(unsigned int t=0; t<ACTVUPDATESBLOCK_VECSIZE; t++){
 							#pragma HLS PIPELINE II=1
 								if(offset + t < MAX_APPLYPARTITION_VECSIZE){ 
-									retrieve_vdatadram(voffset, offset + t, data, HBM_channel, inst);
-									insert_vdatabuffer(offset + t, data, &BRAM_channel[inst]);
+									dretrieve_vdatadram(voffset, offset + t, data, HBM_channelA, HBM_channelB, inst);
+									insert_vdatabuffer(offset + t, data, vdata_buffer[inst]);
 								}
 							}
 						}	
@@ -1782,10 +2142,10 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 				} else {
 					for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE; t++){
 					#pragma HLS PIPELINE II=1
-						retrievemany_vdatadram(voffset, offsets, t, datas, HBM_channel);
+						dretrievemany_vdatadram(voffset, offsets, t, datas, HBM_channelA, HBM_channelB);
 						for(unsigned int inst=0; inst<NUM_PEs; inst++){ 
 						#pragma HLS UNROLL
-							insert_vdatabuffer(t, datas[inst], &BRAM_channel[inst]);
+							insert_vdatabuffer(t, datas[inst], vdata_buffer[inst]);
 						}
 					}
 				}
@@ -1795,7 +2155,7 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 				max_limit = 0; for(unsigned int inst=0; inst<NUM_PEs; inst++){ limits[inst] = actpackupdates_dram___size[inst][p_v]; } for(unsigned int inst=0; inst<NUM_PEs; inst++){ if(max_limit < limits[inst]){ max_limit = limits[inst]; }}
 				for(unsigned int t=0; t<max_limit; t++){
 				#pragma HLS PIPELINE II=1
-					retrievemany_udatesdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v], p_v, t, updates_vecs, HBM_channel, updatesptrs); // NEW
+					dretrievemany_udatesdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v], p_v, t, updates_vecs, HBM_channelA, HBM_channelB, updatesptrs); // NEW
 					for(unsigned int inst=0; inst<NUM_PEs; inst++){
 					#pragma HLS UNROLL
 						uint512_vec_dt updates_vec = updates_vecs[inst];
@@ -1807,14 +2167,14 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 							if(update.key != INVALIDDATA){
 								if(t < limits[inst] && ((dstvid_lp % EDGE_PACK_SIZE) != v)){ cout<<"acts_sw 234:: dstvid_lp("<<dstvid_lp<<") % v("<<v<<") != 0. EXITING..."<<endl; exit(EXIT_FAILURE); }
 								if(t < limits[inst]){ checkoutofbounds("acts_sw::ERROR 727::", dstvid_lp, MAX_APPLYPARTITION_SIZE, NAp, inst, update.key); }
-								vprop_t vprop =  retrieve_vdatabuffer(v, dstvid_lpv, &BRAM_channel[inst]);
+								vprop_t vprop =  retrieve_vdatabuffer(v, dstvid_lpv, vdata_buffer[inst]);
 								unsigned int new_vprop = 0; if(update.value < vprop.prop){ new_vprop = update.value; } else { new_vprop = vprop.prop; }
 								if(new_vprop != vprop.prop){
 									#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 									cout<<"APPLY (ACT-PACK) UPDATE SEEN @: inst: ["<<inst<<"]: dstvid_lp: "<<dstvid_lp<<", dstvid_lpv: "<<dstvid_lpv<<", new_vprop: "<<new_vprop<<", vid: "<<update.key<<endl;
 									#endif
 									vprop_t newprop; newprop.prop = new_vprop; newprop.mask = MASK_CODE_AU;
-									if(t < limits[inst]){ insert_vdatabuffer(v, dstvid_lpv, newprop, &BRAM_channel[inst]); } // NEW
+									if(t < limits[inst]){ insert_vdatabuffer(v, dstvid_lpv, newprop, vdata_buffer[inst]); } // NEW
 								}
 							}
 						}
@@ -1846,7 +2206,7 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 							for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 							#pragma HLS UNROLL
 								checkoutofbounds("acts_sw::ERROR 713::", dstvid_lpv, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
-								vprop_t vprop =  retrieve_vdatabuffer(v, dstvid_lpv, &BRAM_channel[inst]);
+								vprop_t vprop =  retrieve_vdatabuffer(v, dstvid_lpv, vdata_buffer[inst]);
 								unsigned int vid = vid_first1[inst] + v;
 								#ifdef _DEBUGMODE_CHECKS3
 								if(vid % EDGE_PACK_SIZE != v){ cout<<"acts_sw:: ERROR 234. vid("<<vid<<") % EDGE_PACK_SIZE("<<EDGE_PACK_SIZE<<")(="<<vid % EDGE_PACK_SIZE<<") != v("<<v<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }
@@ -1858,7 +2218,7 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 									#endif
 									frontier_t actvv; actvv.key = vid; actvv.value = vprop.prop; 
 									if(t < limits[inst]){ // NEW
-										insert_nfrontierbuffer((p_actvv * MAX_ACTVV_VECSIZE) + nfrontier_buffer___size[inst][v][p_actvv], v, actvv, &BRAM_channel[inst]); // 
+										insert_nfrontierbuffer((p_actvv * MAX_ACTVV_VECSIZE) + nfrontier_buffer___size[inst][v][p_actvv], v, actvv, nfrontier_buffer[inst]); // 
 										nfrontier_buffer___size[inst][v][p_actvv] += 1;
 									}
 								}
@@ -1891,27 +2251,16 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 					unsigned int offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS] + (p_actvv_ * MAX_APPLYPARTITION_VECSIZE);
 					for(unsigned int t=0; t<max_limit; t++){
 					#pragma HLS PIPELINE II=1
-						/* for(unsigned int inst=0; inst<NUM_PEs; inst++){ if(t < max_limits[inst]){
-							retrieve_nfrontierbuffer(p_actvv * MAX_ACTVV_VECSIZE + t, actvv, &BRAM_channel[inst]);
-							for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ // 
-							#pragma HLS UNROLL
-								if(t >= nfrontier_buffer___size[inst][v][p_actvv]){ actvv[v].key = INVALIDDATA; actvv[v].value = INVALIDDATA; }
-							}
-							insert_nfrontierdram(offset, p_actvv_, nfrontier_dram___size[inst][0][p_actvv_], actvv, HBM_channel, inst);
-							nfrontier_dram___size[inst][0][p_actvv_] += 1;
-						}} */
-						
-						
 						for(unsigned int inst=0; inst<NUM_PEs; inst++){ if(t < max_limits[inst]){
 						#pragma HLS UNROLL
-							retrieve_nfrontierbuffer(p_actvv * MAX_ACTVV_VECSIZE + t, actvvs[inst], &BRAM_channel[inst]);
+							retrieve_nfrontierbuffer(p_actvv * MAX_ACTVV_VECSIZE + t, actvvs[inst], nfrontier_buffer[inst]);
 							for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ // 
 							#pragma HLS UNROLL
 								if(t >= nfrontier_buffer___size[inst][v][p_actvv]){ actvvs[inst][v].key = INVALIDDATA; actvvs[inst][v].value = INVALIDDATA; }
 								if(t < max_limits[inst]){ ens[inst][v] = true; } else { ens[inst][v] = false; }
 							}
 						}}
-						insertmany_nfrontierdram(offset, p_actvv_, offsets, t, actvvs, ens, HBM_channel);
+						dinsertmany_nfrontierdram(offset, p_actvv_, offsets, t, actvvs, ens, HBM_channelA, HBM_channelB);
 						for(unsigned int n=0; n<NUM_PEs; n++){ 
 						#pragma HLS UNROLL
 							if(t < max_limits[n]){ nfrontier_dram___size[n][0][p_actvv_] += 1; }
@@ -1924,17 +2273,17 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 				if(stats_buffer___size[0][p_v] <= threshold___activedstvids && enable___collectactivedstvids == true){
 					for(unsigned int inst=0; inst<NUM_PEs; inst++){ // FIXME.
 						for(unsigned int k=0; k<stats2_buffer___size[inst][p_v]; k++){	
-							unsigned int offset = retrieve_stats2buffer(k, p_v, &BRAM_channel[inst]) * ACTVUPDATESBLOCK_VECSIZE;
+							unsigned int offset = retrieve_stats2buffer(k, p_v, stats2_buffer[inst]) * ACTVUPDATESBLOCK_VECSIZE;
 							for(unsigned int t=0; t<ACTVUPDATESBLOCK_VECSIZE; t++){
 							#pragma HLS PIPELINE II=1
 								if(offset + t < MAX_APPLYPARTITION_VECSIZE){ 
 									checkoutofbounds("acts_sw::ERROR 217::", offset + t, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
-									retrieve_vdatabuffer(offset + t, data, &BRAM_channel[inst]);
+									retrieve_vdatabuffer(offset + t, data, vdata_buffer[inst]);
 									for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 									#pragma HLS UNROLL
 										data[v].mask = INVALIDMASK; // clear mask. // NEW-MASK*
 									} 
-									insert_vdatadram(voffset, offset + t, data, HBM_channel, inst);
+									dinsert_vdatadram(voffset, offset + t, data, HBM_channelA, HBM_channelB, inst);
 								}
 							}
 						}	
@@ -1944,13 +2293,13 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 					#pragma HLS PIPELINE II=1
 						for(unsigned int inst=0; inst<NUM_PEs; inst++){ 
 						#pragma HLS UNROLL
-							retrieve_vdatabuffer(t, datas[inst], &BRAM_channel[inst]);
+							retrieve_vdatabuffer(t, datas[inst], vdata_buffer[inst]);
 							for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 							#pragma HLS UNROLL
 								datas[inst][v].mask = INVALIDMASK; // clear mask. 
 							}
 						}
-						insertmany_vdatadram(voffset, offsets, t, datas, HBM_channel);
+						dinsertmany_vdatadram(voffset, offsets, t, datas, HBM_channelA, HBM_channelB);
 					}
 				}
 			}
@@ -1969,7 +2318,7 @@ void acts_sw::run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel){
 					for(unsigned int t=0; t<nfrontier_dram___size[inst][0][p_actvv_]; t++){
 					#pragma HLS PIPELINE II=1
 						upartition_vertices[p_actvv_].count += 1; 
-						retrieve_nfrontierdram(offset, p_actvv_, t, actvv, HBM_channel, inst);
+						dretrieve_nfrontierdram(offset, p_actvv_, t, actvv, HBM_channelA, HBM_channelB, inst);
 						#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 						for(unsigned int v=0; v<0; v++){ cout<<"TRANSFER VID-BASED FRONTIERS SEEN @: H: "<<inst<<" => vid: "<<actvv[v].key<<", p_actvv_: "<<p_actvv_<<endl; }
 						for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ if(actvv[v].key != INVALIDDATA && actvv[v].key / MAX_UPARTITION_SIZE != p_actvv_){ cout<<"ERROR 234: actvv["<<v<<"].key("<<actvv[v].key<<") / MAX_UPARTITION_SIZE("<<MAX_UPARTITION_SIZE<<")(="<<actvv[v].key / MAX_UPARTITION_SIZE<<") != p_actvv_("<<p_actvv_<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }}				

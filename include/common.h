@@ -321,15 +321,6 @@ typedef struct {
 } HBM_center_t;
 
 typedef struct {
-	// unsigned int * v_ptr; // [NUM_VERTICES / NUM_PEs]
-	// map_t * vptr_actpack[MAX_NUM_UPARTITIONS];
-	// edge3_vec_dt * csr_pack_edges; // [~fit] 
-	// edge3_vec_dt * act_pack_edges; // [~fit]
-	uint512_vec_dt * updates_dram[MAX_NUM_APPLYPARTITIONS]; // [MAX_NUM_APPLYPARTITIONS][HBM_CHANNEL_SIZE]
-	// vprop_vec_t * vdatas_dram[MAX_NUM_APPLYPARTITIONS]; // [MAX_NUM_APPLYPARTITIONS][MAX_APPLYPARTITION_VECSIZE]
-	// uint512_vec_dt * cfrontier_dram_tmp;  // [MAX_APPLYPARTITION_VECSIZE]
-	// uint512_vec_dt * nfrontier_dram[MAX_NUM_UPARTITIONS];  // [MAX_NUM_UPARTITIONS][MAX_APPLYPARTITION_VECSIZE]
-	
 	// {vptrs, edges, updatesptrs, updates, vertexprops, frontiers}
 	uint512_ivec_dt * globalparams;
 	uint512_ivec_dt * HBM; // [~]
@@ -345,6 +336,6 @@ typedef struct {
 	keyvalue_t * updates_buffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][MAX_APPLYPARTITION_VECSIZE]
 	vtr_t * vptr_buffer; // [NUM_PEs][VPTR_BUFFER_SIZE]
 	edge3_type * edges_buffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][EDGE_BUFFER_SIZE]
-	vprop_t * vertex_buffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][MAX_APPLYPARTITION_VECSIZE]
+	vprop_t * vdata_buffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][MAX_APPLYPARTITION_VECSIZE]
 } BRAM_channel_t;
 #endif

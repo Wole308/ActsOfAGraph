@@ -50,7 +50,7 @@ public:
 	acts_sw(universalparams_t universalparams);
 	~acts_sw();
 	
-	void run(HBM_center_t * HBM_center, HBM_channel_t * HBM_channel);						
+	void run(HBM_channel_t * HBM_center, HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB);						
 
 private:
 	utility * utilityobj;
