@@ -4,7 +4,7 @@ using namespace std;
 prepare_graph::prepare_graph(){}
 prepare_graph::~prepare_graph(){}
 
-void prepare_graph::create_graph(string graphpath, vector<edge2_type> &edgesbuffer_dup, vector<edge_t> &vptr_dup){
+void prepare_graph::create_graph(string graphpath, vector<edge3_type> &edgesbuffer_dup, vector<edge_t> &vptr_dup){
 	cout<<">>> prepare_graph::create_graph: STARTED."<<endl;
 	
 	std::ofstream ofile;
@@ -18,8 +18,8 @@ void prepare_graph::create_graph(string graphpath, vector<edge2_type> &edgesbuff
 	ofile.open(graphpath, std::ofstream::out | std::ofstream::trunc);
 	
 	cout<<"prepare_graph::create_graph: creating graph @ "<<graphpath<<"..."<<endl;
-	vertex_t srcv = 0;
-	vertex_t dstv = 0;
+	unsigned int srcv = 0;
+	unsigned int dstv = 0;
 	unsigned int A, B = 0;
 	
 	// ofile << 33777768 << " " << 33777768 << " " << 301183605 << std::endl;
@@ -46,16 +46,17 @@ void prepare_graph::create_graph(string graphpath, vector<edge2_type> &edgesbuff
 	exit(EXIT_SUCCESS);
 }
 
-void prepare_graph::start(string graphpath, vector<edge2_type> &edgesbuffer_dup, vector<edge_t> &vptr_dup, bool graphisundirected){
+void prepare_graph::start(string graphpath, vector<edge3_type> &edgesbuffer_dup, vector<edge_t> &vptr_dup, bool graphisundirected){
 	cout<<"prepare_graph:: preparing graph @ "<<graphpath<<"..."<<endl;
-	vertex_t srcv = 0;
-	vertex_t dstv = 0;
-	vertex_t ew = NAp;
+	unsigned int srcv = 0;
+	unsigned int dstv = 0;
+	unsigned int weight = 0;
+	unsigned int ew = NAp;
 	unsigned int num_vertices = 0;
 	unsigned int num_vertices2 = 0;
 	unsigned int num_edges = 0;
 	unsigned int max_vertex = 0;
-	vector<edge2_type> edgesbuffer;
+	vector<edge3_type> edgesbuffer;
 
 	std::ifstream file1_graph(graphpath);
 	if (file1_graph.is_open()) {
@@ -75,7 +76,7 @@ void prepare_graph::start(string graphpath, vector<edge2_type> &edgesbuffer_dup,
 			if(srcv > max_vertex){ max_vertex = srcv; }
 			if(dstv > max_vertex){ max_vertex = dstv; }
 			
-			edge2_type edge; edge.srcvid = srcv; edge.dstvid = dstv;
+			edge3_type edge; edge.srcvid = srcv; edge.dstvid = dstv; edge.weight = rand() % 10 - 1;
 			edgesbuffer.push_back(edge);
 		
 			linecount += 1;
@@ -145,14 +146,15 @@ void prepare_graph::start(string graphpath, vector<edge2_type> &edgesbuffer_dup,
 	for(unsigned int i=0; i<edgesbuffer.size(); i++){ // num_edges
 		srcv = edgesbuffer[i].srcvid;
 		dstv = edgesbuffer[i].dstvid;
+		weight = edgesbuffer[i].weight;
 		
-		edge2_type edge1; edge1.srcvid = srcv; edge1.dstvid = dstv; edge1.eblockid = 0;
+		edge3_type edge1; edge1.srcvid = srcv; edge1.dstvid = dstv; edge1.weight = weight;
 		if(vptr_dup[edge1.srcvid] + outdegree[edge1.srcvid] >= edgesbuffer_dup.size()){ cout<<"prepare_graph::start(1):: vptr_dup[edge1.srcvid]("<<vptr_dup[edge1.srcvid]<<") + outdegree[edge1.srcvid]("<<outdegree[edge1.srcvid]<<") >= edgesbuffer_dup.size()("<<edgesbuffer_dup.size()<<"). EXITING... "<<endl; exit(EXIT_FAILURE); }							
 		edgesbuffer_dup[vptr_dup[edge1.srcvid] + outdegree[edge1.srcvid]] = edge1;
 		outdegree[edge1.srcvid] += 1;
 		
 		if(graphisundirected==true){ 
-			edge2_type edge2; edge2.srcvid = dstv; edge2.dstvid = srcv; edge2.eblockid = 0;
+			edge3_type edge2; edge2.srcvid = dstv; edge2.dstvid = srcv; edge2.weight = weight;
 			if(vptr_dup[edge2.srcvid] + outdegree[edge2.srcvid] >= edgesbuffer_dup.size()){ cout<<"prepare_graph::start(2):: vptr_dup[edge2.srcvid]("<<vptr_dup[edge2.srcvid]<<") + outdegree[edge2.srcvid]("<<outdegree[edge2.srcvid]<<") >= edgesbuffer_dup.size()("<<edgesbuffer_dup.size()<<"). EXITING... "<<endl; exit(EXIT_FAILURE); }							
 			edgesbuffer_dup[vptr_dup[edge2.srcvid] + outdegree[edge2.srcvid]] = edge2;
 			outdegree[edge2.srcvid] += 1;
@@ -179,7 +181,7 @@ void prepare_graph::start(string graphpath, vector<edge2_type> &edgesbuffer_dup,
 	unsigned int zerocount = 0;
 	unsigned int maxsz = edgesbuffer_dup_size;
 	for(unsigned int i=0; i<maxsz; i++){
-		edge2_type edge = edgesbuffer_dup[i];
+		edge3_type edge = edgesbuffer_dup[i];
 		if(edge.srcvid==0 && edge.dstvid==0){
 			if(zerocount>10000){ cout<<"prepare_graph::writeedgestofile:: ERROR: too many zeros ("<<zerocount<<"). check... EXITING... "<<endl; exit(EXIT_FAILURE); }
 			else { zerocount += 1; } 

@@ -434,7 +434,7 @@ float acts_helper::get_results(string message, string graphpath, uint512_vec_dt 
 	
 	double total__iteration_latency_ms = (num_processed_overall_int32 * total__iteration_latency_ms___) / num_processed_overall_int32___;
 	
-	#ifdef _DEBUGMODE_HOSTPRINTS
+	#ifdef _DEBUGMODE_HOSTPRINTS4
 	cout<<"acts_helper:: num_vertices___: "<<num_vertices___<<endl;
 	cout<<"acts_helper:: num_edges___: "<<num_edges___<<endl;
 	cout<<"acts_helper:: num_col_partitions___: "<<num_col_partitions___<<endl;

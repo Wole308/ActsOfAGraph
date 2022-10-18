@@ -51,9 +51,9 @@
 #endif
 using namespace std;
 
-#define UNVISITED 0
-#define VISITED_IN_CURRENT_ITERATION 1
-#define VISITED_IN_PAST_ITERATION 3
+// #define UNVISITED 0
+// #define VISITED_IN_CURRENT_ITERATION 1
+// #define VISITED_IN_PAST_ITERATION 3
 
 class utility {
 public:
@@ -76,52 +76,11 @@ public:
 	void checkforlessthanthan(string message, unsigned int data1, unsigned int data2);
 	
 	void stopTIME(string caption, std::chrono::steady_clock::time_point begintime, unsigned int iteration_idx);
-
-	bool isbufferused(unsigned int id);
+	bool channel_is_active(unsigned int id);
 	
-	size_t hsub(size_t val1, size_t val2);
-	size_t hceildiv(size_t val1, size_t val2);
-	int hmin(size_t val1, size_t val2);
-	int hmax(size_t val1, size_t val2);
-	void InsertBit(unsigned int * edgeoffsetbits, size_t index, unsigned int bit);
-	unsigned int RetrieveBit(unsigned int * edgeoffsetbits, size_t index);
-	void resetkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size);
-	void resetkeyvalues(keyvalue_t * keyvalues, unsigned int size);
-	void resetvalues(value_t * values, unsigned int size, unsigned int value);
-
-	unsigned int allignlower_FACTOR(unsigned int val, unsigned int _FACTOR);
-	unsigned int allignhigher_FACTOR(unsigned int val, unsigned int _FACTOR);
-
-	void calculateoffsets(keyvalue_t * buffer, unsigned int size, unsigned int base, unsigned int * skipspacing, unsigned int allign_factor);
-	void calculateoffsets(keyvalue_t * buffer, unsigned int size, unsigned int base, unsigned int allign_factor);
-	void getmarkerpositions(keyvalue_t * stats, unsigned int size, unsigned int allign_factor);
-	
-	void calculateunallignedoffsets(keyvalue_t * keyvalues, unsigned int size);
-	
-	// compact graph utilities
-	void DECTOBINARY(int n);
-	void ULONGTOBINARY(unsigned long n);
-	void ULONGTOBINARY(keyvalue_t keyvalue);
-	unsigned int GETMASK_UINT(unsigned int index, unsigned int size);
-	unsigned long GETMASK_ULONG(unsigned long index, unsigned long size);
-	unsigned int READFROM_UINT(unsigned int data, unsigned int index, unsigned int size);
-	unsigned int READFROM_ULONG(unsigned long data, unsigned long index, unsigned long size);
-	unsigned int READFROM_ULONG(keyvalue_t keyvalue, unsigned long index, unsigned long size);
-	void WRITETO_UINT(unsigned int * data, unsigned int index, unsigned int size, unsigned int value);
-	void WRITETO_ULONG(unsigned long * data, unsigned long index, unsigned long size, unsigned long value);
-	void WRITETO_ULONG(keyvalue_t * keyvalue, unsigned long index, unsigned long size, unsigned long value);
-	unsigned int READBITSFROM_UINTV(unsigned int data, unsigned int index, unsigned int size);
-	void WRITEBITSTO_UINTV(unsigned int * data, unsigned int index, unsigned int size, unsigned int value);
-	unsigned int UTIL_GETLOCALVID(unsigned int vid, unsigned int instid);
-	unsigned int UTIL_GETREALVID(unsigned int lvid, unsigned int instid);
-	
-	void writedata(uint512_vec_dt * kvdram, unsigned int offset_kvs, unsigned int index, unsigned int data);
-
-	// void printallfeedback(string message, string graphpath, uint512_vec_dt * vdram, uint512_vec_dt * vdramtemp0, uint512_vec_dt * vdramtemp1, uint512_vec_dt * vdramtemp2, uint512_vec_dt * kvbuffer[NUM_PEs]);
-	
-	#ifdef FPGA_IMPL
-	void set_callback(cl_event event, const char *queue_name);
-	#endif
+	unsigned int get_H(unsigned int vid);
+	unsigned int get_local(unsigned int vid);
+	unsigned int get_global(unsigned int lvid, unsigned int H);
 
 private:
 	universalparams_t universalparams;

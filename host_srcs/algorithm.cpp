@@ -4,27 +4,19 @@ using namespace std;
 algorithm::algorithm(){}
 algorithm::~algorithm(){} 
 
-unsigned algorithm::vertex_initdata(std::string Algo){
-	if(Algo == "pr"){ return 1; } 
-	else if(Algo == "cf"){ return 1; } 
-	else if(Algo == "hits"){ return 1; } 
-	else if(Algo == "spmv"){ return 1; } 
-	// else if(Algo == "bfs"){ return 0b0; }
-	else if(Algo == "bfs"){ return 0xFFFFFFFE; }
-	// else if(Algo == "sssp"){ return MAXVDATA; } 
-	else if(Algo == "sssp"){ 
-		#ifdef CONFIG_PRELOADEDVERTEXMASKS
-		return 0xFFFF0000;  
-		#else 
-		return 0xFFFFFFFE;
-		#endif 
-	} 
-	// else if(Algo == "sssp"){ return 0xFFFFFFFE; } 
+unsigned int algorithm::vertex_initdata(unsigned int Algo){
+	if(Algo == PAGERANK){ return 1; } 
+	else if(Algo == CF){ return 1; } 
+	else if(Algo == HITS){ return 1; } 
+	else if(Algo == SPMV){ return 1; } 
+	else if(Algo == BFS){ return 0xFFFFFFFE; }
+	// else if(Algo == SSSP){ return 0xFFFFFFFE; } 
+	else if(Algo == SSSP){ return 0xFFFFFFEE; } 
 	else { return 0; }
 	return 0;
 }
 
-unsigned algorithm::get_algorithm_id(std::string Algo){
+unsigned int algorithm::get_algorithm_id(std::string Algo){
 	if(Algo == "pr"){ return PAGERANK; } 
 	else if(Algo == "cf"){ return CF; } 
 	else if(Algo == "hits"){ return HITS; } 
