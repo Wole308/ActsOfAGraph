@@ -332,19 +332,22 @@ typedef struct {
 } offset_t;
 
 // HBM: {vptrs, edges, updatesptrs, updates, vertexprops, frontiers}
-typedef struct {
-	#ifndef FPGA_IMPL
-	uint512_ivec_dt * globalparams;
-	#endif 
+/* typedef struct {
+	// #ifndef FPGA_IMPL
+	// uint512_ivec_dt * globalparams;
+	// #endif 
 	uint512_ivec_dt * HBM; // 32 uints 
 } HBM_channel_t;
 
 typedef struct {
-	#ifndef FPGA_IMPL
-	uint512_axivec_dt * globalparams;
-	#endif 
+	// #ifndef FPGA_IMPL
+	// uint512_axivec_dt * globalparams;
+	// #endif 
 	uint512_axivec_dt * HBM; // 16 uints
-} HBM_axichannel_t;
+} HBM_axichannel_t; */		
+
+typedef uint512_ivec_dt HBM_channel_t;
+typedef uint512_axivec_dt HBM_axichannel_t;
 
 #ifdef ___USE_AXI_CHANNEL___
 typedef uint512_axivec_dt uint512_vecTHIS_dt;
@@ -356,20 +359,6 @@ typedef uint512_ivec_dt uint512_vecTHIS_dt;
 typedef HBM_axichannel_t HBM_channelTHIS_t;	
 #else 
 typedef HBM_channel_t HBM_channelTHIS_t;
-#endif 
-
-/* typedef struct {
-	keyvalue_t * nfrontier_buffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][MAX_APPLYPARTITION_VECSIZE]
-	// keyvalue_t * cfrontier_buffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][MAX_APPLYPARTITION_VECSIZE]
-	unsigned int * stats_tmpbuffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][BLOCKRAM_SIZE]
-	unsigned int * stats_buffer[MAX_NUM_APPLYPARTITIONS]; // [MAX_NUM_APPLYPARTITIONS][BLOCKRAM_SIZE]
-	unsigned int * stats2_buffer[MAX_NUM_APPLYPARTITIONS]; // [MAX_NUM_APPLYPARTITIONS][BLOCKRAM_SIZE]
-	// keyvalue_t * updates_tmpbuffer[NUM_PEs]; // [NUM_PEs][CSRBUFFER_SIZE(//FIXME.)]
-	keyvalue_t * updates_tmpbuffer[24];
-	keyvalue_t * updates_buffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][MAX_APPLYPARTITION_VECSIZE]
-	vtr_t * vptr_buffer; // [NUM_PEs][VPTR_BUFFER_SIZE]
-	edge3_type * edges_buffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][EDGE_BUFFER_SIZE]
-	vprop_t * vdata_buffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][MAX_APPLYPARTITION_VECSIZE]
-} BRAM_channel_t; */
+#endif
 #endif
 
