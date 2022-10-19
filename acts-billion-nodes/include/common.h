@@ -5,7 +5,7 @@
 #include <cmath>
  
 
-#define ___USE_AXI_CHANNEL___
+// #define ___USE_AXI_CHANNEL___
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -67,7 +67,7 @@
 
 //////////////// 
 
-#define NUM_PEs 24
+#define NUM_PEs 24 // 12, 24* // 24
 #define NUM_AXI_PEs (NUM_PEs * 2)
 #define MAXNUM_VPs 1024
 #define MAXNUM_LLPs 256 
@@ -351,16 +351,17 @@ typedef HBM_axichannel_t HBM_channelTHIS_t;
 typedef HBM_channel_t HBM_channelTHIS_t;
 #endif 
 
-typedef struct {
+/* typedef struct {
 	keyvalue_t * nfrontier_buffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][MAX_APPLYPARTITION_VECSIZE]
-	keyvalue_t * cfrontier_buffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][MAX_APPLYPARTITION_VECSIZE]
+	// keyvalue_t * cfrontier_buffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][MAX_APPLYPARTITION_VECSIZE]
 	unsigned int * stats_tmpbuffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][BLOCKRAM_SIZE]
 	unsigned int * stats_buffer[MAX_NUM_APPLYPARTITIONS]; // [MAX_NUM_APPLYPARTITIONS][BLOCKRAM_SIZE]
 	unsigned int * stats2_buffer[MAX_NUM_APPLYPARTITIONS]; // [MAX_NUM_APPLYPARTITIONS][BLOCKRAM_SIZE]
-	keyvalue_t * updates_tmpbuffer[NUM_PEs]; // [NUM_PEs][CSRBUFFER_SIZE(//FIXME.)]
+	// keyvalue_t * updates_tmpbuffer[NUM_PEs]; // [NUM_PEs][CSRBUFFER_SIZE(//FIXME.)]
+	keyvalue_t * updates_tmpbuffer[24];
 	keyvalue_t * updates_buffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][MAX_APPLYPARTITION_VECSIZE]
 	vtr_t * vptr_buffer; // [NUM_PEs][VPTR_BUFFER_SIZE]
 	edge3_type * edges_buffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][EDGE_BUFFER_SIZE]
 	vprop_t * vdata_buffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][MAX_APPLYPARTITION_VECSIZE]
-} BRAM_channel_t;
+} BRAM_channel_t; */
 #endif

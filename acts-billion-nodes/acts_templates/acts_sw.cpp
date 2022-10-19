@@ -726,6 +726,24 @@ void master_retrievemany(unsigned int offsets[NUM_PEs], unsigned int v, unsigned
 	#endif 
 	return;
 }
+/* void master_retrievemany(unsigned int offsets[NUM_PEs], unsigned int vs[NUM_PEs], unsigned int data[NUM_PEs], HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB){
+	#ifdef ___USE_AXI_CHANNEL___
+		if(v < HBM_AXI_PACK_SIZE){
+			for(unsigned int n=0; n<NUM_PEs; n++){
+				data[n] = M_Rs(offsets[n], vs[n], HBM_channelA, n);
+			}
+		} else {
+			for(unsigned int n=0; n<NUM_PEs; n++){
+				data[n] = M_Rs(offsets[n], vs[n] - HBM_AXI_PACK_SIZE, HBM_channelB, n);
+			}
+		}
+	#else 
+	for(unsigned int n=0; n<NUM_PEs; n++){
+		data[n] = M_Rs(offsets[n], vs[n], HBM_channelA, n);
+	}
+	#endif 
+	return;
+} */
 
 void master_insert_vec(unsigned int offset, unsigned int data[HBM_CHANNEL_PACK_SIZE], HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB, unsigned int inst){
 	#ifdef ___USE_AXI_CHANNEL___
@@ -837,19 +855,29 @@ void retrieve_cfrontierdram(unsigned int p_u, unsigned int t, keyvalue_t data[ED
 }
 
 ////////////////////////////////////////////////////////////////
-unsigned int retrieve_globalparams(unsigned int base_offset__, unsigned int index, HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB, unsigned int inst){
+unsigned int dretrieve_globalparams(unsigned int base_offset__, unsigned int index, HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB, unsigned int inst){
 	return master_retrieve(base_offset__ + index, 0, HBM_channelA, HBM_channelB, inst); // NEW
 }
 
-unsigned int retrieve_vptrdram(unsigned int base_offset__, unsigned int index, HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB, unsigned int inst){
+unsigned int dretrieve_vptrdram(unsigned int base_offset__, unsigned int index, HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB, unsigned int inst){
 	#ifdef _DEBUGMODE_CHECKS3
 	unsigned int wwsize = HBM_channelA[inst].globalparams[GLOBALPARAMSCODE__WWSIZE__CSRVPTRS].data[0];
 	checkoutofbounds("acts_sw::ERROR 901::", (index / HBM_CHANNEL_PACK_SIZE), wwsize, NAp, NAp, NAp);
 	#endif 
 	return master_retrieve(base_offset__ + (index / HBM_CHANNEL_PACK_SIZE), index % HBM_CHANNEL_PACK_SIZE, HBM_channelA, HBM_channelB, inst);
 }	
+void dretrievemany_vptrdram(unsigned int base_offset__, unsigned int offsets[NUM_PEs], unsigned int data[NUM_PEs], HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB){
+	for(unsigned int n=0; n<NUM_PEs; n++){
+	#pragma HLS UNROLL
+		data[n] = dretrieve_vptrdram(base_offset__, offsets[n], HBM_channelA, HBM_channelB, n);
+	}
+	return;
+}
 
-map_t retrieve_actpackvptrdram(unsigned int base_offset__, unsigned int p_u, unsigned int llp_set, HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB, unsigned int inst){
+
+
+
+map_t dretrieve_actpackvptrdram(unsigned int base_offset__, unsigned int p_u, unsigned int llp_set, HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB, unsigned int inst){
 	unsigned int offset = ((p_u * MAX_NUM_LLPSETS) + llp_set) * 2;
 	#ifdef _DEBUGMODE_CHECKS3
 	unsigned int wwsize = HBM_channelA[inst].globalparams[GLOBALPARAMSCODE__WWSIZE__ACTPACKVPTRS].data[0];
@@ -862,8 +890,8 @@ map_t retrieve_actpackvptrdram(unsigned int base_offset__, unsigned int p_u, uns
 	map.size = master_retrieve(base_offset__ + i, j + 1, HBM_channelA, HBM_channelB, inst);
 	return map;
 }
-void retrievemany_actpackvptrdram(unsigned int base_offset__, unsigned int p_u, unsigned int llp_set, map_t maps[NUM_PEs], HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB){
-	unsigned int offset = ((p_u * MAX_NUM_LLPSETS) + llp_set) * 2;
+void dretrievemany_actpackvptrdram(unsigned int base_offset__, unsigned int p_u, unsigned int llp_set, map_t maps[NUM_PEs], HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB){
+	unsigned int offset = ((p_u * MAX_NUM_LLPSETS) + llp_set) * 2; // FIXME.
 	#ifdef _DEBUGMODE_CHECKS3
 	unsigned int wwsize = HBM_channelA[0].globalparams[GLOBALPARAMSCODE__WWSIZE__ACTPACKVPTRS].data[0];
 	checkoutofbounds("acts_sw::ERROR 702::", offset / HBM_CHANNEL_PACK_SIZE, wwsize, NAp, NAp, NAp);
@@ -1343,14 +1371,14 @@ keyvalue_t retrieve_updatesbuffer(unsigned int v, unsigned int index, keyvalue_t
 
 void insert_updatestmpbuffer(unsigned int index, unsigned int t, keyvalue_t data, keyvalue_t * updates_tmpbuffer[NUM_PEs]){
 	#ifdef _DEBUGMODE_CHECKS3
-	checkoutofbounds("acts_sw::ERROR 109::", index, NUM_PEs, NAp, NAp, NAp);
+	checkoutofbounds("acts_sw::ERROR 109::", index, 24, NAp, NAp, NAp);
 	checkoutofbounds("acts_sw::ERROR 110::", t, CSRBUFFER_SIZE, NAp, NAp, NAp);
 	#endif 
 	updates_tmpbuffer[index][t] = data;
 }
 keyvalue_t retrieve_updatestmpbuffer(unsigned int index, unsigned int t, keyvalue_t * updates_tmpbuffer[NUM_PEs]){
 	#ifdef _DEBUGMODE_CHECKS3
-	checkoutofbounds("acts_sw::ERROR 111::", index, NUM_PEs, NAp, NAp, NAp);
+	checkoutofbounds("acts_sw::ERROR 111::", index, 24, NAp, NAp, NAp);
 	checkoutofbounds("acts_sw::ERROR 112::", t, CSRBUFFER_SIZE, NAp, NAp, NAp);
 	#endif 
 	return updates_tmpbuffer[index][t];
@@ -1428,7 +1456,7 @@ void insert_statstmpbuffer(unsigned int t, unsigned int v, unsigned int data, un
 }
 unsigned int retrieve_statstmpbuffer(unsigned int t, unsigned int v, unsigned int * stats_tmpbuffer[EDGE_PACK_SIZE]){
 	#ifdef _DEBUGMODE_CHECKS3
-	checkoutofbounds("acts_sw::ERROR 122::", t, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
+	checkoutofbounds("acts_sw::ERROR 1242::", t, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
 	#endif 
 	return stats_tmpbuffer[v][t]; 
 }
@@ -1502,21 +1530,25 @@ void acts_sw::run(HBM_channel_t * HBM_center, HBM_channelTHIS_t * HBM_channelA, 
 	
 	#else 
 	keyvalue_t * nfrontier_buffer[NUM_PEs][EDGE_PACK_SIZE]; // [MAX_APPLYPARTITION_VECSIZE]
-	keyvalue_t * cfrontier_buffer[NUM_PEs][EDGE_PACK_SIZE]; // [MAX_APPLYPARTITION_VECSIZE]
+	// keyvalue_t * cfrontier_buffer[NUM_PEs][EDGE_PACK_SIZE]; // [MAX_APPLYPARTITION_VECSIZE]
+	keyvalue_t * cfrontier_bufferREAL0[EDGE_PACK_SIZE]; 
+	keyvalue_t * cfrontier_bufferREAL1[NUM_PEs]; // [MAX_APPLYPARTITION_VECSIZE]
 	unsigned int * stats_tmpbuffer[NUM_PEs][EDGE_PACK_SIZE]; // [BLOCKRAM_SIZE]
 	unsigned int * stats_buffer[NUM_PEs][MAX_NUM_APPLYPARTITIONS]; // [BLOCKRAM_SIZE]
 	unsigned int * stats2_buffer[NUM_PEs][MAX_NUM_APPLYPARTITIONS]; // [BLOCKRAM_SIZE]
-	keyvalue_t * updates_tmpbuffer[NUM_PEs][NUM_PEs]; // [CSRBUFFER_SIZE(//FIXME.)]
+	keyvalue_t * updates_tmpbuffer[24][NUM_PEs]; // [CSRBUFFER_SIZE(//FIXME.)]
 	keyvalue_t * updates_buffer[NUM_PEs][EDGE_PACK_SIZE]; // [MAX_APPLYPARTITION_VECSIZE]
 	vtr_t * vptr_buffer[NUM_PEs]; // [VPTR_BUFFER_SIZE]
 	edge3_type * edges_buffer[NUM_PEs][EDGE_PACK_SIZE]; // [EDGE_BUFFER_SIZE]
 	vprop_t * vdata_buffer[NUM_PEs][EDGE_PACK_SIZE]; // [MAX_APPLYPARTITION_VECSIZE]
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ nfrontier_buffer[i][v] = new keyvalue_t[MAX_APPLYPARTITION_VECSIZE]; }}
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ cfrontier_buffer[i][v] = new keyvalue_t[MAX_APPLYPARTITION_VECSIZE]; }}
+	// for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ cfrontier_buffer[i][v] = new keyvalue_t[MAX_APPLYPARTITION_VECSIZE]; }}
+	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ cfrontier_bufferREAL0[v] = new keyvalue_t[MAX_APPLYPARTITION_VECSIZE]; }
+	for(unsigned int i=0; i<NUM_PEs; i++){ cfrontier_bufferREAL1[i] = new keyvalue_t[MAX_APPLYPARTITION_VECSIZE]; }
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ stats_tmpbuffer[i][v] = new unsigned int[BLOCKRAM_SIZE]; }}
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<MAX_NUM_APPLYPARTITIONS; v++){ stats_buffer[i][v] = new unsigned int[BLOCKRAM_SIZE]; }}
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<MAX_NUM_APPLYPARTITIONS; v++){ stats2_buffer[i][v] = new unsigned int[BLOCKRAM_SIZE]; }}
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p=0; p<NUM_PEs; p++){ updates_tmpbuffer[i][p] = new keyvalue_t[CSRBUFFER_SIZE]; }}
+	for(unsigned int i=0; i<24; i++){ for(unsigned int p=0; p<NUM_PEs; p++){ updates_tmpbuffer[i][p] = new keyvalue_t[CSRBUFFER_SIZE]; }}
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ updates_buffer[i][v] = new keyvalue_t[MAX_APPLYPARTITION_VECSIZE]; }}
 	for(unsigned int i=0; i<NUM_PEs; i++){ vptr_buffer[i] = new vtr_t[VPTR_BUFFER_SIZE]; }
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ edges_buffer[i][v] = new edge3_type[EDGE_BUFFER_SIZE]; }}
@@ -1632,7 +1664,7 @@ void acts_sw::run(HBM_channel_t * HBM_center, HBM_channelTHIS_t * HBM_channelA, 
 	unsigned int updatesptrs[MAX_NUM_LLPSETS];
 	#pragma HLS ARRAY_PARTITION variable = globalparams complete
 	for(unsigned int t=0; t<32; t++){
-		globalparams[t] = retrieve_globalparams(0, t, HBM_channelA, HBM_channelB, 0);
+		globalparams[t] = dretrieve_globalparams(0, t, HBM_channelA, HBM_channelB, 0);
 	}
 	globalparams_debug = (unsigned int *)&globalparams[0];
 	
@@ -1707,59 +1739,13 @@ void acts_sw::run(HBM_channel_t * HBM_center, HBM_channelTHIS_t * HBM_channelA, 
 				dinsertmany_cfrontierdram_tmp(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP], offsets, t, kvdatas, ens, HBM_channelA, HBM_channelB);
 			}
 			
-			// parallel-read active frontiers [done]
-			for(unsigned int n=0; n<NUM_PEs; n++){ offsets[n] = 0; }
-			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-				for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t++){
-				#pragma HLS PIPELINE II=1
-					dretrievemany_cfrontierdram_tmp(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP], offsets, t, kvdatas, HBM_channelA, HBM_channelB);
-					for(unsigned int inst=0; inst<NUM_PEs; inst++){
-					#pragma HLS UNROLL
-						insert_cfrontierbuffer(t, kvdatas[inst], cfrontier_buffer[inst]); // 
-					}
-				}
-			}
-			
-			// clear temp stats buffer [done]
-			if(___use_vertex_centric___ == false){
-				for(unsigned int t=0; t<BLOCKRAM_SIZE; t++){ 
-				#pragma HLS PIPELINE II=1
-					for(unsigned int inst=0; inst<NUM_PEs; inst++){ 
-					#pragma HLS UNROLL
-						for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
-						#pragma HLS UNROLL
-							insert_statstmpbuffer(t, v, 0, stats_tmpbuffer[inst]); 
-						}
-					}
-				}
-			}
-			
-			// load active frontiers: convert from vertexID-based to bitmask-based [done]
-			for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t++){
-			#pragma HLS PIPELINE II=1
-				for(unsigned int inst=0; inst<NUM_PEs; inst++){
-				#pragma HLS UNROLL
-					keyvalue_t actvv[EDGE_PACK_SIZE];
-					retrieve_cfrontierbuffer(t, actvv, cfrontier_buffer[inst]); 
-					for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-					#pragma HLS UNROLL
-						if(actvv[v].key != INVALIDDATA){
-							unsigned int srcvid_lpv = get_local_to_upartition(actvv[v].key) / EDGE_PACK_SIZE; 
-							vprop_t prop; prop.prop = actvv[v].value; prop.mask = MASK_CODE_PE; // NEW-MASK*
-							insert_udatabuffer(v, srcvid_lpv, prop, vdata_buffer[inst]); 
-						}
-					}
-				}
-			}
-			
-			#ifdef __NOT__YET__IMPLEMENTED___
 			// parallel-read and map active frontiers [done]
 			for(unsigned int n=0; n<NUM_PEs; n++){ offsets[n] = 0; }
 			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 				for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t++){
 				#pragma HLS PIPELINE II=1
 					dretrievemany_cfrontierdram_tmp(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP], offsets, t, kvdatas, HBM_channelA, HBM_channelB);
-					// insert_cfrontierbuffer(t, kvdatas[0], cfrontier_buffer[0]);
+					insert_cfrontierbuffer(t, kvdatas[0], cfrontier_bufferREAL0);
 					for(unsigned int inst=0; inst<NUM_PEs; inst++){
 					#pragma HLS UNROLL
 						for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
@@ -1773,8 +1759,21 @@ void acts_sw::run(HBM_channel_t * HBM_center, HBM_channelTHIS_t * HBM_channelA, 
 					}
 				}
 			}
-			#endif 
-			
+
+			// reset temp stats buffer [done]
+			if(___use_vertex_centric___ == false){
+				for(unsigned int t=0; t<BLOCKRAM_SIZE; t++){ 
+				#pragma HLS PIPELINE II=1
+					for(unsigned int inst=0; inst<NUM_PEs; inst++){ 
+					#pragma HLS UNROLL
+						for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
+						#pragma HLS UNROLL
+							insert_statstmpbuffer(t, v, 0, stats_tmpbuffer[inst]); 
+						}
+					}
+				}
+			}
+			// reset updates_tmpbuffer [done]
 			for(unsigned int i=0; i<NUM_PEs; i++){ 
 			#pragma HLS UNROLL
 				for(unsigned int j=0; j<NUM_PEs; j++){ updates_tmpbuffer___size[i][j] = 0; } // reset
@@ -1784,52 +1783,72 @@ void acts_sw::run(HBM_channel_t * HBM_center, HBM_channelTHIS_t * HBM_channelA, 
 			if(upartition_vertices[p_u].count > 0){
 				if(___use_vertex_centric___ == true){
 					hybrid_map[GraphIter][p_u] = 0;
+					
+					// reset buffers [done]
 					for(unsigned int inst=0; inst<NUM_PEs; inst++){ 
 					#pragma HLS UNROLL
 						vptrbuffer___size[inst] = 0; edges_buffer___size[inst] = 0; // reset
 					} 
 					
-					keyvalue_t vptrbuffer_md[NUM_PEs][VPTR_BUFFERMETADATA_SIZE]; for(unsigned int inst=0; inst<NUM_PEs; inst++){ for(unsigned int t=0; t<VPTR_BUFFERMETADATA_SIZE; t++){ vptrbuffer_md[inst][t].key = 0; vptrbuffer_md[inst][t].value = 0; }}
-					unsigned int cummtv[NUM_PEs]; unsigned int cummtv2[NUM_PEs]; for(unsigned int inst=0; inst<NUM_PEs; inst++){ cummtv[inst] = 0; cummtv2[inst] = 0; }
-					unsigned int vptrbatch_md_offset___size[NUM_PEs]; for(unsigned int inst=0; inst<NUM_PEs; inst++){ vptrbatch_md_offset___size[inst] = 0; }
-					for(unsigned int inst=0; inst<NUM_PEs; inst++){
-						// load vptrs
-						VC_READVPTRS_LOOP1B: for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t++){ 
-							VC_READVPTRS_LOOP1: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-							#pragma HLS PIPELINE II=1
-								frontier_t actvv = retrieve_cfrontierbuffer(v, t, cfrontier_buffer[inst]);
-								unsigned int vid = actvv.key; 
-								unsigned int hvid = vid / NUM_PEs;
-								
-								vtr_t data;
-								if((actvv.key != INVALIDDATA) && (vid % NUM_PEs == inst)){ 
-									data.begin = retrieve_vptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS], hvid, HBM_channelA, HBM_channelB, inst);
-									data.end = retrieve_vptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS], hvid+1, HBM_channelA, HBM_channelB, inst);
-									data.size = data.end - data.begin;
-									if(data.end < data.begin){ data.size = 0; }
-									data.vid = actvv.key; 
-									data.prop = actvv.value;
-								
-									vtr_t chunk = data; unsigned int __BATCH_SIZE = 1024;
-									for(unsigned int b=0; b<(data.size + (__BATCH_SIZE - 1)) / __BATCH_SIZE; b++){
-										if((b + 1) * __BATCH_SIZE > data.size){ chunk.size = data.size % __BATCH_SIZE; } else { chunk.size = __BATCH_SIZE; }
-										chunk.begin = data.begin + b * __BATCH_SIZE;
-										chunk.end = chunk.begin + chunk.size;
-										checkoutofbounds("acts_sw::ERROR 003::", vptrbuffer___size[inst], VPTR_BUFFER_SIZE, NAp, NAp, NAp);
-										insert_vptrbuffer(vptrbuffer___size[inst], chunk, vptr_buffer[inst]);
-										vptrbuffer___size[inst] += 1;
-										cummtv2[inst] += chunk.size;
-									}
+					// distribute vptrs [done]
+					unsigned int cummtv2[NUM_PEs]; for(unsigned int inst=0; inst<NUM_PEs; inst++){ cummtv2[inst] = 0; }
+					unsigned int cfrontier_bufferREAL___size[NUM_PEs]; for(unsigned int n=0; n<NUM_PEs; n++){ cfrontier_bufferREAL___size[n] = 0; }
+					VC_READVPTRS_LOOP1: for(unsigned int pingpong=0; pingpong<cfrontier_dram___size[p_u] * EDGE_PACK_SIZE; pingpong++){
+						frontier_t actvv = retrieve_cfrontierbuffer(pingpong % EDGE_PACK_SIZE, pingpong / EDGE_PACK_SIZE, cfrontier_bufferREAL0);
+						if(actvv.key != INVALIDDATA){ // NEW
+							unsigned int inst_ = actvv.key % NUM_PEs;
+							cfrontier_bufferREAL1[inst_][cfrontier_bufferREAL___size[inst_]] = actvv;
+							cfrontier_bufferREAL___size[inst_] += 1;
+							checkoutofbounds("acts_sw::ERROR 073::", cfrontier_bufferREAL___size[inst_], MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
+						}
+					}
+					
+					// load vptrs
+					max_limit = 0; for(unsigned int n=0; n<NUM_PEs; n++){ if(max_limit < cfrontier_bufferREAL___size[n]){ max_limit = cfrontier_bufferREAL___size[n]; }} 
+					VC_READVPTRS_LOOP2: for(unsigned int t=0; t<max_limit; t++){
+						#pragma HLS PIPELINE II=1
+						unsigned int begins_u32[NUM_PEs]; 
+						unsigned int ends_u32[NUM_PEs];
+						frontier_t actvvs[NUM_PEs];
+						
+						VC_READVPTRS_LOOP2B: for(unsigned int n=0; n<NUM_PEs; n++){
+						#pragma HLS UNROLL
+							actvvs[n] = cfrontier_bufferREAL1[n][t];
+							unsigned int hvid = actvvs[n].key / NUM_PEs; // FIXME. (send local instead?)
+							offsets[n] = hvid; 
+						}
+						dretrievemany_vptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS], offsets, begins_u32, HBM_channelA, HBM_channelB);
+						
+						VC_READVPTRS_LOOP2C: for(unsigned int n=0; n<NUM_PEs; n++){
+						#pragma HLS UNROLL
+							offsets[n] += 1; 
+						}
+						dretrievemany_vptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS], offsets, ends_u32, HBM_channelA, HBM_channelB);
+						
+						VC_READVPTRS_LOOP2D: for(unsigned int inst=0; inst<NUM_PEs; inst++){
+						#pragma HLS UNROLL
+							vtr_t data;
+							data.begin = begins_u32[inst]; 
+							data.end = ends_u32[inst]; 
+							data.size = data.end - data.begin;
+							if(data.end < data.begin){ data.size = 0; }
+							data.vid = actvvs[inst].key; 
+							data.prop = actvvs[inst].value;
+							
+							if(t < cfrontier_bufferREAL___size[inst]){ 
+								vtr_t chunk = data; unsigned int __BATCH_SIZE = 1024;
+								VC_READVPTRS_LOOP2E: for(unsigned int b=0; b<(data.size + (__BATCH_SIZE - 1)) / __BATCH_SIZE; b++){
+									if((b + 1) * __BATCH_SIZE > data.size){ chunk.size = data.size % __BATCH_SIZE; } else { chunk.size = __BATCH_SIZE; }
+									chunk.begin = data.begin + b * __BATCH_SIZE;
+									chunk.end = chunk.begin + chunk.size;
+									checkoutofbounds("acts_sw::ERROR 003::", vptrbuffer___size[inst], VPTR_BUFFER_SIZE, NAp, NAp, NAp);
+									insert_vptrbuffer(vptrbuffer___size[inst], chunk, vptr_buffer[inst]);
+									vptrbuffer___size[inst] += 1;
+									cummtv2[inst] += chunk.size;
 								}
 							}
 						}
 					}
-					
-					#ifdef __NOT__YET__IMPLEMENTED___
-					for(unsigned int pingpong=0; pingpong<NUM_PEs; pingpong++){
-						frontier_t actvv = retrieve_cfrontierbuffer(pingpong % EDGE_PACK_SIZE, pingpong / EDGE_PACK_SIZE, cfrontier_buffer[inst]);
-					}
-					#endif 
 					
 					// calculate batches [done]
 					max_limit = 0; for(unsigned int in=0; in<NUM_PEs; in++){ if(max_limit < cummtv2[in]){ max_limit = cummtv2[in]; }} 
@@ -1871,10 +1890,10 @@ void acts_sw::run(HBM_channel_t * HBM_center, HBM_channelTHIS_t * HBM_channelA, 
 									for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 									#pragma HLS UNROLL
 										checkoutofbounds("acts_sw::ERROR 812::", edges_buffer___size[inst], EDGE_BUFFER_SIZE, vptrbuffer___size[inst], inst, edgelist_size);
-										// edges_buffer[v][edges_buffer___size[inst]] = edge_list[v];
 										insert_edgesbuffer(v, edges_buffer___size[inst], edge_list[v], edges_buffer[inst]); // NEW
 									}
 									edges_buffer___size[inst] += 1;
+									// if(edges_buffer___size[inst] + 2 < EDGE_BUFFER_SIZE){ edges_buffer___size[inst] += 1; } // FIXME. 'forces correctness'
 								}
 							}} 
 						}
@@ -1887,7 +1906,6 @@ void acts_sw::run(HBM_channel_t * HBM_center, HBM_channelTHIS_t * HBM_channelA, 
 							#pragma HLS UNROLL
 								for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 								#pragma HLS UNROLL
-									// edge3_type edge = edges_buffer[v][t];
 									edge3_type edge = retrieve_edgesbuffer(v, t, edges_buffer[inst]); // NEW
 									if(edge.dstvid != INVALIDDATA){
 										unsigned int uprop = edge.srcvid; // edge.srcvid has uprop information
@@ -1900,7 +1918,8 @@ void acts_sw::run(HBM_channel_t * HBM_center, HBM_channelTHIS_t * HBM_channelA, 
 										
 										unsigned int inst_mirror = get_H(edge.dstvid);
 										keyvalue_t update; update.key = edge.dstvid; update.value = vtemp; // res;
-										checkoutofbounds("acts_sw::ERROR 813::", updates_tmpbuffer___size[inst][inst_mirror], CSRBUFFER_SIZE, NAp, NAp, NAp);
+										checkoutofbounds("acts_sw::ERROR 813a::", inst_mirror, NUM_PEs,  edge.dstvid, inst_mirror, NAp);
+										checkoutofbounds("acts_sw::ERROR 813b::", updates_tmpbuffer___size[inst][inst_mirror], CSRBUFFER_SIZE, NAp, NAp, NAp);
 										if(t < edges_buffer___size[inst]){ // NEW
 											insert_updatestmpbuffer(inst_mirror, updates_tmpbuffer___size[inst][inst_mirror], update, updates_tmpbuffer[inst]); // 
 											updates_tmpbuffer___size[inst][inst_mirror] += 1;	
@@ -1940,7 +1959,7 @@ void acts_sw::run(HBM_channel_t * HBM_center, HBM_channelTHIS_t * HBM_channelA, 
 					hybrid_map[GraphIter][p_u] = 1;
 					EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<num_LLPset; llp_set++){
 						map_t maps[NUM_PEs];
-						retrievemany_actpackvptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS], p_u, llp_set, maps, HBM_channelA, HBM_channelB);
+						dretrievemany_actpackvptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS], p_u, llp_set, maps, HBM_channelA, HBM_channelB);
 						unsigned int max_sz = 0; for(unsigned int n=0; n<NUM_PEs; n++){ limits[n] = maps[n].size; } for(unsigned int n=0; n<NUM_PEs; n++){ if(max_sz < limits[n]){ max_sz = limits[n]; }}
 						
 						// process edges [done]
