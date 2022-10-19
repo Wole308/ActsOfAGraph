@@ -5,7 +5,7 @@
 #include <cmath>
  
 
-#define ___USE_AXI_CHANNEL___
+// #define ___USE_AXI_CHANNEL___
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -49,7 +49,7 @@
 #define _DEBUGMODE_TIMERS3
 
 #ifndef FPGA_IMPL
-// #define _DEBUGMODE_KERNELPRINTS_TRACE3 //
+#define _DEBUGMODE_KERNELPRINTS_TRACE3 //
 #endif 
 
 ////////////////
@@ -106,7 +106,6 @@
 #define VPTR_BUFFER_SIZE 512
 #define VPTR_BUFFERMETADATA_SIZE 512
 #define EDGE_BUFFER_SIZE 512//8192// 512 // FIXME.
-#define NUM_TMPS_BUFFER MAX(NUM_PEs, EDGE_PACK_SIZE) // 24 // updates_tmpbuffer
 
 #define GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS 0
 #define GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS 1

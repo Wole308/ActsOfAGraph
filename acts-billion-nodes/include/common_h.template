@@ -12,12 +12,10 @@
 #include <iostream>
 {%endif%} 
 
-// #define ___USE_AXI_CHANNEL___
+#define ___USE_AXI_CHANNEL___
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
-
-#define {{context['TESTKERNEL']}}
 
 #define SW // SWEMU, HW, SW
 #if (defined(SWEMU) || defined(HW))
@@ -115,6 +113,7 @@
 #define VPTR_BUFFER_SIZE 512
 #define VPTR_BUFFERMETADATA_SIZE 512
 #define EDGE_BUFFER_SIZE 512//8192// 512 // FIXME.
+#define NUM_TMPS_BUFFER MAX(NUM_PEs, EDGE_PACK_SIZE) // 24 // updates_tmpbuffer
 
 #define GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS 0
 #define GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS 1
@@ -332,20 +331,6 @@ typedef struct {
 } offset_t;
 
 // HBM: {vptrs, edges, updatesptrs, updates, vertexprops, frontiers}
-/* typedef struct {
-	// #ifndef FPGA_IMPL
-	// uint512_ivec_dt * globalparams;
-	// #endif 
-	uint512_ivec_dt * HBM; // 32 uints 
-} HBM_channel_t;
-
-typedef struct {
-	// #ifndef FPGA_IMPL
-	// uint512_axivec_dt * globalparams;
-	// #endif 
-	uint512_axivec_dt * HBM; // 16 uints
-} HBM_axichannel_t; */		
-
 typedef uint512_ivec_dt HBM_channel_t;
 typedef uint512_axivec_dt HBM_axichannel_t;
 

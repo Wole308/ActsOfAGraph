@@ -51,7 +51,7 @@ public:
 	~acts_kernel();
 	
 	// void run(HBM_channel_t * HBM_center, HBM_channelTHIS_t * HBM_channelA[NUM_PEs], HBM_channelTHIS_t * HBM_channelB[NUM_PEs]);		
-	void run(HBM_channelTHIS_t * HBM_center,  
+	void run(HBM_channel_t * HBM_center,  
 			HBM_channelTHIS_t * HBM_channelA0, HBM_channelTHIS_t * HBM_channelB0, 
 			HBM_channelTHIS_t * HBM_channelA1, HBM_channelTHIS_t * HBM_channelB1, 
 			HBM_channelTHIS_t * HBM_channelA2, HBM_channelTHIS_t * HBM_channelB2, 
