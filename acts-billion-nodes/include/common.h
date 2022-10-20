@@ -10,7 +10,7 @@
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
-#define SW // SWEMU, HW, SW
+#define SW // SWEMU, HW, *SW
 #if (defined(SWEMU) || defined(HW))
 #define FPGA_IMPL
 #endif 
@@ -65,7 +65,8 @@
 
 //////////////// 
 
-#define NUM_PEs 24 // 12, 24* // 
+#define NUM_PEs 24
+// #define NUM_PEs 24 // 24 // 12, 24* // 24
 #define NUM_AXI_PEs (NUM_PEs * 2)
 #define MAXNUM_VPs 1024
 #define MAXNUM_LLPs 256 
@@ -92,7 +93,7 @@
 #define MAX_UPARTITION_SIZE (EDGE_PACK_SIZE * MAX_UPARTITION_VECSIZE) // 131072 
 #define MAX_APPLYPARTITION_VECSIZE MAX_UPARTITION_VECSIZE
 #define MAX_APPLYPARTITION_SIZE (EDGE_PACK_SIZE * MAX_APPLYPARTITION_VECSIZE) // 131072 
-#define MAX_ACTVV_VECSIZE (MAX_UPARTITION_VECSIZE / NUM_PEs) // 341
+#define MAX_ACTVV_VECSIZE (MAX_UPARTITION_VECSIZE / NUM_PEs) // 341, 682
 #define MAX_ACTVV_SIZE (EDGE_PACK_SIZE * MAX_ACTVV_VECSIZE) // 5456
 #define NUM_ACTVVPARTITIONS_PER_APPLYPARTITION NUM_PEs
 #define MAX_NUM_ACTVVPARTITIONS (MAX_NUM_APPLYPARTITIONS * NUM_ACTVVPARTITIONS_PER_APPLYPARTITION * NUM_PEs) // 384
@@ -127,6 +128,9 @@
 #define GLOBALPARAMSCODE__WWSIZE__VDATAS 16
 #define GLOBALPARAMSCODE__WWSIZE__CFRONTIERSTMP 17
 #define GLOBALPARAMSCODE__WWSIZE__NFRONTIERS 18
+
+#define GLOBALPARAMSCODE__PARAM__NUM_VERTICES 24
+#define GLOBALPARAMSCODE__PARAM__NUM_EDGES 25
 
 ////////////////
 
@@ -264,9 +268,13 @@ typedef struct {
 	unsigned int data[HBM_CHANNEL_PACK_SIZE]; // 32
 } uint512_ivec_dt;
 
+#ifdef FPGA_IMPL
+typedef ap_uint<HBM_AXI_PACK_SIZE> uint512_axivec_dt;
+#else
 typedef struct {
 	unsigned int data[HBM_AXI_PACK_SIZE]; // 16
 } uint512_axivec_dt;
+#endif
 
 typedef struct {
 	unsigned int begin;
@@ -338,4 +346,8 @@ typedef HBM_axichannel_t HBM_channelTHIS_t;
 #else 
 typedef HBM_channel_t HBM_channelTHIS_t;
 #endif
+
+// HBM_axichannel_t
+typedef HBM_axichannel_t HBM_channelX_t;	
+// typedef HBM_channel_t HBM_channelX_t;	
 #endif

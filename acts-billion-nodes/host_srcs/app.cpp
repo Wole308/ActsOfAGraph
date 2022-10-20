@@ -137,9 +137,9 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	for(unsigned int i=0; i<NUM_PEs; i++){ act_pack_edges_arr[i] = new edge3_vec_dt[max]; }
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<max; t++){ act_pack_edges_arr[i][t] =  act_pack_edges[i][t]; }}
 	
-	HBM_channel_t * HBM_center = new HBM_channel_t[HBM_CHANNEL_SIZE];
+	HBM_channelX_t * HBM_center = new HBM_channelX_t[HBM_CHANNEL_SIZE];
 	for(unsigned int t=0; t<HBM_CHANNEL_SIZE; t++){ for(unsigned int v=0; v<HBM_CHANNEL_PACK_SIZE; v++){ HBM_center[t].data[v] = 0; }}
-	
+
 	// allocate HBM memory
 	HBM_channel_t * HBM_channel[NUM_PEs];// = new HBM_channel_t[NUM_PEs]; 
 	cout<<"app: allocating HBM memory..."<<endl;
@@ -327,6 +327,9 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 		HBM_channel[i][GLOBALPARAMSCODE__WWSIZE__VDATAS].data[0] = globalparams[GLOBALPARAMSCODE__WWSIZE__VDATAS];
 		HBM_channel[i][GLOBALPARAMSCODE__WWSIZE__CFRONTIERSTMP].data[0] = globalparams[GLOBALPARAMSCODE__WWSIZE__CFRONTIERSTMP];
 		HBM_channel[i][GLOBALPARAMSCODE__WWSIZE__NFRONTIERS].data[0] = globalparams[GLOBALPARAMSCODE__WWSIZE__NFRONTIERS];
+		
+		HBM_channel[i][GLOBALPARAMSCODE__PARAM__NUM_VERTICES].data[0] = universalparams.NUM_VERTICES;
+		HBM_channel[i][GLOBALPARAMSCODE__PARAM__NUM_EDGES].data[0] = universalparams.NUM_EDGES;
 	}
 
 	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__WWSIZE__CSRVPTRS: "<<globalparams[GLOBALPARAMSCODE__WWSIZE__CSRVPTRS]<<endl;
@@ -352,22 +355,25 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__BASEOFFSET__END: "<<lastww_addr<<" (of "<< ((1 << 28) / 4 / 16) <<" wide-words) ("<<lastww_addr * HBM_CHANNEL_PACK_SIZE * 4<<" bytes)"<<endl;
 	utilityobj->checkoutofbounds("app::ERROR 2234::", lastww_addr, ((1 << 28) / 4 / 16), __NUM_APPLYPARTITIONS, MAX_APPLYPARTITION_VECSIZE, NAp);
 	
+	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__PARAM__NUM_VERTICES: "<<globalparams[GLOBALPARAMSCODE__PARAM__NUM_VERTICES]<<endl;
+	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__PARAM__NUM_EDGES: "<<globalparams[GLOBALPARAMSCODE__PARAM__NUM_EDGES]<<endl;
+	
 	// clear 
 	for(unsigned int i=0; i<NUM_PEs; i++){ csr_pack_edges[i].clear(); act_pack_edges[i].clear(); } // clear 
 	
 	// assign root vid 
 	keyvalue_t root; root.key = rootvid; root.value = 0; keyvalue_t invalid; invalid.key = INVALIDDATA; invalid.value = INVALIDDATA; 
-	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
-		if(v==1){ 
-			HBM_center[0].data[2*v] = root.key;
-			HBM_center[0].data[2*v+1] = root.value;
-		} else {
-			HBM_center[0].data[2*v] = invalid.key;
-			HBM_center[0].data[2*v+1] = invalid.value;
-		} 
+	// for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
+		// if(v==1){ HBM_center[0].data[2*v] = root.key; HBM_center[0].data[2*v+1] = root.value; } 
+		// else { HBM_center[0].data[2*v] = invalid.key; HBM_center[0].data[2*v+1] = invalid.value; } 
+	// }	
+	for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){ 
+		if(v==1){ HBM_center[0].data[v] = (root.value << 28) | root.key; } 
+		else { HBM_center[0].data[v] = INVALIDDATA; } 
 	}
 
 	// allocate AXI HBM memory
+	#ifdef ___USE_AXI_CHANNEL___
 	HBM_axichannel_t * HBM_axichannel[2][NUM_PEs]; 
 	cout<<"app: allocating HBM memory..."<<endl;
 	for(unsigned int n=0; n<2; n++){
@@ -386,13 +392,66 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 			}
 		}
 	}
+	#endif 
 	
 	// run acts
 	acts_kernel * acts = new acts_kernel(universalparams);
 	#ifdef ___USE_AXI_CHANNEL___
-	acts->run(HBM_center, HBM_axichannel[0], HBM_axichannel[1]);
+	acts->top_function(HBM_center,
+		HBM_axichannel[0][0], HBM_axichannel[1][0] 
+		,HBM_axichannel[0][1], HBM_axichannel[1][1] 
+		,HBM_axichannel[0][2], HBM_axichannel[1][2] 
+		,HBM_axichannel[0][3], HBM_axichannel[1][3] 
+		,HBM_axichannel[0][4], HBM_axichannel[1][4] 
+		,HBM_axichannel[0][5], HBM_axichannel[1][5] 
+		,HBM_axichannel[0][6], HBM_axichannel[1][6] 
+		,HBM_axichannel[0][7], HBM_axichannel[1][7] 
+		,HBM_axichannel[0][8], HBM_axichannel[1][8] 
+		,HBM_axichannel[0][9], HBM_axichannel[1][9] 
+		,HBM_axichannel[0][10], HBM_axichannel[1][10] 
+		,HBM_axichannel[0][11], HBM_axichannel[1][11]
+		#if NUM_PEs==24
+		,HBM_axichannel[0][12], HBM_axichannel[1][12] 
+		,HBM_axichannel[0][13], HBM_axichannel[1][13] 
+		,HBM_axichannel[0][14], HBM_axichannel[1][14] 
+		,HBM_axichannel[0][15], HBM_axichannel[1][15]
+		,HBM_axichannel[0][16], HBM_axichannel[1][16]
+		,HBM_axichannel[0][17], HBM_axichannel[1][17]
+		,HBM_axichannel[0][18], HBM_axichannel[1][18] 
+		,HBM_axichannel[0][19], HBM_axichannel[1][19] 
+		,HBM_axichannel[0][20], HBM_axichannel[1][20] 
+		,HBM_axichannel[0][21], HBM_axichannel[1][21] 
+		,HBM_axichannel[0][22], HBM_axichannel[1][22] 
+		,HBM_axichannel[0][23], HBM_axichannel[1][23]
+		#endif 
+		);
 	#else
-	acts->run(HBM_center, HBM_channel, HBM_channel);
+	acts->top_function(HBM_center, 
+		HBM_channel[0], HBM_channel[0], 
+		HBM_channel[1], HBM_channel[1], 
+		HBM_channel[2], HBM_channel[2], 
+		HBM_channel[3], HBM_channel[3], 
+		HBM_channel[4], HBM_channel[4], 
+		HBM_channel[5], HBM_channel[5], 
+		HBM_channel[6], HBM_channel[6], 
+		HBM_channel[7], HBM_channel[7], 
+		HBM_channel[8], HBM_channel[8], 
+		HBM_channel[9], HBM_channel[9], 
+		HBM_channel[10], HBM_channel[10], 
+		HBM_channel[11], HBM_channel[11], 
+		HBM_channel[12], HBM_channel[12], 
+		HBM_channel[13], HBM_channel[13], 
+		HBM_channel[14], HBM_channel[14], 
+		HBM_channel[15], HBM_channel[15], 
+		HBM_channel[16], HBM_channel[16], 
+		HBM_channel[17], HBM_channel[17], 
+		HBM_channel[18], HBM_channel[18], 
+		HBM_channel[19], HBM_channel[19], 
+		HBM_channel[20], HBM_channel[20], 
+		HBM_channel[21], HBM_channel[21], 
+		HBM_channel[22], HBM_channel[22], 
+		HBM_channel[23], HBM_channel[23]
+		);
 	#endif	
 	return;
 }

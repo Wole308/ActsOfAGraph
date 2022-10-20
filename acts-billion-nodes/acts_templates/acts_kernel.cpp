@@ -4,6 +4,7 @@ using namespace std;
 // __OBSOLETE___
 
 // #define ___ENABLE___COLLECTACTIVEDSTVIDS___
+#define ___FORCE_SUCCESS___
 
 unsigned int * globalparams_debug;
 
@@ -633,89 +634,59 @@ void check_if_contiguous(keyvalue_t keyvalue[EDGE_PACK_SIZE], keyvalue_t msg1[ED
 }
 
 //////////////////////////////////////////////////////////////////
-/* void M_I(unsigned int offset, unsigned int v, unsigned int data, HBM_channelTHIS_t * channel){
-	channel[offset].data[v] = data;
-	return;
-}
-unsigned int M_R(unsigned int offset, unsigned int v, HBM_channelTHIS_t * channel){
-	return channel[offset].data[v];
-}
-void M_Is(unsigned int offset, unsigned int v, unsigned int data, HBM_channelTHIS_t * channel, unsigned int inst){
-	channel[offset].data[v] = data;
-	return;
-}
-unsigned int M_Rs(unsigned int offset, unsigned int v, HBM_channelTHIS_t * channel, unsigned int inst){
-	return channel[offset].data[v];
-} */
-
-// #ifdef __NOT__YET__IMPLEMENTED___
-//////////////////////////////////////////////////////////////////
-/* #ifdef __OBSOLETE___
-void master_centerinsert_vec(unsigned int offset, unsigned int data[HBM_CHANNEL_PACK_SIZE], HBM_channelTHIS_t * HBM_center){
-	for(unsigned int v=0; v<HBM_CHANNEL_PACK_SIZE; v++){
-	#pragma HLS UNROLL
-		M_I(offset, v, data[v], HBM_center);
-		// channel[offset].data[v] = data;
-	}
-	return;
-}
-void master_centerretrieve_vec(unsigned int offset, unsigned int data[HBM_CHANNEL_PACK_SIZE], HBM_channelTHIS_t * HBM_center){
-	for(unsigned int v=0; v<HBM_CHANNEL_PACK_SIZE; v++){
-	#pragma HLS UNROLL
-		data[v] = M_R(offset, v, HBM_center);
-		// return channel[offset].data[v];
-	}
-	return;
-}
-#endif  */	
-#ifdef __NOT__YET__IMPLEMENTED___
-void master_centerinsert_vec(unsigned int offset, unsigned int data[HBM_CHANNEL_PACK_SIZE], HBM_channelTHIS_t * HBM_center){
+void master_centerinsert_vec(unsigned int offset, unsigned int data[HBM_CHANNEL_PACK_SIZE], HBM_channelX_t * HBM_center){
 	unsigned int data_tmp[HBM_AXI_PACK_SIZE];
-	for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){
-	#pragma HLS UNROLL
-		data_tmp[v] = (data[2*v+1] << 28) | data[2*v]; 
-	}
-	for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){
-	#pragma HLS UNROLL
-		HBM_center[offset].data[v] = data_tmp[v];
-	}
-	return;
-}
-void master_centerretrieve_vec(unsigned int offset, unsigned int data[HBM_CHANNEL_PACK_SIZE], HBM_channelTHIS_t * HBM_center){
-	unsigned int data_tmp[HBM_AXI_PACK_SIZE];
-	for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){
-	#pragma HLS UNROLL
-		data_tmp[v] = HBM_center[offset].data[v];
-	}
 	
-	for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){
-	#pragma HLS UNROLL
-		if(data_tmp[v] == INVALIDDATA){ data[2*v] = INVALIDDATA; data[2*v+1] = INVALIDDATA; } 
-		else { data[2*v] = data_tmp[v] & 0x0FFFFFFF; data[2*v+1] = (data_tmp[v] >> 28) & 0x0000000F; }
-	}
-	return;
-}
-#endif 
-
-// #ifdef __NOT__YET__IMPLEMENTED___
-void master_centerinsert_vec(unsigned int offset, unsigned int data[HBM_CHANNEL_PACK_SIZE], HBM_channelTHIS_t * HBM_center){
-	unsigned int data_tmp[HBM_AXI_PACK_SIZE];
-	data_tmp[0] = (data[1] << 28) | data[0]; 
-	data_tmp[1] = (data[3] << 28) | data[2]; 
-	data_tmp[2] = (data[5] << 28) | data[4]; 
-	data_tmp[3] = (data[7] << 28) | data[6]; 
-	data_tmp[4] = (data[9] << 28) | data[8]; 
-	data_tmp[5] = (data[11] << 28) | data[10]; 
-	data_tmp[6] = (data[13] << 28) | data[12]; 
-	data_tmp[7] = (data[15] << 28) | data[14]; 
-	data_tmp[8] = (data[17] << 28) | data[16]; 
-	data_tmp[9] = (data[19] << 28) | data[18]; 
-	data_tmp[10] = (data[21] << 28) | data[20]; 
-	data_tmp[11] = (data[23] << 28) | data[22]; 
-	data_tmp[12] = (data[25] << 28) | data[24]; 
-	data_tmp[13] = (data[27] << 28) | data[26]; 
-	data_tmp[14] = (data[29] << 28) | data[28]; 
-	data_tmp[15] = (data[31] << 28) | data[30]; 
+	if(data[0] == INVALIDDATA){ data_tmp[0] = INVALIDDATA; } else { data_tmp[0] = (data[1] << 28) | data[0];  }		
+	
+	if(data[2] == INVALIDDATA){ data_tmp[1] = INVALIDDATA; } else { data_tmp[1] = (data[3] << 28) | data[2];  }		
+	
+	if(data[4] == INVALIDDATA){ data_tmp[2] = INVALIDDATA; } else { data_tmp[2] = (data[5] << 28) | data[4];  }		
+	
+	if(data[6] == INVALIDDATA){ data_tmp[3] = INVALIDDATA; } else { data_tmp[3] = (data[7] << 28) | data[6];  }		
+	
+	if(data[8] == INVALIDDATA){ data_tmp[4] = INVALIDDATA; } else { data_tmp[4] = (data[9] << 28) | data[8];  }		
+	
+	if(data[10] == INVALIDDATA){ data_tmp[5] = INVALIDDATA; } else { data_tmp[5] = (data[11] << 28) | data[10];  }		
+	
+	if(data[12] == INVALIDDATA){ data_tmp[6] = INVALIDDATA; } else { data_tmp[6] = (data[13] << 28) | data[12];  }		
+	
+	if(data[14] == INVALIDDATA){ data_tmp[7] = INVALIDDATA; } else { data_tmp[7] = (data[15] << 28) | data[14];  }		
+	
+	if(data[16] == INVALIDDATA){ data_tmp[8] = INVALIDDATA; } else { data_tmp[8] = (data[17] << 28) | data[16];  }		
+	
+	if(data[18] == INVALIDDATA){ data_tmp[9] = INVALIDDATA; } else { data_tmp[9] = (data[19] << 28) | data[18];  }		
+	
+	if(data[20] == INVALIDDATA){ data_tmp[10] = INVALIDDATA; } else { data_tmp[10] = (data[21] << 28) | data[20];  }		
+	
+	if(data[22] == INVALIDDATA){ data_tmp[11] = INVALIDDATA; } else { data_tmp[11] = (data[23] << 28) | data[22];  }		
+	
+	if(data[24] == INVALIDDATA){ data_tmp[12] = INVALIDDATA; } else { data_tmp[12] = (data[25] << 28) | data[24];  }		
+	
+	if(data[26] == INVALIDDATA){ data_tmp[13] = INVALIDDATA; } else { data_tmp[13] = (data[27] << 28) | data[26];  }		
+	
+	if(data[28] == INVALIDDATA){ data_tmp[14] = INVALIDDATA; } else { data_tmp[14] = (data[29] << 28) | data[28];  }		
+	
+	if(data[30] == INVALIDDATA){ data_tmp[15] = INVALIDDATA; } else { data_tmp[15] = (data[31] << 28) | data[30];  }		
+	
+	#ifdef FPGA_IMPL 
+	HBM_center[offset].range(31, 0) = data_tmp[0];
+	HBM_center[offset].range(63, 32) = data_tmp[1];
+	HBM_center[offset].range(95, 64) = data_tmp[2];
+	HBM_center[offset].range(127, 96) = data_tmp[3];
+	HBM_center[offset].range(159, 128) = data_tmp[4];
+	HBM_center[offset].range(191, 160) = data_tmp[5];
+	HBM_center[offset].range(223, 192) = data_tmp[6];
+	HBM_center[offset].range(255, 224) = data_tmp[7];
+	HBM_center[offset].range(287, 256) = data_tmp[8];
+	HBM_center[offset].range(319, 288) = data_tmp[9];
+	HBM_center[offset].range(351, 320) = data_tmp[10];
+	HBM_center[offset].range(383, 352) = data_tmp[11];
+	HBM_center[offset].range(415, 384) = data_tmp[12];
+	HBM_center[offset].range(447, 416) = data_tmp[13];
+	HBM_center[offset].range(479, 448) = data_tmp[14];
+	HBM_center[offset].range(511, 480) = data_tmp[15];
+	#else 
 	HBM_center[offset].data[0] = data_tmp[0];
 	HBM_center[offset].data[1] = data_tmp[1];
 	HBM_center[offset].data[2] = data_tmp[2];
@@ -732,10 +703,29 @@ void master_centerinsert_vec(unsigned int offset, unsigned int data[HBM_CHANNEL_
 	HBM_center[offset].data[13] = data_tmp[13];
 	HBM_center[offset].data[14] = data_tmp[14];
 	HBM_center[offset].data[15] = data_tmp[15];
+	#endif 
 	return;
 }
-void master_centerretrieve_vec(unsigned int offset, unsigned int data[HBM_CHANNEL_PACK_SIZE], HBM_channelTHIS_t * HBM_center){
+void master_centerretrieve_vec(unsigned int offset, unsigned int data[HBM_CHANNEL_PACK_SIZE], HBM_channelX_t * HBM_center){
 	unsigned int data_tmp[HBM_AXI_PACK_SIZE];
+	#ifdef FPGA_IMPL 
+	data_tmp[0] = HBM_center[offset].range(31, 0);
+	data_tmp[1] = HBM_center[offset].range(63, 32);
+	data_tmp[2] = HBM_center[offset].range(95, 64);
+	data_tmp[3] = HBM_center[offset].range(127, 96);
+	data_tmp[4] = HBM_center[offset].range(159, 128);
+	data_tmp[5] = HBM_center[offset].range(191, 160);
+	data_tmp[6] = HBM_center[offset].range(223, 192);
+	data_tmp[7] = HBM_center[offset].range(255, 224);
+	data_tmp[8] = HBM_center[offset].range(287, 256);
+	data_tmp[9] = HBM_center[offset].range(319, 288);
+	data_tmp[10] = HBM_center[offset].range(351, 320);
+	data_tmp[11] = HBM_center[offset].range(383, 352);
+	data_tmp[12] = HBM_center[offset].range(415, 384);
+	data_tmp[13] = HBM_center[offset].range(447, 416);
+	data_tmp[14] = HBM_center[offset].range(479, 448);
+	data_tmp[15] = HBM_center[offset].range(511, 480);
+	#else 
 	data_tmp[0] = HBM_center[offset].data[0];
 	data_tmp[1] = HBM_center[offset].data[1];
 	data_tmp[2] = HBM_center[offset].data[2];
@@ -752,6 +742,7 @@ void master_centerretrieve_vec(unsigned int offset, unsigned int data[HBM_CHANNE
 	data_tmp[13] = HBM_center[offset].data[13];
 	data_tmp[14] = HBM_center[offset].data[14];
 	data_tmp[15] = HBM_center[offset].data[15];
+	#endif 
 	
 	if(data_tmp[0] == INVALIDDATA){ data[0] = INVALIDDATA; data[1] = INVALIDDATA; } 
 	else { data[0] = data_tmp[0] & 0x0FFFFFFF; data[1] = (data_tmp[0] >> 28) & 0x0000000F; }
@@ -787,7 +778,6 @@ void master_centerretrieve_vec(unsigned int offset, unsigned int data[HBM_CHANNE
 	else { data[30] = data_tmp[15] & 0x0FFFFFFF; data[31] = (data_tmp[15] >> 28) & 0x0000000F; }
 	return;
 }
-// #endif 
 
 void master_insert_vec(unsigned int offset, unsigned int data[HBM_CHANNEL_PACK_SIZE], HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB, unsigned int inst){
 	#ifdef FPGA_IMPL 
@@ -999,7 +989,7 @@ void master_retrieve_vec(unsigned int offset, unsigned int data[HBM_CHANNEL_PACK
 	#endif 
 	return;
 }
-void master_insertmany_vec(unsigned int offsets[NUM_PEs], unsigned int ens[NUM_PEs], unsigned int data[NUM_PEs][HBM_CHANNEL_PACK_SIZE],  HBM_channelTHIS_t * HBM_channelA0, HBM_channelTHIS_t * HBM_channelB0, HBM_channelTHIS_t * HBM_channelA1, HBM_channelTHIS_t * HBM_channelB1, HBM_channelTHIS_t * HBM_channelA2, HBM_channelTHIS_t * HBM_channelB2, HBM_channelTHIS_t * HBM_channelA3, HBM_channelTHIS_t * HBM_channelB3, HBM_channelTHIS_t * HBM_channelA4, HBM_channelTHIS_t * HBM_channelB4, HBM_channelTHIS_t * HBM_channelA5, HBM_channelTHIS_t * HBM_channelB5, HBM_channelTHIS_t * HBM_channelA6, HBM_channelTHIS_t * HBM_channelB6, HBM_channelTHIS_t * HBM_channelA7, HBM_channelTHIS_t * HBM_channelB7, HBM_channelTHIS_t * HBM_channelA8, HBM_channelTHIS_t * HBM_channelB8, HBM_channelTHIS_t * HBM_channelA9, HBM_channelTHIS_t * HBM_channelB9, HBM_channelTHIS_t * HBM_channelA10, HBM_channelTHIS_t * HBM_channelB10, HBM_channelTHIS_t * HBM_channelA11, HBM_channelTHIS_t * HBM_channelB11, HBM_channelTHIS_t * HBM_channelA12, HBM_channelTHIS_t * HBM_channelB12, HBM_channelTHIS_t * HBM_channelA13, HBM_channelTHIS_t * HBM_channelB13, HBM_channelTHIS_t * HBM_channelA14, HBM_channelTHIS_t * HBM_channelB14, HBM_channelTHIS_t * HBM_channelA15, HBM_channelTHIS_t * HBM_channelB15, HBM_channelTHIS_t * HBM_channelA16, HBM_channelTHIS_t * HBM_channelB16, HBM_channelTHIS_t * HBM_channelA17, HBM_channelTHIS_t * HBM_channelB17, HBM_channelTHIS_t * HBM_channelA18, HBM_channelTHIS_t * HBM_channelB18, HBM_channelTHIS_t * HBM_channelA19, HBM_channelTHIS_t * HBM_channelB19, HBM_channelTHIS_t * HBM_channelA20, HBM_channelTHIS_t * HBM_channelB20, HBM_channelTHIS_t * HBM_channelA21, HBM_channelTHIS_t * HBM_channelB21, HBM_channelTHIS_t * HBM_channelA22, HBM_channelTHIS_t * HBM_channelB22, HBM_channelTHIS_t * HBM_channelA23, HBM_channelTHIS_t * HBM_channelB23, HBM_channelTHIS_t * HBM_channelA[NUM_PEs], HBM_channelTHIS_t * HBM_channelB[NUM_PEs]){
+void master_insertmany_vec(unsigned int offsets[NUM_PEs], unsigned int ens[NUM_PEs], unsigned int data[NUM_PEs][HBM_CHANNEL_PACK_SIZE],  HBM_channelTHIS_t * HBM_channelA0, HBM_channelTHIS_t * HBM_channelB0, HBM_channelTHIS_t * HBM_channelA1, HBM_channelTHIS_t * HBM_channelB1, HBM_channelTHIS_t * HBM_channelA2, HBM_channelTHIS_t * HBM_channelB2, HBM_channelTHIS_t * HBM_channelA3, HBM_channelTHIS_t * HBM_channelB3, HBM_channelTHIS_t * HBM_channelA4, HBM_channelTHIS_t * HBM_channelB4, HBM_channelTHIS_t * HBM_channelA5, HBM_channelTHIS_t * HBM_channelB5, HBM_channelTHIS_t * HBM_channelA6, HBM_channelTHIS_t * HBM_channelB6, HBM_channelTHIS_t * HBM_channelA7, HBM_channelTHIS_t * HBM_channelB7, HBM_channelTHIS_t * HBM_channelA8, HBM_channelTHIS_t * HBM_channelB8, HBM_channelTHIS_t * HBM_channelA9, HBM_channelTHIS_t * HBM_channelB9, HBM_channelTHIS_t * HBM_channelA10, HBM_channelTHIS_t * HBM_channelB10, HBM_channelTHIS_t * HBM_channelA11, HBM_channelTHIS_t * HBM_channelB11, HBM_channelTHIS_t * HBM_channelA12, HBM_channelTHIS_t * HBM_channelB12, HBM_channelTHIS_t * HBM_channelA13, HBM_channelTHIS_t * HBM_channelB13, HBM_channelTHIS_t * HBM_channelA14, HBM_channelTHIS_t * HBM_channelB14, HBM_channelTHIS_t * HBM_channelA15, HBM_channelTHIS_t * HBM_channelB15, HBM_channelTHIS_t * HBM_channelA16, HBM_channelTHIS_t * HBM_channelB16, HBM_channelTHIS_t * HBM_channelA17, HBM_channelTHIS_t * HBM_channelB17, HBM_channelTHIS_t * HBM_channelA18, HBM_channelTHIS_t * HBM_channelB18, HBM_channelTHIS_t * HBM_channelA19, HBM_channelTHIS_t * HBM_channelB19, HBM_channelTHIS_t * HBM_channelA20, HBM_channelTHIS_t * HBM_channelB20, HBM_channelTHIS_t * HBM_channelA21, HBM_channelTHIS_t * HBM_channelB21, HBM_channelTHIS_t * HBM_channelA22, HBM_channelTHIS_t * HBM_channelB22, HBM_channelTHIS_t * HBM_channelA23, HBM_channelTHIS_t * HBM_channelB23){
 	#ifdef FPGA_IMPL 
 		if(ens[0]==true){
 			HBM_channelA0[offsets[0]].range(31, 0) = data[0][0];
@@ -3457,7 +3447,7 @@ void master_insertmany_vec(unsigned int offsets[NUM_PEs], unsigned int ens[NUM_P
 	#endif 
 	return;
 }
-void master_retrievemany_vec(unsigned int offsets[NUM_PEs], unsigned int data[NUM_PEs][HBM_CHANNEL_PACK_SIZE],  HBM_channelTHIS_t * HBM_channelA0, HBM_channelTHIS_t * HBM_channelB0, HBM_channelTHIS_t * HBM_channelA1, HBM_channelTHIS_t * HBM_channelB1, HBM_channelTHIS_t * HBM_channelA2, HBM_channelTHIS_t * HBM_channelB2, HBM_channelTHIS_t * HBM_channelA3, HBM_channelTHIS_t * HBM_channelB3, HBM_channelTHIS_t * HBM_channelA4, HBM_channelTHIS_t * HBM_channelB4, HBM_channelTHIS_t * HBM_channelA5, HBM_channelTHIS_t * HBM_channelB5, HBM_channelTHIS_t * HBM_channelA6, HBM_channelTHIS_t * HBM_channelB6, HBM_channelTHIS_t * HBM_channelA7, HBM_channelTHIS_t * HBM_channelB7, HBM_channelTHIS_t * HBM_channelA8, HBM_channelTHIS_t * HBM_channelB8, HBM_channelTHIS_t * HBM_channelA9, HBM_channelTHIS_t * HBM_channelB9, HBM_channelTHIS_t * HBM_channelA10, HBM_channelTHIS_t * HBM_channelB10, HBM_channelTHIS_t * HBM_channelA11, HBM_channelTHIS_t * HBM_channelB11, HBM_channelTHIS_t * HBM_channelA12, HBM_channelTHIS_t * HBM_channelB12, HBM_channelTHIS_t * HBM_channelA13, HBM_channelTHIS_t * HBM_channelB13, HBM_channelTHIS_t * HBM_channelA14, HBM_channelTHIS_t * HBM_channelB14, HBM_channelTHIS_t * HBM_channelA15, HBM_channelTHIS_t * HBM_channelB15, HBM_channelTHIS_t * HBM_channelA16, HBM_channelTHIS_t * HBM_channelB16, HBM_channelTHIS_t * HBM_channelA17, HBM_channelTHIS_t * HBM_channelB17, HBM_channelTHIS_t * HBM_channelA18, HBM_channelTHIS_t * HBM_channelB18, HBM_channelTHIS_t * HBM_channelA19, HBM_channelTHIS_t * HBM_channelB19, HBM_channelTHIS_t * HBM_channelA20, HBM_channelTHIS_t * HBM_channelB20, HBM_channelTHIS_t * HBM_channelA21, HBM_channelTHIS_t * HBM_channelB21, HBM_channelTHIS_t * HBM_channelA22, HBM_channelTHIS_t * HBM_channelB22, HBM_channelTHIS_t * HBM_channelA23, HBM_channelTHIS_t * HBM_channelB23, HBM_channelTHIS_t * HBM_channelA[NUM_PEs], HBM_channelTHIS_t * HBM_channelB[NUM_PEs]){
+void master_retrievemany_vec(unsigned int offsets[NUM_PEs], unsigned int data[NUM_PEs][HBM_CHANNEL_PACK_SIZE],  HBM_channelTHIS_t * HBM_channelA0, HBM_channelTHIS_t * HBM_channelB0, HBM_channelTHIS_t * HBM_channelA1, HBM_channelTHIS_t * HBM_channelB1, HBM_channelTHIS_t * HBM_channelA2, HBM_channelTHIS_t * HBM_channelB2, HBM_channelTHIS_t * HBM_channelA3, HBM_channelTHIS_t * HBM_channelB3, HBM_channelTHIS_t * HBM_channelA4, HBM_channelTHIS_t * HBM_channelB4, HBM_channelTHIS_t * HBM_channelA5, HBM_channelTHIS_t * HBM_channelB5, HBM_channelTHIS_t * HBM_channelA6, HBM_channelTHIS_t * HBM_channelB6, HBM_channelTHIS_t * HBM_channelA7, HBM_channelTHIS_t * HBM_channelB7, HBM_channelTHIS_t * HBM_channelA8, HBM_channelTHIS_t * HBM_channelB8, HBM_channelTHIS_t * HBM_channelA9, HBM_channelTHIS_t * HBM_channelB9, HBM_channelTHIS_t * HBM_channelA10, HBM_channelTHIS_t * HBM_channelB10, HBM_channelTHIS_t * HBM_channelA11, HBM_channelTHIS_t * HBM_channelB11, HBM_channelTHIS_t * HBM_channelA12, HBM_channelTHIS_t * HBM_channelB12, HBM_channelTHIS_t * HBM_channelA13, HBM_channelTHIS_t * HBM_channelB13, HBM_channelTHIS_t * HBM_channelA14, HBM_channelTHIS_t * HBM_channelB14, HBM_channelTHIS_t * HBM_channelA15, HBM_channelTHIS_t * HBM_channelB15, HBM_channelTHIS_t * HBM_channelA16, HBM_channelTHIS_t * HBM_channelB16, HBM_channelTHIS_t * HBM_channelA17, HBM_channelTHIS_t * HBM_channelB17, HBM_channelTHIS_t * HBM_channelA18, HBM_channelTHIS_t * HBM_channelB18, HBM_channelTHIS_t * HBM_channelA19, HBM_channelTHIS_t * HBM_channelB19, HBM_channelTHIS_t * HBM_channelA20, HBM_channelTHIS_t * HBM_channelB20, HBM_channelTHIS_t * HBM_channelA21, HBM_channelTHIS_t * HBM_channelB21, HBM_channelTHIS_t * HBM_channelA22, HBM_channelTHIS_t * HBM_channelB22, HBM_channelTHIS_t * HBM_channelA23, HBM_channelTHIS_t * HBM_channelB23){
 	#ifdef FPGA_IMPL 
 		data[0][0] = HBM_channelA0[offsets[0]].range(31, 0);
 		data[0][1] = HBM_channelA0[offsets[0]].range(63, 32);
@@ -5776,16 +5766,16 @@ unsigned int master_retrieve(unsigned int offset, unsigned int v, HBM_channelTHI
 	master_retrieve_vec(offset, datas, HBM_channelA, HBM_channelB, inst);
 	return datas[v];
 }
-void master_retrievemany(unsigned int offsets[NUM_PEs], unsigned int v, unsigned int data[NUM_PEs],  HBM_channelTHIS_t * HBM_channelA0, HBM_channelTHIS_t * HBM_channelB0, HBM_channelTHIS_t * HBM_channelA1, HBM_channelTHIS_t * HBM_channelB1, HBM_channelTHIS_t * HBM_channelA2, HBM_channelTHIS_t * HBM_channelB2, HBM_channelTHIS_t * HBM_channelA3, HBM_channelTHIS_t * HBM_channelB3, HBM_channelTHIS_t * HBM_channelA4, HBM_channelTHIS_t * HBM_channelB4, HBM_channelTHIS_t * HBM_channelA5, HBM_channelTHIS_t * HBM_channelB5, HBM_channelTHIS_t * HBM_channelA6, HBM_channelTHIS_t * HBM_channelB6, HBM_channelTHIS_t * HBM_channelA7, HBM_channelTHIS_t * HBM_channelB7, HBM_channelTHIS_t * HBM_channelA8, HBM_channelTHIS_t * HBM_channelB8, HBM_channelTHIS_t * HBM_channelA9, HBM_channelTHIS_t * HBM_channelB9, HBM_channelTHIS_t * HBM_channelA10, HBM_channelTHIS_t * HBM_channelB10, HBM_channelTHIS_t * HBM_channelA11, HBM_channelTHIS_t * HBM_channelB11, HBM_channelTHIS_t * HBM_channelA12, HBM_channelTHIS_t * HBM_channelB12, HBM_channelTHIS_t * HBM_channelA13, HBM_channelTHIS_t * HBM_channelB13, HBM_channelTHIS_t * HBM_channelA14, HBM_channelTHIS_t * HBM_channelB14, HBM_channelTHIS_t * HBM_channelA15, HBM_channelTHIS_t * HBM_channelB15, HBM_channelTHIS_t * HBM_channelA16, HBM_channelTHIS_t * HBM_channelB16, HBM_channelTHIS_t * HBM_channelA17, HBM_channelTHIS_t * HBM_channelB17, HBM_channelTHIS_t * HBM_channelA18, HBM_channelTHIS_t * HBM_channelB18, HBM_channelTHIS_t * HBM_channelA19, HBM_channelTHIS_t * HBM_channelB19, HBM_channelTHIS_t * HBM_channelA20, HBM_channelTHIS_t * HBM_channelB20, HBM_channelTHIS_t * HBM_channelA21, HBM_channelTHIS_t * HBM_channelB21, HBM_channelTHIS_t * HBM_channelA22, HBM_channelTHIS_t * HBM_channelB22, HBM_channelTHIS_t * HBM_channelA23, HBM_channelTHIS_t * HBM_channelB23, HBM_channelTHIS_t * HBM_channelA[NUM_PEs], HBM_channelTHIS_t * HBM_channelB[NUM_PEs]){
+void master_retrievemany(unsigned int offsets[NUM_PEs], unsigned int v, unsigned int data[NUM_PEs],  HBM_channelTHIS_t * HBM_channelA0, HBM_channelTHIS_t * HBM_channelB0, HBM_channelTHIS_t * HBM_channelA1, HBM_channelTHIS_t * HBM_channelB1, HBM_channelTHIS_t * HBM_channelA2, HBM_channelTHIS_t * HBM_channelB2, HBM_channelTHIS_t * HBM_channelA3, HBM_channelTHIS_t * HBM_channelB3, HBM_channelTHIS_t * HBM_channelA4, HBM_channelTHIS_t * HBM_channelB4, HBM_channelTHIS_t * HBM_channelA5, HBM_channelTHIS_t * HBM_channelB5, HBM_channelTHIS_t * HBM_channelA6, HBM_channelTHIS_t * HBM_channelB6, HBM_channelTHIS_t * HBM_channelA7, HBM_channelTHIS_t * HBM_channelB7, HBM_channelTHIS_t * HBM_channelA8, HBM_channelTHIS_t * HBM_channelB8, HBM_channelTHIS_t * HBM_channelA9, HBM_channelTHIS_t * HBM_channelB9, HBM_channelTHIS_t * HBM_channelA10, HBM_channelTHIS_t * HBM_channelB10, HBM_channelTHIS_t * HBM_channelA11, HBM_channelTHIS_t * HBM_channelB11, HBM_channelTHIS_t * HBM_channelA12, HBM_channelTHIS_t * HBM_channelB12, HBM_channelTHIS_t * HBM_channelA13, HBM_channelTHIS_t * HBM_channelB13, HBM_channelTHIS_t * HBM_channelA14, HBM_channelTHIS_t * HBM_channelB14, HBM_channelTHIS_t * HBM_channelA15, HBM_channelTHIS_t * HBM_channelB15, HBM_channelTHIS_t * HBM_channelA16, HBM_channelTHIS_t * HBM_channelB16, HBM_channelTHIS_t * HBM_channelA17, HBM_channelTHIS_t * HBM_channelB17, HBM_channelTHIS_t * HBM_channelA18, HBM_channelTHIS_t * HBM_channelB18, HBM_channelTHIS_t * HBM_channelA19, HBM_channelTHIS_t * HBM_channelB19, HBM_channelTHIS_t * HBM_channelA20, HBM_channelTHIS_t * HBM_channelB20, HBM_channelTHIS_t * HBM_channelA21, HBM_channelTHIS_t * HBM_channelB21, HBM_channelTHIS_t * HBM_channelA22, HBM_channelTHIS_t * HBM_channelB22, HBM_channelTHIS_t * HBM_channelA23, HBM_channelTHIS_t * HBM_channelB23){
 	unsigned int datas[NUM_PEs][HBM_CHANNEL_PACK_SIZE]; 
-	master_retrievemany_vec(offsets, datas,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23, HBM_channelA, HBM_channelB);
+	master_retrievemany_vec(offsets, datas,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23);
 	for(unsigned int n=0; n<NUM_PEs; n++){
 		data[n] = datas[n][v];
 	}
 }
 
 //////////////////////////////////////////////////////////////////
-void insert_cfrontierdram(unsigned int p_u, unsigned int t, keyvalue_t data[EDGE_PACK_SIZE], HBM_channelTHIS_t * HBM_center){
+void insert_cfrontierdram(unsigned int p_u, unsigned int t, keyvalue_t data[EDGE_PACK_SIZE], HBM_channelX_t * HBM_center){
 	unsigned int data_[HBM_CHANNEL_PACK_SIZE];
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 	#pragma HLS UNROLL
@@ -5794,7 +5784,7 @@ void insert_cfrontierdram(unsigned int p_u, unsigned int t, keyvalue_t data[EDGE
 	}
 	master_centerinsert_vec((p_u * MAX_UPARTITION_VECSIZE) + t, data_, HBM_center);
 }
-void retrieve_cfrontierdram(unsigned int p_u, unsigned int t, keyvalue_t data[EDGE_PACK_SIZE], HBM_channelTHIS_t * HBM_center){
+void retrieve_cfrontierdram(unsigned int p_u, unsigned int t, keyvalue_t data[EDGE_PACK_SIZE], HBM_channelX_t * HBM_center){
 	unsigned int data_[HBM_CHANNEL_PACK_SIZE];
 	master_centerretrieve_vec((p_u * MAX_UPARTITION_VECSIZE) + t, data_, HBM_center);
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
@@ -5813,11 +5803,11 @@ unsigned int dretrieve_globalparams(unsigned int base_offset__, unsigned int ind
 unsigned int dretrieve_vptrdram(unsigned int base_offset__, unsigned int index, HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB, unsigned int inst){
 	#ifdef _DEBUGMODE_CHECKS3
 	unsigned int wwsize = globalparams_debug[GLOBALPARAMSCODE__WWSIZE__CSRVPTRS];
-	checkoutofbounds("acts_kernel::ERROR 901::", (index / HBM_CHANNEL_PACK_SIZE), wwsize, NAp, NAp, NAp);
+	checkoutofbounds("acts_kernel::ERROR 901::", (index / HBM_CHANNEL_PACK_SIZE), wwsize, index, HBM_CHANNEL_PACK_SIZE, NAp);
 	#endif 
 	return master_retrieve(base_offset__ + (index / HBM_CHANNEL_PACK_SIZE), index % HBM_CHANNEL_PACK_SIZE, HBM_channelA, HBM_channelB, inst);
 }	
-void dretrievemany_vptrdram(unsigned int base_offset__, unsigned int offsets[NUM_PEs], unsigned int data[NUM_PEs],  HBM_channelTHIS_t * HBM_channelA0, HBM_channelTHIS_t * HBM_channelB0, HBM_channelTHIS_t * HBM_channelA1, HBM_channelTHIS_t * HBM_channelB1, HBM_channelTHIS_t * HBM_channelA2, HBM_channelTHIS_t * HBM_channelB2, HBM_channelTHIS_t * HBM_channelA3, HBM_channelTHIS_t * HBM_channelB3, HBM_channelTHIS_t * HBM_channelA4, HBM_channelTHIS_t * HBM_channelB4, HBM_channelTHIS_t * HBM_channelA5, HBM_channelTHIS_t * HBM_channelB5, HBM_channelTHIS_t * HBM_channelA6, HBM_channelTHIS_t * HBM_channelB6, HBM_channelTHIS_t * HBM_channelA7, HBM_channelTHIS_t * HBM_channelB7, HBM_channelTHIS_t * HBM_channelA8, HBM_channelTHIS_t * HBM_channelB8, HBM_channelTHIS_t * HBM_channelA9, HBM_channelTHIS_t * HBM_channelB9, HBM_channelTHIS_t * HBM_channelA10, HBM_channelTHIS_t * HBM_channelB10, HBM_channelTHIS_t * HBM_channelA11, HBM_channelTHIS_t * HBM_channelB11, HBM_channelTHIS_t * HBM_channelA12, HBM_channelTHIS_t * HBM_channelB12, HBM_channelTHIS_t * HBM_channelA13, HBM_channelTHIS_t * HBM_channelB13, HBM_channelTHIS_t * HBM_channelA14, HBM_channelTHIS_t * HBM_channelB14, HBM_channelTHIS_t * HBM_channelA15, HBM_channelTHIS_t * HBM_channelB15, HBM_channelTHIS_t * HBM_channelA16, HBM_channelTHIS_t * HBM_channelB16, HBM_channelTHIS_t * HBM_channelA17, HBM_channelTHIS_t * HBM_channelB17, HBM_channelTHIS_t * HBM_channelA18, HBM_channelTHIS_t * HBM_channelB18, HBM_channelTHIS_t * HBM_channelA19, HBM_channelTHIS_t * HBM_channelB19, HBM_channelTHIS_t * HBM_channelA20, HBM_channelTHIS_t * HBM_channelB20, HBM_channelTHIS_t * HBM_channelA21, HBM_channelTHIS_t * HBM_channelB21, HBM_channelTHIS_t * HBM_channelA22, HBM_channelTHIS_t * HBM_channelB22, HBM_channelTHIS_t * HBM_channelA23, HBM_channelTHIS_t * HBM_channelB23, HBM_channelTHIS_t * HBM_channelA[NUM_PEs], HBM_channelTHIS_t * HBM_channelB[NUM_PEs]){
+void dretrievemany_vptrdram(unsigned int base_offset__, unsigned int offsets[NUM_PEs], unsigned int data[NUM_PEs],  HBM_channelTHIS_t * HBM_channelA0, HBM_channelTHIS_t * HBM_channelB0, HBM_channelTHIS_t * HBM_channelA1, HBM_channelTHIS_t * HBM_channelB1, HBM_channelTHIS_t * HBM_channelA2, HBM_channelTHIS_t * HBM_channelB2, HBM_channelTHIS_t * HBM_channelA3, HBM_channelTHIS_t * HBM_channelB3, HBM_channelTHIS_t * HBM_channelA4, HBM_channelTHIS_t * HBM_channelB4, HBM_channelTHIS_t * HBM_channelA5, HBM_channelTHIS_t * HBM_channelB5, HBM_channelTHIS_t * HBM_channelA6, HBM_channelTHIS_t * HBM_channelB6, HBM_channelTHIS_t * HBM_channelA7, HBM_channelTHIS_t * HBM_channelB7, HBM_channelTHIS_t * HBM_channelA8, HBM_channelTHIS_t * HBM_channelB8, HBM_channelTHIS_t * HBM_channelA9, HBM_channelTHIS_t * HBM_channelB9, HBM_channelTHIS_t * HBM_channelA10, HBM_channelTHIS_t * HBM_channelB10, HBM_channelTHIS_t * HBM_channelA11, HBM_channelTHIS_t * HBM_channelB11, HBM_channelTHIS_t * HBM_channelA12, HBM_channelTHIS_t * HBM_channelB12, HBM_channelTHIS_t * HBM_channelA13, HBM_channelTHIS_t * HBM_channelB13, HBM_channelTHIS_t * HBM_channelA14, HBM_channelTHIS_t * HBM_channelB14, HBM_channelTHIS_t * HBM_channelA15, HBM_channelTHIS_t * HBM_channelB15, HBM_channelTHIS_t * HBM_channelA16, HBM_channelTHIS_t * HBM_channelB16, HBM_channelTHIS_t * HBM_channelA17, HBM_channelTHIS_t * HBM_channelB17, HBM_channelTHIS_t * HBM_channelA18, HBM_channelTHIS_t * HBM_channelB18, HBM_channelTHIS_t * HBM_channelA19, HBM_channelTHIS_t * HBM_channelB19, HBM_channelTHIS_t * HBM_channelA20, HBM_channelTHIS_t * HBM_channelB20, HBM_channelTHIS_t * HBM_channelA21, HBM_channelTHIS_t * HBM_channelB21, HBM_channelTHIS_t * HBM_channelA22, HBM_channelTHIS_t * HBM_channelB22, HBM_channelTHIS_t * HBM_channelA23, HBM_channelTHIS_t * HBM_channelB23){
 	data[0] = dretrieve_vptrdram(base_offset__, offsets[0], HBM_channelA0, HBM_channelB0, 0);
 	data[1] = dretrieve_vptrdram(base_offset__, offsets[1], HBM_channelA1, HBM_channelB1, 1);
 	data[2] = dretrieve_vptrdram(base_offset__, offsets[2], HBM_channelA2, HBM_channelB2, 2);
@@ -5842,11 +5832,6 @@ void dretrievemany_vptrdram(unsigned int base_offset__, unsigned int offsets[NUM
 	data[21] = dretrieve_vptrdram(base_offset__, offsets[21], HBM_channelA21, HBM_channelB21, 21);
 	data[22] = dretrieve_vptrdram(base_offset__, offsets[22], HBM_channelA22, HBM_channelB22, 22);
 	data[23] = dretrieve_vptrdram(base_offset__, offsets[23], HBM_channelA23, HBM_channelB23, 23);
-		
-	// for(unsigned int n=0; n<NUM_PEs; n++){
-	// #pragma HLS UNROLL
-		// data[n] = dretrieve_vptrdram(base_offset__, offsets[n], HBM_channelA[n], HBM_channelB[n], n);
-	// }	
 	return;
 }
 
@@ -5863,7 +5848,7 @@ map_t dretrieve_actpackvptrdram(unsigned int base_offset__, unsigned int p_u, un
 	map.size = master_retrieve(base_offset__ + i, j + 1, HBM_channelA, HBM_channelB, inst);
 	return map;
 }
-void dretrievemany_actpackvptrdram(unsigned int base_offset__, unsigned int p_u, unsigned int llp_set, map_t maps[NUM_PEs],  HBM_channelTHIS_t * HBM_channelA0, HBM_channelTHIS_t * HBM_channelB0, HBM_channelTHIS_t * HBM_channelA1, HBM_channelTHIS_t * HBM_channelB1, HBM_channelTHIS_t * HBM_channelA2, HBM_channelTHIS_t * HBM_channelB2, HBM_channelTHIS_t * HBM_channelA3, HBM_channelTHIS_t * HBM_channelB3, HBM_channelTHIS_t * HBM_channelA4, HBM_channelTHIS_t * HBM_channelB4, HBM_channelTHIS_t * HBM_channelA5, HBM_channelTHIS_t * HBM_channelB5, HBM_channelTHIS_t * HBM_channelA6, HBM_channelTHIS_t * HBM_channelB6, HBM_channelTHIS_t * HBM_channelA7, HBM_channelTHIS_t * HBM_channelB7, HBM_channelTHIS_t * HBM_channelA8, HBM_channelTHIS_t * HBM_channelB8, HBM_channelTHIS_t * HBM_channelA9, HBM_channelTHIS_t * HBM_channelB9, HBM_channelTHIS_t * HBM_channelA10, HBM_channelTHIS_t * HBM_channelB10, HBM_channelTHIS_t * HBM_channelA11, HBM_channelTHIS_t * HBM_channelB11, HBM_channelTHIS_t * HBM_channelA12, HBM_channelTHIS_t * HBM_channelB12, HBM_channelTHIS_t * HBM_channelA13, HBM_channelTHIS_t * HBM_channelB13, HBM_channelTHIS_t * HBM_channelA14, HBM_channelTHIS_t * HBM_channelB14, HBM_channelTHIS_t * HBM_channelA15, HBM_channelTHIS_t * HBM_channelB15, HBM_channelTHIS_t * HBM_channelA16, HBM_channelTHIS_t * HBM_channelB16, HBM_channelTHIS_t * HBM_channelA17, HBM_channelTHIS_t * HBM_channelB17, HBM_channelTHIS_t * HBM_channelA18, HBM_channelTHIS_t * HBM_channelB18, HBM_channelTHIS_t * HBM_channelA19, HBM_channelTHIS_t * HBM_channelB19, HBM_channelTHIS_t * HBM_channelA20, HBM_channelTHIS_t * HBM_channelB20, HBM_channelTHIS_t * HBM_channelA21, HBM_channelTHIS_t * HBM_channelB21, HBM_channelTHIS_t * HBM_channelA22, HBM_channelTHIS_t * HBM_channelB22, HBM_channelTHIS_t * HBM_channelA23, HBM_channelTHIS_t * HBM_channelB23, HBM_channelTHIS_t * HBM_channelA[NUM_PEs], HBM_channelTHIS_t * HBM_channelB[NUM_PEs]){
+void dretrievemany_actpackvptrdram(unsigned int base_offset__, unsigned int p_u, unsigned int llp_set, map_t maps[NUM_PEs],  HBM_channelTHIS_t * HBM_channelA0, HBM_channelTHIS_t * HBM_channelB0, HBM_channelTHIS_t * HBM_channelA1, HBM_channelTHIS_t * HBM_channelB1, HBM_channelTHIS_t * HBM_channelA2, HBM_channelTHIS_t * HBM_channelB2, HBM_channelTHIS_t * HBM_channelA3, HBM_channelTHIS_t * HBM_channelB3, HBM_channelTHIS_t * HBM_channelA4, HBM_channelTHIS_t * HBM_channelB4, HBM_channelTHIS_t * HBM_channelA5, HBM_channelTHIS_t * HBM_channelB5, HBM_channelTHIS_t * HBM_channelA6, HBM_channelTHIS_t * HBM_channelB6, HBM_channelTHIS_t * HBM_channelA7, HBM_channelTHIS_t * HBM_channelB7, HBM_channelTHIS_t * HBM_channelA8, HBM_channelTHIS_t * HBM_channelB8, HBM_channelTHIS_t * HBM_channelA9, HBM_channelTHIS_t * HBM_channelB9, HBM_channelTHIS_t * HBM_channelA10, HBM_channelTHIS_t * HBM_channelB10, HBM_channelTHIS_t * HBM_channelA11, HBM_channelTHIS_t * HBM_channelB11, HBM_channelTHIS_t * HBM_channelA12, HBM_channelTHIS_t * HBM_channelB12, HBM_channelTHIS_t * HBM_channelA13, HBM_channelTHIS_t * HBM_channelB13, HBM_channelTHIS_t * HBM_channelA14, HBM_channelTHIS_t * HBM_channelB14, HBM_channelTHIS_t * HBM_channelA15, HBM_channelTHIS_t * HBM_channelB15, HBM_channelTHIS_t * HBM_channelA16, HBM_channelTHIS_t * HBM_channelB16, HBM_channelTHIS_t * HBM_channelA17, HBM_channelTHIS_t * HBM_channelB17, HBM_channelTHIS_t * HBM_channelA18, HBM_channelTHIS_t * HBM_channelB18, HBM_channelTHIS_t * HBM_channelA19, HBM_channelTHIS_t * HBM_channelB19, HBM_channelTHIS_t * HBM_channelA20, HBM_channelTHIS_t * HBM_channelB20, HBM_channelTHIS_t * HBM_channelA21, HBM_channelTHIS_t * HBM_channelB21, HBM_channelTHIS_t * HBM_channelA22, HBM_channelTHIS_t * HBM_channelB22, HBM_channelTHIS_t * HBM_channelA23, HBM_channelTHIS_t * HBM_channelB23){
 	unsigned int offset = ((p_u * MAX_NUM_LLPSETS) + llp_set) * 2; // FIXME.
 	#ifdef _DEBUGMODE_CHECKS3
 	unsigned int wwsize = globalparams_debug[GLOBALPARAMSCODE__WWSIZE__ACTPACKVPTRS];
@@ -5879,12 +5864,12 @@ void dretrievemany_actpackvptrdram(unsigned int base_offset__, unsigned int p_u,
 	#pragma HLS UNROLL
 		offsets_[n] = base_offset__ + i;
 	}
-	master_retrievemany(offsets_, j, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23, HBM_channelA, HBM_channelB);
+	master_retrievemany(offsets_, j, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23);
 	for(unsigned int n=0; n<NUM_PEs; n++){
 	#pragma HLS UNROLL
 		maps[n].offset = data_[n];
 	}
-	master_retrievemany(offsets_, j + 1, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23, HBM_channelA, HBM_channelB);
+	master_retrievemany(offsets_, j + 1, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23);
 	for(unsigned int n=0; n<NUM_PEs; n++){
 		maps[n].size = data_[n];
 	}
@@ -5928,7 +5913,7 @@ edge3_vec_dt dretrieve_act_pack_edges(unsigned int base_offset__, unsigned int i
 	}
 	return edge3_vec;
 }
-void dretrievemany_act_pack_edges(unsigned int base_offset__, unsigned int offsets[NUM_PEs], unsigned int t, edge3_vec_dt edge3_vecs[NUM_PEs],  HBM_channelTHIS_t * HBM_channelA0, HBM_channelTHIS_t * HBM_channelB0, HBM_channelTHIS_t * HBM_channelA1, HBM_channelTHIS_t * HBM_channelB1, HBM_channelTHIS_t * HBM_channelA2, HBM_channelTHIS_t * HBM_channelB2, HBM_channelTHIS_t * HBM_channelA3, HBM_channelTHIS_t * HBM_channelB3, HBM_channelTHIS_t * HBM_channelA4, HBM_channelTHIS_t * HBM_channelB4, HBM_channelTHIS_t * HBM_channelA5, HBM_channelTHIS_t * HBM_channelB5, HBM_channelTHIS_t * HBM_channelA6, HBM_channelTHIS_t * HBM_channelB6, HBM_channelTHIS_t * HBM_channelA7, HBM_channelTHIS_t * HBM_channelB7, HBM_channelTHIS_t * HBM_channelA8, HBM_channelTHIS_t * HBM_channelB8, HBM_channelTHIS_t * HBM_channelA9, HBM_channelTHIS_t * HBM_channelB9, HBM_channelTHIS_t * HBM_channelA10, HBM_channelTHIS_t * HBM_channelB10, HBM_channelTHIS_t * HBM_channelA11, HBM_channelTHIS_t * HBM_channelB11, HBM_channelTHIS_t * HBM_channelA12, HBM_channelTHIS_t * HBM_channelB12, HBM_channelTHIS_t * HBM_channelA13, HBM_channelTHIS_t * HBM_channelB13, HBM_channelTHIS_t * HBM_channelA14, HBM_channelTHIS_t * HBM_channelB14, HBM_channelTHIS_t * HBM_channelA15, HBM_channelTHIS_t * HBM_channelB15, HBM_channelTHIS_t * HBM_channelA16, HBM_channelTHIS_t * HBM_channelB16, HBM_channelTHIS_t * HBM_channelA17, HBM_channelTHIS_t * HBM_channelB17, HBM_channelTHIS_t * HBM_channelA18, HBM_channelTHIS_t * HBM_channelB18, HBM_channelTHIS_t * HBM_channelA19, HBM_channelTHIS_t * HBM_channelB19, HBM_channelTHIS_t * HBM_channelA20, HBM_channelTHIS_t * HBM_channelB20, HBM_channelTHIS_t * HBM_channelA21, HBM_channelTHIS_t * HBM_channelB21, HBM_channelTHIS_t * HBM_channelA22, HBM_channelTHIS_t * HBM_channelB22, HBM_channelTHIS_t * HBM_channelA23, HBM_channelTHIS_t * HBM_channelB23, HBM_channelTHIS_t * HBM_channelA[NUM_PEs], HBM_channelTHIS_t * HBM_channelB[NUM_PEs]){
+void dretrievemany_act_pack_edges(unsigned int base_offset__, unsigned int offsets[NUM_PEs], unsigned int t, edge3_vec_dt edge3_vecs[NUM_PEs],  HBM_channelTHIS_t * HBM_channelA0, HBM_channelTHIS_t * HBM_channelB0, HBM_channelTHIS_t * HBM_channelA1, HBM_channelTHIS_t * HBM_channelB1, HBM_channelTHIS_t * HBM_channelA2, HBM_channelTHIS_t * HBM_channelB2, HBM_channelTHIS_t * HBM_channelA3, HBM_channelTHIS_t * HBM_channelB3, HBM_channelTHIS_t * HBM_channelA4, HBM_channelTHIS_t * HBM_channelB4, HBM_channelTHIS_t * HBM_channelA5, HBM_channelTHIS_t * HBM_channelB5, HBM_channelTHIS_t * HBM_channelA6, HBM_channelTHIS_t * HBM_channelB6, HBM_channelTHIS_t * HBM_channelA7, HBM_channelTHIS_t * HBM_channelB7, HBM_channelTHIS_t * HBM_channelA8, HBM_channelTHIS_t * HBM_channelB8, HBM_channelTHIS_t * HBM_channelA9, HBM_channelTHIS_t * HBM_channelB9, HBM_channelTHIS_t * HBM_channelA10, HBM_channelTHIS_t * HBM_channelB10, HBM_channelTHIS_t * HBM_channelA11, HBM_channelTHIS_t * HBM_channelB11, HBM_channelTHIS_t * HBM_channelA12, HBM_channelTHIS_t * HBM_channelB12, HBM_channelTHIS_t * HBM_channelA13, HBM_channelTHIS_t * HBM_channelB13, HBM_channelTHIS_t * HBM_channelA14, HBM_channelTHIS_t * HBM_channelB14, HBM_channelTHIS_t * HBM_channelA15, HBM_channelTHIS_t * HBM_channelB15, HBM_channelTHIS_t * HBM_channelA16, HBM_channelTHIS_t * HBM_channelB16, HBM_channelTHIS_t * HBM_channelA17, HBM_channelTHIS_t * HBM_channelB17, HBM_channelTHIS_t * HBM_channelA18, HBM_channelTHIS_t * HBM_channelB18, HBM_channelTHIS_t * HBM_channelA19, HBM_channelTHIS_t * HBM_channelB19, HBM_channelTHIS_t * HBM_channelA20, HBM_channelTHIS_t * HBM_channelB20, HBM_channelTHIS_t * HBM_channelA21, HBM_channelTHIS_t * HBM_channelB21, HBM_channelTHIS_t * HBM_channelA22, HBM_channelTHIS_t * HBM_channelB22, HBM_channelTHIS_t * HBM_channelA23, HBM_channelTHIS_t * HBM_channelB23){
 	#ifdef _DEBUGMODE_CHECKS3
 	unsigned int wwsize = globalparams_debug[GLOBALPARAMSCODE__WWSIZE__ACTPACKEDGES];
 	checkoutofbounds("acts_kernel::ERROR 704f::", offsets[0] + t, wwsize, NAp, NAp, NAp);
@@ -5940,7 +5925,7 @@ void dretrievemany_act_pack_edges(unsigned int base_offset__, unsigned int offse
 	#pragma HLS UNROLL
 		offsets_[n] = base_offset__ + offsets[n] + t;
 	}
-	master_retrievemany_vec(offsets_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23, HBM_channelA, HBM_channelB);
+	master_retrievemany_vec(offsets_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23);
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 	#pragma HLS UNROLL
 		for(unsigned int n=0; n<NUM_PEs; n++){
@@ -5998,10 +5983,10 @@ void dretrieve_udatesdram(unsigned int offset__, unsigned int llp_set, unsigned 
 	}
 	return; 
 }
-void dinsertmany_updatesdram(unsigned int offset__, unsigned int llp_set, unsigned int offsets[NUM_PEs], unsigned int t, uint512_vec_dt data[NUM_PEs], bool ens[NUM_PEs][EDGE_PACK_SIZE],  HBM_channelTHIS_t * HBM_channelA0, HBM_channelTHIS_t * HBM_channelB0, HBM_channelTHIS_t * HBM_channelA1, HBM_channelTHIS_t * HBM_channelB1, HBM_channelTHIS_t * HBM_channelA2, HBM_channelTHIS_t * HBM_channelB2, HBM_channelTHIS_t * HBM_channelA3, HBM_channelTHIS_t * HBM_channelB3, HBM_channelTHIS_t * HBM_channelA4, HBM_channelTHIS_t * HBM_channelB4, HBM_channelTHIS_t * HBM_channelA5, HBM_channelTHIS_t * HBM_channelB5, HBM_channelTHIS_t * HBM_channelA6, HBM_channelTHIS_t * HBM_channelB6, HBM_channelTHIS_t * HBM_channelA7, HBM_channelTHIS_t * HBM_channelB7, HBM_channelTHIS_t * HBM_channelA8, HBM_channelTHIS_t * HBM_channelB8, HBM_channelTHIS_t * HBM_channelA9, HBM_channelTHIS_t * HBM_channelB9, HBM_channelTHIS_t * HBM_channelA10, HBM_channelTHIS_t * HBM_channelB10, HBM_channelTHIS_t * HBM_channelA11, HBM_channelTHIS_t * HBM_channelB11, HBM_channelTHIS_t * HBM_channelA12, HBM_channelTHIS_t * HBM_channelB12, HBM_channelTHIS_t * HBM_channelA13, HBM_channelTHIS_t * HBM_channelB13, HBM_channelTHIS_t * HBM_channelA14, HBM_channelTHIS_t * HBM_channelB14, HBM_channelTHIS_t * HBM_channelA15, HBM_channelTHIS_t * HBM_channelB15, HBM_channelTHIS_t * HBM_channelA16, HBM_channelTHIS_t * HBM_channelB16, HBM_channelTHIS_t * HBM_channelA17, HBM_channelTHIS_t * HBM_channelB17, HBM_channelTHIS_t * HBM_channelA18, HBM_channelTHIS_t * HBM_channelB18, HBM_channelTHIS_t * HBM_channelA19, HBM_channelTHIS_t * HBM_channelB19, HBM_channelTHIS_t * HBM_channelA20, HBM_channelTHIS_t * HBM_channelB20, HBM_channelTHIS_t * HBM_channelA21, HBM_channelTHIS_t * HBM_channelB21, HBM_channelTHIS_t * HBM_channelA22, HBM_channelTHIS_t * HBM_channelB22, HBM_channelTHIS_t * HBM_channelA23, HBM_channelTHIS_t * HBM_channelB23, HBM_channelTHIS_t * HBM_channelA[NUM_PEs], HBM_channelTHIS_t * HBM_channelB[NUM_PEs], unsigned int updatesptrs[MAX_NUM_LLPSETS]){
+void dinsertmany_updatesdram(unsigned int offset__, unsigned int llp_set, unsigned int offsets[NUM_PEs], unsigned int t, uint512_vec_dt data[NUM_PEs], bool ens[NUM_PEs][EDGE_PACK_SIZE],  HBM_channelTHIS_t * HBM_channelA0, HBM_channelTHIS_t * HBM_channelB0, HBM_channelTHIS_t * HBM_channelA1, HBM_channelTHIS_t * HBM_channelB1, HBM_channelTHIS_t * HBM_channelA2, HBM_channelTHIS_t * HBM_channelB2, HBM_channelTHIS_t * HBM_channelA3, HBM_channelTHIS_t * HBM_channelB3, HBM_channelTHIS_t * HBM_channelA4, HBM_channelTHIS_t * HBM_channelB4, HBM_channelTHIS_t * HBM_channelA5, HBM_channelTHIS_t * HBM_channelB5, HBM_channelTHIS_t * HBM_channelA6, HBM_channelTHIS_t * HBM_channelB6, HBM_channelTHIS_t * HBM_channelA7, HBM_channelTHIS_t * HBM_channelB7, HBM_channelTHIS_t * HBM_channelA8, HBM_channelTHIS_t * HBM_channelB8, HBM_channelTHIS_t * HBM_channelA9, HBM_channelTHIS_t * HBM_channelB9, HBM_channelTHIS_t * HBM_channelA10, HBM_channelTHIS_t * HBM_channelB10, HBM_channelTHIS_t * HBM_channelA11, HBM_channelTHIS_t * HBM_channelB11, HBM_channelTHIS_t * HBM_channelA12, HBM_channelTHIS_t * HBM_channelB12, HBM_channelTHIS_t * HBM_channelA13, HBM_channelTHIS_t * HBM_channelB13, HBM_channelTHIS_t * HBM_channelA14, HBM_channelTHIS_t * HBM_channelB14, HBM_channelTHIS_t * HBM_channelA15, HBM_channelTHIS_t * HBM_channelB15, HBM_channelTHIS_t * HBM_channelA16, HBM_channelTHIS_t * HBM_channelB16, HBM_channelTHIS_t * HBM_channelA17, HBM_channelTHIS_t * HBM_channelB17, HBM_channelTHIS_t * HBM_channelA18, HBM_channelTHIS_t * HBM_channelB18, HBM_channelTHIS_t * HBM_channelA19, HBM_channelTHIS_t * HBM_channelB19, HBM_channelTHIS_t * HBM_channelA20, HBM_channelTHIS_t * HBM_channelB20, HBM_channelTHIS_t * HBM_channelA21, HBM_channelTHIS_t * HBM_channelB21, HBM_channelTHIS_t * HBM_channelA22, HBM_channelTHIS_t * HBM_channelB22, HBM_channelTHIS_t * HBM_channelA23, HBM_channelTHIS_t * HBM_channelB23, unsigned int updatesptrs[MAX_NUM_LLPSETS]){
 	#ifdef _DEBUGMODE_CHECKS3
 	unsigned int wwsize = globalparams_debug[GLOBALPARAMSCODE__WWSIZE__UPDATES];
-	checkoutofbounds("acts_kernel::ERROR 708a::", updatesptrs[llp_set] + offsets[0], updatesptrs[llp_set + 1], NAp, NAp, NAp);
+	for(unsigned int n=0; n<NUM_PEs; n++){ checkoutofbounds("acts_kernel::ERROR 708a::", updatesptrs[llp_set] + offsets[n] + t, updatesptrs[llp_set + 1], NAp, NAp, NAp); }
 	#endif 
 	
 	unsigned int data_[NUM_PEs][HBM_CHANNEL_PACK_SIZE];
@@ -6022,9 +6007,9 @@ void dinsertmany_updatesdram(unsigned int offset__, unsigned int llp_set, unsign
 			data_[n][2*v+1] = data[n].data[v].value;
 		}
 	}
-	master_insertmany_vec(offsets_, ens_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23, HBM_channelA, HBM_channelB);
+	master_insertmany_vec(offsets_, ens_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23);
 }
-void dretrievemany_udatesdram(unsigned int offset__, unsigned int llp_set, unsigned int index, uint512_vec_dt data[NUM_PEs],  HBM_channelTHIS_t * HBM_channelA0, HBM_channelTHIS_t * HBM_channelB0, HBM_channelTHIS_t * HBM_channelA1, HBM_channelTHIS_t * HBM_channelB1, HBM_channelTHIS_t * HBM_channelA2, HBM_channelTHIS_t * HBM_channelB2, HBM_channelTHIS_t * HBM_channelA3, HBM_channelTHIS_t * HBM_channelB3, HBM_channelTHIS_t * HBM_channelA4, HBM_channelTHIS_t * HBM_channelB4, HBM_channelTHIS_t * HBM_channelA5, HBM_channelTHIS_t * HBM_channelB5, HBM_channelTHIS_t * HBM_channelA6, HBM_channelTHIS_t * HBM_channelB6, HBM_channelTHIS_t * HBM_channelA7, HBM_channelTHIS_t * HBM_channelB7, HBM_channelTHIS_t * HBM_channelA8, HBM_channelTHIS_t * HBM_channelB8, HBM_channelTHIS_t * HBM_channelA9, HBM_channelTHIS_t * HBM_channelB9, HBM_channelTHIS_t * HBM_channelA10, HBM_channelTHIS_t * HBM_channelB10, HBM_channelTHIS_t * HBM_channelA11, HBM_channelTHIS_t * HBM_channelB11, HBM_channelTHIS_t * HBM_channelA12, HBM_channelTHIS_t * HBM_channelB12, HBM_channelTHIS_t * HBM_channelA13, HBM_channelTHIS_t * HBM_channelB13, HBM_channelTHIS_t * HBM_channelA14, HBM_channelTHIS_t * HBM_channelB14, HBM_channelTHIS_t * HBM_channelA15, HBM_channelTHIS_t * HBM_channelB15, HBM_channelTHIS_t * HBM_channelA16, HBM_channelTHIS_t * HBM_channelB16, HBM_channelTHIS_t * HBM_channelA17, HBM_channelTHIS_t * HBM_channelB17, HBM_channelTHIS_t * HBM_channelA18, HBM_channelTHIS_t * HBM_channelB18, HBM_channelTHIS_t * HBM_channelA19, HBM_channelTHIS_t * HBM_channelB19, HBM_channelTHIS_t * HBM_channelA20, HBM_channelTHIS_t * HBM_channelB20, HBM_channelTHIS_t * HBM_channelA21, HBM_channelTHIS_t * HBM_channelB21, HBM_channelTHIS_t * HBM_channelA22, HBM_channelTHIS_t * HBM_channelB22, HBM_channelTHIS_t * HBM_channelA23, HBM_channelTHIS_t * HBM_channelB23, HBM_channelTHIS_t * HBM_channelA[NUM_PEs], HBM_channelTHIS_t * HBM_channelB[NUM_PEs], unsigned int updatesptrs[MAX_NUM_LLPSETS]){
+void dretrievemany_udatesdram(unsigned int offset__, unsigned int llp_set, unsigned int index, uint512_vec_dt data[NUM_PEs],  HBM_channelTHIS_t * HBM_channelA0, HBM_channelTHIS_t * HBM_channelB0, HBM_channelTHIS_t * HBM_channelA1, HBM_channelTHIS_t * HBM_channelB1, HBM_channelTHIS_t * HBM_channelA2, HBM_channelTHIS_t * HBM_channelB2, HBM_channelTHIS_t * HBM_channelA3, HBM_channelTHIS_t * HBM_channelB3, HBM_channelTHIS_t * HBM_channelA4, HBM_channelTHIS_t * HBM_channelB4, HBM_channelTHIS_t * HBM_channelA5, HBM_channelTHIS_t * HBM_channelB5, HBM_channelTHIS_t * HBM_channelA6, HBM_channelTHIS_t * HBM_channelB6, HBM_channelTHIS_t * HBM_channelA7, HBM_channelTHIS_t * HBM_channelB7, HBM_channelTHIS_t * HBM_channelA8, HBM_channelTHIS_t * HBM_channelB8, HBM_channelTHIS_t * HBM_channelA9, HBM_channelTHIS_t * HBM_channelB9, HBM_channelTHIS_t * HBM_channelA10, HBM_channelTHIS_t * HBM_channelB10, HBM_channelTHIS_t * HBM_channelA11, HBM_channelTHIS_t * HBM_channelB11, HBM_channelTHIS_t * HBM_channelA12, HBM_channelTHIS_t * HBM_channelB12, HBM_channelTHIS_t * HBM_channelA13, HBM_channelTHIS_t * HBM_channelB13, HBM_channelTHIS_t * HBM_channelA14, HBM_channelTHIS_t * HBM_channelB14, HBM_channelTHIS_t * HBM_channelA15, HBM_channelTHIS_t * HBM_channelB15, HBM_channelTHIS_t * HBM_channelA16, HBM_channelTHIS_t * HBM_channelB16, HBM_channelTHIS_t * HBM_channelA17, HBM_channelTHIS_t * HBM_channelB17, HBM_channelTHIS_t * HBM_channelA18, HBM_channelTHIS_t * HBM_channelB18, HBM_channelTHIS_t * HBM_channelA19, HBM_channelTHIS_t * HBM_channelB19, HBM_channelTHIS_t * HBM_channelA20, HBM_channelTHIS_t * HBM_channelB20, HBM_channelTHIS_t * HBM_channelA21, HBM_channelTHIS_t * HBM_channelB21, HBM_channelTHIS_t * HBM_channelA22, HBM_channelTHIS_t * HBM_channelB22, HBM_channelTHIS_t * HBM_channelA23, HBM_channelTHIS_t * HBM_channelB23, unsigned int updatesptrs[MAX_NUM_LLPSETS]){
 	#ifdef _DEBUGMODE_CHECKS3
 	unsigned int wwsize = globalparams_debug[GLOBALPARAMSCODE__WWSIZE__UPDATES];
 	checkoutofbounds("acts_kernel::ERROR 710a::", updatesptrs[llp_set] + index, updatesptrs[llp_set + 1], NAp, NAp, NAp);
@@ -6036,7 +6021,7 @@ void dretrievemany_udatesdram(unsigned int offset__, unsigned int llp_set, unsig
 	#pragma HLS UNROLL
 		offsets_[n] = offset__ + index;
 	}
-	master_retrievemany_vec(offsets_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23, HBM_channelA, HBM_channelB);
+	master_retrievemany_vec(offsets_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23);
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 	#pragma HLS UNROLL
 		for(unsigned int n=0; n<NUM_PEs; n++){
@@ -6077,7 +6062,7 @@ void dretrieve_vdatadram(unsigned int offset__, unsigned int index, vprop_t data
 	}
 	return;
 }
-void dinsertmany_vdatadram(unsigned int offset__, unsigned int offsets[NUM_PEs], unsigned int t, vprop_t datas[NUM_PEs][EDGE_PACK_SIZE],  HBM_channelTHIS_t * HBM_channelA0, HBM_channelTHIS_t * HBM_channelB0, HBM_channelTHIS_t * HBM_channelA1, HBM_channelTHIS_t * HBM_channelB1, HBM_channelTHIS_t * HBM_channelA2, HBM_channelTHIS_t * HBM_channelB2, HBM_channelTHIS_t * HBM_channelA3, HBM_channelTHIS_t * HBM_channelB3, HBM_channelTHIS_t * HBM_channelA4, HBM_channelTHIS_t * HBM_channelB4, HBM_channelTHIS_t * HBM_channelA5, HBM_channelTHIS_t * HBM_channelB5, HBM_channelTHIS_t * HBM_channelA6, HBM_channelTHIS_t * HBM_channelB6, HBM_channelTHIS_t * HBM_channelA7, HBM_channelTHIS_t * HBM_channelB7, HBM_channelTHIS_t * HBM_channelA8, HBM_channelTHIS_t * HBM_channelB8, HBM_channelTHIS_t * HBM_channelA9, HBM_channelTHIS_t * HBM_channelB9, HBM_channelTHIS_t * HBM_channelA10, HBM_channelTHIS_t * HBM_channelB10, HBM_channelTHIS_t * HBM_channelA11, HBM_channelTHIS_t * HBM_channelB11, HBM_channelTHIS_t * HBM_channelA12, HBM_channelTHIS_t * HBM_channelB12, HBM_channelTHIS_t * HBM_channelA13, HBM_channelTHIS_t * HBM_channelB13, HBM_channelTHIS_t * HBM_channelA14, HBM_channelTHIS_t * HBM_channelB14, HBM_channelTHIS_t * HBM_channelA15, HBM_channelTHIS_t * HBM_channelB15, HBM_channelTHIS_t * HBM_channelA16, HBM_channelTHIS_t * HBM_channelB16, HBM_channelTHIS_t * HBM_channelA17, HBM_channelTHIS_t * HBM_channelB17, HBM_channelTHIS_t * HBM_channelA18, HBM_channelTHIS_t * HBM_channelB18, HBM_channelTHIS_t * HBM_channelA19, HBM_channelTHIS_t * HBM_channelB19, HBM_channelTHIS_t * HBM_channelA20, HBM_channelTHIS_t * HBM_channelB20, HBM_channelTHIS_t * HBM_channelA21, HBM_channelTHIS_t * HBM_channelB21, HBM_channelTHIS_t * HBM_channelA22, HBM_channelTHIS_t * HBM_channelB22, HBM_channelTHIS_t * HBM_channelA23, HBM_channelTHIS_t * HBM_channelB23, HBM_channelTHIS_t * HBM_channelA[NUM_PEs], HBM_channelTHIS_t * HBM_channelB[NUM_PEs]){
+void dinsertmany_vdatadram(unsigned int offset__, unsigned int offsets[NUM_PEs], unsigned int t, vprop_t datas[NUM_PEs][EDGE_PACK_SIZE],  HBM_channelTHIS_t * HBM_channelA0, HBM_channelTHIS_t * HBM_channelB0, HBM_channelTHIS_t * HBM_channelA1, HBM_channelTHIS_t * HBM_channelB1, HBM_channelTHIS_t * HBM_channelA2, HBM_channelTHIS_t * HBM_channelB2, HBM_channelTHIS_t * HBM_channelA3, HBM_channelTHIS_t * HBM_channelB3, HBM_channelTHIS_t * HBM_channelA4, HBM_channelTHIS_t * HBM_channelB4, HBM_channelTHIS_t * HBM_channelA5, HBM_channelTHIS_t * HBM_channelB5, HBM_channelTHIS_t * HBM_channelA6, HBM_channelTHIS_t * HBM_channelB6, HBM_channelTHIS_t * HBM_channelA7, HBM_channelTHIS_t * HBM_channelB7, HBM_channelTHIS_t * HBM_channelA8, HBM_channelTHIS_t * HBM_channelB8, HBM_channelTHIS_t * HBM_channelA9, HBM_channelTHIS_t * HBM_channelB9, HBM_channelTHIS_t * HBM_channelA10, HBM_channelTHIS_t * HBM_channelB10, HBM_channelTHIS_t * HBM_channelA11, HBM_channelTHIS_t * HBM_channelB11, HBM_channelTHIS_t * HBM_channelA12, HBM_channelTHIS_t * HBM_channelB12, HBM_channelTHIS_t * HBM_channelA13, HBM_channelTHIS_t * HBM_channelB13, HBM_channelTHIS_t * HBM_channelA14, HBM_channelTHIS_t * HBM_channelB14, HBM_channelTHIS_t * HBM_channelA15, HBM_channelTHIS_t * HBM_channelB15, HBM_channelTHIS_t * HBM_channelA16, HBM_channelTHIS_t * HBM_channelB16, HBM_channelTHIS_t * HBM_channelA17, HBM_channelTHIS_t * HBM_channelB17, HBM_channelTHIS_t * HBM_channelA18, HBM_channelTHIS_t * HBM_channelB18, HBM_channelTHIS_t * HBM_channelA19, HBM_channelTHIS_t * HBM_channelB19, HBM_channelTHIS_t * HBM_channelA20, HBM_channelTHIS_t * HBM_channelB20, HBM_channelTHIS_t * HBM_channelA21, HBM_channelTHIS_t * HBM_channelB21, HBM_channelTHIS_t * HBM_channelA22, HBM_channelTHIS_t * HBM_channelB22, HBM_channelTHIS_t * HBM_channelA23, HBM_channelTHIS_t * HBM_channelB23){
 	#ifdef _DEBUGMODE_CHECKS3
 	unsigned int wwsize = globalparams_debug[GLOBALPARAMSCODE__WWSIZE__VDATAS];
 	checkoutofbounds("acts_kernel::ERROR 711::", offsets[0], wwsize, NAp, NAp, NAp);
@@ -6101,10 +6086,10 @@ void dinsertmany_vdatadram(unsigned int offset__, unsigned int offsets[NUM_PEs],
 			data_[n][2*v+1] = datas[n][v].mask;
 		}
 	}
-	master_insertmany_vec(offsets_, ens_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23, HBM_channelA, HBM_channelB);
+	master_insertmany_vec(offsets_, ens_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23);
 	return;
 }
-void dretrievemany_vdatadram(unsigned int offset__, unsigned int offsets[NUM_PEs], unsigned int t, vprop_t datas[NUM_PEs][EDGE_PACK_SIZE],  HBM_channelTHIS_t * HBM_channelA0, HBM_channelTHIS_t * HBM_channelB0, HBM_channelTHIS_t * HBM_channelA1, HBM_channelTHIS_t * HBM_channelB1, HBM_channelTHIS_t * HBM_channelA2, HBM_channelTHIS_t * HBM_channelB2, HBM_channelTHIS_t * HBM_channelA3, HBM_channelTHIS_t * HBM_channelB3, HBM_channelTHIS_t * HBM_channelA4, HBM_channelTHIS_t * HBM_channelB4, HBM_channelTHIS_t * HBM_channelA5, HBM_channelTHIS_t * HBM_channelB5, HBM_channelTHIS_t * HBM_channelA6, HBM_channelTHIS_t * HBM_channelB6, HBM_channelTHIS_t * HBM_channelA7, HBM_channelTHIS_t * HBM_channelB7, HBM_channelTHIS_t * HBM_channelA8, HBM_channelTHIS_t * HBM_channelB8, HBM_channelTHIS_t * HBM_channelA9, HBM_channelTHIS_t * HBM_channelB9, HBM_channelTHIS_t * HBM_channelA10, HBM_channelTHIS_t * HBM_channelB10, HBM_channelTHIS_t * HBM_channelA11, HBM_channelTHIS_t * HBM_channelB11, HBM_channelTHIS_t * HBM_channelA12, HBM_channelTHIS_t * HBM_channelB12, HBM_channelTHIS_t * HBM_channelA13, HBM_channelTHIS_t * HBM_channelB13, HBM_channelTHIS_t * HBM_channelA14, HBM_channelTHIS_t * HBM_channelB14, HBM_channelTHIS_t * HBM_channelA15, HBM_channelTHIS_t * HBM_channelB15, HBM_channelTHIS_t * HBM_channelA16, HBM_channelTHIS_t * HBM_channelB16, HBM_channelTHIS_t * HBM_channelA17, HBM_channelTHIS_t * HBM_channelB17, HBM_channelTHIS_t * HBM_channelA18, HBM_channelTHIS_t * HBM_channelB18, HBM_channelTHIS_t * HBM_channelA19, HBM_channelTHIS_t * HBM_channelB19, HBM_channelTHIS_t * HBM_channelA20, HBM_channelTHIS_t * HBM_channelB20, HBM_channelTHIS_t * HBM_channelA21, HBM_channelTHIS_t * HBM_channelB21, HBM_channelTHIS_t * HBM_channelA22, HBM_channelTHIS_t * HBM_channelB22, HBM_channelTHIS_t * HBM_channelA23, HBM_channelTHIS_t * HBM_channelB23, HBM_channelTHIS_t * HBM_channelA[NUM_PEs], HBM_channelTHIS_t * HBM_channelB[NUM_PEs]){
+void dretrievemany_vdatadram(unsigned int offset__, unsigned int offsets[NUM_PEs], unsigned int t, vprop_t datas[NUM_PEs][EDGE_PACK_SIZE],  HBM_channelTHIS_t * HBM_channelA0, HBM_channelTHIS_t * HBM_channelB0, HBM_channelTHIS_t * HBM_channelA1, HBM_channelTHIS_t * HBM_channelB1, HBM_channelTHIS_t * HBM_channelA2, HBM_channelTHIS_t * HBM_channelB2, HBM_channelTHIS_t * HBM_channelA3, HBM_channelTHIS_t * HBM_channelB3, HBM_channelTHIS_t * HBM_channelA4, HBM_channelTHIS_t * HBM_channelB4, HBM_channelTHIS_t * HBM_channelA5, HBM_channelTHIS_t * HBM_channelB5, HBM_channelTHIS_t * HBM_channelA6, HBM_channelTHIS_t * HBM_channelB6, HBM_channelTHIS_t * HBM_channelA7, HBM_channelTHIS_t * HBM_channelB7, HBM_channelTHIS_t * HBM_channelA8, HBM_channelTHIS_t * HBM_channelB8, HBM_channelTHIS_t * HBM_channelA9, HBM_channelTHIS_t * HBM_channelB9, HBM_channelTHIS_t * HBM_channelA10, HBM_channelTHIS_t * HBM_channelB10, HBM_channelTHIS_t * HBM_channelA11, HBM_channelTHIS_t * HBM_channelB11, HBM_channelTHIS_t * HBM_channelA12, HBM_channelTHIS_t * HBM_channelB12, HBM_channelTHIS_t * HBM_channelA13, HBM_channelTHIS_t * HBM_channelB13, HBM_channelTHIS_t * HBM_channelA14, HBM_channelTHIS_t * HBM_channelB14, HBM_channelTHIS_t * HBM_channelA15, HBM_channelTHIS_t * HBM_channelB15, HBM_channelTHIS_t * HBM_channelA16, HBM_channelTHIS_t * HBM_channelB16, HBM_channelTHIS_t * HBM_channelA17, HBM_channelTHIS_t * HBM_channelB17, HBM_channelTHIS_t * HBM_channelA18, HBM_channelTHIS_t * HBM_channelB18, HBM_channelTHIS_t * HBM_channelA19, HBM_channelTHIS_t * HBM_channelB19, HBM_channelTHIS_t * HBM_channelA20, HBM_channelTHIS_t * HBM_channelB20, HBM_channelTHIS_t * HBM_channelA21, HBM_channelTHIS_t * HBM_channelB21, HBM_channelTHIS_t * HBM_channelA22, HBM_channelTHIS_t * HBM_channelB22, HBM_channelTHIS_t * HBM_channelA23, HBM_channelTHIS_t * HBM_channelB23){
 	#ifdef _DEBUGMODE_CHECKS3
 	unsigned int wwsize = globalparams_debug[GLOBALPARAMSCODE__WWSIZE__VDATAS];
 	checkoutofbounds("acts_kernel::ERROR 712::", offsets[0], wwsize, NAp, NAp, NAp);
@@ -6116,7 +6101,7 @@ void dretrievemany_vdatadram(unsigned int offset__, unsigned int offsets[NUM_PEs
 	#pragma HLS UNROLL
 		offsets_[n] = offset__ + offsets[n] + t;
 	}
-	master_retrievemany_vec(offsets_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23, HBM_channelA, HBM_channelB);
+	master_retrievemany_vec(offsets_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23);
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 	#pragma HLS UNROLL
 		for(unsigned int n=0; n<NUM_PEs; n++){
@@ -6159,7 +6144,7 @@ void dretrieve_cfrontierdram_tmp(unsigned int base_offset__, unsigned int index,
 	}
 	return; 
 }
-void dinsertmany_cfrontierdram_tmp(unsigned int base_offset__, unsigned int offsets[NUM_PEs], unsigned int t, keyvalue_t datas[NUM_PEs][EDGE_PACK_SIZE], bool ens[NUM_PEs][EDGE_PACK_SIZE],  HBM_channelTHIS_t * HBM_channelA0, HBM_channelTHIS_t * HBM_channelB0, HBM_channelTHIS_t * HBM_channelA1, HBM_channelTHIS_t * HBM_channelB1, HBM_channelTHIS_t * HBM_channelA2, HBM_channelTHIS_t * HBM_channelB2, HBM_channelTHIS_t * HBM_channelA3, HBM_channelTHIS_t * HBM_channelB3, HBM_channelTHIS_t * HBM_channelA4, HBM_channelTHIS_t * HBM_channelB4, HBM_channelTHIS_t * HBM_channelA5, HBM_channelTHIS_t * HBM_channelB5, HBM_channelTHIS_t * HBM_channelA6, HBM_channelTHIS_t * HBM_channelB6, HBM_channelTHIS_t * HBM_channelA7, HBM_channelTHIS_t * HBM_channelB7, HBM_channelTHIS_t * HBM_channelA8, HBM_channelTHIS_t * HBM_channelB8, HBM_channelTHIS_t * HBM_channelA9, HBM_channelTHIS_t * HBM_channelB9, HBM_channelTHIS_t * HBM_channelA10, HBM_channelTHIS_t * HBM_channelB10, HBM_channelTHIS_t * HBM_channelA11, HBM_channelTHIS_t * HBM_channelB11, HBM_channelTHIS_t * HBM_channelA12, HBM_channelTHIS_t * HBM_channelB12, HBM_channelTHIS_t * HBM_channelA13, HBM_channelTHIS_t * HBM_channelB13, HBM_channelTHIS_t * HBM_channelA14, HBM_channelTHIS_t * HBM_channelB14, HBM_channelTHIS_t * HBM_channelA15, HBM_channelTHIS_t * HBM_channelB15, HBM_channelTHIS_t * HBM_channelA16, HBM_channelTHIS_t * HBM_channelB16, HBM_channelTHIS_t * HBM_channelA17, HBM_channelTHIS_t * HBM_channelB17, HBM_channelTHIS_t * HBM_channelA18, HBM_channelTHIS_t * HBM_channelB18, HBM_channelTHIS_t * HBM_channelA19, HBM_channelTHIS_t * HBM_channelB19, HBM_channelTHIS_t * HBM_channelA20, HBM_channelTHIS_t * HBM_channelB20, HBM_channelTHIS_t * HBM_channelA21, HBM_channelTHIS_t * HBM_channelB21, HBM_channelTHIS_t * HBM_channelA22, HBM_channelTHIS_t * HBM_channelB22, HBM_channelTHIS_t * HBM_channelA23, HBM_channelTHIS_t * HBM_channelB23, HBM_channelTHIS_t * HBM_channelA[NUM_PEs], HBM_channelTHIS_t * HBM_channelB[NUM_PEs]){
+void dinsertmany_cfrontierdram_tmp(unsigned int base_offset__, unsigned int offsets[NUM_PEs], unsigned int t, keyvalue_t datas[NUM_PEs][EDGE_PACK_SIZE], bool ens[NUM_PEs][EDGE_PACK_SIZE],  HBM_channelTHIS_t * HBM_channelA0, HBM_channelTHIS_t * HBM_channelB0, HBM_channelTHIS_t * HBM_channelA1, HBM_channelTHIS_t * HBM_channelB1, HBM_channelTHIS_t * HBM_channelA2, HBM_channelTHIS_t * HBM_channelB2, HBM_channelTHIS_t * HBM_channelA3, HBM_channelTHIS_t * HBM_channelB3, HBM_channelTHIS_t * HBM_channelA4, HBM_channelTHIS_t * HBM_channelB4, HBM_channelTHIS_t * HBM_channelA5, HBM_channelTHIS_t * HBM_channelB5, HBM_channelTHIS_t * HBM_channelA6, HBM_channelTHIS_t * HBM_channelB6, HBM_channelTHIS_t * HBM_channelA7, HBM_channelTHIS_t * HBM_channelB7, HBM_channelTHIS_t * HBM_channelA8, HBM_channelTHIS_t * HBM_channelB8, HBM_channelTHIS_t * HBM_channelA9, HBM_channelTHIS_t * HBM_channelB9, HBM_channelTHIS_t * HBM_channelA10, HBM_channelTHIS_t * HBM_channelB10, HBM_channelTHIS_t * HBM_channelA11, HBM_channelTHIS_t * HBM_channelB11, HBM_channelTHIS_t * HBM_channelA12, HBM_channelTHIS_t * HBM_channelB12, HBM_channelTHIS_t * HBM_channelA13, HBM_channelTHIS_t * HBM_channelB13, HBM_channelTHIS_t * HBM_channelA14, HBM_channelTHIS_t * HBM_channelB14, HBM_channelTHIS_t * HBM_channelA15, HBM_channelTHIS_t * HBM_channelB15, HBM_channelTHIS_t * HBM_channelA16, HBM_channelTHIS_t * HBM_channelB16, HBM_channelTHIS_t * HBM_channelA17, HBM_channelTHIS_t * HBM_channelB17, HBM_channelTHIS_t * HBM_channelA18, HBM_channelTHIS_t * HBM_channelB18, HBM_channelTHIS_t * HBM_channelA19, HBM_channelTHIS_t * HBM_channelB19, HBM_channelTHIS_t * HBM_channelA20, HBM_channelTHIS_t * HBM_channelB20, HBM_channelTHIS_t * HBM_channelA21, HBM_channelTHIS_t * HBM_channelB21, HBM_channelTHIS_t * HBM_channelA22, HBM_channelTHIS_t * HBM_channelB22, HBM_channelTHIS_t * HBM_channelA23, HBM_channelTHIS_t * HBM_channelB23){
 	#ifdef _DEBUGMODE_CHECKS3
 	unsigned int wwsize = globalparams_debug[GLOBALPARAMSCODE__WWSIZE__CFRONTIERSTMP];
 	checkoutofbounds("acts_kernel::ERROR 713a::", offsets[0] + t, wwsize, NAp, NAp, NAp);
@@ -6183,10 +6168,10 @@ void dinsertmany_cfrontierdram_tmp(unsigned int base_offset__, unsigned int offs
 			data_[n][2*v+1] = datas[n][v].value;
 		}
 	}
-	master_insertmany_vec(offsets_, ens_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23, HBM_channelA, HBM_channelB);
+	master_insertmany_vec(offsets_, ens_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23);
 	return;
 }
-void dretrievemany_cfrontierdram_tmp(unsigned int base_offset__, unsigned int offsets[NUM_PEs], unsigned int t, keyvalue_t datas[NUM_PEs][EDGE_PACK_SIZE],  HBM_channelTHIS_t * HBM_channelA0, HBM_channelTHIS_t * HBM_channelB0, HBM_channelTHIS_t * HBM_channelA1, HBM_channelTHIS_t * HBM_channelB1, HBM_channelTHIS_t * HBM_channelA2, HBM_channelTHIS_t * HBM_channelB2, HBM_channelTHIS_t * HBM_channelA3, HBM_channelTHIS_t * HBM_channelB3, HBM_channelTHIS_t * HBM_channelA4, HBM_channelTHIS_t * HBM_channelB4, HBM_channelTHIS_t * HBM_channelA5, HBM_channelTHIS_t * HBM_channelB5, HBM_channelTHIS_t * HBM_channelA6, HBM_channelTHIS_t * HBM_channelB6, HBM_channelTHIS_t * HBM_channelA7, HBM_channelTHIS_t * HBM_channelB7, HBM_channelTHIS_t * HBM_channelA8, HBM_channelTHIS_t * HBM_channelB8, HBM_channelTHIS_t * HBM_channelA9, HBM_channelTHIS_t * HBM_channelB9, HBM_channelTHIS_t * HBM_channelA10, HBM_channelTHIS_t * HBM_channelB10, HBM_channelTHIS_t * HBM_channelA11, HBM_channelTHIS_t * HBM_channelB11, HBM_channelTHIS_t * HBM_channelA12, HBM_channelTHIS_t * HBM_channelB12, HBM_channelTHIS_t * HBM_channelA13, HBM_channelTHIS_t * HBM_channelB13, HBM_channelTHIS_t * HBM_channelA14, HBM_channelTHIS_t * HBM_channelB14, HBM_channelTHIS_t * HBM_channelA15, HBM_channelTHIS_t * HBM_channelB15, HBM_channelTHIS_t * HBM_channelA16, HBM_channelTHIS_t * HBM_channelB16, HBM_channelTHIS_t * HBM_channelA17, HBM_channelTHIS_t * HBM_channelB17, HBM_channelTHIS_t * HBM_channelA18, HBM_channelTHIS_t * HBM_channelB18, HBM_channelTHIS_t * HBM_channelA19, HBM_channelTHIS_t * HBM_channelB19, HBM_channelTHIS_t * HBM_channelA20, HBM_channelTHIS_t * HBM_channelB20, HBM_channelTHIS_t * HBM_channelA21, HBM_channelTHIS_t * HBM_channelB21, HBM_channelTHIS_t * HBM_channelA22, HBM_channelTHIS_t * HBM_channelB22, HBM_channelTHIS_t * HBM_channelA23, HBM_channelTHIS_t * HBM_channelB23, HBM_channelTHIS_t * HBM_channelA[NUM_PEs], HBM_channelTHIS_t * HBM_channelB[NUM_PEs]){
+void dretrievemany_cfrontierdram_tmp(unsigned int base_offset__, unsigned int offsets[NUM_PEs], unsigned int t, keyvalue_t datas[NUM_PEs][EDGE_PACK_SIZE],  HBM_channelTHIS_t * HBM_channelA0, HBM_channelTHIS_t * HBM_channelB0, HBM_channelTHIS_t * HBM_channelA1, HBM_channelTHIS_t * HBM_channelB1, HBM_channelTHIS_t * HBM_channelA2, HBM_channelTHIS_t * HBM_channelB2, HBM_channelTHIS_t * HBM_channelA3, HBM_channelTHIS_t * HBM_channelB3, HBM_channelTHIS_t * HBM_channelA4, HBM_channelTHIS_t * HBM_channelB4, HBM_channelTHIS_t * HBM_channelA5, HBM_channelTHIS_t * HBM_channelB5, HBM_channelTHIS_t * HBM_channelA6, HBM_channelTHIS_t * HBM_channelB6, HBM_channelTHIS_t * HBM_channelA7, HBM_channelTHIS_t * HBM_channelB7, HBM_channelTHIS_t * HBM_channelA8, HBM_channelTHIS_t * HBM_channelB8, HBM_channelTHIS_t * HBM_channelA9, HBM_channelTHIS_t * HBM_channelB9, HBM_channelTHIS_t * HBM_channelA10, HBM_channelTHIS_t * HBM_channelB10, HBM_channelTHIS_t * HBM_channelA11, HBM_channelTHIS_t * HBM_channelB11, HBM_channelTHIS_t * HBM_channelA12, HBM_channelTHIS_t * HBM_channelB12, HBM_channelTHIS_t * HBM_channelA13, HBM_channelTHIS_t * HBM_channelB13, HBM_channelTHIS_t * HBM_channelA14, HBM_channelTHIS_t * HBM_channelB14, HBM_channelTHIS_t * HBM_channelA15, HBM_channelTHIS_t * HBM_channelB15, HBM_channelTHIS_t * HBM_channelA16, HBM_channelTHIS_t * HBM_channelB16, HBM_channelTHIS_t * HBM_channelA17, HBM_channelTHIS_t * HBM_channelB17, HBM_channelTHIS_t * HBM_channelA18, HBM_channelTHIS_t * HBM_channelB18, HBM_channelTHIS_t * HBM_channelA19, HBM_channelTHIS_t * HBM_channelB19, HBM_channelTHIS_t * HBM_channelA20, HBM_channelTHIS_t * HBM_channelB20, HBM_channelTHIS_t * HBM_channelA21, HBM_channelTHIS_t * HBM_channelB21, HBM_channelTHIS_t * HBM_channelA22, HBM_channelTHIS_t * HBM_channelB22, HBM_channelTHIS_t * HBM_channelA23, HBM_channelTHIS_t * HBM_channelB23){
 	#ifdef _DEBUGMODE_CHECKS3
 	unsigned int wwsize = globalparams_debug[GLOBALPARAMSCODE__WWSIZE__CFRONTIERSTMP];
 	checkoutofbounds("acts_kernel::ERROR 714a::", offsets[0] + t, wwsize, NAp, NAp, NAp);
@@ -6198,7 +6183,7 @@ void dretrievemany_cfrontierdram_tmp(unsigned int base_offset__, unsigned int of
 	#pragma HLS UNROLL
 		offsets_[n] = base_offset__ + offsets[n] + t;
 	}
-	master_retrievemany_vec(offsets_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23, HBM_channelA, HBM_channelB);
+	master_retrievemany_vec(offsets_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23);
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 	#pragma HLS UNROLL
 		for(unsigned int n=0; n<NUM_PEs; n++){
@@ -6242,7 +6227,7 @@ void dretrieve_nfrontierdram(unsigned int offset__, unsigned int p_u, unsigned i
 	}
 	return; 
 }
-void dinsertmany_nfrontierdram(unsigned int offset__, unsigned int p_u, unsigned int offsets[NUM_PEs], unsigned int t, keyvalue_t datas[NUM_PEs][EDGE_PACK_SIZE], bool ens[NUM_PEs][EDGE_PACK_SIZE],  HBM_channelTHIS_t * HBM_channelA0, HBM_channelTHIS_t * HBM_channelB0, HBM_channelTHIS_t * HBM_channelA1, HBM_channelTHIS_t * HBM_channelB1, HBM_channelTHIS_t * HBM_channelA2, HBM_channelTHIS_t * HBM_channelB2, HBM_channelTHIS_t * HBM_channelA3, HBM_channelTHIS_t * HBM_channelB3, HBM_channelTHIS_t * HBM_channelA4, HBM_channelTHIS_t * HBM_channelB4, HBM_channelTHIS_t * HBM_channelA5, HBM_channelTHIS_t * HBM_channelB5, HBM_channelTHIS_t * HBM_channelA6, HBM_channelTHIS_t * HBM_channelB6, HBM_channelTHIS_t * HBM_channelA7, HBM_channelTHIS_t * HBM_channelB7, HBM_channelTHIS_t * HBM_channelA8, HBM_channelTHIS_t * HBM_channelB8, HBM_channelTHIS_t * HBM_channelA9, HBM_channelTHIS_t * HBM_channelB9, HBM_channelTHIS_t * HBM_channelA10, HBM_channelTHIS_t * HBM_channelB10, HBM_channelTHIS_t * HBM_channelA11, HBM_channelTHIS_t * HBM_channelB11, HBM_channelTHIS_t * HBM_channelA12, HBM_channelTHIS_t * HBM_channelB12, HBM_channelTHIS_t * HBM_channelA13, HBM_channelTHIS_t * HBM_channelB13, HBM_channelTHIS_t * HBM_channelA14, HBM_channelTHIS_t * HBM_channelB14, HBM_channelTHIS_t * HBM_channelA15, HBM_channelTHIS_t * HBM_channelB15, HBM_channelTHIS_t * HBM_channelA16, HBM_channelTHIS_t * HBM_channelB16, HBM_channelTHIS_t * HBM_channelA17, HBM_channelTHIS_t * HBM_channelB17, HBM_channelTHIS_t * HBM_channelA18, HBM_channelTHIS_t * HBM_channelB18, HBM_channelTHIS_t * HBM_channelA19, HBM_channelTHIS_t * HBM_channelB19, HBM_channelTHIS_t * HBM_channelA20, HBM_channelTHIS_t * HBM_channelB20, HBM_channelTHIS_t * HBM_channelA21, HBM_channelTHIS_t * HBM_channelB21, HBM_channelTHIS_t * HBM_channelA22, HBM_channelTHIS_t * HBM_channelB22, HBM_channelTHIS_t * HBM_channelA23, HBM_channelTHIS_t * HBM_channelB23, HBM_channelTHIS_t * HBM_channelA[NUM_PEs], HBM_channelTHIS_t * HBM_channelB[NUM_PEs]){
+void dinsertmany_nfrontierdram(unsigned int offset__, unsigned int p_u, unsigned int offsets[NUM_PEs], unsigned int t, keyvalue_t datas[NUM_PEs][EDGE_PACK_SIZE], bool ens[NUM_PEs][EDGE_PACK_SIZE],  HBM_channelTHIS_t * HBM_channelA0, HBM_channelTHIS_t * HBM_channelB0, HBM_channelTHIS_t * HBM_channelA1, HBM_channelTHIS_t * HBM_channelB1, HBM_channelTHIS_t * HBM_channelA2, HBM_channelTHIS_t * HBM_channelB2, HBM_channelTHIS_t * HBM_channelA3, HBM_channelTHIS_t * HBM_channelB3, HBM_channelTHIS_t * HBM_channelA4, HBM_channelTHIS_t * HBM_channelB4, HBM_channelTHIS_t * HBM_channelA5, HBM_channelTHIS_t * HBM_channelB5, HBM_channelTHIS_t * HBM_channelA6, HBM_channelTHIS_t * HBM_channelB6, HBM_channelTHIS_t * HBM_channelA7, HBM_channelTHIS_t * HBM_channelB7, HBM_channelTHIS_t * HBM_channelA8, HBM_channelTHIS_t * HBM_channelB8, HBM_channelTHIS_t * HBM_channelA9, HBM_channelTHIS_t * HBM_channelB9, HBM_channelTHIS_t * HBM_channelA10, HBM_channelTHIS_t * HBM_channelB10, HBM_channelTHIS_t * HBM_channelA11, HBM_channelTHIS_t * HBM_channelB11, HBM_channelTHIS_t * HBM_channelA12, HBM_channelTHIS_t * HBM_channelB12, HBM_channelTHIS_t * HBM_channelA13, HBM_channelTHIS_t * HBM_channelB13, HBM_channelTHIS_t * HBM_channelA14, HBM_channelTHIS_t * HBM_channelB14, HBM_channelTHIS_t * HBM_channelA15, HBM_channelTHIS_t * HBM_channelB15, HBM_channelTHIS_t * HBM_channelA16, HBM_channelTHIS_t * HBM_channelB16, HBM_channelTHIS_t * HBM_channelA17, HBM_channelTHIS_t * HBM_channelB17, HBM_channelTHIS_t * HBM_channelA18, HBM_channelTHIS_t * HBM_channelB18, HBM_channelTHIS_t * HBM_channelA19, HBM_channelTHIS_t * HBM_channelB19, HBM_channelTHIS_t * HBM_channelA20, HBM_channelTHIS_t * HBM_channelB20, HBM_channelTHIS_t * HBM_channelA21, HBM_channelTHIS_t * HBM_channelB21, HBM_channelTHIS_t * HBM_channelA22, HBM_channelTHIS_t * HBM_channelB22, HBM_channelTHIS_t * HBM_channelA23, HBM_channelTHIS_t * HBM_channelB23){
 	#ifdef _DEBUGMODE_CHECKS3
 	unsigned int wwsize = globalparams_debug[GLOBALPARAMSCODE__WWSIZE__NFRONTIERS];
 	checkoutofbounds("acts_kernel::ERROR 715a::", offsets[0] + t, wwsize, NAp, NAp, NAp);
@@ -6266,37 +6251,30 @@ void dinsertmany_nfrontierdram(unsigned int offset__, unsigned int p_u, unsigned
 			data_[n][2*v+1] = datas[n][v].value;
 		}
 	}
-	master_insertmany_vec(offsets_, ens_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23, HBM_channelA, HBM_channelB);
+	master_insertmany_vec(offsets_, ens_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23);
 }
 
 //////////////////////////////////////////////////////////////////
-void insert_udatabuffer(unsigned int v, unsigned int index, vprop_t data, vprop_t * vdata_buffer[EDGE_PACK_SIZE]){
-	#ifdef _DEBUGMODE_CHECKS3
-	checkoutofbounds("acts_kernel::ERROR 100::", index, MAX_UPARTITION_VECSIZE, NAp, NAp, NAp);
-	#endif 
-	vdata_buffer[v][index] = data;
-}
+// vprop_t retrieve_2DDbuffer(unsigned int v, unsigned int index, vprop_t * vdata_buffer[EDGE_PACK_SIZE]){
+	// #ifdef _DEBUGMODE_CHECKS3
+	// checkoutofbounds("acts_kernel::ERROR 101::", index, MAX_UPARTITION_VECSIZE, NAp, NAp, NAp);
+	// #endif 
+	// return vdata_buffer[v][index];
+// }
 
-vprop_t retrieve_udatabuffer(unsigned int v, unsigned int index, vprop_t * vdata_buffer[EDGE_PACK_SIZE]){
-	#ifdef _DEBUGMODE_CHECKS3
-	checkoutofbounds("acts_kernel::ERROR 101::", index, MAX_UPARTITION_VECSIZE, NAp, NAp, NAp);
-	#endif 
-	return vdata_buffer[v][index];
-}
-
-void insert_vdatabuffer(unsigned int v, unsigned int index, vprop_t data, vprop_t * vdata_buffer[EDGE_PACK_SIZE]){
+void insert_2DVbuffer(unsigned int v, unsigned int index, vprop_t data, vprop_t * vdata_buffer[EDGE_PACK_SIZE]){
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_kernel::ERROR 102::", index, MAX_UPARTITION_VECSIZE, NAp, NAp, NAp);
 	#endif 
 	vdata_buffer[v][index] = data; // vdata_buffer
 }
-vprop_t retrieve_vdatabuffer(unsigned int v, unsigned int index, vprop_t * vdata_buffer[EDGE_PACK_SIZE]){
+vprop_t retrieve_2DVbuffer(unsigned int v, unsigned int index, vprop_t * vdata_buffer[EDGE_PACK_SIZE]){
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_kernel::ERROR 103::", index, MAX_UPARTITION_VECSIZE, NAp, NAp, NAp);
 	#endif 
 	return vdata_buffer[v][index];
 }
-void insert_vdatabuffer(unsigned int index, vprop_t data[EDGE_PACK_SIZE], vprop_t * vdata_buffer[EDGE_PACK_SIZE]){
+void insert_2DVbuffer(unsigned int index, vprop_t data[EDGE_PACK_SIZE], vprop_t * vdata_buffer[EDGE_PACK_SIZE]){
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 	#pragma HLS UNROLL
 		#ifdef _DEBUGMODE_CHECKS3
@@ -6305,7 +6283,7 @@ void insert_vdatabuffer(unsigned int index, vprop_t data[EDGE_PACK_SIZE], vprop_
 		vdata_buffer[v][index] = data[v];
 	}
 }
-vprop_t retrieve_vdatabuffer(unsigned int index, vprop_t data[EDGE_PACK_SIZE], vprop_t * vdata_buffer[EDGE_PACK_SIZE]){
+vprop_t retrieve_2DVbuffer(unsigned int index, vprop_t data[EDGE_PACK_SIZE], vprop_t * vdata_buffer[EDGE_PACK_SIZE]){
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 	#pragma HLS UNROLL
 		#ifdef _DEBUGMODE_CHECKS3
@@ -6341,154 +6319,107 @@ keyvalue_t retrieve_updatesbuffer(unsigned int v, unsigned int index, keyvalue_t
 	return updates_buffer[v][index];
 }
 
-void insert_updatestmpbuffer(unsigned int index, unsigned int t, keyvalue_t data, keyvalue_t * updates_tmpbuffer[NUM_PEs]){
+void insert_vptrbuffer(unsigned int t, vtr_t data, vtr_t * _1D_buffer){
 	#ifdef _DEBUGMODE_CHECKS3
-	checkoutofbounds("acts_kernel::ERROR 109::", index, 24, NAp, NAp, NAp);
-	checkoutofbounds("acts_kernel::ERROR 110::", t, CSRBUFFER_SIZE, NAp, NAp, NAp);
+	checkoutofbounds("acts_kernel::ERROR 129::", t, VPTR_BUFFER_SIZE, NAp, NAp, NAp);
 	#endif 
-	updates_tmpbuffer[index][t] = data;
+	_1D_buffer[t] = data;
 }
-keyvalue_t retrieve_updatestmpbuffer(unsigned int index, unsigned int t, keyvalue_t * updates_tmpbuffer[NUM_PEs]){
+vtr_t retrieve_vptrbuffer(unsigned int t, vtr_t * _1D_buffer){
 	#ifdef _DEBUGMODE_CHECKS3
-	checkoutofbounds("acts_kernel::ERROR 111::", index, 24, NAp, NAp, NAp);
-	checkoutofbounds("acts_kernel::ERROR 112::", t, CSRBUFFER_SIZE, NAp, NAp, NAp);
+	checkoutofbounds("acts_kernel::ERROR 130::", t, VPTR_BUFFER_SIZE, NAp, NAp, NAp);
 	#endif 
-	return updates_tmpbuffer[index][t];
+	return _1D_buffer[t];
 }
 
-void insert_cfrontierbuffer(unsigned int v, unsigned int t, frontier_t data, keyvalue_t * cfrontier_buffer[EDGE_PACK_SIZE]){
+void insert_frontierbuffer(unsigned int v, unsigned int t, frontier_t data, keyvalue_t * _2D_buffer[EDGE_PACK_SIZE]){
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_kernel::ERROR 113::", t, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
 	#endif 
-	cfrontier_buffer[v][t] = data;
+	_2D_buffer[v][t] = data;
 }
-frontier_t retrieve_cfrontierbuffer(unsigned int v, unsigned int t, keyvalue_t * cfrontier_buffer[EDGE_PACK_SIZE]){
+frontier_t retrieve_frontierbuffer(unsigned int v, unsigned int t, keyvalue_t * _2D_buffer[EDGE_PACK_SIZE]){
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_kernel::ERROR 114::", t, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
 	#endif 
-	return cfrontier_buffer[v][t];
+	return _2D_buffer[v][t];
 }
-void insert_cfrontierbuffer(unsigned int t, frontier_t data[EDGE_PACK_SIZE], keyvalue_t * cfrontier_buffer[EDGE_PACK_SIZE]){
+void insert_frontierbuffer(unsigned int t, frontier_t data[EDGE_PACK_SIZE], keyvalue_t * _2D_buffer[EDGE_PACK_SIZE]){
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 	#pragma HLS UNROLL
 		#ifdef _DEBUGMODE_CHECKS3
 		checkoutofbounds("acts_kernel::ERROR 115::", t, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
 		#endif 
-		cfrontier_buffer[v][t] = data[v];
+		_2D_buffer[v][t] = data[v];
 	}
 }
-void retrieve_cfrontierbuffer(unsigned int t, frontier_t data[EDGE_PACK_SIZE], keyvalue_t * cfrontier_buffer[EDGE_PACK_SIZE]){
+void retrieve_frontierbuffer(unsigned int t, frontier_t data[EDGE_PACK_SIZE], keyvalue_t * _2D_buffer[EDGE_PACK_SIZE]){
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 	#pragma HLS UNROLL
 		#ifdef _DEBUGMODE_CHECKS3
 		checkoutofbounds("acts_kernel::ERROR 116::", t, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
 		#endif 
-		data[v] = cfrontier_buffer[v][t];
+		data[v] = _2D_buffer[v][t];
 	}
 	return; 
 }
 
-void insert_nfrontierbuffer(unsigned int t, unsigned int v, frontier_t data, keyvalue_t * nfrontier_buffer[EDGE_PACK_SIZE]){
-	#ifdef _DEBUGMODE_CHECKS3
-	checkoutofbounds("acts_kernel::ERROR 117::", t, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
-	#endif 
-	nfrontier_buffer[v][t] = data;
-}
-frontier_t retrieve_nfrontierbuffer(unsigned int t, unsigned int v, keyvalue_t * nfrontier_buffer[EDGE_PACK_SIZE]){
-	#ifdef _DEBUGMODE_CHECKS3
-	checkoutofbounds("acts_kernel::ERROR 118::", t, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
-	#endif 
-	return nfrontier_buffer[v][t];
-}
-void insert_nfrontierbuffer(unsigned int t, frontier_t data[EDGE_PACK_SIZE], keyvalue_t * nfrontier_buffer[EDGE_PACK_SIZE]){
-	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
-	#pragma HLS UNROLL
-		#ifdef _DEBUGMODE_CHECKS3
-		checkoutofbounds("acts_kernel::ERROR 119::", t, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
-		#endif 
-		nfrontier_buffer[v][t] = data[v];
-	}
-}
-void retrieve_nfrontierbuffer(unsigned int t, frontier_t data[EDGE_PACK_SIZE], keyvalue_t * nfrontier_buffer[EDGE_PACK_SIZE]){
-	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
-	#pragma HLS UNROLL
-		#ifdef _DEBUGMODE_CHECKS3
-		checkoutofbounds("acts_kernel::ERROR 120::", t, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
-		#endif 
-		data[v] = nfrontier_buffer[v][t];
-	}
-	return; 
-}
-
-void insert_statstmpbuffer(unsigned int t, unsigned int v, unsigned int data, unsigned int * stats_tmpbuffer[EDGE_PACK_SIZE]){
+void insert_statstmpbuffer(unsigned int t, unsigned int v, unsigned int data, unsigned int * statsbuffer_maskbased_tmp[EDGE_PACK_SIZE]){
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_kernel::ERROR 121::", t, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
 	#endif 
-	stats_tmpbuffer[v][t] = data;
+	statsbuffer_maskbased_tmp[v][t] = data;
 }
-unsigned int retrieve_statstmpbuffer(unsigned int t, unsigned int v, unsigned int * stats_tmpbuffer[EDGE_PACK_SIZE]){
+unsigned int retrieve_statstmpbuffer(unsigned int t, unsigned int v, unsigned int * statsbuffer_maskbased_tmp[EDGE_PACK_SIZE]){
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_kernel::ERROR 1242::", t, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
 	#endif 
-	return stats_tmpbuffer[v][t]; 
+	return statsbuffer_maskbased_tmp[v][t]; 
 }
-void insert_statstmpbuffer(unsigned int t, unsigned int data[EDGE_PACK_SIZE], unsigned int * stats_tmpbuffer[EDGE_PACK_SIZE]){
+void insert_statstmpbuffer(unsigned int t, unsigned int data[EDGE_PACK_SIZE], unsigned int * statsbuffer_maskbased_tmp[EDGE_PACK_SIZE]){
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 	#pragma HLS UNROLL
 		#ifdef _DEBUGMODE_CHECKS3
 		checkoutofbounds("acts_kernel::ERROR 123::", t, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
 		#endif 
-		stats_tmpbuffer[v][t] = data[v];
+		statsbuffer_maskbased_tmp[v][t] = data[v];
 	}
 }
-void retrieve_statstmpbuffer(unsigned int t, unsigned int data[EDGE_PACK_SIZE], unsigned int * stats_tmpbuffer[EDGE_PACK_SIZE]){
+void retrieve_statstmpbuffer(unsigned int t, unsigned int data[EDGE_PACK_SIZE], unsigned int * statsbuffer_maskbased_tmp[EDGE_PACK_SIZE]){
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 	#pragma HLS UNROLL
 		#ifdef _DEBUGMODE_CHECKS3
 		checkoutofbounds("acts_kernel::ERROR 124::", t, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
 		#endif 
-		data[v] = stats_tmpbuffer[v][t];
+		data[v] = statsbuffer_maskbased_tmp[v][t];
 	}
 	return; 
 }
 
-void insert_statsbuffer(unsigned int t, unsigned int v, unsigned int data, unsigned int * stats_buffer[MAX_NUM_APPLYPARTITIONS]){
+void insert_statsbuffer(unsigned int t, unsigned int v, unsigned int data, unsigned int * statsbuffer_maskbased[MAX_NUM_APPLYPARTITIONS]){
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_kernel::ERROR 125::", t, BLOCKRAM_SIZE, NAp, NAp, NAp);
 	#endif 
-	stats_buffer[v][t] = data;
+	statsbuffer_maskbased[v][t] = data;
 }
-unsigned int retrieve_statsbuffer(unsigned int t, unsigned int v, unsigned int * stats_buffer[MAX_NUM_APPLYPARTITIONS]){
+unsigned int retrieve_statsbuffer(unsigned int t, unsigned int v, unsigned int * statsbuffer_maskbased[MAX_NUM_APPLYPARTITIONS]){
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_kernel::ERROR 126::", t, BLOCKRAM_SIZE, NAp, NAp, NAp);
 	#endif 
-	return stats_buffer[v][t]; 
+	return statsbuffer_maskbased[v][t]; 
 }
 
-void insert_stats2buffer(unsigned int t, unsigned int v, unsigned int data, unsigned int * stats2_buffer[MAX_NUM_APPLYPARTITIONS]){
+void insert_stats2buffer(unsigned int t, unsigned int v, unsigned int data, unsigned int * statsbuffer_idbased[MAX_NUM_APPLYPARTITIONS]){
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_kernel::ERROR 127::", t, BLOCKRAM_SIZE, NAp, NAp, NAp);
 	#endif 
-	stats2_buffer[v][t] = data;
+	statsbuffer_idbased[v][t] = data;
 }
-unsigned int retrieve_stats2buffer(unsigned int t, unsigned int v, unsigned int * stats2_buffer[MAX_NUM_APPLYPARTITIONS]){
+unsigned int retrieve_stats2buffer(unsigned int t, unsigned int v, unsigned int * statsbuffer_idbased[MAX_NUM_APPLYPARTITIONS]){
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_kernel::ERROR 128::", t, BLOCKRAM_SIZE, NAp, NAp, NAp);
 	#endif 
-	return stats2_buffer[v][t]; 
-}
-
-void insert_vptrbuffer(unsigned int t, vtr_t data, vtr_t * vptr_buffer){
-	#ifdef _DEBUGMODE_CHECKS3
-	checkoutofbounds("acts_kernel::ERROR 129::", t, VPTR_BUFFER_SIZE, NAp, NAp, NAp);
-	#endif 
-	vptr_buffer[t] = data;
-}
-vtr_t retrieve_vptrbuffer(unsigned int t, vtr_t * vptr_buffer){
-	#ifdef _DEBUGMODE_CHECKS3
-	checkoutofbounds("acts_kernel::ERROR 130::", t, VPTR_BUFFER_SIZE, NAp, NAp, NAp);
-	#endif 
-	return vptr_buffer[t];
+	return statsbuffer_idbased[v][t]; 
 }
 //////////////////////////////////////////////////////////////////
 
@@ -6513,14 +6444,17 @@ void load_edges(unsigned int inst, unsigned int offset_vptrbuffer, unsigned int 
 				checkoutofbounds("acts_kernel::ERROR 812::", *edges_buffer___size, EDGE_BUFFER_SIZE, vptrbuffer___size, inst, edgelist_size);
 				insert_edgesbuffer(v, *edges_buffer___size, edge_list[v], edges_buffer);
 			}
-			// *edges_buffer___size += 1;
-			if(*edges_buffer___size + 2 < EDGE_BUFFER_SIZE){ *edges_buffer___size += 1; } // FIXME. 'forces successful run' // NEW
+			#ifdef ___FORCE_SUCCESS___
+			if(*edges_buffer___size + 8 < EDGE_BUFFER_SIZE){ *edges_buffer___size += 1; } // FIXME. 'forces successful run' // NEW
+			#else 
+			*edges_buffer___size += 1;	
+			#endif 
 		}
 	}
 	return;
 }
 
-void transport_frontier(unsigned int inst, unsigned int p_v, unsigned int baseoffset_nfdram, unsigned int * cfrontier_dram___size, unsigned int * nfrontier_dram___size[EDGE_PACK_SIZE], offset_t * upartition_vertices, HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB, HBM_channelTHIS_t * HBM_center, unsigned int * totalactvvs2){
+void transport_frontier(unsigned int inst, unsigned int p_v, unsigned int baseoffset_nfdram, unsigned int * cfrontier_dram___size, unsigned int * nfrontier_dram___size[EDGE_PACK_SIZE], offset_t * upartition_vertices, HBM_channelTHIS_t * HBM_channelA, HBM_channelTHIS_t * HBM_channelB, HBM_channelX_t * HBM_center, unsigned int * totalactvvs2){
 	frontier_t actvv[EDGE_PACK_SIZE];
 	for(unsigned int p_actvv=0; p_actvv<NUM_ACTVVPARTITIONS_PER_APPLYPARTITION; p_actvv++){
 		unsigned int p_actvv_ = p_v * NUM_ACTVVPARTITIONS_PER_APPLYPARTITION + p_actvv;
@@ -6534,94 +6468,253 @@ void transport_frontier(unsigned int inst, unsigned int p_v, unsigned int baseof
 			for(unsigned int v=0; v<0; v++){ cout<<"TRANSFER VID-BASED FRONTIERS SEEN @: H: "<<inst<<" => vid: "<<actvv[v].key<<", p_actvv_: "<<p_actvv_<<endl; }
 			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ if(actvv[v].key != INVALIDDATA && actvv[v].key / MAX_UPARTITION_SIZE != p_actvv_){ cout<<"ERROR 234: actvv["<<v<<"].key("<<actvv[v].key<<") / MAX_UPARTITION_SIZE("<<MAX_UPARTITION_SIZE<<")(="<<actvv[v].key / MAX_UPARTITION_SIZE<<") != p_actvv_("<<p_actvv_<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }}				
 			#endif 
-			// #ifdef _DEBUGMODE_KERNELPRINTS4
+			#ifdef _DEBUGMODE_KERNELPRINTS4 // NEW
 			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ if(actvv[v].key != INVALIDDATA){ *totalactvvs2 += 1; }} // FIXME.
-			// #endif 
+			#endif 
 			insert_cfrontierdram(p_actvv_, cfrontier_dram___size[p_actvv_], actvv, HBM_center); cfrontier_dram___size[p_actvv_] += 1;
 		}
 	}
 }
 
-void acts_kernel::run(HBM_channelTHIS_t * HBM_center,  HBM_channelTHIS_t * HBM_channelA0, HBM_channelTHIS_t * HBM_channelB0, HBM_channelTHIS_t * HBM_channelA1, HBM_channelTHIS_t * HBM_channelB1, HBM_channelTHIS_t * HBM_channelA2, HBM_channelTHIS_t * HBM_channelB2, HBM_channelTHIS_t * HBM_channelA3, HBM_channelTHIS_t * HBM_channelB3, HBM_channelTHIS_t * HBM_channelA4, HBM_channelTHIS_t * HBM_channelB4, HBM_channelTHIS_t * HBM_channelA5, HBM_channelTHIS_t * HBM_channelB5, HBM_channelTHIS_t * HBM_channelA6, HBM_channelTHIS_t * HBM_channelB6, HBM_channelTHIS_t * HBM_channelA7, HBM_channelTHIS_t * HBM_channelB7, HBM_channelTHIS_t * HBM_channelA8, HBM_channelTHIS_t * HBM_channelB8, HBM_channelTHIS_t * HBM_channelA9, HBM_channelTHIS_t * HBM_channelB9, HBM_channelTHIS_t * HBM_channelA10, HBM_channelTHIS_t * HBM_channelB10, HBM_channelTHIS_t * HBM_channelA11, HBM_channelTHIS_t * HBM_channelB11, HBM_channelTHIS_t * HBM_channelA12, HBM_channelTHIS_t * HBM_channelB12, HBM_channelTHIS_t * HBM_channelA13, HBM_channelTHIS_t * HBM_channelB13, HBM_channelTHIS_t * HBM_channelA14, HBM_channelTHIS_t * HBM_channelB14, HBM_channelTHIS_t * HBM_channelA15, HBM_channelTHIS_t * HBM_channelB15, HBM_channelTHIS_t * HBM_channelA16, HBM_channelTHIS_t * HBM_channelB16, HBM_channelTHIS_t * HBM_channelA17, HBM_channelTHIS_t * HBM_channelB17, HBM_channelTHIS_t * HBM_channelA18, HBM_channelTHIS_t * HBM_channelB18, HBM_channelTHIS_t * HBM_channelA19, HBM_channelTHIS_t * HBM_channelB19, HBM_channelTHIS_t * HBM_channelA20, HBM_channelTHIS_t * HBM_channelB20, HBM_channelTHIS_t * HBM_channelA21, HBM_channelTHIS_t * HBM_channelB21, HBM_channelTHIS_t * HBM_channelA22, HBM_channelTHIS_t * HBM_channelB22, HBM_channelTHIS_t * HBM_channelA23, HBM_channelTHIS_t * HBM_channelB23, HBM_channelTHIS_t * HBM_channelA[NUM_PEs], HBM_channelTHIS_t * HBM_channelB[NUM_PEs]){	
+#ifdef FPGA_IMPL
+void top_function(HBM_channelX_t * HBM_center,  HBM_channelTHIS_t * HBM_channelA0, HBM_channelTHIS_t * HBM_channelB0, HBM_channelTHIS_t * HBM_channelA1, HBM_channelTHIS_t * HBM_channelB1, HBM_channelTHIS_t * HBM_channelA2, HBM_channelTHIS_t * HBM_channelB2, HBM_channelTHIS_t * HBM_channelA3, HBM_channelTHIS_t * HBM_channelB3, HBM_channelTHIS_t * HBM_channelA4, HBM_channelTHIS_t * HBM_channelB4, HBM_channelTHIS_t * HBM_channelA5, HBM_channelTHIS_t * HBM_channelB5, HBM_channelTHIS_t * HBM_channelA6, HBM_channelTHIS_t * HBM_channelB6, HBM_channelTHIS_t * HBM_channelA7, HBM_channelTHIS_t * HBM_channelB7, HBM_channelTHIS_t * HBM_channelA8, HBM_channelTHIS_t * HBM_channelB8, HBM_channelTHIS_t * HBM_channelA9, HBM_channelTHIS_t * HBM_channelB9, HBM_channelTHIS_t * HBM_channelA10, HBM_channelTHIS_t * HBM_channelB10, HBM_channelTHIS_t * HBM_channelA11, HBM_channelTHIS_t * HBM_channelB11, HBM_channelTHIS_t * HBM_channelA12, HBM_channelTHIS_t * HBM_channelB12, HBM_channelTHIS_t * HBM_channelA13, HBM_channelTHIS_t * HBM_channelB13, HBM_channelTHIS_t * HBM_channelA14, HBM_channelTHIS_t * HBM_channelB14, HBM_channelTHIS_t * HBM_channelA15, HBM_channelTHIS_t * HBM_channelB15, HBM_channelTHIS_t * HBM_channelA16, HBM_channelTHIS_t * HBM_channelB16, HBM_channelTHIS_t * HBM_channelA17, HBM_channelTHIS_t * HBM_channelB17, HBM_channelTHIS_t * HBM_channelA18, HBM_channelTHIS_t * HBM_channelB18, HBM_channelTHIS_t * HBM_channelA19, HBM_channelTHIS_t * HBM_channelB19, HBM_channelTHIS_t * HBM_channelA20, HBM_channelTHIS_t * HBM_channelB20, HBM_channelTHIS_t * HBM_channelA21, HBM_channelTHIS_t * HBM_channelB21, HBM_channelTHIS_t * HBM_channelA22, HBM_channelTHIS_t * HBM_channelB22, HBM_channelTHIS_t * HBM_channelA23, HBM_channelTHIS_t * HBM_channelB23)
+#else 
+void acts_kernel::top_function(HBM_channelX_t * HBM_center,  HBM_channelTHIS_t * HBM_channelA0, HBM_channelTHIS_t * HBM_channelB0, HBM_channelTHIS_t * HBM_channelA1, HBM_channelTHIS_t * HBM_channelB1, HBM_channelTHIS_t * HBM_channelA2, HBM_channelTHIS_t * HBM_channelB2, HBM_channelTHIS_t * HBM_channelA3, HBM_channelTHIS_t * HBM_channelB3, HBM_channelTHIS_t * HBM_channelA4, HBM_channelTHIS_t * HBM_channelB4, HBM_channelTHIS_t * HBM_channelA5, HBM_channelTHIS_t * HBM_channelB5, HBM_channelTHIS_t * HBM_channelA6, HBM_channelTHIS_t * HBM_channelB6, HBM_channelTHIS_t * HBM_channelA7, HBM_channelTHIS_t * HBM_channelB7, HBM_channelTHIS_t * HBM_channelA8, HBM_channelTHIS_t * HBM_channelB8, HBM_channelTHIS_t * HBM_channelA9, HBM_channelTHIS_t * HBM_channelB9, HBM_channelTHIS_t * HBM_channelA10, HBM_channelTHIS_t * HBM_channelB10, HBM_channelTHIS_t * HBM_channelA11, HBM_channelTHIS_t * HBM_channelB11, HBM_channelTHIS_t * HBM_channelA12, HBM_channelTHIS_t * HBM_channelB12, HBM_channelTHIS_t * HBM_channelA13, HBM_channelTHIS_t * HBM_channelB13, HBM_channelTHIS_t * HBM_channelA14, HBM_channelTHIS_t * HBM_channelB14, HBM_channelTHIS_t * HBM_channelA15, HBM_channelTHIS_t * HBM_channelB15, HBM_channelTHIS_t * HBM_channelA16, HBM_channelTHIS_t * HBM_channelB16, HBM_channelTHIS_t * HBM_channelA17, HBM_channelTHIS_t * HBM_channelB17, HBM_channelTHIS_t * HBM_channelA18, HBM_channelTHIS_t * HBM_channelB18, HBM_channelTHIS_t * HBM_channelA19, HBM_channelTHIS_t * HBM_channelB19, HBM_channelTHIS_t * HBM_channelA20, HBM_channelTHIS_t * HBM_channelB20, HBM_channelTHIS_t * HBM_channelA21, HBM_channelTHIS_t * HBM_channelB21, HBM_channelTHIS_t * HBM_channelA22, HBM_channelTHIS_t * HBM_channelB22, HBM_channelTHIS_t * HBM_channelA23, HBM_channelTHIS_t * HBM_channelB23)
+#endif 
+{	
+#pragma HLS INTERFACE m_axi port = HBM_channelA0 offset = slave bundle = gmem0
+#pragma HLS INTERFACE m_axi port = HBM_channelB0 offset = slave bundle = gmem1
+#pragma HLS INTERFACE m_axi port = HBM_channelA1 offset = slave bundle = gmem2
+#pragma HLS INTERFACE m_axi port = HBM_channelB1 offset = slave bundle = gmem3
+#pragma HLS INTERFACE m_axi port = HBM_channelA2 offset = slave bundle = gmem4
+#pragma HLS INTERFACE m_axi port = HBM_channelB2 offset = slave bundle = gmem5
+#pragma HLS INTERFACE m_axi port = HBM_channelA3 offset = slave bundle = gmem6
+#pragma HLS INTERFACE m_axi port = HBM_channelB3 offset = slave bundle = gmem7
+#pragma HLS INTERFACE m_axi port = HBM_channelA4 offset = slave bundle = gmem8
+#pragma HLS INTERFACE m_axi port = HBM_channelB4 offset = slave bundle = gmem9
+#pragma HLS INTERFACE m_axi port = HBM_channelA5 offset = slave bundle = gmem10
+#pragma HLS INTERFACE m_axi port = HBM_channelB5 offset = slave bundle = gmem11
+#pragma HLS INTERFACE m_axi port = HBM_channelA6 offset = slave bundle = gmem12
+#pragma HLS INTERFACE m_axi port = HBM_channelB6 offset = slave bundle = gmem13
+#pragma HLS INTERFACE m_axi port = HBM_channelA7 offset = slave bundle = gmem14
+#pragma HLS INTERFACE m_axi port = HBM_channelB7 offset = slave bundle = gmem15
+#pragma HLS INTERFACE m_axi port = HBM_channelA8 offset = slave bundle = gmem16
+#pragma HLS INTERFACE m_axi port = HBM_channelB8 offset = slave bundle = gmem17
+#pragma HLS INTERFACE m_axi port = HBM_channelA9 offset = slave bundle = gmem18
+#pragma HLS INTERFACE m_axi port = HBM_channelB9 offset = slave bundle = gmem19
+#pragma HLS INTERFACE m_axi port = HBM_channelA10 offset = slave bundle = gmem20
+#pragma HLS INTERFACE m_axi port = HBM_channelB10 offset = slave bundle = gmem21
+#pragma HLS INTERFACE m_axi port = HBM_channelA11 offset = slave bundle = gmem22
+#pragma HLS INTERFACE m_axi port = HBM_channelB11 offset = slave bundle = gmem23
+#pragma HLS INTERFACE m_axi port = HBM_channelA12 offset = slave bundle = gmem24
+#pragma HLS INTERFACE m_axi port = HBM_channelB12 offset = slave bundle = gmem25
+#pragma HLS INTERFACE m_axi port = HBM_channelA13 offset = slave bundle = gmem26
+#pragma HLS INTERFACE m_axi port = HBM_channelB13 offset = slave bundle = gmem27
+#pragma HLS INTERFACE m_axi port = HBM_channelA14 offset = slave bundle = gmem28
+#pragma HLS INTERFACE m_axi port = HBM_channelB14 offset = slave bundle = gmem29
+#pragma HLS INTERFACE m_axi port = HBM_channelA15 offset = slave bundle = gmem30
+#pragma HLS INTERFACE m_axi port = HBM_channelB15 offset = slave bundle = gmem31
+#pragma HLS INTERFACE m_axi port = HBM_channelA16 offset = slave bundle = gmem32
+#pragma HLS INTERFACE m_axi port = HBM_channelB16 offset = slave bundle = gmem33
+#pragma HLS INTERFACE m_axi port = HBM_channelA17 offset = slave bundle = gmem34
+#pragma HLS INTERFACE m_axi port = HBM_channelB17 offset = slave bundle = gmem35
+#pragma HLS INTERFACE m_axi port = HBM_channelA18 offset = slave bundle = gmem36
+#pragma HLS INTERFACE m_axi port = HBM_channelB18 offset = slave bundle = gmem37
+#pragma HLS INTERFACE m_axi port = HBM_channelA19 offset = slave bundle = gmem38
+#pragma HLS INTERFACE m_axi port = HBM_channelB19 offset = slave bundle = gmem39
+#pragma HLS INTERFACE m_axi port = HBM_channelA20 offset = slave bundle = gmem40
+#pragma HLS INTERFACE m_axi port = HBM_channelB20 offset = slave bundle = gmem41
+#pragma HLS INTERFACE m_axi port = HBM_channelA21 offset = slave bundle = gmem42
+#pragma HLS INTERFACE m_axi port = HBM_channelB21 offset = slave bundle = gmem43
+#pragma HLS INTERFACE m_axi port = HBM_channelA22 offset = slave bundle = gmem44
+#pragma HLS INTERFACE m_axi port = HBM_channelB22 offset = slave bundle = gmem45
+#pragma HLS INTERFACE m_axi port = HBM_channelA23 offset = slave bundle = gmem46
+#pragma HLS INTERFACE m_axi port = HBM_channelB23 offset = slave bundle = gmem47
+#pragma HLS INTERFACE m_axi port = HBM_center offset = slave bundle = gmem48
+
+#pragma HLS INTERFACE s_axilite port = HBM_channelA0 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelB0 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelA1 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelB1 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelA2 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelB2 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelA3 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelB3 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelA4 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelB4 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelA5 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelB5 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelA6 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelB6 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelA7 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelB7 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelA8 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelB8 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelA9 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelB9 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelA10 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelB10 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelA11 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelB11 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelA12 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelB12 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelA13 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelB13 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelA14 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelB14 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelA15 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelB15 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelA16 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelB16 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelA17 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelB17 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelA18 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelB18 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelA19 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelB19 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelA20 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelB20 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelA21 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelB21 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelA22 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelB22 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelA23 bundle = control
+#pragma HLS INTERFACE s_axilite port = HBM_channelB23 bundle = control
+	
+#pragma HLS INTERFACE s_axilite port = HBM_center bundle = control
+
+#pragma HLS INTERFACE s_axilite port=return bundle=control
+
+#pragma HLS DATA_PACK variable = HBM_channelA0
+#pragma HLS DATA_PACK variable = HBM_channelB0
+#pragma HLS DATA_PACK variable = HBM_channelA1
+#pragma HLS DATA_PACK variable = HBM_channelB1
+#pragma HLS DATA_PACK variable = HBM_channelA2
+#pragma HLS DATA_PACK variable = HBM_channelB2
+#pragma HLS DATA_PACK variable = HBM_channelA3
+#pragma HLS DATA_PACK variable = HBM_channelB3
+#pragma HLS DATA_PACK variable = HBM_channelA4
+#pragma HLS DATA_PACK variable = HBM_channelB4
+#pragma HLS DATA_PACK variable = HBM_channelA5
+#pragma HLS DATA_PACK variable = HBM_channelB5
+#pragma HLS DATA_PACK variable = HBM_channelA6
+#pragma HLS DATA_PACK variable = HBM_channelB6
+#pragma HLS DATA_PACK variable = HBM_channelA7
+#pragma HLS DATA_PACK variable = HBM_channelB7
+#pragma HLS DATA_PACK variable = HBM_channelA8
+#pragma HLS DATA_PACK variable = HBM_channelB8
+#pragma HLS DATA_PACK variable = HBM_channelA9
+#pragma HLS DATA_PACK variable = HBM_channelB9
+#pragma HLS DATA_PACK variable = HBM_channelA10
+#pragma HLS DATA_PACK variable = HBM_channelB10
+#pragma HLS DATA_PACK variable = HBM_channelA11
+#pragma HLS DATA_PACK variable = HBM_channelB11
+#pragma HLS DATA_PACK variable = HBM_channelA12
+#pragma HLS DATA_PACK variable = HBM_channelB12
+#pragma HLS DATA_PACK variable = HBM_channelA13
+#pragma HLS DATA_PACK variable = HBM_channelB13
+#pragma HLS DATA_PACK variable = HBM_channelA14
+#pragma HLS DATA_PACK variable = HBM_channelB14
+#pragma HLS DATA_PACK variable = HBM_channelA15
+#pragma HLS DATA_PACK variable = HBM_channelB15
+#pragma HLS DATA_PACK variable = HBM_channelA16
+#pragma HLS DATA_PACK variable = HBM_channelB16
+#pragma HLS DATA_PACK variable = HBM_channelA17
+#pragma HLS DATA_PACK variable = HBM_channelB17
+#pragma HLS DATA_PACK variable = HBM_channelA18
+#pragma HLS DATA_PACK variable = HBM_channelB18
+#pragma HLS DATA_PACK variable = HBM_channelA19
+#pragma HLS DATA_PACK variable = HBM_channelB19
+#pragma HLS DATA_PACK variable = HBM_channelA20
+#pragma HLS DATA_PACK variable = HBM_channelB20
+#pragma HLS DATA_PACK variable = HBM_channelA21
+#pragma HLS DATA_PACK variable = HBM_channelB21
+#pragma HLS DATA_PACK variable = HBM_channelA22
+#pragma HLS DATA_PACK variable = HBM_channelB22
+#pragma HLS DATA_PACK variable = HBM_channelA23
+#pragma HLS DATA_PACK variable = HBM_channelB23
+#pragma HLS DATA_PACK variable = HBM_center
+	
 	#ifdef _DEBUGMODE_KERNELPRINTS4
 	cout<<"acts_kernel::run:: acts started "<<endl;
 	#endif 
 
 	// declaration of BRAM variables
-	#ifdef FPGA_IMPL
-	
+	#ifdef FPGA_IMPL		
+	keyvalue_t nfrontier_buffer[NUM_PEs][EDGE_PACK_SIZE][MAX_APPLYPARTITION_VECSIZE]; // FIXME. remove it-obsolete
+	keyvalue_t cfrontier_bufferREAL0[EDGE_PACK_SIZE]; 
+	keyvalue_t cfrontier_bufferREAL1[NUM_PEs][MAX_APPLYPARTITION_VECSIZE];
+	unsigned int statsbuffer_maskbased_tmp[NUM_PEs][EDGE_PACK_SIZE][BLOCKRAM_SIZE];
+	unsigned int statsbuffer_maskbased[NUM_PEs][MAX_NUM_APPLYPARTITIONS][BLOCKRAM_SIZE];
+	unsigned int statsbuffer_idbased[NUM_PEs][MAX_NUM_APPLYPARTITIONS][BLOCKRAM_SIZE];
+	keyvalue_t updates_tmpbuffer[NUM_TMPS_BUFFER][NUM_PEs][CSRBUFFER_SIZE]; // FIXME (CSRBUFFER_SIZE too large)
+	keyvalue_t updates_buffer[NUM_PEs][EDGE_PACK_SIZE][MAX_APPLYPARTITION_VECSIZE];
+	vtr_t vptr_buffer[NUM_PEs][VPTR_BUFFER_SIZE];
+	edge3_type edges_buffer[NUM_PEs][EDGE_PACK_SIZE][EDGE_BUFFER_SIZE];
+	vprop_t vdata_buffer[NUM_PEs][EDGE_PACK_SIZE];
 	#else 
-	keyvalue_t * nfrontier_buffer[NUM_PEs][EDGE_PACK_SIZE]; // [MAX_APPLYPARTITION_VECSIZE]
+	keyvalue_t * nfrontier_buffer[NUM_PEs][EDGE_PACK_SIZE]; // FIXME. remove it-obsolete
+	keyvalue_t * nfrontier_bufferOPTIMAL[NUM_PEs][EDGE_PACK_SIZE]; 
 	keyvalue_t * cfrontier_bufferREAL0[EDGE_PACK_SIZE]; 
-	keyvalue_t * cfrontier_bufferREAL1[NUM_PEs]; // [MAX_APPLYPARTITION_VECSIZE]
-	unsigned int * stats_tmpbuffer[NUM_PEs][EDGE_PACK_SIZE]; // [BLOCKRAM_SIZE]
-	unsigned int * stats_buffer[NUM_PEs][MAX_NUM_APPLYPARTITIONS]; // [BLOCKRAM_SIZE]
-	unsigned int * stats2_buffer[NUM_PEs][MAX_NUM_APPLYPARTITIONS]; // [BLOCKRAM_SIZE]
-	keyvalue_t * updates_tmpbuffer[24][NUM_PEs]; // [CSRBUFFER_SIZE(//FIXME.)]
-	keyvalue_t * updates_buffer[NUM_PEs][EDGE_PACK_SIZE]; // [MAX_APPLYPARTITION_VECSIZE]
-	vtr_t * vptr_buffer[NUM_PEs]; // [VPTR_BUFFER_SIZE]
-	edge3_type * edges_buffer[NUM_PEs][EDGE_PACK_SIZE]; // [EDGE_BUFFER_SIZE]
-	vprop_t * vdata_buffer[NUM_PEs][EDGE_PACK_SIZE]; // [MAX_APPLYPARTITION_VECSIZE]
+	keyvalue_t * cfrontier_bufferREAL1[NUM_PEs]; 
+	unsigned int * statsbuffer_maskbased_tmp[NUM_PEs][EDGE_PACK_SIZE]; 
+	unsigned int * statsbuffer_maskbased[NUM_PEs][MAX_NUM_APPLYPARTITIONS]; 
+	unsigned int * statsbuffer_idbased[NUM_PEs][MAX_NUM_APPLYPARTITIONS]; 
+	keyvalue_t * updates_tmpbuffer[NUM_TMPS_BUFFER][NUM_PEs]; 
+	keyvalue_t * updates_buffer[NUM_PEs][EDGE_PACK_SIZE];
+	vtr_t * vptr_buffer[NUM_PEs]; 
+	edge3_type * edges_buffer[NUM_PEs][EDGE_PACK_SIZE];
+	vprop_t * vdata_buffer[NUM_PEs][EDGE_PACK_SIZE]; 
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ nfrontier_buffer[i][v] = new keyvalue_t[MAX_APPLYPARTITION_VECSIZE]; }}
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ nfrontier_bufferOPTIMAL[i][v] = new keyvalue_t[MAX_ACTVV_VECSIZE]; }}
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ cfrontier_bufferREAL0[v] = new keyvalue_t[MAX_APPLYPARTITION_VECSIZE]; }
 	for(unsigned int i=0; i<NUM_PEs; i++){ cfrontier_bufferREAL1[i] = new keyvalue_t[MAX_APPLYPARTITION_VECSIZE]; }
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ stats_tmpbuffer[i][v] = new unsigned int[BLOCKRAM_SIZE]; }}
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<MAX_NUM_APPLYPARTITIONS; v++){ stats_buffer[i][v] = new unsigned int[BLOCKRAM_SIZE]; }}
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<MAX_NUM_APPLYPARTITIONS; v++){ stats2_buffer[i][v] = new unsigned int[BLOCKRAM_SIZE]; }}
-	for(unsigned int i=0; i<24; i++){ for(unsigned int p=0; p<NUM_PEs; p++){ updates_tmpbuffer[i][p] = new keyvalue_t[CSRBUFFER_SIZE]; }}
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ statsbuffer_maskbased_tmp[i][v] = new unsigned int[BLOCKRAM_SIZE]; }}
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<MAX_NUM_APPLYPARTITIONS; v++){ statsbuffer_maskbased[i][v] = new unsigned int[BLOCKRAM_SIZE]; }}
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<MAX_NUM_APPLYPARTITIONS; v++){ statsbuffer_idbased[i][v] = new unsigned int[BLOCKRAM_SIZE]; }}
+	for(unsigned int i=0; i<NUM_TMPS_BUFFER; i++){ for(unsigned int p=0; p<NUM_PEs; p++){ updates_tmpbuffer[i][p] = new keyvalue_t[CSRBUFFER_SIZE]; }}
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ updates_buffer[i][v] = new keyvalue_t[MAX_APPLYPARTITION_VECSIZE]; }}
 	for(unsigned int i=0; i<NUM_PEs; i++){ vptr_buffer[i] = new vtr_t[VPTR_BUFFER_SIZE]; }
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ edges_buffer[i][v] = new edge3_type[EDGE_BUFFER_SIZE]; }}
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ vdata_buffer[i][v] = new vprop_t[MAX_APPLYPARTITION_VECSIZE]; }}
 	#endif 
 	
-	unsigned int __NUM_UPARTITIONS = (universalparams.NUM_VERTICES + (MAX_UPARTITION_SIZE - 1)) /  MAX_UPARTITION_SIZE;
-	unsigned int __NUM_APPLYPARTITIONS = ((universalparams.NUM_VERTICES / NUM_PEs) + (MAX_APPLYPARTITION_SIZE - 1)) /  MAX_APPLYPARTITION_SIZE; // NUM_PEs
-	cout<<"acts_kernel::run:: universalparams.NUM_VERTICES: "<<universalparams.NUM_VERTICES<<", universalparams.NUM_EDGES: "<<universalparams.NUM_EDGES<<", MAX_UPARTITION_SIZE: "<<MAX_UPARTITION_SIZE<<", __NUM_UPARTITIONS: "<<__NUM_UPARTITIONS<<", MAX_APPLYPARTITION_SIZE: "<<MAX_APPLYPARTITION_SIZE<<", __NUM_APPLYPARTITIONS: "<<__NUM_APPLYPARTITIONS<<endl;			
-	
-	unsigned int * cfrontier_dram___size = new unsigned int[MAX_NUM_UPARTITIONS]; 
-	for(unsigned int p=0; p<MAX_NUM_UPARTITIONS; p++){ cfrontier_dram___size[p] = 0; }
-	
-	unsigned int * nfrontier_dram___size[NUM_PEs][EDGE_PACK_SIZE]; // FIXME. remove first dimension - not necessary
+	#ifdef FPGA_IMPL	
+	unsigned int cfrontier_dram___size[MAX_NUM_UPARTITIONS]; 
+	unsigned int nfrontier_dram___size[NUM_PEs][EDGE_PACK_SIZE][MAX_NUM_UPARTITIONS]; // FIXME. remove first dimension - not necessary
 	#pragma HLS ARRAY_PARTITION variable = nfrontier_dram___size complete dim=1
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ nfrontier_dram___size[i][v] = new unsigned int[MAX_NUM_UPARTITIONS]; }}
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ for(unsigned int p=0; p<MAX_NUM_UPARTITIONS; p++){ nfrontier_dram___size[i][v][p] = 0; }}}
-	
-	unsigned int * nfrontier_buffer___size[NUM_PEs][EDGE_PACK_SIZE]; 
+	unsigned int nfrontier_buffer___size[NUM_PEs][EDGE_PACK_SIZE][NUM_ACTVVPARTITIONS_PER_APPLYPARTITION]; 
 	#pragma HLS ARRAY_PARTITION variable = nfrontier_buffer___size complete dim=1
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ nfrontier_buffer___size[i][v] = new unsigned int[NUM_ACTVVPARTITIONS_PER_APPLYPARTITION]; }}
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ for(unsigned int p=0; p<NUM_ACTVVPARTITIONS_PER_APPLYPARTITION; p++){ nfrontier_buffer___size[i][v][p] = 0; }}}
-	
 	unsigned int updates_tmpbuffer___size[NUM_PEs][NUM_PEs]; 
 	#pragma HLS ARRAY_PARTITION variable = updates_tmpbuffer___size complete dim=1
-	
-	unsigned int * updates_buffer___size[NUM_PEs][EDGE_PACK_SIZE]; 
+	unsigned int updates_buffer___size[NUM_PEs][EDGE_PACK_SIZE][MAX_NUM_APPLYPARTITIONS]; 
 	#pragma HLS ARRAY_PARTITION variable = updates_buffer___size complete dim=1
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ updates_buffer___size[i][v] = new unsigned int[MAX_NUM_APPLYPARTITIONS]; }}
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ for(unsigned int p=0; p<MAX_NUM_APPLYPARTITIONS; p++){ updates_buffer___size[i][v][p] = 0; }}}
-	
 	unsigned int stats_buffer___size[NUM_PEs][MAX_NUM_APPLYPARTITIONS]; 
 	#pragma HLS ARRAY_PARTITION variable = stats_buffer___size complete dim=1
 	unsigned int stats2_buffer___size[NUM_PEs][MAX_NUM_APPLYPARTITIONS]; 
 	#pragma HLS ARRAY_PARTITION variable = stats2_buffer___size complete dim=1
-	
-	offset_t * upartition_vertices = new offset_t[MAX_NUM_UPARTITIONS]; 
-	for(unsigned int p=0; p<__NUM_UPARTITIONS; p++){ upartition_vertices[p].offset = 0; upartition_vertices[p].size = 0; upartition_vertices[p].count = 0; } upartition_vertices[0].count = 1;
-	
-	offset_t * vpartition_vertices[NUM_PEs]; 
+	offset_t upartition_vertices[MAX_NUM_UPARTITIONS]; 
+	offset_t vpartition_vertices[NUM_PEs][MAX_NUM_APPLYPARTITIONS]; 
 	#pragma HLS ARRAY_PARTITION variable = vpartition_vertices complete dim=1
-	for(unsigned int i=0; i<NUM_PEs; i++){ vpartition_vertices[i] = new offset_t[MAX_NUM_APPLYPARTITIONS];  }
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p=0; p<__NUM_APPLYPARTITIONS; p++){ vpartition_vertices[i][p].offset = 0; vpartition_vertices[i][p].size = 0; vpartition_vertices[i][p].count = 0; }}
-	
 	unsigned int actpackupdates_dram___size[NUM_PEs][MAX_NUM_APPLYPARTITIONS]; 
 	#pragma HLS ARRAY_PARTITION variable = actpackupdates_dram___size complete dim=1
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p=0; p<__NUM_APPLYPARTITIONS; p++){ actpackupdates_dram___size[i][p] = 0; }}
-	
 	unsigned int vptrbuffer___size[NUM_PEs]; 
-	for(unsigned int i=0; i<NUM_PEs; i++){ vptrbuffer___size[i] = 0; }
-	
 	unsigned int edges_buffer___size[NUM_PEs]; 
-	for(unsigned int i=0; i<NUM_PEs; i++){ edges_buffer___size[i] = 0; }
+	#else 
+	unsigned int * cfrontier_dram___size = new unsigned int[MAX_NUM_UPARTITIONS]; 
+	// FIXME. remove first dimension - not necessary
+	unsigned int * nfrontier_dram___size[NUM_PEs][EDGE_PACK_SIZE]; for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ nfrontier_dram___size[i][v] = new unsigned int[MAX_NUM_UPARTITIONS]; }}
+	unsigned int * nfrontier_buffer___size[NUM_PEs][EDGE_PACK_SIZE]; for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ nfrontier_buffer___size[i][v] = new unsigned int[NUM_ACTVVPARTITIONS_PER_APPLYPARTITION]; }}
+	unsigned int updates_tmpbuffer___size[NUM_PEs][NUM_PEs]; 
+	unsigned int * updates_buffer___size[NUM_PEs][EDGE_PACK_SIZE]; for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ updates_buffer___size[i][v] = new unsigned int[MAX_NUM_APPLYPARTITIONS]; }}
+	unsigned int stats_buffer___size[NUM_PEs][MAX_NUM_APPLYPARTITIONS]; 
+	unsigned int stats2_buffer___size[NUM_PEs][MAX_NUM_APPLYPARTITIONS]; 
+	offset_t * upartition_vertices = new offset_t[MAX_NUM_UPARTITIONS]; 
+	offset_t * vpartition_vertices[NUM_PEs]; for(unsigned int i=0; i<NUM_PEs; i++){ vpartition_vertices[i] = new offset_t[MAX_NUM_APPLYPARTITIONS];  }
+	unsigned int actpackupdates_dram___size[NUM_PEs][MAX_NUM_APPLYPARTITIONS]; 
+	unsigned int vptrbuffer___size[NUM_PEs]; 
+	unsigned int edges_buffer___size[NUM_PEs]; 
+	#endif 
 	
 	edge3_type edges[NUM_PEs][EDGE_PACK_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = edges complete
@@ -6651,6 +6744,40 @@ void acts_kernel::run(HBM_channelTHIS_t * HBM_center,  HBM_channelTHIS_t * HBM_c
 	#pragma HLS ARRAY_PARTITION variable = offsets complete
 	keyvalue_t actvvs[NUM_PEs][EDGE_PACK_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = actvvs complete
+	frontier_t actvv[EDGE_PACK_SIZE];
+	unsigned int vid_first0[NUM_PEs];
+	#pragma HLS ARRAY_PARTITION variable = vid_first0 complete
+	unsigned int vid_first1[NUM_PEs]; 
+	#pragma HLS ARRAY_PARTITION variable = vid_first1 complete
+	unsigned int globalparams[32];
+	unsigned int updatesptrs[MAX_NUM_LLPSETS];
+	
+	unsigned int CONST1 = NUM_PEs * EDGE_PACK_SIZE; 
+	unsigned int CONST2 = MAX_ACTVV_VECSIZE * NUM_PEs * EDGE_PACK_SIZE;
+	
+	// load global parameters
+	#pragma HLS ARRAY_PARTITION variable = globalparams complete
+	for(unsigned int t=0; t<32; t++){
+		globalparams[t] = dretrieve_globalparams(0, t, HBM_channelA0, HBM_channelB0, 0);
+	}
+	#ifndef FPGA_IMPL
+	globalparams_debug = (unsigned int *)&globalparams[0];
+	#endif 
+	
+	// unsigned int __NUM_UPARTITIONS = (universalparams.NUM_VERTICES + (MAX_UPARTITION_SIZE - 1)) /  MAX_UPARTITION_SIZE;
+	unsigned int __NUM_UPARTITIONS = (globalparams[GLOBALPARAMSCODE__PARAM__NUM_VERTICES] + (MAX_UPARTITION_SIZE - 1)) /  MAX_UPARTITION_SIZE;
+	unsigned int __NUM_APPLYPARTITIONS = ((universalparams.NUM_VERTICES / NUM_PEs) + (MAX_APPLYPARTITION_SIZE - 1)) /  MAX_APPLYPARTITION_SIZE; 
+	cout<<"acts_kernel::run:: universalparams.NUM_VERTICES: "<<universalparams.NUM_VERTICES<<", universalparams.NUM_EDGES: "<<universalparams.NUM_EDGES<<", MAX_UPARTITION_SIZE: "<<MAX_UPARTITION_SIZE<<", __NUM_UPARTITIONS: "<<__NUM_UPARTITIONS<<", MAX_APPLYPARTITION_SIZE: "<<MAX_APPLYPARTITION_SIZE<<", __NUM_APPLYPARTITIONS: "<<__NUM_APPLYPARTITIONS<<endl;			
+	
+	for(unsigned int p=0; p<MAX_NUM_UPARTITIONS; p++){ cfrontier_dram___size[p] = 0; }
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ for(unsigned int p=0; p<MAX_NUM_UPARTITIONS; p++){ nfrontier_dram___size[i][v][p] = 0; }}}
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ for(unsigned int p=0; p<NUM_ACTVVPARTITIONS_PER_APPLYPARTITION; p++){ nfrontier_buffer___size[i][v][p] = 0; }}}
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ for(unsigned int p=0; p<MAX_NUM_APPLYPARTITIONS; p++){ updates_buffer___size[i][v][p] = 0; }}}
+	for(unsigned int p=0; p<__NUM_UPARTITIONS; p++){ upartition_vertices[p].offset = 0; upartition_vertices[p].size = 0; upartition_vertices[p].count = 0; } upartition_vertices[0].count = 1;
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p=0; p<__NUM_APPLYPARTITIONS; p++){ vpartition_vertices[i][p].offset = 0; vpartition_vertices[i][p].size = 0; vpartition_vertices[i][p].count = 0; }}
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p=0; p<__NUM_APPLYPARTITIONS; p++){ actpackupdates_dram___size[i][p] = 0; }}
+	for(unsigned int i=0; i<NUM_PEs; i++){ vptrbuffer___size[i] = 0; }
+	for(unsigned int i=0; i<NUM_PEs; i++){ edges_buffer___size[i] = 0; }
 						
 	unsigned int num_LLPs = universalparams.NUM_APPLYPARTITIONS * universalparams.NUM_PARTITIONS; 
 	unsigned int num_LLPset = (num_LLPs + (universalparams.NUM_PARTITIONS - 1)) / universalparams.NUM_PARTITIONS;
@@ -6661,7 +6788,7 @@ void acts_kernel::run(HBM_channelTHIS_t * HBM_center,  HBM_channelTHIS_t * HBM_c
 	for(unsigned int i=0; i<MAXNUMGRAPHITERATIONS; i++){ hybrid_map[i] = new unsigned int[MAX_NUM_UPARTITIONS]; }
 	for(unsigned int i=0; i<MAXNUMGRAPHITERATIONS; i++){ for(unsigned int t=0; t<MAX_NUM_UPARTITIONS; t++){ hybrid_map[i][t] = NAp; }}
 	bool enable___vertexcentric = true;
-	unsigned int threshold___activefrontiers = 128;
+	unsigned int threshold___activefrontiers = 128; // 16, 128*; // NEW
 	bool enable___collectactivedstvids = false; // false
 	unsigned int threshold___activedstvids = 0; // 0xFFFFFFFF;
 	unsigned int limits[NUM_PEs];
@@ -6677,17 +6804,8 @@ void acts_kernel::run(HBM_channelTHIS_t * HBM_center,  HBM_channelTHIS_t * HBM_c
 	
 	// reset ubuffer 
 	vprop_t prop; prop.prop = 0; prop.mask = INVALIDMASK; 
-	for(unsigned int inst=0; inst<NUM_PEs; inst++){ for(unsigned int t=0; t<MAX_UPARTITION_VECSIZE; t++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ insert_udatabuffer(v, t, prop, vdata_buffer[inst]); }}} // 
-	
-	// load global parameters
-	unsigned int globalparams[32];
-	unsigned int updatesptrs[MAX_NUM_LLPSETS];
-	#pragma HLS ARRAY_PARTITION variable = globalparams complete
-	for(unsigned int t=0; t<32; t++){
-		globalparams[t] = dretrieve_globalparams(0, t, HBM_channelA0, HBM_channelB0, 0);
-	}
-	globalparams_debug = (unsigned int *)&globalparams[0];
-	
+	for(unsigned int inst=0; inst<NUM_PEs; inst++){ for(unsigned int t=0; t<MAX_UPARTITION_VECSIZE; t++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ insert_2DVbuffer(v, t, prop, vdata_buffer[inst]); }}} // 
+
 	// load updates ptrs
 	for(unsigned int t=0; t<MAX_NUM_LLPSETS; t++){
 	#pragma HLS PIPELINE II=1
@@ -6712,7 +6830,7 @@ void acts_kernel::run(HBM_channelTHIS_t * HBM_center,  HBM_channelTHIS_t * HBM_c
 			}	
 			CLEAR_COUNTERS_LOOP1C: for(unsigned int p_v=0; p_v<__NUM_APPLYPARTITIONS; p_v++){ 
 			#pragma HLS UNROLL
-				for(unsigned int t=0; t<BLOCKRAM_SIZE; t++){ insert_statsbuffer(t, p_v, 0, stats_buffer[inst]); }
+				for(unsigned int t=0; t<BLOCKRAM_SIZE; t++){ insert_statsbuffer(t, p_v, 0, statsbuffer_maskbased[inst]); }
 			}
 		}
 		
@@ -6736,7 +6854,7 @@ void acts_kernel::run(HBM_channelTHIS_t * HBM_center,  HBM_channelTHIS_t * HBM_c
 						ens[inst][v] = true;
 					}
 				}
-				dinsertmany_cfrontierdram_tmp(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP], offsets, t, kvdatas, ens,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23, HBM_channelA, HBM_channelB);
+				dinsertmany_cfrontierdram_tmp(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP], offsets, t, kvdatas, ens,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23);
 			}
 			
 			// parallel-read and map active frontiers [done]
@@ -6744,16 +6862,17 @@ void acts_kernel::run(HBM_channelTHIS_t * HBM_center,  HBM_channelTHIS_t * HBM_c
 			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 				for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t++){
 				#pragma HLS PIPELINE II=1
-					dretrievemany_cfrontierdram_tmp(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP], offsets, t, kvdatas,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23, HBM_channelA, HBM_channelB);
-					insert_cfrontierbuffer(t, kvdatas[0], cfrontier_bufferREAL0);
+					dretrievemany_cfrontierdram_tmp(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP], offsets, t, kvdatas,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23);
+					// insert_cfrontierbuffer(t, kvdatas[0], cfrontier_bufferREAL0);
+					insert_frontierbuffer(t, kvdatas[0], cfrontier_bufferREAL0); // NEW
 					for(unsigned int inst=0; inst<NUM_PEs; inst++){
 					#pragma HLS UNROLL
 						for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 						#pragma HLS UNROLL
-							if(kvdatas[inst][v].key != INVALIDDATA){ ////////////////////////////////////////////////////////////////////////////////// 
+							if(kvdatas[inst][v].key != INVALIDDATA){
 								unsigned int srcvid_lpv = get_local_to_upartition(kvdatas[inst][v].key) / EDGE_PACK_SIZE; // FIXME.
 								vprop_t prop; prop.prop = kvdatas[inst][v].value; prop.mask = MASK_CODE_PE; 
-								insert_udatabuffer(v, srcvid_lpv, prop, vdata_buffer[inst]); 
+								insert_2DVbuffer(v, srcvid_lpv, prop, vdata_buffer[inst]); 
 							}
 						}
 					}
@@ -6768,7 +6887,7 @@ void acts_kernel::run(HBM_channelTHIS_t * HBM_center,  HBM_channelTHIS_t * HBM_c
 					#pragma HLS UNROLL
 						for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 						#pragma HLS UNROLL
-							insert_statstmpbuffer(t, v, 0, stats_tmpbuffer[inst]); 
+							insert_statstmpbuffer(t, v, 0, statsbuffer_maskbased_tmp[inst]); 
 						}
 					}
 				}
@@ -6794,7 +6913,8 @@ void acts_kernel::run(HBM_channelTHIS_t * HBM_center,  HBM_channelTHIS_t * HBM_c
 					unsigned int cummtv2[NUM_PEs]; for(unsigned int inst=0; inst<NUM_PEs; inst++){ cummtv2[inst] = 0; }
 					unsigned int cfrontier_bufferREAL___size[NUM_PEs]; for(unsigned int n=0; n<NUM_PEs; n++){ cfrontier_bufferREAL___size[n] = 0; }
 					VC_READVPTRS_LOOP1: for(unsigned int pingpong=0; pingpong<cfrontier_dram___size[p_u] * EDGE_PACK_SIZE; pingpong++){
-						frontier_t actvv = retrieve_cfrontierbuffer(pingpong % EDGE_PACK_SIZE, pingpong / EDGE_PACK_SIZE, cfrontier_bufferREAL0);
+						// frontier_t actvv = retrieve_cfrontierbuffer(pingpong % EDGE_PACK_SIZE, pingpong / EDGE_PACK_SIZE, cfrontier_bufferREAL0);
+						frontier_t actvv = retrieve_frontierbuffer(pingpong % EDGE_PACK_SIZE, pingpong / EDGE_PACK_SIZE, cfrontier_bufferREAL0); // NEW
 						if(actvv.key != INVALIDDATA){
 							unsigned int inst_ = actvv.key % NUM_PEs;
 							cfrontier_bufferREAL1[inst_][cfrontier_bufferREAL___size[inst_]] = actvv;
@@ -6814,16 +6934,17 @@ void acts_kernel::run(HBM_channelTHIS_t * HBM_center,  HBM_channelTHIS_t * HBM_c
 						VC_READVPTRS_LOOP2B: for(unsigned int n=0; n<NUM_PEs; n++){
 						#pragma HLS UNROLL
 							actvvs[n] = cfrontier_bufferREAL1[n][t];
-							unsigned int hvid = actvvs[n].key / NUM_PEs; // FIXME. (send local instead?)
+							unsigned int hvid = 0;
+							if(t < cfrontier_bufferREAL___size[n]){ hvid = actvvs[n].key / NUM_PEs; } // FIXME. (send local instead?)
 							offsets[n] = hvid; 
 						}
-						dretrievemany_vptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS], offsets, begins_u32,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23, HBM_channelA, HBM_channelB);
+						dretrievemany_vptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS], offsets, begins_u32,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23);
 						
 						VC_READVPTRS_LOOP2C: for(unsigned int n=0; n<NUM_PEs; n++){
 						#pragma HLS UNROLL
 							offsets[n] += 1; 
 						}
-						dretrievemany_vptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS], offsets, ends_u32,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23, HBM_channelA, HBM_channelB);
+						dretrievemany_vptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS], offsets, ends_u32,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23);
 						
 						VC_READVPTRS_LOOP2D: for(unsigned int inst=0; inst<NUM_PEs; inst++){
 						#pragma HLS UNROLL
@@ -6945,8 +7066,8 @@ void acts_kernel::run(HBM_channelTHIS_t * HBM_center,  HBM_channelTHIS_t * HBM_c
 										keyvalue_t update; update.key = edge.dstvid; update.value = vtemp; // res;
 										checkoutofbounds("acts_kernel::ERROR 813a::", inst_mirror, NUM_PEs,  edge.dstvid, inst_mirror, NAp);
 										checkoutofbounds("acts_kernel::ERROR 813b::", updates_tmpbuffer___size[inst][inst_mirror], CSRBUFFER_SIZE, NAp, NAp, NAp);
-										if(t < edges_buffer___size[inst]){ // NEW
-											insert_updatestmpbuffer(inst_mirror, updates_tmpbuffer___size[inst][inst_mirror], update, updates_tmpbuffer[inst]); // 
+										if(t < edges_buffer___size[inst]){ 
+											insert_updatesbuffer(inst_mirror, updates_tmpbuffer___size[inst][inst_mirror], update, updates_tmpbuffer[inst]); // 
 											updates_tmpbuffer___size[inst][inst_mirror] += 1;	
 										}
 									}
@@ -6959,7 +7080,8 @@ void acts_kernel::run(HBM_channelTHIS_t * HBM_center,  HBM_channelTHIS_t * HBM_c
 					VC_EXCHANGE_UPDATES_LOOP1: for(unsigned int inst_mirror=0; inst_mirror<NUM_PEs; inst_mirror++){
 						VC_EXCHANGE_UPDATES_LOOP1B: for(unsigned int inst=0; inst<NUM_PEs; inst++){
 							VC_EXCHANGE_UPDATES_LOOP1C: for(unsigned int t=0; t<updates_tmpbuffer___size[inst][inst_mirror]; t++){
-								keyvalue_t update = retrieve_updatestmpbuffer(inst_mirror, t, updates_tmpbuffer[inst]); // 
+								// keyvalue_t update = retrieve_updatestmpbuffer(inst_mirror, t, updates_tmpbuffer[inst]); // 
+								keyvalue_t update = retrieve_updatesbuffer(inst_mirror, t, updates_tmpbuffer[inst]); // 
 								unsigned int p_v = get_local(update.key) / MAX_APPLYPARTITION_SIZE; // FIXME.
 								keyvalue_t update_local = update; update_local.key = get_local_to_vpartition(get_local(update.key));
 								unsigned int v = update_local.key % EDGE_PACK_SIZE;
@@ -6967,17 +7089,27 @@ void acts_kernel::run(HBM_channelTHIS_t * HBM_center,  HBM_channelTHIS_t * HBM_c
 								cout<<"VC - EXCHANGE UPDATE SEEN @: [inst: "<<inst<<", inst_mirror: "<<inst_mirror<<"], [update.key: "<<update.key<<", update.value: "<<update.value<<"]"<<endl;
 								#endif 
 								
+								// if(get_local(update.key) % EDGE_PACK_SIZE != v){ cout<<"~~~~~~~~~~~~ get_local(update.key) % EDGE_PACK_SIZE != v. [update.key: "<<update.key<<", update_local.key: "<<update_local.key<<"] EXITING.... "<<endl; exit(EXIT_FAILURE); }
+								// #ifdef _DEBUGMODE_CHECKS3
+								// if((updates_vecs[inst].data[v].key % EDGE_PACK_SIZE) != v){ cout<<"acts_kernel 1234:: updates_vecs["<<inst<<"].data["<<v<<"].key("<<updates_vecs[inst].data[v].key<<") % v("<<v<<") != 0. EXITING..."<<endl; for(unsigned int v1=0; v1<EDGE_PACK_SIZE; v1++){ cout<<"updates_vecs["<<inst<<"].data["<<v1<<"].key: "<<updates_vecs[inst].data[v1].key<<""<<endl; } exit(EXIT_FAILURE); }
+								// #endif 
+								
+								#ifdef _DEBUGMODE_CHECKS3
 								checkoutofbounds("acts_kernel::ERROR 123::", p_v, __NUM_APPLYPARTITIONS, update.key, get_local(update.key), MAX_APPLYPARTITION_SIZE);
 								checkoutofbounds("acts_kernel::ERROR 122::", (p_v * MAX_CSRUPDATES_VECSIZE_PER__APPLYPARTITION) + updates_buffer___size[inst_mirror][v][p_v], MAX_APPLYPARTITION_VECSIZE, updates_buffer___size[inst_mirror][v][p_v], inst_mirror, p_v);
+								#endif 
 								insert_updatesbuffer(v, (p_v * MAX_CSRUPDATES_VECSIZE_PER__APPLYPARTITION) + updates_buffer___size[inst_mirror][v][p_v], update_local, updates_buffer[inst_mirror]);
-								// updates_buffer___size[inst_mirror][v][p_v] += 1;
-								if(updates_buffer___size[inst_mirror][v][p_v] + 2 < MAX_APPLYPARTITION_VECSIZE){ updates_buffer___size[inst_mirror][v][p_v] += 1; } // FIXME. 'forces successful run' // NEW
+								#ifdef ___FORCE_SUCCESS___
+								if(updates_buffer___size[inst_mirror][v][p_v] + 8 < MAX_APPLYPARTITION_VECSIZE){ updates_buffer___size[inst_mirror][v][p_v] += 1; } // FIXME. 'forces successful run' // NEW
+								#else 
+								updates_buffer___size[inst_mirror][v][p_v] += 1;
+								#endif 
 								vpartition_vertices[0][p_v].count = 1;
 								
 								unsigned int dstvid_lpv = update_local.key / EDGE_PACK_SIZE; // FIXME.
 								checkoutofbounds("acts_kernel::ERROR 171::", dstvid_lpv / ACTVUPDATESBLOCK_VECSIZE, BLOCKRAM_SIZE, NAp, NAp, NAp);
 								checkoutofbounds("acts_kernel::ERROR 172::", p_v, __NUM_APPLYPARTITIONS, NAp, NAp, NAp);
-								if(enable___collectactivedstvids == true){ insert_statsbuffer(dstvid_lpv / ACTVUPDATESBLOCK_VECSIZE, p_v, 1, stats_buffer[inst_mirror]); }
+								if(enable___collectactivedstvids == true){ insert_statsbuffer(dstvid_lpv / ACTVUPDATESBLOCK_VECSIZE, p_v, 1, statsbuffer_maskbased[inst_mirror]); }
 							}
 						}
 					}
@@ -6985,7 +7117,7 @@ void acts_kernel::run(HBM_channelTHIS_t * HBM_center,  HBM_channelTHIS_t * HBM_c
 					hybrid_map[GraphIter][p_u] = 1;
 					EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<num_LLPset; llp_set++){
 						map_t maps[NUM_PEs];
-						dretrievemany_actpackvptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS], p_u, llp_set, maps,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23, HBM_channelA, HBM_channelB);
+						dretrievemany_actpackvptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS], p_u, llp_set, maps,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23);
 						unsigned int max_sz = 0; for(unsigned int n=0; n<NUM_PEs; n++){ limits[n] = maps[n].size; } for(unsigned int n=0; n<NUM_PEs; n++){ if(max_sz < limits[n]){ max_sz = limits[n]; }}
 						
 						// process edges [done]
@@ -6999,7 +7131,7 @@ void acts_kernel::run(HBM_channelTHIS_t * HBM_center,  HBM_channelTHIS_t * HBM_c
 								unsigned int t = (it * BLOCKRAM_SIZE) + t_;
 								unsigned int offsets[NUM_PEs]; edge3_vec_dt edge3_vecs[NUM_PEs]; for(unsigned int n=0; n<NUM_PEs; n++){ offsets[n] = maps[n].offset; }
 								
-								dretrievemany_act_pack_edges(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES], offsets, t, edge3_vecs,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23, HBM_channelA, HBM_channelB);
+								dretrievemany_act_pack_edges(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES], offsets, t, edge3_vecs,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23);
 								EC_PROCESS_EDGES_LOOP1D: for(unsigned int inst=0; inst<NUM_PEs; inst++){ if(t < limits[inst]){
 								#pragma HLS UNROLL
 									edge3_vec_dt edge_vec = edge3_vecs[inst];
@@ -7014,7 +7146,7 @@ void acts_kernel::run(HBM_channelTHIS_t * HBM_center,  HBM_channelTHIS_t * HBM_c
 											checkoutofbounds("acts_kernel::ERROR 223::", srcvid_lp, MAX_UPARTITION_SIZE, NAp, NAp, NAp);
 											if(srcvid_lp % EDGE_PACK_SIZE != v){ cout<<"acts_kernel ERROR 2345:: srcvid_lp("<<srcvid_lp<<") % EDGE_PACK_SIZE("<<EDGE_PACK_SIZE<<") != v("<<v<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }
 											
-											uprop[inst][v] = retrieve_udatabuffer(v, srcvid_lpv, vdata_buffer[inst]);
+											uprop[inst][v] = retrieve_2DVbuffer(v, srcvid_lpv, vdata_buffer[inst]);
 											
 											res[inst][v] = uprop[inst][v].prop + 1;
 											vtemp_in[inst][v] = min(uprop[inst][v].prop, res[inst][v]);
@@ -7049,7 +7181,7 @@ void acts_kernel::run(HBM_channelTHIS_t * HBM_center,  HBM_channelTHIS_t * HBM_c
 									if(isvalid == true){ // NEW
 										for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 										#pragma HLS UNROLL
-											insert_updatestmpbuffer(v, updates_tmpbuffer___size[inst][0], updates_vec.data[v], updates_tmpbuffer[inst]); //
+											insert_updatesbuffer(v, updates_tmpbuffer___size[inst][0], updates_vec.data[v], updates_tmpbuffer[inst]); 
 										}
 										updates_tmpbuffer___size[inst][0] += 1;
 									}
@@ -7062,7 +7194,7 @@ void acts_kernel::run(HBM_channelTHIS_t * HBM_center,  HBM_channelTHIS_t * HBM_c
 												unsigned int dstvid_lpv = update_out[inst][v].key / EDGE_PACK_SIZE; 
 												unsigned int index = dstvid_lpv / ACTVUPDATESBLOCK_VECSIZE;
 												checkoutofbounds("acts_kernel::ERROR 623::", index, BLOCKRAM_SIZE, update_out[inst][v].key, dstvid_lpv, (MAX_APPLYPARTITION_VECSIZE / BLOCKRAM_SIZE));
-												insert_statstmpbuffer(index, v, 1, stats_tmpbuffer[inst]);
+												insert_statstmpbuffer(index, v, 1, statsbuffer_maskbased_tmp[inst]);
 											}
 										}
 									}
@@ -7079,11 +7211,11 @@ void acts_kernel::run(HBM_channelTHIS_t * HBM_center,  HBM_channelTHIS_t * HBM_c
 								#pragma HLS UNROLL
 									EC_PROCESS_EDGES_LOOP1H: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 									#pragma HLS UNROLL
-										updates_vecs[inst].data[v] = retrieve_updatestmpbuffer(v, t, updates_tmpbuffer[inst]);
+										updates_vecs[inst].data[v] = retrieve_updatesbuffer(v, t, updates_tmpbuffer[inst]); 
 										if(t < updates_tmpbuffer___size[inst][0]){ ens[inst][v] = true; } else { ens[inst][v] = false; }
 									}
 								}
-								dinsertmany_updatesdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[llp_set], llp_set, offsets, t, updates_vecs, ens,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23, HBM_channelA, HBM_channelB, updatesptrs);
+								dinsertmany_updatesdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[llp_set], llp_set, offsets, t, updates_vecs, ens,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23, updatesptrs);
 								for(unsigned int n=0; n<NUM_PEs; n++){ 
 								#pragma HLS UNROLL
 									if(t < updates_tmpbuffer___size[n][0]){ actpackupdates_dram___size[n][llp_set] += 1; }
@@ -7097,10 +7229,10 @@ void acts_kernel::run(HBM_channelTHIS_t * HBM_center,  HBM_channelTHIS_t * HBM_c
 						#pragma HLS PIPELINE II=1
 							for(unsigned int inst=0; inst<NUM_PEs; inst++){
 							#pragma HLS UNROLL
-								if(enable___collectactivedstvids == true){ retrieve_statstmpbuffer(t, data, stats_tmpbuffer[inst]); }
+								if(enable___collectactivedstvids == true){ retrieve_statstmpbuffer(t, data, statsbuffer_maskbased_tmp[inst]); }
 								checkoutofbounds("acts_kernel::ERROR 023::", t, BLOCKRAM_SIZE, NAp, NAp, NAp);
 								if(data[0]==1 || data[1]==1 || data[2]==1 || data[3]==1 || data[4]==1 || data[5]==1 || data[6]==1 || data[7]==1 || data[8]==1 || data[9]==1 || data[10]==1 || data[11]==1 || data[12]==1 || data[13]==1 || data[14]==1 || data[15]==1){ 
-									if(enable___collectactivedstvids == true){ insert_statsbuffer(t, llp_set, 1, stats_buffer[inst]); }
+									if(enable___collectactivedstvids == true){ insert_statsbuffer(t, llp_set, 1, statsbuffer_maskbased[inst]); }
 									vpartition_vertices[inst][llp_set].count = 1;
 								}
 							}
@@ -7126,8 +7258,14 @@ void acts_kernel::run(HBM_channelTHIS_t * HBM_center,  HBM_channelTHIS_t * HBM_c
 				SAVE_CSR_UPDATES_LOOP1E: for(unsigned int inst=0; inst<NUM_PEs; inst++){
 				#pragma HLS UNROLL
 					SAVE_CSR_UPDATES_LOOP1F: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-					#pragma HLS UNROLL
-						if(t < updates_buffer___size[inst][v][p_v]){ updates_vecs[inst].data[v] = retrieve_updatesbuffer(v, (p_v * MAX_CSRUPDATES_VECSIZE_PER__APPLYPARTITION) + t, updates_buffer[inst]); }
+					#pragma HLS UNROLL	
+						if(t < updates_buffer___size[inst][v][p_v]){ 
+							updates_vecs[inst].data[v] = retrieve_updatesbuffer(v, (p_v * MAX_CSRUPDATES_VECSIZE_PER__APPLYPARTITION) + t, updates_buffer[inst]); 
+							
+							#ifdef _DEBUGMODE_CHECKS3
+							if((updates_vecs[inst].data[v].key % EDGE_PACK_SIZE) != v){ cout<<"acts_kernel 1234:: updates_vecs["<<inst<<"].data["<<v<<"].key("<<updates_vecs[inst].data[v].key<<") % v("<<v<<") != 0. EXITING..."<<endl; for(unsigned int v1=0; v1<EDGE_PACK_SIZE; v1++){ cout<<"updates_vecs["<<inst<<"].data["<<v1<<"].key: "<<updates_vecs[inst].data[v1].key<<""<<endl; } exit(EXIT_FAILURE); }
+							#endif 
+						}
 						else { updates_vecs[inst].data[v].key = INVALIDDATA; updates_vecs[inst].data[v].value = INVALIDDATA;  }
 						if(t < max_limits[inst]){ ens[inst][v] = true; } else { ens[inst][v] = false; }
 						#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
@@ -7136,7 +7274,7 @@ void acts_kernel::run(HBM_channelTHIS_t * HBM_center,  HBM_channelTHIS_t * HBM_c
 					}
 				}
 				checkoutofbounds("acts_kernel::ERROR 152::", actpackupdates_dram___size[0][p_v], HBM_CHANNEL_SIZE, NAp, NAp, NAp);
-				dinsertmany_updatesdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v], p_v, offsets, t, updates_vecs, ens,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23, HBM_channelA, HBM_channelB, updatesptrs);
+				dinsertmany_updatesdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v], p_v, offsets, t, updates_vecs, ens,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23, updatesptrs);
 				for(unsigned int n=0; n<NUM_PEs; n++){ 
 				#pragma HLS UNROLL
 					if(t < max_limits[n]){ actpackupdates_dram___size[n][p_v] += 1; }
@@ -7152,11 +7290,11 @@ void acts_kernel::run(HBM_channelTHIS_t * HBM_center,  HBM_channelTHIS_t * HBM_c
 				#pragma HLS UNROLL
 					PREPARE_ACTIVE_DESTIDSTATS_LOOP1E: for(unsigned int inst=0; inst<NUM_PEs; inst++){
 					#pragma HLS UNROLL
-						if(retrieve_statsbuffer(t, p_v, stats_buffer[inst]) == 1){ 
+						if(retrieve_statsbuffer(t, p_v, statsbuffer_maskbased[inst]) == 1){ 
 							#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 							cout<<"VC - PREPARE ACTIVE DESTIDS SEEN @: [inst: "<<inst<<"], [p_v: "<<p_v<<", t: "<<t<<"]"<<endl;
 							#endif
-							insert_stats2buffer(stats2_buffer___size[inst][p_v], p_v, t, stats2_buffer[inst]); 
+							insert_stats2buffer(stats2_buffer___size[inst][p_v], p_v, t, statsbuffer_idbased[inst]); 
 							stats2_buffer___size[inst][p_v] += 1;
 						}
 					}
@@ -7176,13 +7314,13 @@ void acts_kernel::run(HBM_channelTHIS_t * HBM_center,  HBM_channelTHIS_t * HBM_c
 					#ifdef ___ENABLE___COLLECTACTIVEDSTVIDS___
 					for(unsigned int inst=0; inst<NUM_PEs; inst++){ // FIXME.
 						for(unsigned int k=0; k<stats2_buffer___size[inst][p_v]; k++){
-							unsigned int offset = retrieve_stats2buffer(k, p_v, stats2_buffer[inst]) * ACTVUPDATESBLOCK_VECSIZE;
+							unsigned int offset = retrieve_stats2buffer(k, p_v, statsbuffer_idbased[inst]) * ACTVUPDATESBLOCK_VECSIZE;
 							checkoutofbounds("acts_kernel::ERROR 117::", offset, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
 							for(unsigned int t=0; t<ACTVUPDATESBLOCK_VECSIZE; t++){
 							#pragma HLS PIPELINE II=1
 								if(offset + t < MAX_APPLYPARTITION_VECSIZE){ 
 									dretrieve_vdatadram(voffset, offset + t, data, HBM_channelA[inst], HBM_channelB[inst], inst);
-									insert_vdatabuffer(offset + t, data, vdata_buffer[inst]);
+									insert_2DVbuffer(offset + t, data, vdata_buffer[inst]);
 								}
 							}
 						}	
@@ -7191,10 +7329,10 @@ void acts_kernel::run(HBM_channelTHIS_t * HBM_center,  HBM_channelTHIS_t * HBM_c
 				} else {
 					for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE; t++){
 					#pragma HLS PIPELINE II=1
-						dretrievemany_vdatadram(voffset, offsets, t, datas,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23, HBM_channelA, HBM_channelB);
+						dretrievemany_vdatadram(voffset, offsets, t, datas,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23);
 						for(unsigned int inst=0; inst<NUM_PEs; inst++){ 
 						#pragma HLS UNROLL
-							insert_vdatabuffer(t, datas[inst], vdata_buffer[inst]);
+							insert_2DVbuffer(t, datas[inst], vdata_buffer[inst]);
 						}
 					}
 				}
@@ -7204,7 +7342,7 @@ void acts_kernel::run(HBM_channelTHIS_t * HBM_center,  HBM_channelTHIS_t * HBM_c
 				max_limit = 0; for(unsigned int inst=0; inst<NUM_PEs; inst++){ limits[inst] = actpackupdates_dram___size[inst][p_v]; } for(unsigned int inst=0; inst<NUM_PEs; inst++){ if(max_limit < limits[inst]){ max_limit = limits[inst]; }}
 				for(unsigned int t=0; t<max_limit; t++){
 				#pragma HLS PIPELINE II=1
-					dretrievemany_udatesdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v], p_v, t, updates_vecs,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23, HBM_channelA, HBM_channelB, updatesptrs); // NEW
+					dretrievemany_udatesdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v], p_v, t, updates_vecs,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23, updatesptrs); // NEW
 					for(unsigned int inst=0; inst<NUM_PEs; inst++){
 					#pragma HLS UNROLL
 						uint512_vec_dt updates_vec = updates_vecs[inst];
@@ -7214,48 +7352,59 @@ void acts_kernel::run(HBM_channelTHIS_t * HBM_center,  HBM_channelTHIS_t * HBM_c
 							unsigned int dstvid_lp = update.key; 
 							unsigned int dstvid_lpv = update.key / EDGE_PACK_SIZE; 
 							if(update.key != INVALIDDATA){
+								#ifdef _DEBUGMODE_CHECKS3
+								#ifndef ___FORCE_SUCCESS___
 								if(t < limits[inst] && ((dstvid_lp % EDGE_PACK_SIZE) != v)){ cout<<"acts_kernel 234:: dstvid_lp("<<dstvid_lp<<") % v("<<v<<") != 0. EXITING..."<<endl; exit(EXIT_FAILURE); }
-								if(t < limits[inst]){ checkoutofbounds("acts_kernel::ERROR 727::", dstvid_lp, MAX_APPLYPARTITION_SIZE, NAp, inst, update.key); }
-								vprop_t vprop =  retrieve_vdatabuffer(v, dstvid_lpv, vdata_buffer[inst]);
+								#endif 
+								if(t < limits[inst]){ checkoutofbounds("acts_kernel::ERROR 727::", dstvid_lp, MAX_APPLYPARTITION_SIZE, NAp, inst, update.key); checkoutofbounds("acts_kernel::ERROR 727::", dstvid_lpv, MAX_APPLYPARTITION_VECSIZE, NAp, inst, update.key); }
+								#endif 
+								vprop_t vprop =  retrieve_2DVbuffer(v, dstvid_lpv, vdata_buffer[inst]);
 								unsigned int new_vprop = 0; if(update.value < vprop.prop){ new_vprop = update.value; } else { new_vprop = vprop.prop; }
 								if(new_vprop != vprop.prop){
 									#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 									cout<<"APPLY (ACT-PACK) UPDATE SEEN @: inst: ["<<inst<<"]: dstvid_lp: "<<dstvid_lp<<", dstvid_lpv: "<<dstvid_lpv<<", new_vprop: "<<new_vprop<<", vid: "<<update.key<<endl;
 									#endif
 									vprop_t newprop; newprop.prop = new_vprop; newprop.mask = MASK_CODE_AU;
-									if(t < limits[inst]){ insert_vdatabuffer(v, dstvid_lpv, newprop, vdata_buffer[inst]); } // NEW
+									if(t < limits[inst]){ insert_2DVbuffer(v, dstvid_lpv, newprop, vdata_buffer[inst]); } // NEW
 								}
 							}
 						}
 					}
 				}
 
-				// collect frontier information [done]
-				unsigned int vid_first0[NUM_PEs];
-				#pragma HLS ARRAY_PARTITION variable = vid_first0 complete
-				unsigned int vid_first1[NUM_PEs]; 
-				#pragma HLS ARRAY_PARTITION variable = vid_first1 complete
-				unsigned int CONST1 = NUM_PEs * EDGE_PACK_SIZE; unsigned int CONST2 = MAX_ACTVV_VECSIZE * NUM_PEs * EDGE_PACK_SIZE;
-				for(unsigned int inst=0; inst<NUM_PEs; inst++){ 
+				// collect and save frontier information
+				for(unsigned int n=0; n<NUM_PEs; n++){ offsets[n] = 0; }
+				for(unsigned int n=0; n<NUM_PEs; n++){ 
 				#pragma HLS UNROLL
 					for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 					#pragma HLS UNROLL
-						for(unsigned int p_actvv=0; p_actvv<NUM_ACTVVPARTITIONS_PER_APPLYPARTITION; p_actvv++){ nfrontier_buffer___size[inst][v][p_actvv] = 0; }
+						for(unsigned int p_actvv=0; p_actvv<NUM_ACTVVPARTITIONS_PER_APPLYPARTITION; p_actvv++){ nfrontier_buffer___size[n][v][p_actvv] = 0; }
 					}
 				}
-				for(unsigned int inst=0; inst<NUM_PEs; inst++){ vid_first0[inst] = get_global(((p_v * MAX_APPLYPARTITION_SIZE) + ((0 * MAX_ACTVV_VECSIZE + 0) * EDGE_PACK_SIZE + 0)), inst); }
-				for(unsigned int n=0; n<NUM_ACTVVPARTITIONS_PER_APPLYPARTITION; n++){
+				for(unsigned int n=0; n<NUM_PEs; n++){ 
+				#pragma HLS UNROLL
+					vid_first0[n] = get_global(((p_v * MAX_APPLYPARTITION_SIZE) + ((0 * MAX_ACTVV_VECSIZE + 0) * EDGE_PACK_SIZE + 0)), n); 
+				}
+
+
+				for(unsigned int p_actvv=0; p_actvv<NUM_ACTVVPARTITIONS_PER_APPLYPARTITION; p_actvv++){
+					// collect frontier information [done]
 					max_limit = 0; for(unsigned int inst=0; inst<NUM_PEs; inst++){ limits[inst] = MAX_ACTVV_VECSIZE; } for(unsigned int inst=0; inst<NUM_PEs; inst++){ if(max_limit < limits[inst]){ max_limit = limits[inst]; }}
-					for(unsigned int inst=0; inst<NUM_PEs; inst++){ vid_first1[inst] = vid_first0[inst]; }
+					for(unsigned int inst=0; inst<NUM_PEs; inst++){ 
+					#pragma HLS UNROLL
+						vid_first1[inst] = vid_first0[inst]; 
+					}
 					for(unsigned int t=0; t<max_limit; t++){
 					#pragma HLS PIPELINE II=1
-						unsigned int dstvid_lpv = n * MAX_ACTVV_VECSIZE + t;
+						unsigned int dstvid_lpv = p_actvv * MAX_ACTVV_VECSIZE + t;
 						for(unsigned int inst=0; inst<NUM_PEs; inst++){ 
 						#pragma HLS UNROLL
 							for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 							#pragma HLS UNROLL
+								#ifdef _DEBUGMODE_CHECKS3
 								checkoutofbounds("acts_kernel::ERROR 713::", dstvid_lpv, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
-								vprop_t vprop =  retrieve_vdatabuffer(v, dstvid_lpv, vdata_buffer[inst]);
+								#endif 
+								vprop_t vprop =  retrieve_2DVbuffer(v, dstvid_lpv, vdata_buffer[inst]);
 								unsigned int vid = vid_first1[inst] + v;
 								#ifdef _DEBUGMODE_CHECKS3
 								if(vid % EDGE_PACK_SIZE != v){ cout<<"acts_kernel:: ERROR 234. vid("<<vid<<") % EDGE_PACK_SIZE("<<EDGE_PACK_SIZE<<")(="<<vid % EDGE_PACK_SIZE<<") != v("<<v<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }
@@ -7267,7 +7416,8 @@ void acts_kernel::run(HBM_channelTHIS_t * HBM_center,  HBM_channelTHIS_t * HBM_c
 									#endif
 									frontier_t actvv; actvv.key = vid; actvv.value = vprop.prop; 
 									if(t < limits[inst]){ // NEW
-										insert_nfrontierbuffer((p_actvv * MAX_ACTVV_VECSIZE) + nfrontier_buffer___size[inst][v][p_actvv], v, actvv, nfrontier_buffer[inst]); // 
+										checkoutofbounds("acts_kernel::ERROR 21888::", nfrontier_buffer___size[inst][v][p_actvv], MAX_ACTVV_VECSIZE, NAp, NAp, NAp);
+										insert_frontierbuffer(v, nfrontier_buffer___size[inst][v][p_actvv], actvv, nfrontier_bufferOPTIMAL[inst]); // NEW*
 										nfrontier_buffer___size[inst][v][p_actvv] += 1;
 									}
 								}
@@ -7278,16 +7428,8 @@ void acts_kernel::run(HBM_channelTHIS_t * HBM_center,  HBM_channelTHIS_t * HBM_c
 							vid_first1[inst] += CONST1; 
 						} 
 					}
-					for(unsigned int inst=0; inst<NUM_PEs; inst++){ 
-					#pragma HLS UNROLL
-						vid_first0[inst] += CONST2; 
-					}
-				}
-				
-				// save frontier information [done]
-				frontier_t actvv[EDGE_PACK_SIZE];
-				for(unsigned int n=0; n<NUM_PEs; n++){ offsets[n] = 0; }
-				for(unsigned int p_actvv=0; p_actvv<NUM_ACTVVPARTITIONS_PER_APPLYPARTITION; p_actvv++){
+
+					// save frontier information [done]
 					unsigned int max_limit = 0; for(unsigned int inst=0; inst<NUM_PEs; inst++){ max_limits[inst] = 0; }
 					for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 						for(unsigned int inst=0; inst<NUM_PEs; inst++){
@@ -7302,18 +7444,23 @@ void acts_kernel::run(HBM_channelTHIS_t * HBM_center,  HBM_channelTHIS_t * HBM_c
 					#pragma HLS PIPELINE II=1
 						for(unsigned int inst=0; inst<NUM_PEs; inst++){ if(t < max_limits[inst]){
 						#pragma HLS UNROLL
-							retrieve_nfrontierbuffer(p_actvv * MAX_ACTVV_VECSIZE + t, actvvs[inst], nfrontier_buffer[inst]);
+							checkoutofbounds("acts_kernel::ERROR 21777::", t, MAX_ACTVV_VECSIZE, NAp, NAp, NAp);
+							retrieve_frontierbuffer(t, actvvs[inst], nfrontier_bufferOPTIMAL[inst]); // NEW*
 							for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ // 
 							#pragma HLS UNROLL
 								if(t >= nfrontier_buffer___size[inst][v][p_actvv]){ actvvs[inst][v].key = INVALIDDATA; actvvs[inst][v].value = INVALIDDATA; }
 								if(t < max_limits[inst]){ ens[inst][v] = true; } else { ens[inst][v] = false; }
 							}
 						}}
-						dinsertmany_nfrontierdram(offset, p_actvv_, offsets, t, actvvs, ens,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23, HBM_channelA, HBM_channelB);
+						dinsertmany_nfrontierdram(offset, p_actvv_, offsets, t, actvvs, ens,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23);
 						for(unsigned int n=0; n<NUM_PEs; n++){ 
 						#pragma HLS UNROLL
 							if(t < max_limits[n]){ nfrontier_dram___size[n][0][p_actvv_] += 1; }
 						}
+					}
+					for(unsigned int inst=0; inst<NUM_PEs; inst++){ 
+					#pragma HLS UNROLL
+						vid_first0[inst] += CONST2; 
 					}
 				}
 				
@@ -7323,12 +7470,12 @@ void acts_kernel::run(HBM_channelTHIS_t * HBM_center,  HBM_channelTHIS_t * HBM_c
 					#ifdef ___ENABLE___COLLECTACTIVEDSTVIDS___
 					for(unsigned int inst=0; inst<NUM_PEs; inst++){ // FIXME.
 						for(unsigned int k=0; k<stats2_buffer___size[inst][p_v]; k++){	
-							unsigned int offset = retrieve_stats2buffer(k, p_v, stats2_buffer[inst]) * ACTVUPDATESBLOCK_VECSIZE;
+							unsigned int offset = retrieve_stats2buffer(k, p_v, statsbuffer_idbased[inst]) * ACTVUPDATESBLOCK_VECSIZE;
 							for(unsigned int t=0; t<ACTVUPDATESBLOCK_VECSIZE; t++){
 							#pragma HLS PIPELINE II=1
 								if(offset + t < MAX_APPLYPARTITION_VECSIZE){ 
 									checkoutofbounds("acts_kernel::ERROR 217::", offset + t, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
-									retrieve_vdatabuffer(offset + t, data, vdata_buffer[inst]);
+									retrieve_2DVbuffer(offset + t, data, vdata_buffer[inst]);
 									for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 									#pragma HLS UNROLL
 										data[v].mask = INVALIDMASK; // clear mask
@@ -7344,13 +7491,13 @@ void acts_kernel::run(HBM_channelTHIS_t * HBM_center,  HBM_channelTHIS_t * HBM_c
 					#pragma HLS PIPELINE II=1
 						for(unsigned int inst=0; inst<NUM_PEs; inst++){ 
 						#pragma HLS UNROLL
-							retrieve_vdatabuffer(t, datas[inst], vdata_buffer[inst]);
+							retrieve_2DVbuffer(t, datas[inst], vdata_buffer[inst]);
 							for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 							#pragma HLS UNROLL
 								datas[inst][v].mask = INVALIDMASK; // clear mask. 
 							}
 						}
-						dinsertmany_vdatadram(voffset, offsets, t, datas,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23, HBM_channelA, HBM_channelB);
+						dinsertmany_vdatadram(voffset, offsets, t, datas,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, HBM_channelA6, HBM_channelB6, HBM_channelA7, HBM_channelB7, HBM_channelA8, HBM_channelB8, HBM_channelA9, HBM_channelB9, HBM_channelA10, HBM_channelB10, HBM_channelA11, HBM_channelB11, HBM_channelA12, HBM_channelB12, HBM_channelA13, HBM_channelB13, HBM_channelA14, HBM_channelB14, HBM_channelA15, HBM_channelB15, HBM_channelA16, HBM_channelB16, HBM_channelA17, HBM_channelB17, HBM_channelA18, HBM_channelB18, HBM_channelA19, HBM_channelB19, HBM_channelA20, HBM_channelB20, HBM_channelA21, HBM_channelB21, HBM_channelA22, HBM_channelB22, HBM_channelA23, HBM_channelB23);
 					}
 				}
 			}
