@@ -12,6 +12,10 @@
 #include <iostream>
 {%endif%} 
 
+#define DRAM_ACCESS_LATENCY 8
+#define _NUMNANOSECONDS_PER_CLOCKCYCLE_ (6956 / 1000) // 6.956 // {23M uint32 seen processed in 10ms}{10M uint32 seen processed in 4ms}
+#define ACTS_AVERAGE_MEMACCESSTHROUGHPUT_SINGLEHBMCHANNEL_MILIONEDGESPERSEC ((23 * 1000) / 10) // ((23 / 10) * 1000) // {23M uint32 seen processed in 10ms}{10M uint32 seen processed in 4ms}
+
 #define ___USE_AXI_CHANNEL___
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
@@ -110,7 +114,7 @@
 #define MAX_CSRUPDATES_VECSIZE_PER__APPLYPARTITION 1024
 #define CSRDRAM_SIZE 16384 // 4096
 #define ACTVUPDATESBLOCK_VECSIZE_POW 4
-#define ACTVUPDATESBLOCK_VECSIZE (1 << ACTVUPDATESBLOCK_VECSIZE_POW)
+#define ACTVUPDATESBLOCK_VECSIZE (1 << ACTVUPDATESBLOCK_VECSIZE_POW) // 16
 #define BLOCKRAM_SIZE 512
 #define DOUBLE_BLOCKRAM_SIZE (BLOCKRAM_SIZE * 2)
 #define VPTR_BUFFER_SIZE 512
