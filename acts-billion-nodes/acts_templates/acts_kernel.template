@@ -1450,25 +1450,17 @@ void transport_frontier(unsigned int inst, unsigned int p_v, unsigned int baseof
 			for(unsigned int v=0; v<0; v++){ cout<<"TRANSFER VID-BASED FRONTIERS SEEN @: H: "<<inst<<" => vid: "<<actvv[v].key<<", p_actvv_: "<<p_actvv_<<endl; }
 			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ if(actvv[v].key != INVALIDDATA && actvv[v].key / MAX_UPARTITION_SIZE != p_actvv_){ cout<<"ERROR 234: actvv["<<v<<"].key("<<actvv[v].key<<") / MAX_UPARTITION_SIZE("<<MAX_UPARTITION_SIZE<<")(="<<actvv[v].key / MAX_UPARTITION_SIZE<<") != p_actvv_("<<p_actvv_<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }}				
 			#endif 
-			
 			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 			#pragma HLS UNROLL
 				if(actvv[v].key != INVALIDDATA){ 
 					totalactvvs2_tmp[v] += 1;
 				}
 			}
-			// #ifndef FPGA_IMPL // NEW
-			// MY_LOOP314: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ if(actvv[v].key != INVALIDDATA){ *totalactvvs2 += 1; }} // FIXME.
-			// #endif 
-			
 			insert_cfrontierdram(p_actvv_, cfrontier_dram___size[p_actvv_], actvv, HBM_center); cfrontier_dram___size[p_actvv_] += 1;
 			update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___EXCHANGEFRONTIERINFOS___, 1);
 		}
 	}
-	
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ *totalactvvs2 += totalactvvs2_tmp[v]; }
-	
-	
 }
 
 //////////////////////////////////////////////////////////////////
@@ -2267,43 +2259,6 @@ MY_IFDEF_TOPLEVELFUNC(){
 				}
 				#endif 
 				
-				// apply updates [done] // FIXME. buffer first.
-				#ifdef ___ENABLE___APPLYUPDATES___XXXXXXX
-				uint512_vec_dt updates_vecs[NUM_PEs];
-				max_limit = 0; for(unsigned int inst=0; inst<NUM_PEs; inst++){ limits[inst] = actpackupdates_dram___size[inst][p_v]; } for(unsigned int inst=0; inst<NUM_PEs; inst++){ if(max_limit < limits[inst]){ max_limit = limits[inst]; }}
-				APPLY_UPDATES_LOOP1: for(unsigned int t=0; t<max_limit; t++){
-				#pragma HLS PIPELINE II=1
-					dretrievemany_udatesdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v], p_v, t, updates_vecs, {% include 'arguments_allchannelsinslr.template' %}, updatesptrs); // NEW
-					APPLY_UPDATES_LOOP1B: for(unsigned int inst=0; inst<NUM_PEs; inst++){
-					#pragma HLS UNROLL
-						uint512_vec_dt updates_vec = updates_vecs[inst];
-						APPLY_UPDATES_LOOP1C: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-						#pragma HLS UNROLL
-							keyvalue_t update = updates_vec.data[v];
-							unsigned int dstvid_lp = update.key; 
-							unsigned int dstvid_lpv = update.key / EDGE_PACK_SIZE; 
-							if(update.key != INVALIDDATA){
-								#ifdef _DEBUGMODE_CHECKS3
-								#ifndef ___FORCE_SUCCESS___
-								if(t < limits[inst] && ((dstvid_lp % EDGE_PACK_SIZE) != v)){ cout<<"acts_kernel 234:: dstvid_lp("<<dstvid_lp<<") % v("<<v<<") != 0. EXITING..."<<endl; exit(EXIT_FAILURE); }
-								#endif 
-								if(t < limits[inst]){ checkoutofbounds("acts_kernel::ERROR 727::", dstvid_lp, MAX_APPLYPARTITION_SIZE, NAp, inst, update.key); checkoutofbounds("acts_kernel::ERROR 727::", dstvid_lpv, MAX_APPLYPARTITION_VECSIZE, NAp, inst, update.key); }
-								#endif 
-								vprop_t vprop =  retrieve_vdatabuffer(v, dstvid_lpv, vdata_buffer[inst]);
-								unsigned int new_vprop = 0; if(update.value < vprop.prop){ new_vprop = update.value; } else { new_vprop = vprop.prop; }
-								if(new_vprop != vprop.prop){
-									#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-									cout<<"APPLY (ACT-PACK) UPDATE SEEN @: inst: ["<<inst<<"]: dstvid_lp: "<<dstvid_lp<<", dstvid_lpv: "<<dstvid_lpv<<", new_vprop: "<<new_vprop<<", vid: "<<update.key<<endl;
-									#endif
-									vprop_t newprop; newprop.prop = new_vprop; newprop.mask = MASK_CODE_AU;
-									if(t < limits[inst]){ insert_vdatabuffer(v, dstvid_lpv, newprop, vdata_buffer[inst]); } // NEW
-								}
-							}
-						}
-					}
-					update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___APPLYUPDATES___, 1);
-				}
-				#endif 
 				// apply updates [done] 
 				#ifdef ___ENABLE___APPLYUPDATES___
 				uint512_vec_dt updates_vecs[NUM_PEs];
@@ -2633,7 +2588,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 	float million_edges_per_sec = ((globalparams[GLOBALPARAMSCODE__PARAM__NUM_EDGES] / 1000000) / time_lapse) * 1000;
 	float billion_edges_per_sec = million_edges_per_sec / 1000;
 	cout<<"acts_kernel SUMMARY:: number of DRAM clock cycles seen: "<<total_cycles<<" ("<<(total_cycles * _NUMNANOSECONDS_PER_CLOCKCYCLE_) / 1000000<<" milliseconds)"<<endl;
-	cout<< TIMINGRESULTSCOLOR << "acts_kernel SUMMARY:: TIME ELAPSE: "<<time_lapse<<". THROUGHPUT: "<<million_edges_per_sec<<" MTEPS; THROUGHPUT: "<<billion_edges_per_sec<<" BTEPS)"<< RESET << endl;
+	cout<< TIMINGRESULTSCOLOR << ">>> acts_kernel SUMMARY:: TIME ELAPSE: "<<time_lapse<<" ms. THROUGHPUT: "<<million_edges_per_sec<<" MTEPS; THROUGHPUT: "<<billion_edges_per_sec<<" BTEPS"<< RESET << endl;
 	#endif
 	return;
 }

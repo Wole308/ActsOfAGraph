@@ -37,7 +37,7 @@ int main(int argc, char** argv){
 	// appobj->run("nap", "pr", 8, 1, "/home/oj2zf/dataset/uk-2002.mtx", 1, "NAp");
 	
 	#ifdef _DEBUGMODE_TIMERS3
-	std::cout << "TEST FINISHED" << std::endl; 
+	std::cout << endl << "TEST FINISHED" << std::endl; 
 	utilityobj->stopTIME("HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: ", begintime_overallexecution, NAp);
 	#endif
 	return EXIT_SUCCESS;
