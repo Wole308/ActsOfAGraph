@@ -69,8 +69,8 @@
 
 //////////////// 
 
-#define NUM_PEs 24
-// #define NUM_PEs 24 // 24 // 12, 24* // 24
+#define NUM_PEs 12
+// #define NUM_PEs 12 // 24 // 12, 24* // 12
 #define NUM_AXI_PEs (NUM_PEs * 2)
 #define MAXNUM_VPs 1024
 #define MAXNUM_LLPs 256 
@@ -92,7 +92,6 @@
 #define MAX_NUM_PARTITIONS 16 
 #define INVALIDDATA 0xFFFFFFFF 
 #define INVALIDMASK 0 
-// #define NUM_PARTITIONS 16
 
 #define MAX_UPARTITION_VECSIZE 8184 // 8192
 #define MAX_UPARTITION_SIZE (EDGE_PACK_SIZE * MAX_UPARTITION_VECSIZE) // 131072 
