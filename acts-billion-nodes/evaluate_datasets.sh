@@ -76,7 +76,7 @@ do
 	done
 done
 
-# correctness @ {  unsigned int threshold___activefrontiers = 128,  typedef HBM_axichannel_t HBM_channelX_t;, ___FORCE_SUCCESS___(disabled)   }
+# parameter set giving correct results @ {  NUM_PEs=24, unsigned int threshold___activefrontiers = 128,  typedef HBM_axichannel_t HBM_channelX_t;, ___FORCE_SUCCESS___(disabled) ___ENABLE___COLLECTACTIVEDSTVIDS___(disabled)   }
 
 
 

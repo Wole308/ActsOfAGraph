@@ -1,2 +1,2 @@
-{%for i in context['NUM_PEs_PER_SLR_seq']%}{%if(i>0)%},{%endif%} HBM_channelTHIS_t * HBM_channelA{{i}}, HBM_channelTHIS_t * HBM_channelB{{i}}{%endfor%}
+{%for i in context['VALID_NUMPEs_seq']%}{%if(i>0)%},{%endif%} HBM_channelTHIS_t * HBM_channelA{{i}}, HBM_channelTHIS_t * HBM_channelB{{i}}{%endfor%}
 

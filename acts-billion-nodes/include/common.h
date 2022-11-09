@@ -1,9 +1,19 @@
 #ifndef COMMON_H
 #define COMMON_H
-#include "config_params.h"
+// #include "config_params.h"
 #include <string.h> 
 #include <cmath>
  
+
+// SAVE_FRONTIER_INFO_LOOP2B
+// SAVE_DEST_PROPERTIES_LOOP2 ?
+// SAVE_CSR_UPDATES_LOOP1D
+
+// #define ___REFACTORING_FOR_VHLS_DEBUGGING___ //////////////////////////
+// #define ___REFACTORING_FOR_FPGA_RUN___
+#define ___FORCE_SUCCESS___
+#define POW_VALID_VDATA 1
+// #define RESOLVE_VHLS_TIMING
 
 #define DRAM_ACCESS_LATENCY 8
 #define _NUMNANOSECONDS_PER_CLOCKCYCLE_ (6956 / 1000) // 6.956 // {23M uint32 seen processed in 10ms}{10M uint32 seen processed in 4ms}
@@ -51,6 +61,7 @@
 // #define _DEBUGMODE_TIMERS
 #define _DEBUGMODE_TIMERS2
 #define _DEBUGMODE_TIMERS3
+#define GOCLKERNEL_DEBUGMODE_HOSTPRINTS3
 
 #ifndef FPGA_IMPL
 // #define _DEBUGMODE_KERNELPRINTS_TRACE3 //
@@ -70,7 +81,7 @@
 //////////////// 
 
 #define NUM_PEs 12
-// #define NUM_PEs 12 // 24 // 12, 24* // 12
+#define VALID_NUMPEs 6
 #define NUM_AXI_PEs (NUM_PEs * 2)
 #define MAXNUM_VPs 1024
 #define MAXNUM_LLPs 256 
@@ -79,10 +90,12 @@
 #define VECTOR2_SIZE 16
 #define HBM_CHANNEL_VECTOR_SIZE 16
 #define VDATA_PACKINGSIZE 16 
-#define EDGE_PACK_SIZE 16
+#define EDGE_PACK_SIZE_POW 4
+#define EDGE_PACK_SIZE (1 << EDGE_PACK_SIZE_POW) // 16
 #define HBM_CHANNEL_PACK_SIZE 32
 #define HBM_AXI_PACK_SIZE 16
-#define HBM_CHANNEL_SIZE (((1 << 28) / 4) / EDGE_PACK_SIZE) // in EDGE_PACK_SIZE (4194304)
+#define HBM_CHANNEL_BYTESIZE (1 << 28)
+#define HBM_CHANNEL_SIZE ((HBM_CHANNEL_BYTESIZE / 4) / EDGE_PACK_SIZE) // in EDGE_PACK_SIZE (4194304)
 #define FOLD_SIZE 1
 #define MAX_NUM_UPARTITIONS 512
 #define MAX_NUM_APPLYPARTITIONS 16 
@@ -93,7 +106,12 @@
 #define INVALIDDATA 0xFFFFFFFF 
 #define INVALIDMASK 0 
 
-#define MAX_UPARTITION_VECSIZE 8184 // 8192
+// #ifdef ___REFACTORING_FOR_FPGA_RUN___
+// #define MAX_UPARTITION_VECSIZE (8184 / 2)
+// #else 
+// #define MAX_UPARTITION_VECSIZE 8184 // 8192
+// #endif 
+#define MAX_UPARTITION_VECSIZE 8184
 #define MAX_UPARTITION_SIZE (EDGE_PACK_SIZE * MAX_UPARTITION_VECSIZE) // 131072 
 #define MAX_APPLYPARTITION_VECSIZE MAX_UPARTITION_VECSIZE
 #define MAX_APPLYPARTITION_SIZE (EDGE_PACK_SIZE * MAX_APPLYPARTITION_VECSIZE) // 131072 
@@ -102,9 +120,12 @@
 #define NUM_ACTVVPARTITIONS_PER_APPLYPARTITION NUM_PEs
 #define MAX_NUM_ACTVVPARTITIONS (MAX_NUM_APPLYPARTITIONS * NUM_ACTVVPARTITIONS_PER_APPLYPARTITION * NUM_PEs) // 384
 
-#define CSRBUFFER_SIZE 4096 // 512
+// #ifdef ___REFACTORING_FOR_FPGA_RUN___
+#define UPDATES_BUFFER_SIZE 512	
+// #else 
+// #define UPDATES_BUFFER_SIZE 4096 // 512
+// #endif 
 #define MAX_CSRUPDATES_VECSIZE_PER__APPLYPARTITION 1024
-#define CSRDRAM_SIZE 16384 // 4096
 #define ACTVUPDATESBLOCK_VECSIZE_POW 4
 #define ACTVUPDATESBLOCK_VECSIZE (1 << ACTVUPDATESBLOCK_VECSIZE_POW) // 16
 #define BLOCKRAM_SIZE 512
@@ -112,7 +133,6 @@
 #define VPTR_BUFFER_SIZE 512
 #define VPTR_BUFFERMETADATA_SIZE 512
 #define EDGE_BUFFER_SIZE 512//8192// 512 // FIXME.
-#define NUM_TMPS_BUFFER MAX(NUM_PEs, EDGE_PACK_SIZE) // 24 // updates_tmpbuffer
 
 #define GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS 0
 #define GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS 1
@@ -252,6 +272,12 @@ typedef struct {
 } map_t;
 
 #ifdef FPGA_IMPL
+typedef ap_uint<1> uint1_dt;
+#else
+typedef unsigned int uint1_dt;
+#endif
+
+#ifdef FPGA_IMPL
 typedef ap_uint<1024> uint1024_dt;
 #else
 typedef struct {
@@ -266,6 +292,10 @@ typedef struct {
 typedef struct {
 	unsigned int data[HBM_CHANNEL_PACK_SIZE]; // 32
 } uint512_ivec_dt;
+
+typedef struct {
+	unsigned int data[HBM_AXI_PACK_SIZE]; // 16
+} uint512_jvec_dt;
 
 #ifdef FPGA_IMPL
 typedef ap_uint<HBM_AXI_PACK_SIZE> uint512_axivec_dt;
@@ -332,6 +362,7 @@ typedef struct {
 
 // HBM: {vptrs, edges, updatesptrs, updates, vertexprops, frontiers}
 typedef uint512_ivec_dt HBM_channel_t;
+typedef uint512_jvec_dt HBM_center_t;
 typedef uint512_axivec_dt HBM_axichannel_t;
 
 #ifdef ___USE_AXI_CHANNEL___
@@ -347,6 +378,7 @@ typedef HBM_channel_t HBM_channelTHIS_t;
 #endif
 
 // HBM_axichannel_t
+// typedef HBM_channelTHIS_t HBM_channelX_t;	
 typedef HBM_axichannel_t HBM_channelX_t;	
 // typedef HBM_channel_t HBM_channelX_t;	
 #endif

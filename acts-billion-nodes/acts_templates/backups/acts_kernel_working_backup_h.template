@@ -54,7 +54,7 @@ public:
 	acts_kernel(universalparams_t universalparams);
 	~acts_kernel();
 	
-	void top_function( HBM_channelTHIS_t * HBM_channelA0, HBM_channelTHIS_t * HBM_channelB0, HBM_channelTHIS_t * HBM_channelA1, HBM_channelTHIS_t * HBM_channelB1, HBM_channelTHIS_t * HBM_channelA2, HBM_channelTHIS_t * HBM_channelB2, HBM_channelTHIS_t * HBM_channelA3, HBM_channelTHIS_t * HBM_channelB3, HBM_channelTHIS_t * HBM_channelA4, HBM_channelTHIS_t * HBM_channelB4, HBM_channelTHIS_t * HBM_channelA5, HBM_channelTHIS_t * HBM_channelB5, HBM_channelTHIS_t * HBM_centerA, HBM_channelTHIS_t * HBM_centerB);
+	void top_function(HBM_channelX_t * HBM_center, {% include 'parameters_allchannelsinslr.template' %});
 
 private:
 	utility * utilityobj;
@@ -62,6 +62,7 @@ private:
 	algorithm * algorithmobj;
 };
 #endif
+
 
 
 

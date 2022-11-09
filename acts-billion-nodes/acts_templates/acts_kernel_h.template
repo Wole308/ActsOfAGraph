@@ -54,7 +54,7 @@ public:
 	acts_kernel(universalparams_t universalparams);
 	~acts_kernel();
 	
-	void top_function(HBM_channelX_t * HBM_center, {% include 'parameters_allchannelsinslr.template' %});
+	void top_function({% include 'parameters_allchannelsinslr.template' %}, HBM_channelTHIS_t * HBM_centerA, HBM_channelTHIS_t * HBM_centerB);
 
 private:
 	utility * utilityobj;
