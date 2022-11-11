@@ -79,19 +79,11 @@
 
 #define NUM_PEs 12
 #define VALID_NUMPEs 6
-#define NUM_AXI_PEs (NUM_PEs * 2)
-#define MAXNUM_VPs 1024
-#define MAXNUM_LLPs 256 
-#define MAXNUM_LLPSETs 16 
-#define VECTOR_SIZE 8
-#define VECTOR2_SIZE 16
-#define HBM_CHANNEL_VECTOR_SIZE 16
-#define VDATA_PACKINGSIZE 16 
-#define EDGE_PACK_SIZE_POW 4
-#define EDGE_PACK_SIZE (1 << EDGE_PACK_SIZE_POW) // 16
-#define HBM_CHANNEL_PACK_SIZE 32
-#define HBM_AXI_PACK_SIZE 16
-#define HBM_AXI_PACK_BITSIZE 512
+#define EDGE_PACK_SIZE_POW 1 // 1 4*
+#define EDGE_PACK_SIZE (1 << EDGE_PACK_SIZE_POW) // 2, 16*
+#define HBM_CHANNEL_PACK_SIZE (EDGE_PACK_SIZE * 2) // 32*
+#define HBM_AXI_PACK_SIZE (HBM_CHANNEL_PACK_SIZE / 2) // 16* // NEW**
+#define HBM_AXI_PACK_BITSIZE (HBM_AXI_PACK_SIZE * 32) // 512* // NEW**
 #define HBM_CHANNEL_BYTESIZE (1 << 28)
 #define HBM_CHANNEL_INTSIZE (HBM_CHANNEL_BYTESIZE / 4)
 #define HBM_CHANNEL_SIZE ((HBM_CHANNEL_BYTESIZE / 4) / EDGE_PACK_SIZE) // in EDGE_PACK_SIZE (4194304)
@@ -105,7 +97,9 @@
 #define INVALIDDATA 0xFFFFFFFF 
 #define INVALIDMASK 0 
 
-#define MAX_UPARTITION_VECSIZE 8184
+#define MULT_FACTOR (16 / EDGE_PACK_SIZE) // NEW**
+
+#define MAX_UPARTITION_VECSIZE (8184 * MULT_FACTOR) // NEW**
 #define MAX_UPARTITION_SIZE (EDGE_PACK_SIZE * MAX_UPARTITION_VECSIZE) // 131072 
 #define MAX_APPLYPARTITION_VECSIZE MAX_UPARTITION_VECSIZE
 #define MAX_APPLYPARTITION_SIZE (EDGE_PACK_SIZE * MAX_APPLYPARTITION_VECSIZE) // 131072 
@@ -114,15 +108,16 @@
 #define NUM_ACTVVPARTITIONS_PER_APPLYPARTITION NUM_PEs
 #define MAX_NUM_ACTVVPARTITIONS (MAX_NUM_APPLYPARTITIONS * NUM_ACTVVPARTITIONS_PER_APPLYPARTITION * NUM_PEs) // 384
 
-#define UPDATES_BUFFER_SIZE 512	
-#define MAX_CSRUPDATES_VECSIZE_PER__APPLYPARTITION 1024
+#define UPDATES_BUFFER_PACK_SIZE MAX(EDGE_PACK_SIZE, NUM_PEs)
+
+#define UPDATES_BUFFER_SIZE (512 * MULT_FACTOR)
+#define MAX_CSRUPDATES_VECSIZE_PER__APPLYPARTITION (1024 * MULT_FACTOR)
 #define ACTVUPDATESBLOCK_VECSIZE_POW 4
-#define ACTVUPDATESBLOCK_VECSIZE (1 << ACTVUPDATESBLOCK_VECSIZE_POW) // 16
-#define BLOCKRAM_SIZE 512
-#define DOUBLE_BLOCKRAM_SIZE (BLOCKRAM_SIZE * 2)
-#define VPTR_BUFFER_SIZE 512
-#define VPTR_BUFFERMETADATA_SIZE 512
-#define EDGE_BUFFER_SIZE 512//8192// 512 // FIXME.
+#define ACTVUPDATESBLOCK_VECSIZE ((1 << ACTVUPDATESBLOCK_VECSIZE_POW) * MULT_FACTOR) // 16
+#define BLOCKRAM_SIZE (512 * MULT_FACTOR)
+#define DOUBLE_BLOCKRAM_SIZE ((BLOCKRAM_SIZE * 2) * MULT_FACTOR)
+#define VPTR_BUFFER_SIZE (512 * MULT_FACTOR)
+#define EDGE_BUFFER_SIZE (512 * MULT_FACTOR)   //8192// 512 // FIXME.
 
 #define GLOBALBUFFER_SIZE 64
 #define GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS 0
@@ -170,60 +165,60 @@
 
 ////////////////
 
-#define ENABLE__SPARSEPROC
+// #define ENABLE__SPARSEPROC
 
 ////////////////
 
-#if NUM_PEs==3
-#define NUMCOMPUTEUNITS_SLR0 1
-#define NUMCOMPUTEUNITS_SLR1 1
-#define NUMCOMPUTEUNITS_SLR2 1
-#endif 
-#if NUM_PEs==12
-#define NUMCOMPUTEUNITS_SLR0 2
-#define NUMCOMPUTEUNITS_SLR1 5
-#define NUMCOMPUTEUNITS_SLR2 5
-#endif 
-#if NUM_PEs==14
-#define NUMCOMPUTEUNITS_SLR0 4
-#define NUMCOMPUTEUNITS_SLR1 5
-#define NUMCOMPUTEUNITS_SLR2 5
-#endif 
-#if NUM_PEs==16
-#define NUMCOMPUTEUNITS_SLR0 4 
-#define NUMCOMPUTEUNITS_SLR1 6
-#define NUMCOMPUTEUNITS_SLR2 6
-#endif 
-#if NUM_PEs==18
-#define NUMCOMPUTEUNITS_SLR0 6
-#define NUMCOMPUTEUNITS_SLR1 6
-#define NUMCOMPUTEUNITS_SLR2 6
-#endif 
-#if NUM_PEs==20
-#define NUMCOMPUTEUNITS_SLR0 6
-#define NUMCOMPUTEUNITS_SLR1 7
-#define NUMCOMPUTEUNITS_SLR2 7
-#endif 
-#if NUM_PEs==22
-#define NUMCOMPUTEUNITS_SLR0 6
-#define NUMCOMPUTEUNITS_SLR1 8
-#define NUMCOMPUTEUNITS_SLR2 8
-#endif 
-#if NUM_PEs==24
-#define NUMCOMPUTEUNITS_SLR0 6
-#define NUMCOMPUTEUNITS_SLR1 9
-#define NUMCOMPUTEUNITS_SLR2 9
-#endif 
-#if NUM_PEs==25
-#define NUMCOMPUTEUNITS_SLR0 7
-#define NUMCOMPUTEUNITS_SLR1 9
-#define NUMCOMPUTEUNITS_SLR2 9
-#endif 
-#if NUM_PEs==32
-#define NUMCOMPUTEUNITS_SLR0 12
-#define NUMCOMPUTEUNITS_SLR1 10
-#define NUMCOMPUTEUNITS_SLR2 10
-#endif 
+// #if NUM_PEs==3
+// #define NUMCOMPUTEUNITS_SLR0 1
+// #define NUMCOMPUTEUNITS_SLR1 1
+// #define NUMCOMPUTEUNITS_SLR2 1
+// #endif 
+// #if NUM_PEs==12
+// #define NUMCOMPUTEUNITS_SLR0 2
+// #define NUMCOMPUTEUNITS_SLR1 5
+// #define NUMCOMPUTEUNITS_SLR2 5
+// #endif 
+// #if NUM_PEs==14
+// #define NUMCOMPUTEUNITS_SLR0 4
+// #define NUMCOMPUTEUNITS_SLR1 5
+// #define NUMCOMPUTEUNITS_SLR2 5
+// #endif 
+// #if NUM_PEs==16
+// #define NUMCOMPUTEUNITS_SLR0 4 
+// #define NUMCOMPUTEUNITS_SLR1 6
+// #define NUMCOMPUTEUNITS_SLR2 6
+// #endif 
+// #if NUM_PEs==18
+// #define NUMCOMPUTEUNITS_SLR0 6
+// #define NUMCOMPUTEUNITS_SLR1 6
+// #define NUMCOMPUTEUNITS_SLR2 6
+// #endif 
+// #if NUM_PEs==20
+// #define NUMCOMPUTEUNITS_SLR0 6
+// #define NUMCOMPUTEUNITS_SLR1 7
+// #define NUMCOMPUTEUNITS_SLR2 7
+// #endif 
+// #if NUM_PEs==22
+// #define NUMCOMPUTEUNITS_SLR0 6
+// #define NUMCOMPUTEUNITS_SLR1 8
+// #define NUMCOMPUTEUNITS_SLR2 8
+// #endif 
+// #if NUM_PEs==24
+// #define NUMCOMPUTEUNITS_SLR0 6
+// #define NUMCOMPUTEUNITS_SLR1 9
+// #define NUMCOMPUTEUNITS_SLR2 9
+// #endif 
+// #if NUM_PEs==25
+// #define NUMCOMPUTEUNITS_SLR0 7
+// #define NUMCOMPUTEUNITS_SLR1 9
+// #define NUMCOMPUTEUNITS_SLR2 9
+// #endif 
+// #if NUM_PEs==32
+// #define NUMCOMPUTEUNITS_SLR0 12
+// #define NUMCOMPUTEUNITS_SLR1 10
+// #define NUMCOMPUTEUNITS_SLR2 10
+// #endif 
 
 ////////////////
 
@@ -248,12 +243,6 @@ typedef struct {
 } keyvalue_t;
 
 typedef keyvalue_t frontier_t;
-
-#ifdef FPGA_IMPL
-typedef ap_uint<1> unit1_type;
-#else 
-typedef unsigned int unit1_type;
-#endif 
 
 typedef struct {
 	keyy_t dstvid; 
@@ -286,14 +275,6 @@ typedef ap_uint<1> uint1_dt;
 typedef unsigned int uint1_dt;
 #endif
 
-// #ifdef FPGA_IMPL
-// typedef ap_uint<1024> uint1024_dt;
-// #else
-// typedef struct {
-	// keyvalue_t data[16];
-// } uint1024_dt;
-// #endif
-
 typedef struct {
 	keyvalue_t data[EDGE_PACK_SIZE];
 } uint512_vec_dt;
@@ -306,8 +287,10 @@ typedef struct {
 	unsigned int data[HBM_AXI_PACK_SIZE]; // 16
 } uint512_jvec_dt;
 
+// #define __HBM_AXI_PACK_BITSIZE__ 512 // 256
 #ifdef FPGA_IMPL
 typedef ap_uint<HBM_AXI_PACK_BITSIZE> uint512_axivec_dt;
+// typedef ap_uint<__HBM_AXI_PACK_BITSIZE__> uint512_axivec_dt;
 #else
 typedef struct {
 	unsigned int data[HBM_AXI_PACK_SIZE]; // 16
@@ -341,12 +324,6 @@ typedef struct {
 typedef struct {
 	vprop_t data[EDGE_PACK_SIZE];
 } vprop_vec_t;
-
-// #ifdef FPGA_IMPL
-// typedef ap_uint<32> vtxbuffer_type;
-// #else
-// typedef unsigned int vtxbuffer_type;
-// #endif 
 
 typedef struct {
 	unsigned int ALGORITHM; 

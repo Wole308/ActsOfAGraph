@@ -44,7 +44,7 @@ using namespace std;
 #define MY_IFDEF_STATSBUFFERMASKBASED_TMP() unsigned int statsbuffer_maskbased_tmp[EDGE_PACK_SIZE][BLOCKRAM_SIZE]	
 #define MY_IFDEF_STATSBUFFERMASKBASED() unsigned int statsbuffer_maskbased[MAX_NUM_APPLYPARTITIONS][BLOCKRAM_SIZE]	
 #define MY_IFDEF_STATSBUFFERIDBASED() unsigned int statsbuffer_idbased[MAX_NUM_APPLYPARTITIONS][BLOCKRAM_SIZE]	
-#define MY_IFDEF_UPDATESTMPBUFFER() keyvalue_t updates_buffer2[EDGE_PACK_SIZE][UPDATES_BUFFER_SIZE]	
+#define MY_IFDEF_UPDATESTMPBUFFER() keyvalue_t updates_buffer2[UPDATES_BUFFER_PACK_SIZE][UPDATES_BUFFER_SIZE]	
 #define MY_IFDEF_VPTRBUFFER() vtr_t vptr_buffer[VPTR_BUFFER_SIZE]
 #define MY_IFDEF_EDGESBUFFER() edge3_type edges_buffer[EDGE_PACK_SIZE][EDGE_BUFFER_SIZE]
 #define MY_IFDEF_VDATABUFFER() vprop_t vdata_buffer[EDGE_PACK_SIZE][MAXVALID_APPLYPARTITION_VECSIZE]
@@ -56,7 +56,7 @@ using namespace std;
 #define MY_IFDEF_STATSBUFFERMASKBASED_TMP() unsigned int * statsbuffer_maskbased_tmp[EDGE_PACK_SIZE]
 #define MY_IFDEF_STATSBUFFERMASKBASED() unsigned int * statsbuffer_maskbased[MAX_NUM_APPLYPARTITIONS]
 #define MY_IFDEF_STATSBUFFERIDBASED() unsigned int * statsbuffer_idbased[MAX_NUM_APPLYPARTITIONS]
-#define MY_IFDEF_UPDATESTMPBUFFER() keyvalue_t * updates_buffer2[EDGE_PACK_SIZE]
+#define MY_IFDEF_UPDATESTMPBUFFER() keyvalue_t * updates_buffer2[UPDATES_BUFFER_PACK_SIZE]
 #define MY_IFDEF_VPTRBUFFER() vtr_t * vptr_buffer
 #define MY_IFDEF_EDGESBUFFER() edge3_type * edges_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_VDATABUFFER() vprop_t * vdata_buffer[EDGE_PACK_SIZE]
@@ -101,6 +101,17 @@ unsigned int get_local_to_vpartition(unsigned int lvid){
 	return lvid % MAX_APPLYPARTITION_SIZE;
 }
 
+void {{context['classname__acts']}}rearrangeLayoutVx16B(unsigned int s, keyvalue_t in[EDGE_PACK_SIZE], keyvalue_t out[EDGE_PACK_SIZE]){
+	{%for v in context['EDGE_PACK_SIZE_seq']%}
+	{%if(v>0)%}else{%endif%} {%if(v<context['EDGE_PACK_SIZE']-1)%}if(s=={{v}}){%endif%}{ 
+		{%for v2 in context['EDGE_PACK_SIZE_seq']%}
+		out[{{    (v+v2) %  (context['EDGE_PACK_SIZE'])  }}] = in[{{v2}}]; 
+		{%endfor%}
+	}
+	{%endfor%}
+	return;
+}
+#ifdef TTTTTTTTTTTT
 void rearrangeLayoutVx16B(unsigned int s, keyvalue_t in[EDGE_PACK_SIZE], keyvalue_t out[EDGE_PACK_SIZE]){
 	if(s==0){ 
 		out[0] = in[0]; 
@@ -392,6 +403,7 @@ void rearrangeLayoutVx16B(unsigned int s, keyvalue_t in[EDGE_PACK_SIZE], keyvalu
 	}
 	return;
 }
+#endif 
 
 unsigned int min_(unsigned int val1, unsigned int val2){
 	#pragma HLS INLINE
@@ -437,7 +449,7 @@ void check_if_contiguous(keyvalue_t keyvalue[EDGE_PACK_SIZE], keyvalue_t msg1[ED
 
 //////////////////////////////////////////////////////////////////
 void master_centerinsert_vec(unsigned int offset, unsigned int data[HBM_CHANNEL_PACK_SIZE], HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB){
-	// #pragma HLS INLINE // FIXME_HARDWARE
+	#pragma HLS INLINE // FIXME_HARDWARE
 	#ifdef FPGA_IMPL 
 		{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 		HBM_centerA[offset].range({{(32 * (v + 1)) - 1}}, {{32 * v}}) = data[{{v}}];
@@ -456,7 +468,7 @@ void master_centerinsert_vec(unsigned int offset, unsigned int data[HBM_CHANNEL_
 	return;
 }
 void master_centerretrieve_vec(unsigned int offset, unsigned int data[HBM_CHANNEL_PACK_SIZE], HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB){
-	// #pragma HLS INLINE // FIXME_HARDWARE
+	#pragma HLS INLINE // FIXME_HARDWARE
 	#ifdef FPGA_IMPL 
 		{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 		data[{{v}}] = HBM_centerA[offset].range({{(32 * (v + 1)) - 1}}, {{32 * v}});
@@ -476,7 +488,7 @@ void master_centerretrieve_vec(unsigned int offset, unsigned int data[HBM_CHANNE
 }
 
 void master_insert_vec(unsigned int offset, unsigned int data[HBM_CHANNEL_PACK_SIZE], HBM_channelAXI_t * HBM_channelA, HBM_channelAXI_t * HBM_channelB, unsigned int inst){
-	// #pragma HLS INLINE // FIXME_HARDWARE
+	#pragma HLS INLINE // FIXME_HARDWARE
 	#ifdef FPGA_IMPL 
 		{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 		HBM_channelA[offset].range({{(32 * (v + 1)) - 1}}, {{32 * v}}) = data[{{v}}];
@@ -495,7 +507,7 @@ void master_insert_vec(unsigned int offset, unsigned int data[HBM_CHANNEL_PACK_S
 	return;
 }
 void master_retrieve_vec(unsigned int offset, unsigned int data[HBM_CHANNEL_PACK_SIZE], HBM_channelAXI_t * HBM_channelA, HBM_channelAXI_t * HBM_channelB, unsigned int inst){
-	// #pragma HLS INLINE // FIXME_HARDWARE
+	#pragma HLS INLINE // FIXME_HARDWARE
 	#ifdef FPGA_IMPL 
 		{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 		data[{{v}}] = HBM_channelA[offset].range({{(32 * (v + 1)) - 1}}, {{32 * v}});
@@ -515,7 +527,7 @@ void master_retrieve_vec(unsigned int offset, unsigned int data[HBM_CHANNEL_PACK
 }
 
 void master_insertmany_vec(unsigned int offsets[VALID_NUMPEs], bool ens[VALID_NUMPEs], unsigned int data[VALID_NUMPEs][HBM_CHANNEL_PACK_SIZE], {% include 'parameters_allchannelsinslr.template' %}){
-	// #pragma HLS INLINE // FIXME_HARDWARE
+	#pragma HLS INLINE // FIXME_HARDWARE
 	#ifdef FPGA_IMPL 
 		{%for n in context['VALID_NUMPEs_seq']%}	
 			{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
@@ -538,7 +550,7 @@ void master_insertmany_vec(unsigned int offsets[VALID_NUMPEs], bool ens[VALID_NU
 	return;
 }
 void master_insertmanyG_vec(unsigned int offsets[VALID_NUMPEs], bool ens[VALID_NUMPEs], unsigned int data[VALID_NUMPEs][HBM_CHANNEL_PACK_SIZE], {% include 'parameters_allchannelsinslr.template' %}){
-	// #pragma HLS INLINE // FIXME_HARDWARE
+	#pragma HLS INLINE // FIXME_HARDWARE
 	#ifdef FPGA_IMPL 
 		{%for n in context['VALID_NUMPEs_seq']%}	
 		if(ens[{{n}}]==true){
@@ -565,7 +577,7 @@ void master_insertmanyG_vec(unsigned int offsets[VALID_NUMPEs], bool ens[VALID_N
 	return;
 }
 void master_retrievemany_vec(unsigned int offsets[VALID_NUMPEs], unsigned int data[VALID_NUMPEs][HBM_CHANNEL_PACK_SIZE], {% include 'parameters_allchannelsinslr.template' %}){
-	// #pragma HLS INLINE // FIXME_HARDWARE
+	#pragma HLS INLINE // FIXME_HARDWARE
 	#ifdef FPGA_IMPL 
 		{%for n in context['VALID_NUMPEs_seq']%}
 		{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
@@ -589,14 +601,14 @@ void master_retrievemany_vec(unsigned int offsets[VALID_NUMPEs], unsigned int da
 }
 
 unsigned int master_retrieve(unsigned int offset, unsigned int v, HBM_channelAXI_t * HBM_channelA, HBM_channelAXI_t * HBM_channelB, unsigned int inst){
-	// #pragma HLS INLINE // FIXME_HARDWARE
+	#pragma HLS INLINE // FIXME_HARDWARE
 	unsigned int datas[HBM_CHANNEL_PACK_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=datas complete
 	master_retrieve_vec(offset, datas, HBM_channelA, HBM_channelB, inst);
 	return datas[v];
 }
 void master_retrievemany(unsigned int offsets[VALID_NUMPEs], unsigned int v, unsigned int data[VALID_NUMPEs], {% include 'parameters_allchannelsinslr.template' %}){
-	// #pragma HLS INLINE // FIXME_HARDWARE
+	#pragma HLS INLINE // FIXME_HARDWARE
 	unsigned int datas[VALID_NUMPEs][HBM_CHANNEL_PACK_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable=datas complete dim=0
 	master_retrievemany_vec(offsets, datas, {% include 'arguments_allchannelsinslr.template' %});
@@ -632,7 +644,7 @@ void retrieve_cfrontierdram(unsigned int p_u, unsigned int t, keyvalue_t data[ED
 
 ////////////////////////////////////////////////////////////////
 unsigned int dretrieve_globalparams(unsigned int base_offset__, unsigned int index, HBM_channelAXI_t * HBM_channelA, HBM_channelAXI_t * HBM_channelB, unsigned int inst){
-	// #pragma HLS INLINE // FIXME_HARDWARE
+	#pragma HLS INLINE // FIXME_HARDWARE
 	return master_retrieve(base_offset__ + index, 0, HBM_channelA, HBM_channelB, inst); // NEW
 }
 
@@ -1468,7 +1480,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 	edge3_type edges_buffer[VALID_NUMPEs][EDGE_PACK_SIZE][EDGE_BUFFER_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=edges_buffer complete dim=1
     #pragma HLS ARRAY_PARTITION variable=edges_buffer complete dim=2
-	keyvalue_t updates_buffer2[VALID_NUMPEs][EDGE_PACK_SIZE][UPDATES_BUFFER_SIZE];
+	keyvalue_t updates_buffer2[VALID_NUMPEs][UPDATES_BUFFER_PACK_SIZE][UPDATES_BUFFER_SIZE]; // EDGE_PACK_SIZE
 	#pragma HLS ARRAY_PARTITION variable=updates_buffer2 complete dim=1
     #pragma HLS ARRAY_PARTITION variable=updates_buffer2 complete dim=2
 	vprop_t vdata_buffer[VALID_NUMPEs][EDGE_PACK_SIZE][MAXVALID_APPLYPARTITION_VECSIZE];
@@ -1485,7 +1497,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 	unsigned int * statsbuffer_idbased[VALID_NUMPEs][MAX_NUM_APPLYPARTITIONS]; 
 	vtr_t * vptr_buffer[VALID_NUMPEs]; 
 	edge3_type * edges_buffer[VALID_NUMPEs][EDGE_PACK_SIZE];
-	keyvalue_t * updates_buffer2[VALID_NUMPEs][EDGE_PACK_SIZE]; 
+	keyvalue_t * updates_buffer2[VALID_NUMPEs][UPDATES_BUFFER_PACK_SIZE]; 
 	vprop_t * vdata_buffer[VALID_NUMPEs][EDGE_PACK_SIZE];
 	for(unsigned int i=0; i<VALID_NUMPEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ nfrontier_buffer[i][v] = new keyvalue_t[MAX_ACTVV_VECSIZE]; }}
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ cfrontier_buffer_tmp[v] = new keyvalue_t[MAX_APPLYPARTITION_VECSIZE]; }
@@ -1495,7 +1507,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 	for(unsigned int i=0; i<VALID_NUMPEs; i++){ for(unsigned int v=0; v<MAX_NUM_APPLYPARTITIONS; v++){ statsbuffer_idbased[i][v] = new unsigned int[BLOCKRAM_SIZE]; }}
 	for(unsigned int i=0; i<VALID_NUMPEs; i++){ vptr_buffer[i] = new vtr_t[VPTR_BUFFER_SIZE]; }
 	for(unsigned int i=0; i<VALID_NUMPEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ edges_buffer[i][v] = new edge3_type[EDGE_BUFFER_SIZE]; }}
-	for(unsigned int i=0; i<VALID_NUMPEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ updates_buffer2[i][v] = new keyvalue_t[UPDATES_BUFFER_SIZE]; }}
+	for(unsigned int i=0; i<VALID_NUMPEs; i++){ for(unsigned int v=0; v<UPDATES_BUFFER_PACK_SIZE; v++){ updates_buffer2[i][v] = new keyvalue_t[UPDATES_BUFFER_SIZE]; }}
 	for(unsigned int i=0; i<VALID_NUMPEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ vdata_buffer[i][v] = new vprop_t[MAX_APPLYPARTITION_VECSIZE]; }}
 	#endif 
 	
@@ -1643,6 +1655,14 @@ MY_IFDEF_TOPLEVELFUNC(){
 	globalparams_debug = (unsigned int *)&globalparams[0];
 	#endif
 	
+	unsigned int write_data[HBM_CHANNEL_PACK_SIZE];
+	for(unsigned int t=0; t<HBM_CHANNEL_PACK_SIZE; t++){ write_data[t] = 0; }
+	MY_LOOP2091: for(unsigned int t=0; t<GLOBALBUFFER_SIZE; t++){
+		for(unsigned int t1=0; t1<HBM_CHANNEL_PACK_SIZE; t1++){ write_data[t1] = 0; }
+		write_data[1] = globalparams[t];
+		master_insert_vec(t, write_data, HBM_channelA0, HBM_channelB0, 0);
+	}
+	
 	int ___ENABLE___RESETBUFFERSATSTART___BOOL___ = globalparams[GLOBALPARAMSCODE___ENABLE___RESETBUFFERSATSTART];
 	int ___ENABLE___PROCESSEDGES___BOOL___ = globalparams[GLOBALPARAMSCODE___ENABLE___PROCESSEDGES];
 	int ___ENABLE___READ_FRONTIER_PROPERTIES___BOOL___ = globalparams[GLOBALPARAMSCODE___ENABLE___READ_FRONTIER_PROPERTIES];
@@ -1711,6 +1731,11 @@ MY_IFDEF_TOPLEVELFUNC(){
 		#endif 
 	}
 	}
+	
+	// #ifdef ___REFACTORING_FOR_VHLS_DEBUGGING___
+	// for(unsigned int u=0; u<MAX_NUM_UPARTITIONS; u++){ cfrontier_dram___size[u] = globalparams[u]; } // FIXME. removeme
+	// for(unsigned int u=0; u<MAX_NUM_UPARTITIONS; u++){ upartition_vertices[u].count = globalparams[u+1]; } // FIXME. removeme
+	// #endif 
 	
 	// run acts 
 	RUN_ACTS_LOOP: for(unsigned int GraphIter=0; GraphIter<globalparams[GLOBALPARAMSCODE__PARAM__NUM_ITERATIONS]; GraphIter++){
@@ -1818,7 +1843,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 				}
 				}
 				#endif 
-
+				
 				// reset temp stats buffer [done]
 				if(___use_vertex_centric___ == false){
 					MY_LOOP170: for(unsigned int t=0; t<BLOCKRAM_SIZE; t++){ 
@@ -1866,6 +1891,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 							frontier_t actvv = retrieve_cfrontierbuffer_tmp(pingpong % EDGE_PACK_SIZE, pingpong / EDGE_PACK_SIZE, cfrontier_buffer_tmp); // NEW
 							if(actvv.key != INVALIDDATA){
 								unsigned int inst_ = actvv.key % VALID_NUMPEs;
+								// cout<<"--------------------------------------- (1) actvv.key: "<<actvv.key<<endl;		
 								cfrontier_buffer[inst_][cfrontier_bufferREAL___size[inst_]] = actvv;
 								cfrontier_bufferREAL___size[inst_] += 1;
 								update_bramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___VCPROCESSEDGES___, 1);
@@ -1877,7 +1903,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 						
 						// load vptrs [done]
 						max_limit = 0; MY_LOOP167: for(unsigned int n=0; n<VALID_NUMPEs; n++){ if(max_limit < cfrontier_bufferREAL___size[n]){ max_limit = cfrontier_bufferREAL___size[n]; }} 
-						VC_READVPTRS_LOOP2: for(unsigned int t=0; t<max_limit; t++){
+						VC_READVPTRS_LOOP2: for(unsigned int t=0; t<max_limit; t++){ // FIXME_HARDWARE. CAUSE OF POOR FREQUENCY?
 							unsigned int begins_u32[VALID_NUMPEs]; 
 							unsigned int ends_u32[VALID_NUMPEs];
 							frontier_t actvvs[VALID_NUMPEs];
@@ -1885,6 +1911,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 							VC_READVPTRS_LOOP2B: for(unsigned int n=0; n<VALID_NUMPEs; n++){
 							#pragma HLS UNROLL
 								actvvs[n] = cfrontier_buffer[n][t];
+								// cout<<"--------------------------------------- (1) actvvs["<<n<<"].key: "<<actvvs[n].key<<endl;		
 								unsigned int hvid = 0;
 								if(t < cfrontier_bufferREAL___size[n]){ hvid = actvvs[n].key / NUM_PEs; } 
 								#ifdef ___FORCE_SUCCESS___
@@ -1972,7 +1999,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 										if(edge.dstvid != INVALIDDATA){
 											unsigned int uprop = edge.srcvid; // edge.srcvid has uprop information
 											unsigned int res = process_funcG(uprop, 1);
-											#ifdef _DEBUGMODE_KERNELPRINTS//4 //_DEBUGMODE_KERNELPRINTS_TRACE3
+											#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3 // _DEBUGMODE_KERNELPRINTS // 4 //_DEBUGMODE_KERNELPRINTS_TRACE3
 											cout<<"VC - PROCESS EDGE SEEN @: inst: ["<<inst<<"], [edge.srcvid: "<<edge.srcvid<<", edge.dstvid: "<<edge.dstvid<<", uprop: "<<uprop<<", res: "<<res<<"]"<<endl;
 											cout<<"VC - PROCESS EDGE SEEN @: inst: ["<<inst<<"], [local partition: "<<p_u<<", vid: "<<NAp<<"]"<<endl;
 											#endif 
@@ -2024,6 +2051,10 @@ MY_IFDEF_TOPLEVELFUNC(){
 									#endif 
 									
 									#ifdef _DEBUGMODE_CHECKS3
+									if((update_local.key % EDGE_PACK_SIZE) != v){ cout<<"acts_kernel 12347:: update_local.key("<<update_local.key<<") % v("<<v<<") != 0. EXITING..."<<endl; for(unsigned int v1=0; v1<EDGE_PACK_SIZE; v1++){ cout<<"update_local.key ("<<(update_local.key % EDGE_PACK_SIZE)<<"): "<<update_local.key<<""<<endl; } exit(EXIT_FAILURE); }				
+									#endif 
+									
+									#ifdef _DEBUGMODE_CHECKS3
 									checkoutofbounds("acts_kernel::ERROR 1232::", p_v, __NUM_APPLYPARTITIONS, update.key, get_local(update.key), MAX_APPLYPARTITION_SIZE);
 									checkoutofbounds("acts_kernel::ERROR 1222::", (p_v * MAX_CSRUPDATES_VECSIZE_PER__APPLYPARTITION) + updates_buffer___size[inst_mirror][v][p_v], MAX_APPLYPARTITION_VECSIZE, updates_buffer___size[inst_mirror][v][p_v], inst_mirror, p_v);
 									#endif 
@@ -2059,6 +2090,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 						#endif 
 					
 						EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_APPLYPARTITIONS; llp_set++){
+							// cout<<"------------------------ p_u: "<<p_u<<", llp_set: "<<llp_set<<" ---------------------------------"<<endl;
 							map_t maps[VALID_NUMPEs];
 							#pragma HLS ARRAY_PARTITION variable=maps complete	
 							dretrievemany_actpackvptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS], p_u, llp_set, maps, {% include 'arguments_allchannelsinslr.template' %});
@@ -2066,6 +2098,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 							
 							// process edges [done]
 							EC_PROCESS_EDGES_LOOP1B: for(unsigned int it=0; it<(max_sz + (BLOCKRAM_SIZE - 1)) / BLOCKRAM_SIZE; it++){
+								// cout<<"------------------------ p_u: "<<p_u<<", llp_set: "<<llp_set<<", it: "<<it<<" ---------------------------------"<<endl;
 								MY_LOOP141: for(unsigned int n=0; n<VALID_NUMPEs; n++){ 
 								#pragma HLS UNROLL
 									stats_count[n] = 0; 
@@ -2103,7 +2136,6 @@ MY_IFDEF_TOPLEVELFUNC(){
 											edge3_type edge = edge_vec.data[v];
 											unsigned int srcvid_lpv = edge.srcvid;
 											vprop_t uprop; if(edge.srcvid != INVALIDDATA && edge.srcvid < MAX_UPARTITION_VECSIZE){ uprop = retrieve_vdatabuffer(v, srcvid_lpv, vdata_buffer[inst]); }
-											// if(edge.srcvid != INVALIDDATA && edge.srcvid < MAX_UPARTITION_VECSIZE && uprop.mask == MASK_CODE_PE)
 											if(edge.srcvid != INVALIDDATA && edge.srcvid < MAX_UPARTITION_VECSIZE && (uprop.mask == MASK_CODE_PE || all_vertices_active_in_all_iterations == true)){
 												unsigned int res = process_funcG(uprop.prop, 1);
 												update_in[inst][v].key = edge.dstvid; update_in[inst][v].value = res;
@@ -2180,6 +2212,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 									actpackupdates_dram___size[n][llp_set] += max_limits[n]; // NEW*
 								}
 							}
+							// exit(EXIT_SUCCESS);////////////////////
 							
 							// gather stats [done]
 							unsigned int data[EDGE_PACK_SIZE];
@@ -2191,13 +2224,23 @@ MY_IFDEF_TOPLEVELFUNC(){
 									#ifndef FPGA_IMPL
 									checkoutofbounds("acts_kernel::ERROR 023::", t, BLOCKRAM_SIZE, NAp, NAp, NAp);
 									#endif 
-									if(data[0]==1 || data[1]==1 || data[2]==1 || data[3]==1 || data[4]==1 || data[5]==1 || data[6]==1 || data[7]==1 || data[8]==1 || data[9]==1 || data[10]==1 || data[11]==1 || data[12]==1 || data[13]==1 || data[14]==1 || data[15]==1){ 
+									// #if EDGE_PACK_SIZE==2
+									// if(data[0]==1 || data[1]==1)
+									// #elif EDGE_PACK_SIZE==16
+									// sdds
+									// if(data[0]==1 || data[1]==1 || data[2]==1 || data[3]==1 || data[4]==1 || data[5]==1 || data[6]==1 || data[7]==1 || data[8]==1 || data[9]==1 || data[10]==1 || data[11]==1 || data[12]==1 || data[13]==1 || data[14]==1 || data[15]==1)
+									// #else 
+									// NOT DEFINED.
+									if( {%for v in context['EDGE_PACK_SIZE_seq']%}{%if(v>0)%}||{%endif%} data[{{v}}]==1{%endfor%} )
+									// #endif 
+									{ 
 										insert_statsbuffer(t, llp_set, 1, statsbuffer_maskbased[inst]); // NEW*
 										vpartition_vertices[inst][llp_set].count = 1;
 									}
 								}
 								update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___ECPROCESSEDGES___, 1);
 							}
+							// exit(EXIT_SUCCESS);////////////////////
 						}
 						}
 						#endif 
@@ -2245,7 +2288,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 									vprop_t tmp = retrieve_vdatabuffer(v, voffsett + t, vdata_buffer[inst]); 
 									updates_vecs[inst].data[v].key = tmp.prop; updates_vecs[inst].data[v].value = tmp.mask;
 									#ifdef _DEBUGMODE_CHECKS3
-									if((updates_vecs[inst].data[v].key % EDGE_PACK_SIZE) != v){ cout<<"acts_kernel 1234:: updates_vecs["<<inst<<"].data["<<v<<"].key("<<updates_vecs[inst].data[v].key<<") % v("<<v<<") != 0. EXITING..."<<endl; for(unsigned int v1=0; v1<EDGE_PACK_SIZE; v1++){ cout<<"updates_vecs["<<inst<<"].data["<<v1<<"].key: "<<updates_vecs[inst].data[v1].key<<""<<endl; } exit(EXIT_FAILURE); }
+									if((updates_vecs[inst].data[v].key % EDGE_PACK_SIZE) != v){ cout<<"acts_kernel 1234:: updates_vecs["<<inst<<"].data["<<v<<"].key("<<updates_vecs[inst].data[v].key<<") % v("<<v<<") != 0. EXITING..."<<endl; for(unsigned int v1=0; v1<EDGE_PACK_SIZE; v1++){ cout<<"updates_vecs["<<inst<<"].data["<<v1<<"].key ("<<(updates_vecs[inst].data[v].key % EDGE_PACK_SIZE)<<"): "<<updates_vecs[inst].data[v1].key<<""<<endl; } exit(EXIT_FAILURE); }				
 									#endif 
 								}
 								#ifdef ___FALSE___
@@ -2280,6 +2323,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 			}
 			#endif 
 		}
+		// exit(EXIT_SUCCESS);////////////////////
 		
 		// prepare active destID stats [done] 
 		#ifdef ___ENABLE___COLLECTACTIVEDSTVIDS___
@@ -2652,7 +2696,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 		}
 		#endif 
 		
-		#ifdef _DEBUGMODE_CHECKS3
+		#ifdef _DEBUGMODE_CHECKS3 
 		#ifdef _DEBUGMODE_KERNELPRINTS4
 		if(all_vertices_active_in_all_iterations == true){
 		cout<<"acts_kernel SUMMARY:: number of DRAM clock cycles seen @ ___CODE___RESETBUFFERSATSTART___: "<<_NUMCLOCKCYCLES_[0][___CODE___RESETBUFFERSATSTART___]<<endl;
@@ -2716,6 +2760,11 @@ MY_IFDEF_TOPLEVELFUNC(){
 	cout<<"acts_kernel SUMMARY:: number of DRAM clock cycles seen: "<<total_cycles<<" ("<<(total_cycles * _NUMNANOSECONDS_PER_CLOCKCYCLE_) / 1000000<<" milliseconds)"<<endl;
 	cout<< TIMINGRESULTSCOLOR << ">>> acts_kernel SUMMARY:: TIME ELAPSE: "<<time_lapse<<" ms. THROUGHPUT: "<<million_edges_per_sec<<" MTEPS; THROUGHPUT: "<<billion_edges_per_sec<<" BTEPS"<< RESET << endl;
 	#endif
+	
+	
+	
+	// #endif 
+	
 	return;
 }
 

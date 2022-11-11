@@ -66,7 +66,20 @@ void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedat
 	cout<<"act-pack: num_LLPs: "<<num_LLPs<<endl;
 	cout<<"act-pack: vsize_LLP: "<<vsize_LLP<<endl;
 	cout<<"act-pack: num_LLPset: "<<num_LLPset<<endl;
-
+	
+	cout<<"act-pack: EDGE_PACK_SIZE: "<<EDGE_PACK_SIZE<<endl;
+	cout<<"act-pack: HBM_CHANNEL_PACK_SIZE: "<<HBM_CHANNEL_PACK_SIZE<<endl;
+	cout<<"act-pack: HBM_AXI_PACK_SIZE: "<<HBM_AXI_PACK_SIZE<<endl;
+	cout<<"act-pack: HBM_AXI_PACK_BITSIZE: "<<HBM_AXI_PACK_BITSIZE<<endl;
+	cout<<"act-pack: HBM_CHANNEL_BYTESIZE: "<<HBM_CHANNEL_BYTESIZE<<endl;
+	cout<<"act-pack: MAX_APPLYPARTITION_VECSIZE: "<<MAX_APPLYPARTITION_VECSIZE<<endl;
+	cout<<"act-pack: MAX_APPLYPARTITION_SIZE: "<<MAX_APPLYPARTITION_SIZE<<endl;
+	cout<<"act-pack: MAX_UPARTITION_VECSIZE: "<<MAX_UPARTITION_VECSIZE<<endl;
+	cout<<"act-pack: MAX_UPARTITION_SIZE: "<<MAX_UPARTITION_SIZE<<endl;
+	cout<<"act-pack: HBM_CHANNEL_BYTESIZE: "<<HBM_CHANNEL_BYTESIZE<<endl;
+	cout<<"act-pack: HBM_CHANNEL_SIZE: "<<HBM_CHANNEL_SIZE<<endl;
+	cout<<"act-pack: UPDATES_BUFFER_PACK_SIZE: "<<UPDATES_BUFFER_PACK_SIZE<<endl;
+	
 	bool debug = false;
 
 	vector<edge3_type> edges_in_channel[NUM_PEs];
