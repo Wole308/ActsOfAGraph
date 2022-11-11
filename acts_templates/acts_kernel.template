@@ -5,7 +5,7 @@ using namespace std;
 #endif 
 // __NOT__YET__IMPLEMENTED___
 // __OBSOLETE___
-// #define ___FALSE___
+// #define ___FALSE___ 
 
 #define ___ENABLE___RESETBUFFERSATSTART___ 
 #define ___ENABLE___PROCESSEDGES___ 
@@ -437,7 +437,7 @@ void check_if_contiguous(keyvalue_t keyvalue[EDGE_PACK_SIZE], keyvalue_t msg1[ED
 
 //////////////////////////////////////////////////////////////////
 void master_centerinsert_vec(unsigned int offset, unsigned int data[HBM_CHANNEL_PACK_SIZE], HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB){
-	#pragma HLS INLINE // FIXME_HARDWARE
+	// #pragma HLS INLINE // FIXME_HARDWARE
 	#ifdef FPGA_IMPL 
 		{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 		HBM_centerA[offset].range({{(32 * (v + 1)) - 1}}, {{32 * v}}) = data[{{v}}];
@@ -456,7 +456,7 @@ void master_centerinsert_vec(unsigned int offset, unsigned int data[HBM_CHANNEL_
 	return;
 }
 void master_centerretrieve_vec(unsigned int offset, unsigned int data[HBM_CHANNEL_PACK_SIZE], HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB){
-	#pragma HLS INLINE // FIXME_HARDWARE
+	// #pragma HLS INLINE // FIXME_HARDWARE
 	#ifdef FPGA_IMPL 
 		{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 		data[{{v}}] = HBM_centerA[offset].range({{(32 * (v + 1)) - 1}}, {{32 * v}});
@@ -476,7 +476,7 @@ void master_centerretrieve_vec(unsigned int offset, unsigned int data[HBM_CHANNE
 }
 
 void master_insert_vec(unsigned int offset, unsigned int data[HBM_CHANNEL_PACK_SIZE], HBM_channelAXI_t * HBM_channelA, HBM_channelAXI_t * HBM_channelB, unsigned int inst){
-	#pragma HLS INLINE // FIXME_HARDWARE
+	// #pragma HLS INLINE // FIXME_HARDWARE
 	#ifdef FPGA_IMPL 
 		{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 		HBM_channelA[offset].range({{(32 * (v + 1)) - 1}}, {{32 * v}}) = data[{{v}}];
@@ -495,7 +495,7 @@ void master_insert_vec(unsigned int offset, unsigned int data[HBM_CHANNEL_PACK_S
 	return;
 }
 void master_retrieve_vec(unsigned int offset, unsigned int data[HBM_CHANNEL_PACK_SIZE], HBM_channelAXI_t * HBM_channelA, HBM_channelAXI_t * HBM_channelB, unsigned int inst){
-	#pragma HLS INLINE // FIXME_HARDWARE
+	// #pragma HLS INLINE // FIXME_HARDWARE
 	#ifdef FPGA_IMPL 
 		{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 		data[{{v}}] = HBM_channelA[offset].range({{(32 * (v + 1)) - 1}}, {{32 * v}});
@@ -515,7 +515,7 @@ void master_retrieve_vec(unsigned int offset, unsigned int data[HBM_CHANNEL_PACK
 }
 
 void master_insertmany_vec(unsigned int offsets[VALID_NUMPEs], bool ens[VALID_NUMPEs], unsigned int data[VALID_NUMPEs][HBM_CHANNEL_PACK_SIZE], {% include 'parameters_allchannelsinslr.template' %}){
-	#pragma HLS INLINE // FIXME_HARDWARE
+	// #pragma HLS INLINE // FIXME_HARDWARE
 	#ifdef FPGA_IMPL 
 		{%for n in context['VALID_NUMPEs_seq']%}	
 			{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
@@ -538,7 +538,7 @@ void master_insertmany_vec(unsigned int offsets[VALID_NUMPEs], bool ens[VALID_NU
 	return;
 }
 void master_insertmanyG_vec(unsigned int offsets[VALID_NUMPEs], bool ens[VALID_NUMPEs], unsigned int data[VALID_NUMPEs][HBM_CHANNEL_PACK_SIZE], {% include 'parameters_allchannelsinslr.template' %}){
-	#pragma HLS INLINE // FIXME_HARDWARE
+	// #pragma HLS INLINE // FIXME_HARDWARE
 	#ifdef FPGA_IMPL 
 		{%for n in context['VALID_NUMPEs_seq']%}	
 		if(ens[{{n}}]==true){
@@ -565,7 +565,7 @@ void master_insertmanyG_vec(unsigned int offsets[VALID_NUMPEs], bool ens[VALID_N
 	return;
 }
 void master_retrievemany_vec(unsigned int offsets[VALID_NUMPEs], unsigned int data[VALID_NUMPEs][HBM_CHANNEL_PACK_SIZE], {% include 'parameters_allchannelsinslr.template' %}){
-	#pragma HLS INLINE // FIXME_HARDWARE
+	// #pragma HLS INLINE // FIXME_HARDWARE
 	#ifdef FPGA_IMPL 
 		{%for n in context['VALID_NUMPEs_seq']%}
 		{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
@@ -589,14 +589,14 @@ void master_retrievemany_vec(unsigned int offsets[VALID_NUMPEs], unsigned int da
 }
 
 unsigned int master_retrieve(unsigned int offset, unsigned int v, HBM_channelAXI_t * HBM_channelA, HBM_channelAXI_t * HBM_channelB, unsigned int inst){
-	#pragma HLS INLINE // FIXME_HARDWARE
+	// #pragma HLS INLINE // FIXME_HARDWARE
 	unsigned int datas[HBM_CHANNEL_PACK_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=datas complete
 	master_retrieve_vec(offset, datas, HBM_channelA, HBM_channelB, inst);
 	return datas[v];
 }
 void master_retrievemany(unsigned int offsets[VALID_NUMPEs], unsigned int v, unsigned int data[VALID_NUMPEs], {% include 'parameters_allchannelsinslr.template' %}){
-	#pragma HLS INLINE // FIXME_HARDWARE
+	// #pragma HLS INLINE // FIXME_HARDWARE
 	unsigned int datas[VALID_NUMPEs][HBM_CHANNEL_PACK_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable=datas complete dim=0
 	master_retrievemany_vec(offsets, datas, {% include 'arguments_allchannelsinslr.template' %});
@@ -632,7 +632,7 @@ void retrieve_cfrontierdram(unsigned int p_u, unsigned int t, keyvalue_t data[ED
 
 ////////////////////////////////////////////////////////////////
 unsigned int dretrieve_globalparams(unsigned int base_offset__, unsigned int index, HBM_channelAXI_t * HBM_channelA, HBM_channelAXI_t * HBM_channelB, unsigned int inst){
-	#pragma HLS INLINE // FIXME_HARDWARE
+	// #pragma HLS INLINE // FIXME_HARDWARE
 	return master_retrieve(base_offset__ + index, 0, HBM_channelA, HBM_channelB, inst); // NEW
 }
 
@@ -833,21 +833,11 @@ void dinsertmany_updatesdram(unsigned int offset__, unsigned int llp_set, unsign
 	#pragma HLS UNROLL
 		ens_[n] = ens[n][0];
 	}	
-	/* for(unsigned int n=0; n<VALID_NUMPEs; n++){
-	#pragma HLS UNROLL
-		for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-		#pragma HLS UNROLL
-			data_[n][2*v] = data[n].data[v].key;
-			data_[n][2*v+1] = data[n].data[v].value;
-		}
-	}		 */
-	
 	for(unsigned int n=0; n<VALID_NUMPEs; n++){ 
 	#pragma HLS UNROLL
 		for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 		#pragma HLS UNROLL
 			if(ens[n][v] == true){
-			// if(ens_[n] == true){
 				data_[n][2*v] = data[n].data[v].key;
 				data_[n][2*v+1] = data[n].data[v].value;
 			} else {
@@ -856,8 +846,7 @@ void dinsertmany_updatesdram(unsigned int offset__, unsigned int llp_set, unsign
 			}
 		}
 	}
-	
-	
+
 	master_insertmanyG_vec(offsets_, ens_, data_, {% include 'arguments_allchannelsinslr.template' %}); // CRITICAL FIXME. the issue.
 }
 void dretrievemany_udatesdram(unsigned int offset__, unsigned int llp_set, unsigned int index, uint512_vec_dt data[VALID_NUMPEs], {% include 'parameters_allchannelsinslr.template' %}, unsigned int updatesptrs[MAX_NUM_LLPSETS]){
@@ -1641,7 +1630,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 	unsigned int total_cycles = 0;
 	
 	// load global parameters
-	unsigned int first__bool__ = HBM_channelA[GLOBALPARAMSCODE___ENABLE___EXCHANGEFRONTIERINFOS].range(32, 0);
+	unsigned int first__bool__ = 1; // HBM_channelA[GLOBALPARAMSCODE___ENABLE___EXCHANGEFRONTIERINFOS].range(32, 0);
 	if(first__bool__ == 1){ // FIXME_HARDWARE
 	MY_LOOP209: for(unsigned int t=0; t<GLOBALBUFFER_SIZE; t++){
 	#pragma HLS PIPELINE II=1
@@ -2665,6 +2654,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 		
 		#ifdef _DEBUGMODE_CHECKS3
 		#ifdef _DEBUGMODE_KERNELPRINTS4
+		if(all_vertices_active_in_all_iterations == true){
 		cout<<"acts_kernel SUMMARY:: number of DRAM clock cycles seen @ ___CODE___RESETBUFFERSATSTART___: "<<_NUMCLOCKCYCLES_[0][___CODE___RESETBUFFERSATSTART___]<<endl;
 		// cout<<"acts_kernel SUMMARY:: number of DRAM clock cycles seen @ ___CODE___PROCESSEDGES___: "<<_NUMCLOCKCYCLES_[0][___CODE___PROCESSEDGES___]<<endl;
 		cout<<"acts_kernel SUMMARY:: number of DRAM clock cycles seen @ ___CODE___READ_FRONTIER_PROPERTIES___: "<<_NUMCLOCKCYCLES_[0][___CODE___READ_FRONTIER_PROPERTIES___]<<endl;
@@ -2681,6 +2671,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 		
 		cout<<"acts_kernel SUMMARY:: number of edges processed: "<<(_NUMCLOCKCYCLES_[0][___CODE___ECPROCESSEDGES___] * EDGE_PACK_SIZE) / (1+1)<<endl;
 		cout<<"acts_kernel SUMMARY:: number of vertex updates applied: "<<(_NUMCLOCKCYCLES_[0][___CODE___APPLYUPDATES___] * EDGE_PACK_SIZE) / (1+4)<<endl;
+		}
 		#endif 
 		float total_cycles_iter = 
 		+ _NUMCLOCKCYCLES_[0][___CODE___RESETBUFFERSATSTART___]

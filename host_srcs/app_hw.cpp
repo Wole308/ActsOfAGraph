@@ -31,13 +31,16 @@ long double app_hw::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM
     std::string krnl_name = "top_function";
     std::vector<cl::Kernel> krnls(NUM_KERNEL);
     cl::Context context;
+	std::vector<cl::Event> kernel_events(48);
+	std::vector<cl::Event> write_events(48);
+	std::vector<cl::Event> read_events(48);
 	
-	std::vector<int, aligned_allocator<int> > source_master(HBM_CHANNEL_INTSIZE);
-	for(unsigned int t=0; t<HBM_CHANNEL_SIZE; t++){
-		for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){ 
-			source_master[t*HBM_AXI_PACK_SIZE + v] = HBM_axichannel[0][0][t].data[v]; 
-		}
-	}
+	// std::vector<int, aligned_allocator<int> > source_master(HBM_CHANNEL_INTSIZE);
+	// for(unsigned int t=0; t<HBM_CHANNEL_SIZE; t++){
+		// for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){ 
+			// source_master[t*HBM_AXI_PACK_SIZE + v] = HBM_axichannel[0][0][t].data[v]; 
+		// }
+	// }
 
 	// std::vector<int, aligned_allocator<int> > source_in1(num_axi_interfaces, std::vector<int, aligned_allocator<int> >(dataSize));
 	std::vector<int, aligned_allocator<int> > source_in1[num_axi_interfaces]; for(unsigned int i=0; i<num_axi_interfaces; i++){ source_in1[i] = std::vector<int, aligned_allocator<int> >(HBM_CHANNEL_INTSIZE); }
@@ -144,10 +147,11 @@ long double app_hw::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM
 	// }
 	cout<<"app_hw:: Migrating input data from host memory to device global memory..."<<endl;
 	#if VALID_NUMPEs==1
+	cout<<"app_hw:: Migrating input data from host memory to device global memory (B)..."<<endl;
 	OCL_CHECK(err, err = q.enqueueMigrateMemObjects({												
 													buffer_input1[0], buffer_input1[1],
 													buffer_input1[2], buffer_input1[3]}, 
-													0));
+													0, NULL, &write_events[0]));
 	#endif 
 	#if VALID_NUMPEs==6
 	OCL_CHECK(err, err = q.enqueueMigrateMemObjects({													
@@ -158,8 +162,9 @@ long double app_hw::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM
 													buffer_input1[8], buffer_input1[9], 
 													buffer_input1[10], buffer_input1[11], 
 													buffer_input1[12], buffer_input1[13]}, 
-													0));
+													0, NULL, &write_events[0]));
 	#endif 
+	OCL_CHECK(err, err = write_events[0].wait());
     q.finish();
 
     double kernel_time_in_sec = 0, result = 0;
@@ -167,6 +172,7 @@ long double app_hw::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM
     std::chrono::duration<double> kernel_time(0);
 
     auto kernel_start = std::chrono::high_resolution_clock::now();
+	std::chrono::steady_clock::time_point begin_time = std::chrono::steady_clock::now();	
     // Setting the k_vadd Arguments
 	for (int i = 0; i < num_axi_interfaces; i++) {
 		cout<<"setting argument krnls[0].setArg("<<i<<", buffer_input1["<<i<<"])"<<endl;
@@ -175,8 +181,12 @@ long double app_hw::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM
 	
 	// Invoking the kernel
 	cout<<"Invoking the kernel..."<<endl;
-    OCL_CHECK(err, err = q.enqueueTask(krnls[0]));
+    // OCL_CHECK(err, err = q.enqueueTask(krnls[0]));
+	OCL_CHECK(err, err = q.enqueueTask(krnls[0], NULL, &kernel_events[0])); 
+	OCL_CHECK(err, err = kernel_events[0].wait());
     q.finish();
+	double end_time = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin_time).count()) / 1000;			
+	std::cout <<">>> kernel time elapsed for all iterations : "<<end_time<<" ms, "<<(end_time * 1000)<<" microsecs, "<<std::endl;
     auto kernel_end = std::chrono::high_resolution_clock::now();
 	// exit(EXIT_SUCCESS); ///////////////////
 
@@ -193,6 +203,7 @@ long double app_hw::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM
                                                         // CL_MIGRATE_MEM_OBJECT_HOST));
     // }
 	#if VALID_NUMPEs==1
+	cout<<"app_hw:: Migrating input data from device global memory to host memory (B)..."<<endl;
 	OCL_CHECK(err, err = q.enqueueMigrateMemObjects({												
 													buffer_input1[0], buffer_input1[1],
 													buffer_input1[2], buffer_input1[3]}, 
