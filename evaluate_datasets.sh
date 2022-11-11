@@ -20,32 +20,32 @@ SPMV="spmv"
 BFS="bfs"
 SSSP="sssp"
 
-# XCLBIN_DIR="/home/oj2zf/Documents/actsofagraph/ytest_portal/xclbin"
+# XCLBIN_DIR="/home/oj2zf/Documents/acts-billion-nodes/ytest_portal/xclbin"
 # XCLBIN_FILE="acts.hw.xilinx_u280_xdma_201920_3.xclbin"
 
-XCLBIN_DIR="/home/oj2zf/Documents/actsofagraph/outputs/xclbins"
-XCLBIN_FILE="golden_x3.xclbin"
+XCLBIN_DIR="/home/oj2zf/Documents/acts-billion-nodes/outputs"
+XCLBIN_FILE="golden_2.xclbin"
 
 DATASET_DIR=/home/oj2zf/Documents/dataset
-RESULT_PATH=/home/oj2zf/Documents/analysis_results/acts/
+RESULT_PATH=/home/oj2zf/Documents/analysis_results/acts
 
 ./evaluate.sh
 
 make cleanall
-# make host
-make actsobj
+make host
+# make actsobj
 
 DIRECTIONS=(1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0)
 # DIRECTIONS=(1)
 
 DATSETS=(
-		com-Orkut.mtx #(undirected)(3M,234M)
-		# soc-LiveJournal1.mtx #(directed)(5M,70M)
+		# com-Orkut.mtx #(undirected)(3M,234M)
+		soc-LiveJournal1.mtx #(directed)(5M,70M)
 		# sx-stackoverflow.mtx #(directed)(2.6M,36M)
 		# ljournal-2008.mtx #(directed)(5M,79M)
 		# soc-Pokec.mtx #(directed)(1.6M,30M)
 		# kron_g500-logn20.mtx #(undirected)(1M,89M)
-		# kron_g500-logn21.mtx #(undirected)(2M,182M)
+		# kron_g500-logn21.mtx #(undirected)(2M,182M/)
 		
 		# uk-2002.mtx #(directed)(18.5M,298M)
 		####################### delicious.mtx #(directed)(M,M)
@@ -57,8 +57,8 @@ DATSETS=(
 # for algo in $PR $CF $HITS $SPMV $BFS	
 # for algo in $SSSP $BFS 
 
-# for algo in $PR 
-for algo in $SSSP 
+for algo in $PR 
+# for algo in $SSSP 
 # for algo in $BFS 
 
 # for algo in $PR 
@@ -70,11 +70,13 @@ for algo in $SSSP
 do
 	for ((i = 0; i < ${#DATSETS[@]}; i++)) do
 		echo ${BUILD_DIR}/${algo} ${DATSETS[i]}
-		./host "nap" "${algo}" 1 1 "$DATASET_DIR/${DATSETS[i]}" "${DIRECTIONS[i]}" "$XCLBIN_DIR/$XCLBIN_FILE" #> ${RESULT_PATH}/${algo}/${DATSETS[i]}.out
+		./host "nap" "${algo}" 12 1 "$DATASET_DIR/${DATSETS[i]}" "${DIRECTIONS[i]}" "$XCLBIN_DIR/$XCLBIN_FILE" #> ${RESULT_PATH}/${algo}/${DATSETS[i]}.out
 		# gdb ./host
 		# exit 0
 	done
 done
+
+# parameter set giving correct results @ {  NUM_PEs=24, unsigned int threshold___activefrontiers = 128,  typedef HBM_axichannel_t HBM_channelX_t;, ___FORCE_SUCCESS___(disabled) ___ENABLE___COLLECTACTIVEDSTVIDS___(disabled)   }
 
 
 

@@ -1,54 +1,64 @@
-| **ABSTRACT:** 
-Despite the high off-chip bandwidth and on-chip parallelism offered by today’s near-memory accelerators, graph analytics still suffers  performance degradation from  under-utilization of available memory bandwidth, because graph traversal often exhibits poor locality and under-utilizes memory bandwidth. For example, profiling on Gunrock \cite{gunrock}, a state-of-the-art graph processing framework for GPUs, shows up to 96\% bandwidth wastage when running PageRank on a number of datasets \cite{sparsesuite}. This challenge prevents graph analytics from scaling efficiently when ported to platforms with higher-memory-bandwidth technologies such as HBM.  
+Vadd Simple (RTL Kernel)
+========================
 
-Furthermore FPGA reconfigurable-logic capacities have increased rapidly with Moore's Law, and today offer HBM as well, offering a combination of high bandwidth, massive on-chip parallelism, and a  highly customizable computing fabric. This makes them an attractive target for graph processing (GP) pipelines.
+This is a simple example of vector addition using RTL kernel and supports all flows including sw_emu using C-Model.
 
-This paper introduces ACTS, a near-memory graph processing pipeline. ACTS incorporates custom partitioning and restructuring logic and datapaths to modify the GP pipeline in FPGA hardware so that memory accesses are restructured from low to very high localities both offline and in real-time. This allows every stage of the GP pipeline to process fine-grained, very high-locality data, allowing an overall increase in bandwidth utilization and on-chip parallelism in the FPGA.
+**KEY CONCEPTS:** `RTL Kernel <https://docs.xilinx.com/r/en-US/ug1393-vitis-application-acceleration/RTL-Kernels>`__, `RTL C-Model <https://docs.xilinx.com/r/en-US/ug1393-vitis-application-acceleration/Software-Model-and-Host-Code-Example>`__
 
-We evaluate ACTS on an FPGA equipped with HBM against a number of graph datasets and algorithms. We compare against Gunrock, a state-of-the-art graph processing framework for the GPU, as well as a prior similar prior-art approach. Our results show a geometric mean speedup of 1.9X, with a maximum speedup of 4.5X over Gunrock, and a geometric speedup of 6.3X, with maximum speedup of 12X, over an FPGA-based implementation of similar prior-art approach. Our results also showed a geometric mean power reduction of 50\% and mean reduction of energy delay product of 88\% over Gunrock. About 18.6\% of the input datasets we evaluated produced slowdown relative to Gunrock. 
+**KEYWORDS:** `kernel_files <https://docs.xilinx.com/r/en-US/ug1393-vitis-application-acceleration/Packaging-the-RTL-Code-as-a-Vitis-XO>`__
 
-**keywords:** graph analytics; high memory bandwidth; GPU; FPGA; hardware
+**EXCLUDED PLATFORMS:** 
 
-| **INTRODUCTION**
-Two aspacts make the ACTS deliver superior performance.
-On the one hand, ACTS embraces an improved execution flow to better exploit the pipeline parallelism of FPGA and alleviate the data access amount to the global memory. On the other hand, the memory accesses are highly optimized to fully utilize the memory bandwidth capacity of the hardware platforms. 
+ - All NoDMA Platforms, i.e u50 nodma etc
 
-On Xilinx HBM-equipped FPGAs, it is running at 170Mhz, and the performance can be up to ***4.5 times speedup*** over the state-of-the-art.  
+DESIGN FILES
+------------
 
-| **PREREQUISITES**
-* Tools:
-    * Vitis 2020.1 Design Suit
-* Evaluated platforms from Xilinx:
-    * Alveo U280 Data Center Accelerator Card (Vitis 2020.1)
-    
-| **RUN THE CODE**
-ACTS currently has four build-in graph algorithms: PageRank (PR), Collaborative Filtering (CF), HITS, and Breadth-First Search (BFS).
-The desired application can be implemented by passing argument ```app=[the algorithm]``` to ``` make ``` command. The below table is for quick reference.
+Application code is located in the src directory. Accelerator binary files will be compiled to the xclbin directory. The xclbin directory is required by the Makefile and its contents will be filled during compilation. A listing of all the files in this example is shown below
 
-Here is the example of implementing the accelerator for PageRank on Alveo U250 platform with SDAccel 2019.1. 
-| [to be updated]
+::
 
-| **RESULTS (PERFORMANCE)**
-[to be updated]
+   src/host.cpp
+   src/krnl_vadd/gen_xo.tcl
+   src/krnl_vadd/hdl/krnl_vadd_rtl.v
+   src/krnl_vadd/hdl/krnl_vadd_rtl_adder.sv
+   src/krnl_vadd/hdl/krnl_vadd_rtl_axi_read_master.sv
+   src/krnl_vadd/hdl/krnl_vadd_rtl_axi_write_master.sv
+   src/krnl_vadd/hdl/krnl_vadd_rtl_control_s_axi.v
+   src/krnl_vadd/hdl/krnl_vadd_rtl_counter.sv
+   src/krnl_vadd/hdl/krnl_vadd_rtl_int.sv
+   src/krnl_vadd/package_kernel.tcl
+   src/krnl_vadd/vadd_cmodel.cpp
+   
+COMMAND LINE ARGUMENTS
+----------------------
 
-| **FRAMEWORK OVERVIEW**
-The Adopted Computation Model
-The Gather-Apply-Scatter (GAS) model is widely used for FPGA-based graph processing frameworks as computation model due to its extensibility to various graph processing algorithms. ACTS adopts a processing model similar to the model used in the following work [*Graphicionado: A High-Performance and Energy-Efficient Accelerator for Graph Analytics*](https://mrmgroup.cs.princeton.edu/papers/taejun_micro16.pdf).
+Once the environment has been configured, the application can be executed by
 
-The process per iteration mainly contains three phases: **Processing Phase**, **Partitioning Phase**, and **Apply Phase**. 
+::
 
-* In the  **Processing** phase, for each input edge with format ```<src, dst, weight>```, an update tuple is generated for the destination vertex of the edge. The update tuple is of the format ```<dst, value>```, where the *dst* is the destination vertex of the edge and *value* is generated by processing the vertex properties and edge weights. 
-* In the **Partitioning** phase, the low-locality vertex-updates generated by the Processing Phase is converted (via partitioning) into fine-grained, high-locality vertex-update partitions. This allows the next phase in the pipeline (the Apply Phase) handle high-locality data and benefit from high bandwidth and on-chip parallelism.
-* The final **Apply** phase, the generated vertex-update partitions from the Partitioning Phase are used to update all associated vertices using the user-defined Apply function. 
+   ./rtl_vadd <vadd XCLBIN>
 
-| **THE EXECUTION FLOW OF ACTS**
-[to be updated]
+DETAILS
+-------
 
-| **FUTURE WORK**
-* Remodeling ACTS to incorporate a dataflow execution model to reduce on-chip stalls and improve throughput. 
-* Incorporating coalescing and caching functionalities to support caching when dealing with cache-friendly datasets, 
-* Improving the Hybrid Engine to perform more efficiently with sparse active sub-graphs, and 
-* Mapping ACTS to a fully Processing-in-Memory (PIM) design.
+This example demonstrates simple vector addition with RTL kernel. Two
+vectors are transferred from host to kernel, added and the result is
+written back to host and verified.
 
-| **ACKNOWLEDGEMENT**
-[to be updated]
+RTL kernels can be integrated to Vitis using ``RTL Kernel Wizard``.
+These kernels have the same software interface model as OpenCL and C/C++
+kernels. That is, they are seen by the host application as functions
+with a void return value, scalar arguments, and pointer arguments.
+
+The RTL Kernel Wizard automates some of the steps that need to be taken
+to ensure that the RTL IP is packaged into a kernel that can be
+integrated into a system in Vitis environment.
+
+The example also supports sw_emu by running the vadd.cpp code provided in the ``package_xo`` command as follows:
+
+::
+
+   package_xo -xo_path ${xoname} -kernel_name krnl_vadd_rtl -ip_directory ./packaged_kernel_${suffix} -kernel_files src/krnl_vadd/vadd_CModel.cpp
+
+For more comprehensive documentation, `click here <http://xilinx.github.io/Vitis_Accel_Examples>`__.

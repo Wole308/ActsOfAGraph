@@ -31,6 +31,10 @@ unsigned int get_global2(unsigned int lvid, unsigned int H){
 	// return utilityobj->get_global(lvid, H);
 }
 
+unsigned int get_local_to_upartitionn(unsigned int lvid){
+	return lvid % MAX_UPARTITION_SIZE;
+}
+
 void getXYLayoutV(unsigned int s, unsigned int depths[EDGE_PACK_SIZE]){
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 		depths[v] = (EDGE_PACK_SIZE + v - s) % EDGE_PACK_SIZE; 
@@ -243,7 +247,13 @@ void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedat
 						
 						// #ifdef CONFIG_SEND_LOCAL_VERTEXIDS_ONLY
 						for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+							if(edge_vec3.data[v].srcvid != INVALIDDATA){ edge_vec3.data[v].srcvid = get_local_to_upartitionn(edge_vec3.data[v].srcvid) / EDGE_PACK_SIZE; }
+							// if(edge_vec3.data[v].srcvid == 566221){	
+								// cout<<"------------ edge_vec3.data["<<v<<"].srcvid == 566221. EXITING... ---------------"<<endl;
+								// exit(EXIT_SUCCESS);
+							// }
 							if(edge_vec3.data[v].valid == 1){
+								// if(edge_vec3.data[v].srcvid != INVALIDDATA){ edge_vec3.data[v].srcvid = get_local_to_upartitionn(edge_vec3.data[v].srcvid) / EDGE_PACK_SIZE; }
 								edge_vec3.data[v].dstvid = get_local2(edge_vec3.data[v].dstvid) % MAX_UPARTITION_SIZE; 
 							}
 						}

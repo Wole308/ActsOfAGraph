@@ -1,6 +1,5 @@
 #ifndef COMMON_H
 #define COMMON_H
-#include "config_params.h"
 #include <string.h> 
 #include <cmath>
 {%if(context['XWARE'] == "HW" or context['XWARE'] == "SWEMU")%}
@@ -8,18 +7,28 @@
 // #include "ap_fixed.h"	
 #include <vector> 
 #include<hls_vector.h> 
-#include<hls_stream.h>
+#include<hls_stream.h> 
 #include <iostream>
 {%endif%} 
+
+// SAVE_FRONTIER_INFO_LOOP2B
+// SAVE_DEST_PROPERTIES_LOOP2 ?
+// SAVE_CSR_UPDATES_LOOP1D
+
+#define ___FORCE_SUCCESS___
+#define POW_VALID_VDATA 1
+// #define ADJUSTMENT_TO_MEET_VHLS_TIMING
+
+#define DRAM_ACCESS_LATENCY 8
+#define _NUMNANOSECONDS_PER_CLOCKCYCLE_ (6956 / 1000) // 6.956 // {23M uint32 seen processed in 10ms}{10M uint32 seen processed in 4ms}
+#define ACTS_AVERAGE_MEMACCESSTHROUGHPUT_SINGLEHBMCHANNEL_MILIONEDGESPERSEC ((23 * 1000) / 10) // ((23 / 10) * 1000) // {23M uint32 seen processed in 10ms}{10M uint32 seen processed in 4ms}
+
+#define ___USE_AXI_CHANNEL___
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
-#define {{context['TESTKERNEL']}}
-// #define {{context['XWARE']}} // SWEMU, HW, SW
-// #define PR_ALGORITHM // {{context['ALGORITHM']}} // PR_ALGORITHM, CF_ALGORITHM, HITS_ALGORITHM, CC_ALGORITHM, SSSP_ALGORITHM, BFS_ALGORITHM
-
-#define SW // SWEMU, HW, SW
+#define {{context['XWARE']}} // SWEMU, HW, *SW
 #if (defined(SWEMU) || defined(HW))
 #define FPGA_IMPL
 #endif 
@@ -56,6 +65,7 @@
 // #define _DEBUGMODE_TIMERS
 #define _DEBUGMODE_TIMERS2
 #define _DEBUGMODE_TIMERS3
+#define GOCLKERNEL_DEBUGMODE_HOSTPRINTS3
 
 #ifndef FPGA_IMPL
 // #define _DEBUGMODE_KERNELPRINTS_TRACE3 //
@@ -75,6 +85,8 @@
 //////////////// 
 
 #define NUM_PEs {{context['NUM_PEs']}}
+#define VALID_NUMPEs {{context['VALID_NUMPEs']}}
+#define NUM_AXI_PEs (NUM_PEs * 2)
 #define MAXNUM_VPs 1024
 #define MAXNUM_LLPs 256 
 #define MAXNUM_LLPSETs 16 
@@ -82,9 +94,13 @@
 #define VECTOR2_SIZE 16
 #define HBM_CHANNEL_VECTOR_SIZE 16
 #define VDATA_PACKINGSIZE 16 
-#define EDGE_PACK_SIZE 16
+#define EDGE_PACK_SIZE_POW 4
+#define EDGE_PACK_SIZE (1 << EDGE_PACK_SIZE_POW) // 16
 #define HBM_CHANNEL_PACK_SIZE 32
-#define HBM_CHANNEL_SIZE (((1 << 28) / 4) / EDGE_PACK_SIZE) // in EDGE_PACK_SIZE (4194304)
+#define HBM_AXI_PACK_SIZE 16
+#define HBM_CHANNEL_BYTESIZE (1 << 28)
+#define HBM_CHANNEL_INTSIZE (HBM_CHANNEL_BYTESIZE / 4)
+#define HBM_CHANNEL_SIZE ((HBM_CHANNEL_BYTESIZE / 4) / EDGE_PACK_SIZE) // in EDGE_PACK_SIZE (4194304)
 #define FOLD_SIZE 1
 #define MAX_NUM_UPARTITIONS 512
 #define MAX_NUM_APPLYPARTITIONS 16 
@@ -95,25 +111,26 @@
 #define INVALIDDATA 0xFFFFFFFF 
 #define INVALIDMASK 0 
 
-#define MAX_UPARTITION_VECSIZE 8184 // 8192
+#define MAX_UPARTITION_VECSIZE 8184
 #define MAX_UPARTITION_SIZE (EDGE_PACK_SIZE * MAX_UPARTITION_VECSIZE) // 131072 
 #define MAX_APPLYPARTITION_VECSIZE MAX_UPARTITION_VECSIZE
 #define MAX_APPLYPARTITION_SIZE (EDGE_PACK_SIZE * MAX_APPLYPARTITION_VECSIZE) // 131072 
-#define MAX_ACTVV_VECSIZE (MAX_UPARTITION_VECSIZE / NUM_PEs) // 341
+#define MAX_ACTVV_VECSIZE (MAX_UPARTITION_VECSIZE / NUM_PEs) // 341, 682
 #define MAX_ACTVV_SIZE (EDGE_PACK_SIZE * MAX_ACTVV_VECSIZE) // 5456
-#define NUM_ACTVVPARTITIONS_PER_APPLYPARTITION 24
+#define NUM_ACTVVPARTITIONS_PER_APPLYPARTITION NUM_PEs
 #define MAX_NUM_ACTVVPARTITIONS (MAX_NUM_APPLYPARTITIONS * NUM_ACTVVPARTITIONS_PER_APPLYPARTITION * NUM_PEs) // 384
 
-#define CSRBUFFER_SIZE 4096 // 512
+#define UPDATES_BUFFER_SIZE 512	
 #define MAX_CSRUPDATES_VECSIZE_PER__APPLYPARTITION 1024
-#define CSRDRAM_SIZE 16384 // 4096
-#define ACTVUPDATESBLOCK_VECSIZE 16
+#define ACTVUPDATESBLOCK_VECSIZE_POW 4
+#define ACTVUPDATESBLOCK_VECSIZE (1 << ACTVUPDATESBLOCK_VECSIZE_POW) // 16
 #define BLOCKRAM_SIZE 512
 #define DOUBLE_BLOCKRAM_SIZE (BLOCKRAM_SIZE * 2)
 #define VPTR_BUFFER_SIZE 512
 #define VPTR_BUFFERMETADATA_SIZE 512
 #define EDGE_BUFFER_SIZE 512//8192// 512 // FIXME.
 
+#define GLOBALBUFFER_SIZE 64
 #define GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS 0
 #define GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS 1
 #define GLOBALPARAMSCODE__BASEOFFSET__CSREDGES 2
@@ -133,6 +150,29 @@
 #define GLOBALPARAMSCODE__WWSIZE__VDATAS 16
 #define GLOBALPARAMSCODE__WWSIZE__CFRONTIERSTMP 17
 #define GLOBALPARAMSCODE__WWSIZE__NFRONTIERS 18
+
+#define GLOBALPARAMSCODE__PARAM__NUM_VERTICES 24
+#define GLOBALPARAMSCODE__PARAM__NUM_EDGES 25
+#define GLOBALPARAMSCODE__PARAM__NUM_UPARTITIONS 26
+#define GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS 27
+#define GLOBALPARAMSCODE__PARAM__NUM_ITERATIONS 28
+#define GLOBALPARAMSCODE__PARAM__THRESHOLD__ACTIVEFRONTIERSFORCONTROLSWITCH 29
+#define GLOBALPARAMSCODE__PARAM__MAXDEGREE 30
+#define GLOBALPARAMSCODE__PARAM__ALGORITHM 31
+
+#define GLOBALPARAMSCODE___ENABLE___RESETBUFFERSATSTART 36
+#define GLOBALPARAMSCODE___ENABLE___PROCESSEDGES 37
+#define GLOBALPARAMSCODE___ENABLE___READ_FRONTIER_PROPERTIES 38
+#define GLOBALPARAMSCODE___ENABLE___VCPROCESSEDGES 39 
+#define GLOBALPARAMSCODE___ENABLE___ECPROCESSEDGES 40
+#define GLOBALPARAMSCODE___ENABLE___SAVEVCUPDATES 41
+#define GLOBALPARAMSCODE___ENABLE___COLLECTACTIVEDSTVIDS 42
+#define GLOBALPARAMSCODE___ENABLE___APPLYUPDATESMODULE 43
+#define GLOBALPARAMSCODE___ENABLE___READ_DEST_PROPERTIES 44
+#define GLOBALPARAMSCODE___ENABLE___APPLYUPDATES 45
+#define GLOBALPARAMSCODE___ENABLE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES 46
+#define GLOBALPARAMSCODE___ENABLE___SAVE_DEST_PROPERTIES 47
+#define GLOBALPARAMSCODE___ENABLE___EXCHANGEFRONTIERINFOS 48
 
 ////////////////
 
@@ -247,6 +287,12 @@ typedef struct {
 } map_t;
 
 #ifdef FPGA_IMPL
+typedef ap_uint<1> uint1_dt;
+#else
+typedef unsigned int uint1_dt;
+#endif
+
+#ifdef FPGA_IMPL
 typedef ap_uint<1024> uint1024_dt;
 #else
 typedef struct {
@@ -254,21 +300,29 @@ typedef struct {
 } uint1024_dt;
 #endif
 
-#ifdef FPGA_IMPL
-typedef ap_uint<DATAWIDTH> uint512_dt;
-#else
-typedef struct {
-	keyvalue_t data[VECTOR_SIZE];
-} uint512_dt;
-#endif
-
 typedef struct {
 	keyvalue_t data[EDGE_PACK_SIZE];
 } uint512_vec_dt;
 
 typedef struct {
-	unsigned int data[HBM_CHANNEL_PACK_SIZE];
+	unsigned int data[HBM_CHANNEL_PACK_SIZE]; // 32
 } uint512_ivec_dt;
+
+typedef struct {
+	unsigned int data[HBM_AXI_PACK_SIZE]; // 16
+} uint512_jvec_dt;
+
+#ifdef FPGA_IMPL
+typedef ap_uint<HBM_AXI_PACK_SIZE> uint512_axivec_dt;
+#else
+typedef struct {
+	unsigned int data[HBM_AXI_PACK_SIZE]; // 16
+} uint512_axivec_dt;
+#endif
+
+typedef struct {
+	unsigned int data[HBM_AXI_PACK_SIZE]; // 16
+} uint512_axiswvec_dt;
 
 typedef struct {
 	unsigned int begin;
@@ -325,27 +379,9 @@ typedef struct {
 	unsigned int count;
 } offset_t;
 
-typedef struct {
-	keyvalue_t * cfrontier_dram[EDGE_PACK_SIZE][MAX_NUM_UPARTITIONS]; // [MAX_UPARTITION_SIZE]
-} HBM_center_t;
-
-typedef struct {
-	// {vptrs, edges, updatesptrs, updates, vertexprops, frontiers}
-	uint512_ivec_dt * globalparams;
-	uint512_ivec_dt * HBM; // [~]
-} HBM_channel_t;
-
-typedef struct {
-	keyvalue_t * nfrontier_buffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][MAX_APPLYPARTITION_VECSIZE]
-	keyvalue_t * cfrontier_buffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][MAX_APPLYPARTITION_VECSIZE]
-	unsigned int * stats_tmpbuffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][BLOCKRAM_SIZE]
-	unsigned int * stats_buffer[MAX_NUM_APPLYPARTITIONS]; // [MAX_NUM_APPLYPARTITIONS][BLOCKRAM_SIZE]
-	unsigned int * stats2_buffer[MAX_NUM_APPLYPARTITIONS]; // [MAX_NUM_APPLYPARTITIONS][BLOCKRAM_SIZE]
-	keyvalue_t * updates_tmpbuffer[NUM_PEs]; // [NUM_PEs][CSRBUFFER_SIZE(//FIXME.)]
-	keyvalue_t * updates_buffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][MAX_APPLYPARTITION_VECSIZE]
-	vtr_t * vptr_buffer; // [NUM_PEs][VPTR_BUFFER_SIZE]
-	edge3_type * edges_buffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][EDGE_BUFFER_SIZE]
-	vprop_t * vdata_buffer[EDGE_PACK_SIZE]; // [EDGE_PACK_SIZE][MAX_APPLYPARTITION_VECSIZE]
-} BRAM_channel_t;
+// HBM: {vptrs, edges, updatesptrs, updates, vertexprops, frontiers}
+typedef uint512_ivec_dt HBM_channel_t;
+typedef uint512_axiswvec_dt HBM_channelAXISW_t;
+typedef uint512_axivec_dt HBM_channelAXI_t;
 #endif
 

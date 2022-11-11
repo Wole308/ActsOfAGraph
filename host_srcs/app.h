@@ -23,7 +23,8 @@
 #include "act_pack.h"
 #include "prepare_graph.h"
 #include "algorithm.h"
-#include "../acts_templates/acts_sw.h"
+#include "app_hw.h"
+#include "../acts_templates/acts_kernel.h"
 #include "../include/common.h"
 
 class app {

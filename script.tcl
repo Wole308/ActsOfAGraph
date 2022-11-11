@@ -7,15 +7,16 @@
 
 # faketime -f "-1y" vitis_hls -f script.tcl
 
-# open_project acts_vitishls
-open_project acts_vitishls3
-# set_top TOPP0_topkernelP1
-# set_top TOPP0_topkernelP9
-# set_top TOPP0_topkernelP6
-set_top TOPP0_topkernelP1
-add_files acts/acts_all.cpp
+# bash ./evaluate.sh
+
+open_project vhls_proj
+set_top top_function
+
+add_files acts_templates/acts_kernel.cpp
+
 open_solution "solution1"
-set_part {xcu280-fsvh2892-2L-e}
+# set_part {xcvu9p-fsgd2104-3-e}
+set_part {xcvu9p-fsgd2104-2-i}
 create_clock -period 10 -name default
 #source "./jp_hw/solution1/directives.tcl"
 #csim_design

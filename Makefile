@@ -1,6 +1,7 @@
+# faketime -f "-1y" make all TARGET=hw PLATFORM=/opt/xilinx/platforms/xilinx_u280_xdma_201920_3/xilinx_u280_xdma_201920_3.xpfm
 # faketime -f "-1y" make all TARGET=sw_emu PLATFORM=/opt/xilinx/platforms/xilinx_u280_xdma_201920_3/xilinx_u280_xdma_201920_3.xpfm
 # faketime -f "-1y" make run TARGET=sw_emu PLATFORM=/opt/xilinx/platforms/xilinx_u280_xdma_201920_3/xilinx_u280_xdma_201920_3.xpfm
-# v++ -t sw_emu --platform /opt/xilinx/platforms/xilinx_u280_xdma_201920_3/xilinx_u280_xdma_201920_3.xpfm --save-temps  -g -c -k topkernelP9 --temp_dir ./_x.sw_emu.xilinx_u280_xdma_201920_3  -I'/home/oj2zf/Documents/actsofagraph/acts/acts' -o'_x.sw_emu.xilinx_u280_xdma_201920_3/vP0.xo' '/home/oj2zf/Documents/actsofagraph/acts/acts/acts_all.cpp'			
+# v++ -t sw_emu --platform /opt/xilinx/platforms/xilinx_u280_xdma_201920_3/xilinx_u280_xdma_201920_3.xpfm --save-temps  -g -c -k topkernelP9 --temp_dir ./_x.sw_emu.xilinx_u280_xdma_201920_3  -I'/home/oj2zf/Documents/acts-billion-nodes/acts/acts' -o'_x.sw_emu.xilinx_u280_xdma_201920_3/vP0.xo' '/home/oj2zf/Documents/acts-billion-nodes/acts/acts/acts_all.cpp'			
 
 # datasets 
 # https://sparse.tamu.edu/DIMACS10/rgg_n_2_24_s0 (16,777,216 vertices, 265,114,400 edges, undirected)
@@ -54,20 +55,14 @@ SYNFREQUENCY := 300
 DSA = xilinx_u280_xdma_201920_3
 
 # RELREF = ../
-KERNEL_TOP_ALL += $(RELREF)acts/acts_all.cpp
-KERNEL_TOP_DEBUG += $(RELREF)acts/mydebug.cpp
-KERNEL_TOP_UTILITY += $(RELREF)acts/actsutility.cpp
+KERNEL_TOP_ALL += $(RELREF)acts_templates/acts_kernel.cpp
 HOST_SRCS_ACTS += $(RELREF)host_srcs/hostprocess.cpp
-HOST_SRCS_ACTS += $(RELREF)host_srcs/algorithm.cpp
-HOST_SRCS_ACTS += $(RELREF)host_srcs/loadgraph.cpp
-HOST_SRCS_ACTS += $(RELREF)host_srcs/loadedges.cpp
 HOST_SRCS_ACTS += $(RELREF)host_srcs/prepare_graph.cpp
-HOST_SRCS_ACTS += $(RELREF)host_srcs/evalparams.cpp
+HOST_SRCS_ACTS += $(RELREF)host_srcs/act_pack.cpp
 HOST_SRCS_ACTS += $(RELREF)host_srcs/app.cpp
 HOST_SRCS_ACTS += $(RELREF)host_srcs/utility.cpp
-HOST_SRCS_ACTS += $(RELREF)host_srcs/acts_helper.cpp
-HOST_SRCS_ACTS += $(RELREF)host_srcs/swkernel.cpp
-HOST_SRCS_ACTS += $(RELREF)host_srcs/goclkernel.cpp
+HOST_SRCS_ACTS += $(RELREF)host_srcs/algorithm.cpp
+HOST_SRCS_ACTS += $(RELREF)host_srcs/app_hw.cpp
 
 ############################## Setting up Project Variables ##############################
 # Points to top directory of Git repository
@@ -129,58 +124,21 @@ endif
 EXECUTABLE = ./slr_assign
 EMCONFIG_DIR = $(TEMP_DIR)
 
+CONNECTIVITY_FILE = connectivity_2w.cfg
+# CONNECTIVITY_FILE = connectivity_12w.cfg
+# CONNECTIVITY_FILE = connectivity_24w.cfg
+
 ############################## Declaring Binary Containers ##############################
-# BINARY_CONTAINERS += $(BUILD_DIR)/vmult_vadd.xclbin
-
-BINARY_CONTAINER_vmult_vadd_OBJS += $(TEMP_DIR)/vP0.xo
-BINARY_CONTAINER_vmult_vadd_OBJS += $(TEMP_DIR)/vP1.xo
-BINARY_CONTAINER_vmult_vadd_OBJS += $(TEMP_DIR)/vP2.xo
-BINARY_CONTAINER_vmult_vadd_OBJS += $(TEMP_DIR)/vS.xo
-BINARY_CONTAINER_vmult_vsingle_OBJS += $(TEMP_DIR)/vS.xo
+BINARY_CONTAINER_vmult_vadd_OBJS += $(TEMP_DIR)/kernel.xo
 BINARY_CONTAINERS += $(XCLBIN)/acts.$(TARGET).$(DSA).xclbin
-
-# VPP_LDFLAGS_vmult_vadd += --config $(RELREF)connectivity_files/connectivity_3w.cfg
-# KERNELP0_NAME = TOPP0_topkernelP1
-# KERNELP1_NAME = TOPP1_topkernelP1
-# KERNELP2_NAME = TOPP2_topkernelP1
-# KERNELS_NAME = TOPS_topkernelS
-
-VPP_LDFLAGS_vmult_vadd += --config $(RELREF)connectivity_files/connectivity_16w.cfg
-KERNELP0_NAME = TOPP0_topkernelP6
-KERNELP1_NAME = TOPP1_topkernelP6
-KERNELP2_NAME = TOPP2_topkernelP4
-KERNELS_NAME = TOPS_topkernelS
-
-# VPP_LDFLAGS_vmult_vadd += --config $(RELREF)connectivity_files/connectivity_18w.cfg
-# KERNELP0_NAME = TOPP0_topkernelP6
-# KERNELP1_NAME = TOPP1_topkernelP6
-# KERNELP2_NAME = TOPP2_topkernelP6
-# KERNELS_NAME = TOPS_topkernelS
-
-# VPP_LDFLAGS_vmult_vadd += --config $(RELREF)connectivity_files/connectivity_20w.cfg
-# KERNELP0_NAME = TOPP0_topkernelP7
-# KERNELP1_NAME = TOPP1_topkernelP7
-# KERNELP2_NAME = TOPP2_topkernelP6
-# KERNELS_NAME = TOPS_topkernelS
-
-# VPP_LDFLAGS_vmult_vadd += --config $(RELREF)connectivity_files/connectivity_22w.cfg
-# KERNELP0_NAME = TOPP0_topkernelP8
-# KERNELP1_NAME = TOPP1_topkernelP8
-# KERNELP2_NAME = TOPP2_topkernelP6
-# KERNELS_NAME = TOPS_topkernelS
-
-# VPP_LDFLAGS_vmult_vadd += --config $(RELREF)connectivity_files/connectivity_24w.cfg
-# KERNELP0_NAME = TOPP0_topkernelP9
-# KERNELP1_NAME = TOPP1_topkernelP9
-# KERNELP2_NAME = TOPP2_topkernelP6
-# KERNELS_NAME = TOPS_topkernelS
+VPP_LDFLAGS_vmult_vadd += --config $(RELREF)connectivity_files/$(CONNECTIVITY_FILE)
+KERNEL_NAME = top_function
 
 ############################## Setting Targets ##############################
 CP = cp -rf
 
 .PHONY: all clean cleanall docs emconfig
 hw: clean cleanall check-platform check-device $(EXECUTABLE) $(BINARY_CONTAINERS) emconfig
-# all_procandsync_1by1by1by0_25and1: check-platform check-device $(EXECUTABLE) $(BINARY_CONTAINERS_1by1by1by0_25AND1) emconfig
 
 .PHONY: host
 host: $(EXECUTABLE)
@@ -192,23 +150,15 @@ build: check-vitis check-device $(BINARY_CONTAINERS)
 xclbin: build
 
 ############################## Setting Rules for Binary Containers (Building Kernels) ##############################
-$(TEMP_DIR)/vP0.xo: $(RELREF)acts/acts_allP0.cpp
+
+$(TEMP_DIR)/kernel.xo: $(RELREF)acts_templates/acts_kernel.cpp
 	mkdir -p $(TEMP_DIR)
-	$(VPP) $(VPP_FLAGS) -c -k $(KERNELP0_NAME) --temp_dir $(TEMP_DIR)  -I'$(<D)' -o'$@' '$^'
-$(TEMP_DIR)/vP1.xo: $(RELREF)acts/acts_allP1.cpp
-	mkdir -p $(TEMP_DIR)
-	$(VPP) $(VPP_FLAGS) -c -k $(KERNELP1_NAME) --temp_dir $(TEMP_DIR)  -I'$(<D)' -o'$@' '$^'
-$(TEMP_DIR)/vP2.xo: $(RELREF)acts/acts_allP2.cpp
-	mkdir -p $(TEMP_DIR)
-	$(VPP) $(VPP_FLAGS) -c -k $(KERNELP2_NAME) --temp_dir $(TEMP_DIR)  -I'$(<D)' -o'$@' '$^'
-$(TEMP_DIR)/vS.xo: $(RELREF)acts/acts_allS.cpp
-	mkdir -p $(TEMP_DIR)
-	$(VPP) $(VPP_FLAGS) -c -k $(KERNELS_NAME) --temp_dir $(TEMP_DIR)  -I'$(<D)' -o'$@' '$^'
+	$(VPP) $(VPP_FLAGS) -c -k $(KERNEL_NAME) --temp_dir $(TEMP_DIR)  -I'$(<D)' -o'$@' '$^'
 $(XCLBIN)/acts.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_vmult_vadd_OBJS)
 	mkdir -p $(BUILD_DIR)
 	$(VPP) $(VPP_FLAGS) -l $(VPP_LDFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(TEMP_DIR) $(VPP_LDFLAGS_vmult_vadd) -o'$(BUILD_DIR)/vmult_vadd.link.xclbin' $(+)
-	$(VPP) -p $(BUILD_DIR)/vmult_vadd.link.xclbin -t $(TARGET) --platform $(PLATFORM) --package.out_dir $(PACKAGE_OUT) -o $(XCLBIN)/acts.$(TARGET).$(DSA).xclbin
-	
+	$(VPP) -p $(BUILD_DIR)/vmult_vadd.link.xclbin -t $(TARGET) --platform $(PLATFORM) --package.out_dir $(PACKAGE_OUT) -o $(XCLBIN)/acts.$(TARGET).$(DSA).xclbin	
+
 ############################## Setting Rules for Host (Building Host Executable) ##############################
 $(EXECUTABLE): $(HOST_SRCS) | check-xrt
 		$(CXX) -o $@ $^ $(CXXFLAGS) -I/opt/xilinx/xrt/include/ -I/tools/Xilinx/./Vitis_HLS/2021.2/include/ -I/tools/Xilinx/Vitis/2021.2/runtime/ -I/tools/Xilinx/Vivado/2021.2/include/ -pthread -march=native -lrt xcl.c -o host -L/opt/Xilinx/SDx/2021.2/runtime/lib/x86_64 -lOpenCL -pthread -lrt $(LDFLAGS)			
@@ -235,20 +185,11 @@ else
 endif
 
 ############################## CPU Multithreaded Implementation ##############################
-# actsobj: clean build_acts run_nthreads
 actsobj: clean build_acts 
 actsGP_debug: clean build_acts run_nthreads_debug
 
-STACKD_SOURCE_DIR=/home/oj2zf/Documents/actsofagraph/stack-distance-master/src
-STACKD_COMMON=${STACKD_SOURCE_DIR}/rank-tree.cpp
-STACKD_COMMON+=${STACKD_SOURCE_DIR}/stack-simulator.cpp
-STACKD_HEADERS=${STACKD_SOURCE_DIR}/rank-tree.hpp
-STACKD_HEADERS+=${STACKD_SOURCE_DIR}/stack-simulator.hpp
-
-# build_acts:
-	# g++ $(STACKD_HEADERS) $(STACKD_COMMON) $(HOST_TOP) $(HOST_SRCS_ACTS) $(KERNEL_TOP_ALL) $(KERNEL_TOP_DEBUG) $(KERNEL_TOP_UTILITY) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -I$(STACKD_SOURCE_DIR) -L$(SORTREDUCE_LIB) -std=c++11 -pthread -march=native -lrt -o actsobj
 build_acts:
-	g++ $(STACKD_HEADERS) $(STACKD_COMMON) $(HOST_TOP) $(HOST_SRCS_ACTS) $(KERNEL_TOP_ALL) $(KERNEL_TOP_DEBUG) $(KERNEL_TOP_UTILITY) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -I$(STACKD_SOURCE_DIR) -L$(SORTREDUCE_LIB) -std=c++11 -pthread -march=native -lrt -o host
+	g++ $(HOST_TOP) $(HOST_SRCS_ACTS) $(KERNEL_TOP_ALL) -std=c++11 -pthread -march=native -lrt -o host
 		
 run_nthreads:
 	./actsobj
