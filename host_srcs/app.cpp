@@ -111,7 +111,9 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ vptr_actpack[i][p_u] = new map_t[MAX_NUM_LLPSETS]; }}
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ for(unsigned int t=0; t<MAX_NUM_LLPSETS; t++){ vptr_actpack[i][p_u][t].offset = 0; vptr_actpack[i][p_u][t].size = 0; }}}
 	act_pack * pack = new act_pack(universalparams);
-	pack->pack(vertexptrbuffer, edgedatabuffer, act_pack_edges, vptr_actpack);
+	pack->pack(vertexptrbuffer, edgedatabuffer, act_pack_edges, vptr_actpack); // CRITICAL REMOVEME.
+	// edge3_vec_dt edge_vec3; for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ edge_vec3.data[v].srcvid = 7; edge_vec3.data[v].dstvid = 7; edge_vec3.data[v].valid = 1; } // CRITICAL REMOVEME.
+	// for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<10240; t++){ act_pack_edges[i].push_back(edge_vec3); }} // CRITICAL REMOVEME.
 	
 	// create csr format
 	vector<edge3_type> csr_pack_edges[NUM_PEs]; 
@@ -237,7 +239,14 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 				} else {
 					HBM_channel[i][base_offset + t].data[2 * v] = INVALIDDATA;
 					HBM_channel[i][base_offset + t].data[2 * v + 1] = act_pack_edges[i][t].data[v].dstvid; 
-				}
+				}	
+				// if(true){ // CRITICAL REMOVEME.
+					// HBM_channel[i][base_offset + t].data[2 * v] = 0;
+					// HBM_channel[i][base_offset + t].data[2 * v + 1] = 0; 
+				// } else {
+					// HBM_channel[i][base_offset + t].data[2 * v] = 0;
+					// HBM_channel[i][base_offset + t].data[2 * v + 1] = 0; 
+				// }	
 				if(i==0){ size_u32 += 2; }
 			}
 		}
@@ -355,7 +364,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 		// HBM_channel[i][GLOBALPARAMSCODE___ENABLE___READ_FRONTIER_PROPERTIES].data[0] = 0;
 		// HBM_channel[i][GLOBALPARAMSCODE___ENABLE___VCPROCESSEDGES].data[0] = 0; 
 		// HBM_channel[i][GLOBALPARAMSCODE___ENABLE___ECPROCESSEDGES].data[0] = 0; 
-		// HBM_channel[i][GLOBALPARAMSCODE___ENABLE___SAVEVCUPDATES].data[0] = 0; // FIXME? CAUSE OF HANGING?
+		// HBM_channel[i][GLOBALPARAMSCODE___ENABLE___SAVEVCUPDATES].data[0] = 1; // FIXME? CAUSE OF HANGING?
 		// HBM_channel[i][GLOBALPARAMSCODE___ENABLE___COLLECTACTIVEDSTVIDS].data[0] = 0;
 		// HBM_channel[i][GLOBALPARAMSCODE___ENABLE___APPLYUPDATESMODULE].data[0] = 0; 
 		// HBM_channel[i][GLOBALPARAMSCODE___ENABLE___READ_DEST_PROPERTIES].data[0] = 0;
@@ -408,12 +417,6 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	for(unsigned int i=0; i<NUM_PEs; i++){ csr_pack_edges[i].clear(); act_pack_edges[i].clear(); } // clear 
 	
 	// assign root vid 
-	/* keyvalue_t root; root.key = rootvid; root.value = 0; keyvalue_t invalid; invalid.key = INVALIDDATA; invalid.value = INVALIDDATA; 
-	for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){ 
-		if(v==2){ HBM_center[0].data[v] = root.key; } 
-		else if(v==3){ HBM_center[0].data[v] = root.value; }
-		else { HBM_center[0].data[v] = INVALIDDATA; } 
-	}  */	
 	keyvalue_t root; root.key = rootvid; root.value = 0; keyvalue_t invalid; invalid.key = INVALIDDATA; invalid.value = INVALIDDATA; 
 	for(unsigned int t=0; t<16; t++){ 
 		for(unsigned int v=0; v<HBM_CHANNEL_PACK_SIZE; v++){ 
@@ -464,7 +467,6 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	#ifdef FPGA_IMPL
 	app_hw * app_hwobj = new app_hw(universalparams);
 	app_hwobj->runapp(binaryFile, HBM_axichannel, HBM_axicenter, universalparams);
-	// app_hwobj->runapp(binaryFile, (HBM_channelAXISW_t* (*)[NUM_PEs])HBM_axichannel, (HBM_channelAXISW_t* (*))HBM_axicenter, universalparams);
 	#else 
 	acts_kernel * acts = new acts_kernel(universalparams);
 	acts->top_function(

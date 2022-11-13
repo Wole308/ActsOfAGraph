@@ -1,0 +1,2 @@
+{%for i in context['VALID_NUMPEs_seq']%}{%if(i>0)%},{%endif%} HBM_channelAXI_t * HBM_channelA{{i}}, HBM_channelAXI_t * HBM_channelB{{i}}{%endfor%}
+

@@ -13,7 +13,7 @@ using namespace std;
 #define ___ENABLE___VCPROCESSEDGES___ 
 #define ___ENABLE___ECPROCESSEDGES___ 
 #define ___ENABLE___SAVEVCUPDATES___ 
-// // // // // // // // // // // // // // // // // // #define ___ENABLE___COLLECTACTIVEDSTVIDS___ 
+// // // // // // // // // // #define ___ENABLE___COLLECTACTIVEDSTVIDS___ 
 #define ___ENABLE___APPLYUPDATESMODULE___ 
 	#define ___ENABLE___READ_DEST_PROPERTIES___ 
 	#define ___ENABLE___APPLYUPDATES___ 
@@ -1094,6 +1094,21 @@ void transport_frontier(unsigned int inst, unsigned int p_v, unsigned int baseof
 		unsigned int st = cfrontier_dram___size[p_actvv_];
 		TRANSPORT_FRONTIER_PROPERTIES_LOOP1B: for(unsigned int t=0; t<nfrontier_dram___size[p_actvv_]; t++){
 		#pragma HLS PIPELINE II=1
+			#ifdef FPGA_IMPL_____XXXXXXXXXXXXX 
+			{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
+			data[{{v}}] = HBM_channelA[offset_n + t].range({{(32 * (v + 1)) - 1}}, {{32 * v}});
+			{%endfor%}
+			{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
+			data[{{context['HBM_AXI_PACK_SIZE'] + v}}] = HBM_channelB[offset_n + t].range({{(32 * (v + 1)) - 1}}, {{32 * v}});
+			{%endfor%}
+			
+			{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
+			HBM_centerA[offset_c + st + t].range({{(32 * (v + 1)) - 1}}, {{32 * v}}) = data[{{v}}];
+			{%endfor%}
+			{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
+			HBM_centerB[offset_c + st + t].range({{(32 * (v + 1)) - 1}}, {{32 * v}}) = data[{{context['HBM_AXI_PACK_SIZE'] + v}}];
+			{%endfor%}
+			#else 
 			{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 			data[{{v}}] = HBM_channelA[offset_n + t].data[{{v}}];
 			{%endfor%}
@@ -1107,6 +1122,7 @@ void transport_frontier(unsigned int inst, unsigned int p_v, unsigned int baseof
 			{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 			HBM_centerB[offset_c + st + t].data[{{v}}] = data[{{context['HBM_AXI_PACK_SIZE'] + v}}];
 			{%endfor%}
+			#endif 
 		
 			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 			#pragma HLS UNROLL
@@ -1126,9 +1142,9 @@ void transport_frontier(unsigned int inst, unsigned int p_v, unsigned int baseof
 }	
 
 //////////////////////////////////////////////////////////////////
-extern "C" {	
-MY_IFDEF_TOPLEVELFUNC(){		
-{%for i in context['VALID_NUMPEs_seq']%} 
+extern "C" {
+MY_IFDEF_TOPLEVELFUNC(){	
+{%for i in context['VALID_NUMPEs_seq']%}
 #pragma HLS INTERFACE m_axi port = HBM_channelA{{i}} offset = slave bundle = gmem{{2*i}}
 #pragma HLS INTERFACE m_axi port = HBM_channelB{{i}} offset = slave bundle = gmem{{2*i+1}}
 {%endfor%}
@@ -1143,11 +1159,11 @@ MY_IFDEF_TOPLEVELFUNC(){
 #pragma HLS INTERFACE s_axilite port = HBM_centerB bundle = control
 
 #pragma HLS INTERFACE s_axilite port=return bundle=control
-
+	
 	#ifdef _DEBUGMODE_KERNELPRINTS4
 	cout<<"acts_kernel::run:: acts started "<<endl;
 	#endif 
-	
+
 	// declaration of BRAM variables
 	#ifdef FPGA_IMPL
 	keyvalue_t nfrontier_buffer[VALID_NUMPEs][EDGE_PACK_SIZE][MAX_ACTVV_VECSIZE]; 
@@ -1181,52 +1197,6 @@ MY_IFDEF_TOPLEVELFUNC(){
 	#pragma HLS ARRAY_PARTITION variable=vdata_buffer complete dim=1
     #pragma HLS ARRAY_PARTITION variable=vdata_buffer complete dim=2 
 	#pragma HLS aggregate variable=vdata_buffer 
-	
-	
-	
-	
-	
-	
-	
-	// keyvalue_t nfrontier_buffer[VALID_NUMPEs][EDGE_PACK_SIZE][64]; 
-	// #pragma HLS ARRAY_PARTITION variable=nfrontier_buffer complete dim=1
-    // #pragma HLS ARRAY_PARTITION variable=nfrontier_buffer complete dim=2
-	// keyvalue_t cfrontier_buffer_tmp[EDGE_PACK_SIZE][64]; 
-	// #pragma HLS resource variable=cfrontier_buffer_tmp core=XPM_MEMORY uram
-	// #pragma HLS ARRAY_PARTITION variable=cfrontier_buffer_tmp complete dim=1
-	// keyvalue_t cfrontier_buffer[VALID_NUMPEs][64];
-	// #pragma HLS resource variable=cfrontier_buffer core=XPM_MEMORY uram
-	// #pragma HLS ARRAY_PARTITION variable=cfrontier_buffer complete dim=1
-	// unsigned int statsbuffer_maskbased_tmp[VALID_NUMPEs][EDGE_PACK_SIZE][64];
-	// #pragma HLS ARRAY_PARTITION variable=statsbuffer_maskbased_tmp complete dim=1
-    // #pragma HLS ARRAY_PARTITION variable=statsbuffer_maskbased_tmp complete dim=2
-	// unsigned int statsbuffer_maskbased[VALID_NUMPEs][MAX_NUM_APPLYPARTITIONS][64];
-	// #pragma HLS ARRAY_PARTITION variable=statsbuffer_maskbased complete dim=1
-    // #pragma HLS ARRAY_PARTITION variable=statsbuffer_maskbased complete dim=2
-	// unsigned int statsbuffer_idbased[VALID_NUMPEs][MAX_NUM_APPLYPARTITIONS][64];
-	// #pragma HLS ARRAY_PARTITION variable=statsbuffer_idbased complete dim=1 
-    // #pragma HLS ARRAY_PARTITION variable=statsbuffer_idbased complete dim=2
-	// vtr_t vptr_buffer[VALID_NUMPEs][VPTR_BUFFER_SIZE];
-	// #pragma HLS ARRAY_PARTITION variable=vptr_buffer complete dim=1
-	// edge3_type edges_buffer[VALID_NUMPEs][EDGE_PACK_SIZE][64];
-	// #pragma HLS ARRAY_PARTITION variable=edges_buffer complete dim=1
-    // #pragma HLS ARRAY_PARTITION variable=edges_buffer complete dim=2
-	// keyvalue_t updates_buffer2[VALID_NUMPEs][UPDATES_BUFFER_PACK_SIZE][64]; // EDGE_PACK_SIZE
-	// #pragma HLS ARRAY_PARTITION variable=updates_buffer2 complete dim=1
-    // #pragma HLS ARRAY_PARTITION variable=updates_buffer2 complete dim=2
-	// vprop_t vdata_buffer[VALID_NUMPEs][EDGE_PACK_SIZE][64];
-	// #pragma HLS resource variable=vdata_buffer core=XPM_MEMORY uram 
-	// #pragma HLS ARRAY_PARTITION variable=vdata_buffer complete dim=1
-    // #pragma HLS ARRAY_PARTITION variable=vdata_buffer complete dim=2 
-	// #pragma HLS aggregate variable=vdata_buffer 
-	
-	
-	
-	
-	
-	
-	
-	
 	#else 
 	keyvalue_t * nfrontier_buffer[VALID_NUMPEs][EDGE_PACK_SIZE]; 
 	keyvalue_t * cfrontier_buffer_tmp[EDGE_PACK_SIZE]; 
@@ -1284,9 +1254,6 @@ MY_IFDEF_TOPLEVELFUNC(){
 	#pragma HLS ARRAY_MAP variable=actpackupdates_dram___size instance=array1 horizontal
 	#pragma HLS ARRAY_MAP variable=vptrbuffer___size instance=array2 horizontal
 	#pragma HLS ARRAY_MAP variable=edges_buffer___size instance=array2 horizontal
-	#ifndef HW
-	unsigned int hybrid_map[MAXNUMGRAPHITERATIONS][MAX_NUM_UPARTITIONS]; 
-	#endif 
 	#else 
 	unsigned int * cfrontier_dram___size = new unsigned int[MAX_NUM_UPARTITIONS]; 
 	unsigned int * nfrontier_dram___size[VALID_NUMPEs]; for(unsigned int i=0; i<VALID_NUMPEs; i++){ nfrontier_dram___size[i] = new unsigned int[MAX_NUM_UPARTITIONS]; }
@@ -1358,7 +1325,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 	#pragma HLS ARRAY_PARTITION variable=stats_counts complete dim=0
 	unsigned int cummtv2[VALID_NUMPEs]; 
 	#pragma HLS ARRAY_PARTITION variable = cummtv2 complete
-	unsigned int masks[VALID_NUMPEs][EDGE_PACK_SIZE];
+	uint1_dt masks[VALID_NUMPEs][EDGE_PACK_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=masks complete dim=0
 	edge3_vec_dt edge3_vecs[VALID_NUMPEs]; 
 	#pragma HLS ARRAY_PARTITION variable=edge3_vecs complete
@@ -1430,7 +1397,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 	MY_LOOP206: for(unsigned int i=0; i<VALID_NUMPEs; i++){ for(unsigned int p=0; p<__NUM_APPLYPARTITIONS; p++){ actpackupdates_dram___size[i][p] = 0; }}
 	MY_LOOP207: for(unsigned int i=0; i<VALID_NUMPEs; i++){ vptrbuffer___size[i] = 0; }
 	MY_LOOP208: for(unsigned int i=0; i<VALID_NUMPEs; i++){ edges_buffer___size[i] = 0; }
-	#ifndef HW
+	#ifndef FPGA_IMPL
 	for(unsigned int i=0; i<MAXNUMGRAPHITERATIONS; i++){ for(unsigned int t=0; t<MAX_NUM_UPARTITIONS; t++){ hybrid_map[i][t] = NAp; }}
 	#endif 
 	}
@@ -1473,7 +1440,12 @@ MY_IFDEF_TOPLEVELFUNC(){
 		#endif 
 	}
 	}
-
+	
+	// #ifdef ___REFACTORING_FOR_VHLS_DEBUGGING___
+	// for(unsigned int u=0; u<MAX_NUM_UPARTITIONS; u++){ cfrontier_dram___size[u] = globalparams[u]; } // FIXME. removeme
+	// for(unsigned int u=0; u<MAX_NUM_UPARTITIONS; u++){ upartition_vertices[u].count = globalparams[u+1]; } // FIXME. removeme
+	// #endif 
+	
 	// run acts 
 	RUN_ACTS_LOOP: for(unsigned int GraphIter=0; GraphIter<globalparams[GLOBALPARAMSCODE__PARAM__NUM_ITERATIONS]; GraphIter++){
 		unsigned int MASK_CODE = 1 + GraphIter;
@@ -1518,8 +1490,25 @@ MY_IFDEF_TOPLEVELFUNC(){
 				unsigned int data[HBM_CHANNEL_PACK_SIZE];
 				#pragma HLS ARRAY_PARTITION variable=data complete
 				unsigned int offset_c = globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP];
-				MY_LOOP179: for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t++){ 
+				MY_LOOP179: for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t++){
 				#pragma HLS PIPELINE II=1
+					#ifdef FPGA_IMPL_____XXXXXXXXXXXXX
+					{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
+					data[{{v}}] = HBM_centerA[uoffset_vecsz + t].range({{(32 * (v + 1)) - 1}}, {{32 * v}});
+					{%endfor%}
+					{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
+					data[{{context['HBM_AXI_PACK_SIZE'] + v}}] = HBM_centerB[uoffset_vecsz + t].range({{(32 * (v + 1)) - 1}}, {{32 * v}});
+					{%endfor%}
+					
+					{%for n in context['VALID_NUMPEs_seq']%}
+					{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
+					HBM_channelA{{n}}[offset_c + t].range({{(32 * (v + 1)) - 1}}, {{32 * v}}) = data[{{v}}];
+					{%endfor%}
+					{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
+					HBM_channelB{{n}}[offset_c + t].range({{(32 * (v + 1)) - 1}}, {{32 * v}}) = data[{{context['HBM_AXI_PACK_SIZE'] + v}}];
+					{%endfor%}
+					{%endfor%}
+					#else 
 					{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 					data[{{v}}] = HBM_centerA[uoffset_vecsz + t].data[{{v}}];
 					{%endfor%}
@@ -1535,12 +1524,13 @@ MY_IFDEF_TOPLEVELFUNC(){
 					HBM_channelB{{n}}[offset_c + t].data[{{v}}] = data[{{context['HBM_AXI_PACK_SIZE'] + v}}];
 					{%endfor%}
 					{%endfor%}	
+					#endif 
 				}
 				
 				// parallel-read and map active frontiers [done]
 				MY_LOOP173: for(unsigned int n=0; n<VALID_NUMPEs; n++){ offsets[n] = 0; }
 				unsigned int uoffset = p_u * MAX_UPARTITION_SIZE;
-				MY_LOOP175_DEBUG: for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t++){ 
+				MY_LOOP175_DEBUG: for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t++){
 				#pragma HLS PIPELINE II=1
 					dretrievemany_cfrontierdram_tmp(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP], offsets, t, kvdatas, {% include 'arguments_allchannelsinslr.template' %});
 					insertvec_cfrontierbuffer_tmp(t, kvdatas[0], cfrontier_buffer_tmp); // NEW
@@ -1592,7 +1582,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 					if(n == 0 && ___use_vertex_centric___ == true){
 						#ifdef ___ENABLE___VCPROCESSEDGES___
 						if(___ENABLE___VCPROCESSEDGES___BOOL___ == 1){
-						#ifndef HW
+						#ifndef FPGA_IMPL
 						hybrid_map[GraphIter][p_u] = 0;
 						#endif 
 						
@@ -1610,6 +1600,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 							frontier_t actvv = retrieve_cfrontierbuffer_tmp(pingpong % EDGE_PACK_SIZE, pingpong / EDGE_PACK_SIZE, cfrontier_buffer_tmp); // NEW
 							if(actvv.key != INVALIDDATA){
 								unsigned int inst_ = actvv.key % VALID_NUMPEs;
+								// cout<<"--------------------------------------- (1) actvv.key: "<<actvv.key<<endl;		
 								cfrontier_buffer[inst_][cfrontier_bufferREAL___size[inst_]] = actvv;
 								cfrontier_bufferREAL___size[inst_] += 1;
 								update_bramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___VCPROCESSEDGES___, 1);
@@ -1629,6 +1620,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 							VC_READVPTRS_LOOP2B: for(unsigned int n=0; n<VALID_NUMPEs; n++){
 							#pragma HLS UNROLL
 								actvvs[n] = cfrontier_buffer[n][t];
+								// cout<<"--------------------------------------- (1) actvvs["<<n<<"].key: "<<actvvs[n].key<<endl;		
 								unsigned int hvid = 0;
 								if(t < cfrontier_bufferREAL___size[n]){ hvid = actvvs[n].key / NUM_PEs; } 
 								#ifdef ___FORCE_SUCCESS___
@@ -1717,8 +1709,8 @@ MY_IFDEF_TOPLEVELFUNC(){
 											unsigned int uprop = edge.srcvid; // edge.srcvid has uprop information
 											unsigned int res = process_funcG(uprop, 1);
 											#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3 // _DEBUGMODE_KERNELPRINTS // 4 //_DEBUGMODE_KERNELPRINTS_TRACE3
-											std::cout<<"VC - PROCESS EDGE SEEN @: inst: ["<<inst<<"], [edge.srcvid: "<<edge.srcvid<<", edge.dstvid: "<<edge.dstvid<<", uprop: "<<uprop<<", res: "<<res<<"]"<<std::endl;
-											std::cout<<"VC - PROCESS EDGE SEEN @: inst: ["<<inst<<"], [local partition: "<<p_u<<", vid: "<<NAp<<"]"<<std::endl;
+											cout<<"VC - PROCESS EDGE SEEN @: inst: ["<<inst<<"], [edge.srcvid: "<<edge.srcvid<<", edge.dstvid: "<<edge.dstvid<<", uprop: "<<uprop<<", res: "<<res<<"]"<<endl;
+											cout<<"VC - PROCESS EDGE SEEN @: inst: ["<<inst<<"], [local partition: "<<p_u<<", vid: "<<NAp<<"]"<<endl;
 											#endif 
 											
 											unsigned int inst_mirror = get_H(edge.dstvid);
@@ -1802,11 +1794,11 @@ MY_IFDEF_TOPLEVELFUNC(){
 						unsigned int offsets3[VALID_NUMPEs]; 
 						#pragma HLS ARRAY_PARTITION variable = offsets3 complete
 						
-						#ifndef HW
+						#ifndef FPGA_IMPL
 						hybrid_map[GraphIter][p_u] = 1;
 						#endif 
 					
-						EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_APPLYPARTITIONS; llp_set++){	
+						EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_APPLYPARTITIONS; llp_set++){
 							map_t maps[VALID_NUMPEs];
 							#pragma HLS ARRAY_PARTITION variable=maps complete	
 							dretrievemany_actpackvptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS], p_u, llp_set, maps, {% include 'arguments_allchannelsinslr.template' %});
@@ -1845,7 +1837,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 										#ifdef _DEBUGMODE_CHECKS3
 										checkoutofbounds("acts_kernel::ERROR 213::", rotateby, EDGE_PACK_SIZE, NAp, NAp, NAp);
 										#endif
-										
+											
 										MY_LOOP16214: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 										#pragma HLS UNROLL
 											edge3_type edge = edge_vec.data[v];
@@ -1855,7 +1847,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 												unsigned int res = process_funcG(uprop.prop, 1);
 												update_in[inst][v].key = edge.dstvid; update_in[inst][v].value = res;
 												#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-												std::cout<<"EC - PROCESS EDGE SEEN @: inst: ["<<inst<<"], [srcvid_lpv: "<<srcvid_lpv<<", dstvid: "<<edge.dstvid % MAX_APPLYPARTITION_SIZE<<"], [edge.srcvid: "<<edge.srcvid<<", dstvid: "<<edge.dstvid<<"]"<<std::endl; 
+												cout<<"EC - PROCESS EDGE SEEN @: inst: ["<<inst<<"], [srcvid_lpv: "<<srcvid_lpv<<", dstvid: "<<edge.dstvid % MAX_APPLYPARTITION_SIZE<<"], [edge.srcvid: "<<edge.srcvid<<", dstvid: "<<edge.dstvid<<"]"<<endl; 
 												#endif 
 											} else {
 												update_in[inst][v].key = INVALIDDATA; update_in[inst][v].value = INVALIDDATA;
@@ -2001,7 +1993,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 								#endif 
 								if(t < updates_buffer___size[inst][v][p_v]){ ens[inst][v] = true; } else { ens[inst][v] = false; }
 								#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-								if(t < updates_buffer___size[inst][v][p_v]){ std::cout<<"VC - COMMIT CSR UPDATES SEEN @: [inst: "<<inst<<"], [updates_vecs["<<inst<<"].data["<<v<<"].key: "<<updates_vecs[inst].data[v].key<<", updates_vecs["<<inst<<"].data["<<v<<"].value: "<<updates_vecs[inst].data[v].value<<"]"<<std::endl; }
+								if(t < updates_buffer___size[inst][v][p_v]){ cout<<"VC - COMMIT CSR UPDATES SEEN @: [inst: "<<inst<<"], [updates_vecs["<<inst<<"].data["<<v<<"].key: "<<updates_vecs[inst].data[v].key<<", updates_vecs["<<inst<<"].data["<<v<<"].value: "<<updates_vecs[inst].data[v].value<<"]"<<endl; }
 								#endif
 							}
 						}
@@ -2041,7 +2033,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 					#pragma HLS UNROLL
 						if(retrieve_statsbuffer(t, p_v, statsbuffer_maskbased[inst]) == 1){ 
 							#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-							std::cout<<"VC - PREPARE ACTIVE DESTIDS SEEN @: [inst: "<<inst<<"], [p_v: "<<p_v<<", t: "<<t<<"]"<<std::endl;
+							cout<<"VC - PREPARE ACTIVE DESTIDS SEEN @: [inst: "<<inst<<"], [p_v: "<<p_v<<", t: "<<t<<"]"<<endl;
 							#endif
 							insert_stats2buffer(statsbuffer_idbased___size[inst][p_v], p_v, t, statsbuffer_idbased[inst]); 
 							statsbuffer_idbased___size[inst][p_v] += 1;
@@ -2161,7 +2153,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 										unsigned int new_vprop = reduce_funcG(vprop.prop, vprop.prop, update.value);
 										if(new_vprop != vprop.prop && t < limits[inst]){ 
 											#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-											std::cout<<"APPLY (ACT-PACK) UPDATE SEEN @: inst: ["<<inst<<"]: dstvid_lp: "<<dstvid_lp<<", dstvid_lpv: "<<dstvid_lpv<<", new_vprop: "<<new_vprop<<", vid: "<<update.key<<std::endl;
+											cout<<"APPLY (ACT-PACK) UPDATE SEEN @: inst: ["<<inst<<"]: dstvid_lp: "<<dstvid_lp<<", dstvid_lpv: "<<dstvid_lpv<<", new_vprop: "<<new_vprop<<", vid: "<<update.key<<endl;
 											#endif
 											vprop_t newprop; newprop.prop = new_vprop; newprop.mask = MASK_CODE_AU;
 											insert_vdatabuffer(v, dstvid_lpv, newprop, vdata_buffer[inst]);
@@ -2246,7 +2238,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 											#endif
 											if(vprop.mask == MASK_CODE_AU){ 
 												#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-												std::cout<<"COLLECT FRONTIER INFORMATION SEEN @: inst: ["<<inst<<"]: dstvid_lpv: "<<dstvid_lpv<<", v: "<<v<<", p__u__: "<<(vid / MAX_UPARTITION_SIZE)<<", vid: "<<vid<<std::endl;
+												cout<<"COLLECT FRONTIER INFORMATION SEEN @: inst: ["<<inst<<"]: dstvid_lpv: "<<dstvid_lpv<<", v: "<<v<<", p__u__: "<<(vid / MAX_UPARTITION_SIZE)<<", vid: "<<vid<<endl;
 												#endif
 												frontier_t actvv; actvv.key = vid; actvv.value = vprop.prop; 
 												#ifndef FPGA_IMPL
@@ -2446,13 +2438,12 @@ MY_IFDEF_TOPLEVELFUNC(){
 		for(unsigned int t=0; t<16; t++){ _NUMCLOCKCYCLES_[0][t] = 0; }
 		#endif
 		
-		// #ifdef _DEBUGMODE_KERNELPRINTS4
-		#ifndef HW // defined(_DEBUGMODE_KERNELPRINTS4) || defined(SWEMU)
-		for(unsigned int t=0; t<__NUM_UPARTITIONS; t++){ if(hybrid_map[GraphIter][t] == 0){ std::cout<<"V, "; } else if(hybrid_map[GraphIter][t] == 1){ std::cout<<"E, "; } else { std::cout<<"-, "; }} std::cout<<std::endl;
-		std::cout<<""<<std::endl;
-		if(run_vertex_centric == true){ std::cout<< TIMINGRESULTSCOLOR <<"### Vertex-Centric GAS iteration: "<<GraphIter + 1<<" ["<<totalactvvs2<<" active vertices]"<< RESET << std::endl; } else { std::cout<< TIMINGRESULTSCOLOR <<"### Edge-Centric GAS iteration: "<<GraphIter + 1<<" ["<<totalactvvs2<<" active vertices]"<< RESET << std::endl; }
-		for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){ if(upartition_vertices[p_u].count > 0){ std::cout<<"1, "; } else { std::cout<<"0, "; }} std::cout<<std::endl;
-		if(totalactvvs2 == 0 || GraphIter >= MAXNUMGRAPHITERATIONS){ std::cout<<"no more active vertices to process. breaking out... "<<std::endl; }
+		#ifdef _DEBUGMODE_KERNELPRINTS4
+		for(unsigned int t=0; t<__NUM_UPARTITIONS; t++){ if(hybrid_map[GraphIter][t] == 0){ cout<<"V, "; } else if(hybrid_map[GraphIter][t] == 1){ cout<<"E, "; } else { cout<<"-, "; }} cout<<endl;
+		cout<<""<<endl;
+		if(run_vertex_centric == true){ cout<< TIMINGRESULTSCOLOR <<"### Vertex-Centric GAS iteration: "<<GraphIter + 1<<" ["<<totalactvvs2<<" active vertices]"<< RESET << endl; } else { cout<< TIMINGRESULTSCOLOR <<"### Edge-Centric GAS iteration: "<<GraphIter + 1<<" ["<<totalactvvs2<<" active vertices]"<< RESET << endl; }
+		for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){ if(upartition_vertices[p_u].count > 0){ cout<<"1, "; } else { cout<<"0, "; }} cout<<endl;
+		if(totalactvvs2 == 0 || GraphIter >= MAXNUMGRAPHITERATIONS){ cout<<"no more active vertices to process. breaking out... "<<endl; }
 		#endif 
 		if(totalactvvs2 == 0 || GraphIter >= MAXNUMGRAPHITERATIONS){ maxGraphIter = GraphIter; break; }
 		for(unsigned int inst=0; inst<VALID_NUMPEs; inst++){ for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){ nfrontier_dram___size[inst][p_u] = 0; }}
@@ -2468,3 +2459,4 @@ MY_IFDEF_TOPLEVELFUNC(){
 	return;
 }
 }
+

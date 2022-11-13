@@ -36,9 +36,9 @@
 #define _DEBUGMODE_HEADER //
 #if defined (FPGA_IMPL) // && defined (HW) // REMOVEME. 
 #else
-#define _DEBUGMODE_STATS // CRITICAL ADDME
+#define _DEBUGMODE_STATS // 
 // #define _DEBUGMODE_CHECKS
-#define _DEBUGMODE_CHECKS2 // CRITICAL ADDME
+#define _DEBUGMODE_CHECKS2 // 
 #define _DEBUGMODE_CHECKS3 // 
 // #define _DEBUGMODE_PRINTS
 // #define _DEBUGMODE_KERNELPRINTS
@@ -63,6 +63,7 @@
 #ifndef FPGA_IMPL
 // #define _DEBUGMODE_KERNELPRINTS_TRACE3 //
 #endif 
+// #define _DEBUGMODE_KERNELPRINTS_TRACE3 //
 
 ////////////////
 
@@ -79,7 +80,7 @@
 
 #define NUM_PEs 12
 #define VALID_NUMPEs 6
-#define EDGE_PACK_SIZE_POW 1 // 1 4*
+#define EDGE_PACK_SIZE_POW 4 // 1 4*
 #define EDGE_PACK_SIZE (1 << EDGE_PACK_SIZE_POW) // 2, 16*
 #define HBM_CHANNEL_PACK_SIZE (EDGE_PACK_SIZE * 2) // 32*
 #define HBM_AXI_PACK_SIZE (HBM_CHANNEL_PACK_SIZE / 2) // 16* // NEW**
@@ -97,8 +98,7 @@
 #define INVALIDDATA 0xFFFFFFFF 
 #define INVALIDMASK 0 
 
-#define MULT_FACTOR (16 / EDGE_PACK_SIZE) // NEW**
-
+#define MULT_FACTOR (16 / EDGE_PACK_SIZE) // NEW** // CRITICAL FIXME.
 #define MAX_UPARTITION_VECSIZE (8184 * MULT_FACTOR) // NEW**
 #define MAX_UPARTITION_SIZE (EDGE_PACK_SIZE * MAX_UPARTITION_VECSIZE) // 131072 
 #define MAX_APPLYPARTITION_VECSIZE MAX_UPARTITION_VECSIZE
@@ -165,63 +165,6 @@
 
 ////////////////
 
-// #define ENABLE__SPARSEPROC
-
-////////////////
-
-// #if NUM_PEs==3
-// #define NUMCOMPUTEUNITS_SLR0 1
-// #define NUMCOMPUTEUNITS_SLR1 1
-// #define NUMCOMPUTEUNITS_SLR2 1
-// #endif 
-// #if NUM_PEs==12
-// #define NUMCOMPUTEUNITS_SLR0 2
-// #define NUMCOMPUTEUNITS_SLR1 5
-// #define NUMCOMPUTEUNITS_SLR2 5
-// #endif 
-// #if NUM_PEs==14
-// #define NUMCOMPUTEUNITS_SLR0 4
-// #define NUMCOMPUTEUNITS_SLR1 5
-// #define NUMCOMPUTEUNITS_SLR2 5
-// #endif 
-// #if NUM_PEs==16
-// #define NUMCOMPUTEUNITS_SLR0 4 
-// #define NUMCOMPUTEUNITS_SLR1 6
-// #define NUMCOMPUTEUNITS_SLR2 6
-// #endif 
-// #if NUM_PEs==18
-// #define NUMCOMPUTEUNITS_SLR0 6
-// #define NUMCOMPUTEUNITS_SLR1 6
-// #define NUMCOMPUTEUNITS_SLR2 6
-// #endif 
-// #if NUM_PEs==20
-// #define NUMCOMPUTEUNITS_SLR0 6
-// #define NUMCOMPUTEUNITS_SLR1 7
-// #define NUMCOMPUTEUNITS_SLR2 7
-// #endif 
-// #if NUM_PEs==22
-// #define NUMCOMPUTEUNITS_SLR0 6
-// #define NUMCOMPUTEUNITS_SLR1 8
-// #define NUMCOMPUTEUNITS_SLR2 8
-// #endif 
-// #if NUM_PEs==24
-// #define NUMCOMPUTEUNITS_SLR0 6
-// #define NUMCOMPUTEUNITS_SLR1 9
-// #define NUMCOMPUTEUNITS_SLR2 9
-// #endif 
-// #if NUM_PEs==25
-// #define NUMCOMPUTEUNITS_SLR0 7
-// #define NUMCOMPUTEUNITS_SLR1 9
-// #define NUMCOMPUTEUNITS_SLR2 9
-// #endif 
-// #if NUM_PEs==32
-// #define NUMCOMPUTEUNITS_SLR0 12
-// #define NUMCOMPUTEUNITS_SLR1 10
-// #define NUMCOMPUTEUNITS_SLR2 10
-// #endif 
-
-////////////////
-
 #define HBM_CHANNEL_READTHROUGHPUT 16 // KVDRAM -> BUFFER: how many uint512_dt wide-words can be read / sec?
 #define HBM_CHANNEL_WRITETHROUGHPUT 16 // BUFFER -> KVDRAM: how many uint512_dt wide-words can be written / sec?
 #define HBM_CHANNEL_READTHENWRITETHROUGHPUT 16 // KVDRAM(R) -> BUFFER -> KVDRAM(W): how many uint512_dt wide-words can be read / sec?
@@ -269,11 +212,11 @@ typedef struct {
 	unsigned int size;
 } map_t;
 
-#ifdef FPGA_IMPL
-typedef ap_uint<1> uint1_dt;
-#else
-typedef unsigned int uint1_dt;
-#endif
+// #ifdef FPGA_IMPL
+// typedef ap_uint<1> uint1_dt;
+// #else
+// typedef unsigned int uint1_dt;
+// #endif
 
 typedef struct {
 	keyvalue_t data[EDGE_PACK_SIZE];
@@ -287,15 +230,13 @@ typedef struct {
 	unsigned int data[HBM_AXI_PACK_SIZE]; // 16
 } uint512_jvec_dt;
 
-// #define __HBM_AXI_PACK_BITSIZE__ 512 // 256
-#ifdef FPGA_IMPL
-typedef ap_uint<HBM_AXI_PACK_BITSIZE> uint512_axivec_dt;
-// typedef ap_uint<__HBM_AXI_PACK_BITSIZE__> uint512_axivec_dt;
-#else
+// #ifdef FPGA_IMPL
+// typedef ap_uint<HBM_AXI_PACK_BITSIZE> uint512_axivec_dt;
+// #else
 typedef struct {
 	unsigned int data[HBM_AXI_PACK_SIZE]; // 16
 } uint512_axivec_dt;
-#endif
+// #endif
 
 typedef struct {
 	unsigned int data[HBM_AXI_PACK_SIZE]; // 16

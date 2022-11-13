@@ -21,6 +21,9 @@ const int pc[MAX_HBM_PC_COUNT] = {
 
 long double app_hw::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_axichannel[2][NUM_PEs], HBM_channelAXISW_t * HBM_axicenter[2], universalparams_t universalparams){
 	unsigned int num_axi_interfaces = (2 * VALID_NUMPEs) + 2;
+	// unsigned int num_axi_vertex_interfaces = 2 * VALID_NUMPEs;
+	unsigned int total_num_axi_interfaces = num_axi_interfaces; // (2 * NUM_PEs) + 2;
+	// unsigned int total_num_axi_vertex_interfaces = 2 * NUM_PEs;
 	unsigned int dataSize = 64 * 1024 * 1024;
 	
 	cout<<"--------------------------- VALID_NUMPEs: "<<VALID_NUMPEs<<" ----------------------------------"<<endl;
@@ -36,49 +39,53 @@ long double app_hw::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM
 	std::vector<cl::Event> read_events(48);
 	
 	// std::vector<int, aligned_allocator<int> > source_master(HBM_CHANNEL_INTSIZE);
-	// for(unsigned int t=0; t<HBM_CHANNEL_SIZE; t++){
+	// for(unsigned int t=0; t<HBM_CHANNEL_SIZE; t++){ 
 		// for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){ 
 			// source_master[t*HBM_AXI_PACK_SIZE + v] = HBM_axichannel[0][0][t].data[v]; 
 		// }
 	// }
 
-	// std::vector<int, aligned_allocator<int> > source_in1(num_axi_interfaces, std::vector<int, aligned_allocator<int> >(dataSize));
-	std::vector<int, aligned_allocator<int> > source_in1[num_axi_interfaces]; for(unsigned int i=0; i<num_axi_interfaces; i++){ source_in1[i] = std::vector<int, aligned_allocator<int> >(HBM_CHANNEL_INTSIZE); }
+	// std::vector<int, aligned_allocator<int> > source_in1(total_num_axi_interfaces, std::vector<int, aligned_allocator<int> >(dataSize));
+	// std::vector<int, aligned_allocator<int> > source_in1[total_num_axi_interfaces]; for(unsigned int i=0; i<total_num_axi_interfaces; i++){ source_in1[i] = std::vector<int, aligned_allocator<int> >(HBM_CHANNEL_INTSIZE); }				
+	std::vector<int, aligned_allocator<int> > source_in1[32]; for(unsigned int i=0; i<total_num_axi_interfaces; i++){ source_in1[i] = std::vector<int, aligned_allocator<int> >(HBM_CHANNEL_INTSIZE); }				
+	unsigned int bank_index = 0;
 	for(unsigned int i=0; i<VALID_NUMPEs; i++){ 
+		cout<<"filling host buffer "<<bank_index<<"..."<<endl;
 		for(unsigned int t=0; t<HBM_CHANNEL_SIZE; t++){ 
-			if(t<64){ 
-				cout<<t<<": ";
-				for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){ 
-					cout<<HBM_axichannel[0][i][t].data[v]<<", "; 
-				} 
-				cout<<endl;
-			}
+			if(t<64 && false){ cout<<t<<": "; for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){ cout<<HBM_axichannel[0][i][t].data[v]<<", "; } cout<<endl; }
 			for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){ 
-				source_in1[2*i][t*HBM_AXI_PACK_SIZE + v] = HBM_axichannel[0][i][t].data[v]; 
+				source_in1[bank_index][t*HBM_AXI_PACK_SIZE + v] = HBM_axichannel[0][i][t].data[v]; 
 				// source_in1[2*i][t*HBM_AXI_PACK_SIZE + v] = t*HBM_AXI_PACK_SIZE + v; // FIXME_HARDWARE
 				if(t*HBM_AXI_PACK_SIZE + v >= HBM_CHANNEL_INTSIZE){ cout<<"ERROR 23: t*HBM_AXI_PACK_SIZE + v(="<<t*HBM_AXI_PACK_SIZE + v<<") >= HBM_CHANNEL_INTSIZE. EXITING..."<<endl; exit(EXIT_FAILURE); }
 			}
 		}
+		bank_index += 1;
+		cout<<"filling host buffer "<<bank_index<<"..."<<endl;
 		for(unsigned int t=0; t<HBM_CHANNEL_SIZE; t++){ 
 			for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){ 
-				source_in1[2*i+1][t*HBM_AXI_PACK_SIZE + v] = HBM_axichannel[1][i][t].data[v];
+				source_in1[bank_index][t*HBM_AXI_PACK_SIZE + v] = HBM_axichannel[1][i][t].data[v];
 				if(t*HBM_AXI_PACK_SIZE + v >= HBM_CHANNEL_INTSIZE){ cout<<"ERROR 24: t*HBM_AXI_PACK_SIZE + v(="<<t*HBM_AXI_PACK_SIZE + v<<") >= HBM_CHANNEL_INTSIZE. EXITING..."<<endl; exit(EXIT_FAILURE); }
 			}
 		}
+		bank_index += 1;
 	}
+	cout<<"filling host buffer "<<bank_index<<"..."<<endl;
 	for(unsigned int t=0; t<HBM_CHANNEL_SIZE; t++){ 
 		for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){ 
-			source_in1[2*VALID_NUMPEs][t*HBM_AXI_PACK_SIZE + v] = HBM_axicenter[0][t].data[v];
+			source_in1[bank_index][t*HBM_AXI_PACK_SIZE + v] = HBM_axicenter[0][t].data[v];
 			if(t*HBM_AXI_PACK_SIZE + v >= HBM_CHANNEL_INTSIZE){ cout<<"ERROR 25: t*HBM_AXI_PACK_SIZE + v(="<<t*HBM_AXI_PACK_SIZE + v<<") >= HBM_CHANNEL_INTSIZE. EXITING..."<<endl; exit(EXIT_FAILURE); }
 		}
 	} 
+	bank_index += 1;
+	cout<<"filling host buffer "<<bank_index<<"..."<<endl;
 	for(unsigned int t=0; t<HBM_CHANNEL_SIZE; t++){ 
 		for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){ 
-			source_in1[2*VALID_NUMPEs+1][t*HBM_AXI_PACK_SIZE + v] = HBM_axicenter[1][t].data[v];
+			source_in1[bank_index][t*HBM_AXI_PACK_SIZE + v] = HBM_axicenter[1][t].data[v];
 			if(t*HBM_AXI_PACK_SIZE + v >= HBM_CHANNEL_INTSIZE){ cout<<"ERROR 26: t*HBM_AXI_PACK_SIZE + v(="<<t*HBM_AXI_PACK_SIZE + v<<") >= HBM_CHANNEL_INTSIZE. EXITING..."<<endl; exit(EXIT_FAILURE); }
 		}
 	}
-    // for (int i = 0; i < num_axi_interfaces; i++) { std::generate(source_in1[i].begin(), source_in1[i].end(), std::rand); }
+	bank_index += 1;
+    // for (int i = 0; i < total_num_axi_interfaces; i++) { std::generate(source_in1[i].begin(), source_in1[i].end(), std::rand); }
 
     // OPENCL HOST CODE AREA START
     // The get_xil_devices will return vector of Xilinx Devices
@@ -118,11 +125,11 @@ long double app_hw::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM
         exit(EXIT_FAILURE);
     }
 
-    std::vector<cl_mem_ext_ptr_t> inBufExt1(num_axi_interfaces);
-    std::vector<cl::Buffer> buffer_input1(num_axi_interfaces);
+    std::vector<cl_mem_ext_ptr_t> inBufExt1(total_num_axi_interfaces);
+    std::vector<cl::Buffer> buffer_input1(total_num_axi_interfaces);
 
     // For Allocating Buffer to specific Global Memory PC, user has to use cl_mem_ext_ptr_t and provide the PCs
-    for (int i = 0; i < num_axi_interfaces; i++) {
+    for (int i = 0; i < total_num_axi_interfaces; i++) {
 		cout<<"attaching inBufExt1["<<i<<"] @ source_in1["<<i<<"] to pc["<<i<<"]... "<<endl;
 		inBufExt1[i].obj = source_in1[i].data();
 		// inBufExt1[i].obj = source_master.data();// FIXME_HARDWARE
@@ -133,7 +140,7 @@ long double app_hw::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM
     // These commands will allocate memory on the FPGA. The cl::Buffer objects can
     // be used to reference the memory locations on the device.
     // Creating Buffers
-    for (int i = 0; i < num_axi_interfaces; i++) {
+    for (int i = 0; i < total_num_axi_interfaces; i++) {
 		cout<<"+++ app_hw: creating buffer_input1["<<i<<"]... "<<endl;
 		OCL_CHECK(err,
 			buffer_input1[i] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
@@ -141,7 +148,7 @@ long double app_hw::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM
 	}
 
     // Copy input data to Device Global Memory
-    // for (int i = 0; i < num_axi_interfaces; i++) {
+    // for (int i = 0; i < total_num_axi_interfaces; i++) {
 		// OCL_CHECK(err,
 			// err = q.enqueueMigrateMemObjects({buffer_input1[i]}, 0 /* 0 means from host*/));
 	// }
@@ -151,6 +158,22 @@ long double app_hw::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM
 	OCL_CHECK(err, err = q.enqueueMigrateMemObjects({												
 													buffer_input1[0], buffer_input1[1],
 													buffer_input1[2], buffer_input1[3]}, 
+													0, NULL, &write_events[0]));
+	#endif 
+	#if VALID_NUMPEs==2
+	OCL_CHECK(err, err = q.enqueueMigrateMemObjects({													
+													buffer_input1[0], buffer_input1[1], 
+													buffer_input1[2], buffer_input1[3], 
+													buffer_input1[4], buffer_input1[5]}, 
+													0, NULL, &write_events[0]));
+	#endif 
+	#if VALID_NUMPEs==4
+	OCL_CHECK(err, err = q.enqueueMigrateMemObjects({													
+													buffer_input1[0], buffer_input1[1], 
+													buffer_input1[2], buffer_input1[3], 
+													buffer_input1[4], buffer_input1[5], 
+													buffer_input1[6], buffer_input1[7], 
+													buffer_input1[8], buffer_input1[9]}, 
 													0, NULL, &write_events[0]));
 	#endif 
 	#if VALID_NUMPEs==6
@@ -178,6 +201,7 @@ long double app_hw::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM
 		cout<<"setting argument krnls[0].setArg("<<i<<", buffer_input1["<<i<<"])"<<endl;
         OCL_CHECK(err, err = krnls[0].setArg(i, buffer_input1[i]));
     }
+	q.finish();
 	
 	// Invoking the kernel
 	cout<<"Invoking the kernel..."<<endl;
@@ -194,8 +218,9 @@ long double app_hw::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM
 
     kernel_time_in_sec = kernel_time.count();
     kernel_time_in_sec /= NUM_KERNEL;
-	std::cout << "THROUGHPUT = " << universalparams.NUM_EDGES / kernel_time_in_sec << " GB/s" << std::endl;
-
+	std::cout << "THEORETICAL THROUGHPUT = " << (universalparams.NUM_EDGES / kernel_time_in_sec) / 1000000 << " MTEPS" << std::endl; // kernel_time_in_sec
+	std::cout << "ACTUAL THROUGHPUT = " << ((universalparams.NUM_EDGES / kernel_time_in_sec) / 1000000) * (16 / EDGE_PACK_SIZE) << " MTEPS" << std::endl; 
+	
     // Copy Result from Device Global Memory to Host Local Memory
 	cout<<"app_hw:: Migrating input data from device global memory to host memory..."<<endl;
     // for (int i = 0; i < NUM_KERNEL; i++) {
@@ -207,6 +232,22 @@ long double app_hw::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM
 	OCL_CHECK(err, err = q.enqueueMigrateMemObjects({												
 													buffer_input1[0], buffer_input1[1],
 													buffer_input1[2], buffer_input1[3]}, 
+													CL_MIGRATE_MEM_OBJECT_HOST));
+	#endif 
+	#if VALID_NUMPEs==2
+	OCL_CHECK(err, err = q.enqueueMigrateMemObjects({													
+													buffer_input1[0], buffer_input1[1], 
+													buffer_input1[2], buffer_input1[3], 
+													buffer_input1[4], buffer_input1[5]}, 
+													CL_MIGRATE_MEM_OBJECT_HOST));
+	#endif 
+	#if VALID_NUMPEs==4
+	OCL_CHECK(err, err = q.enqueueMigrateMemObjects({													
+													buffer_input1[0], buffer_input1[1], 
+													buffer_input1[2], buffer_input1[3], 
+													buffer_input1[4], buffer_input1[5], 
+													buffer_input1[6], buffer_input1[7], 
+													buffer_input1[8], buffer_input1[9]}, 
 													CL_MIGRATE_MEM_OBJECT_HOST));
 	#endif 
 	#if VALID_NUMPEs==6
