@@ -19,6 +19,9 @@
 # $ which xbutil
 # /opt/xilinx/xrt/bin/xbutil
 
+# make run TARGET=sw_emu DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201920_3/xilinx_u280_xdma_201920_3.xpfm
+# make build TARGET=sw_emu DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201920_3/xilinx_u280_xdma_201920_3.xpfm
+
 # FPGA specs: 142, 4330 (total num BAMs in FPGA board), 1440 (total num BAMs in SLR region)
 
 ############################## Help Section ##############################
@@ -56,7 +59,9 @@ DSA = xilinx_u280_xdma_201920_3
 
 # RELREF = ../
 KERNEL_TOP_ALL += $(RELREF)acts_templates/acts_kernel.cpp
+# KERNEL_TOP_ALL += $(RELREF)acts_templates/acts_kernel___debugging.cpp
 HOST_SRCS_ACTS += $(RELREF)host_srcs/hostprocess.cpp
+# HOST_SRCS_ACTS += $(RELREF)host_srcs/hostprocess___allinone.cpp
 HOST_SRCS_ACTS += $(RELREF)host_srcs/prepare_graph.cpp
 HOST_SRCS_ACTS += $(RELREF)host_srcs/act_pack.cpp
 HOST_SRCS_ACTS += $(RELREF)host_srcs/app.cpp
@@ -72,6 +77,7 @@ PWD = $(shell readlink -f .)
 # XF_PROJ_ROOT = $(shell readlink -f $(COMMON_REPO))
 XF_PROJ_ROOT = /home/oj2zf/Documents/Vitis_Accel_Examples-master
 
+# TARGET := sw_emu
 TARGET := hw
 HOST_ARCH := x86
 SYSROOT := 
@@ -124,8 +130,8 @@ endif
 EXECUTABLE = ./slr_assign
 EMCONFIG_DIR = $(TEMP_DIR)
 
-CONNECTIVITY_FILE = connectivity_2w.cfg
-# CONNECTIVITY_FILE = connectivity_12w.cfg
+# CONNECTIVITY_FILE = connectivity_2w.cfg
+CONNECTIVITY_FILE = connectivity_12w.cfg
 # CONNECTIVITY_FILE = connectivity_24w.cfg
 
 ############################## Declaring Binary Containers ##############################
@@ -151,7 +157,7 @@ xclbin: build
 
 ############################## Setting Rules for Binary Containers (Building Kernels) ##############################
 
-$(TEMP_DIR)/kernel.xo: $(RELREF)acts_templates/acts_kernel.cpp
+$(TEMP_DIR)/kernel.xo: $(KERNEL_TOP_ALL)
 	mkdir -p $(TEMP_DIR)
 	$(VPP) $(VPP_FLAGS) -c -k $(KERNEL_NAME) --temp_dir $(TEMP_DIR)  -I'$(<D)' -o'$@' '$^'
 $(XCLBIN)/acts.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_vmult_vadd_OBJS)

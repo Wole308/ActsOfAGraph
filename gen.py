@@ -15,14 +15,17 @@ context['NUM_PEs'] = int(sys.argv[3])
 context['TESTKERNEL'] = sys.argv[4]
 
 context['FPGA_IMPL'] = 0
-context['VALID_NUMPEs'] = 1 #1 #6* #12 #context['NUM_PEs'] 
-context['HBM_AXI_PACK_SIZE'] = 16
-context['HBM_CHANNEL_PACK_SIZE'] = 32
-    
+context['VALID_NUMPEs'] = 1 #1 #6* #12 #context['NUM_PEs'] # 4 VALID_NUMPEs = 8 AXI interfaces
+context['EDGE_PACK_SIZE_POW'] = 4 #1, 4*
+context['EDGE_PACK_SIZE'] = 2**context['EDGE_PACK_SIZE_POW']
+context['HBM_AXI_PACK_SIZE'] = context['EDGE_PACK_SIZE'] 
+
 print ('Generating sources... ')
 print ('XWARE: ' + str(context['XWARE']))
 print ('NUM_PEs: ' + str(context['NUM_PEs']))
 print ('VALID_NUMPEs: ' + str(context['VALID_NUMPEs']))
+print ('EDGE_PACK_SIZE: ' + str(context['EDGE_PACK_SIZE']))
+print ('HBM_AXI_PACK_SIZE: ' + str(context['HBM_AXI_PACK_SIZE']))
 
 ###
 
@@ -32,7 +35,7 @@ relref=""
 o_path0=relref+"include/common.h"
 o_path1=relref+"acts_templates/acts_kernel.cpp"
 o_path2=relref+"acts_templates/acts_kernel.h"
-o_path3=relref+"include/common.h"
+o_path3=relref+"acts_templates/acts_kernel___debugging.cpp"
 o_path4=relref+"include/common.h"
 o_path5=relref+"include/common.h"
 o_path6=relref+"include/common.h"
@@ -56,7 +59,7 @@ out_path10=os.path.abspath(o_path10)
 templ_path0=relref+"include/"
 templ_path1=relref+"acts_templates/"
 templ_path2=relref+"acts_templates/"
-templ_path3=relref+"include/"
+templ_path3=relref+"acts_templates/"
 templ_path4=relref+"include/"
 templ_path5=relref+"include/"
 templ_path6=relref+"include/"
@@ -78,10 +81,14 @@ context['HBM_AXI_PACK_SIZE_seq'] = []
 for i in range (0,(context['HBM_AXI_PACK_SIZE'])):
 		context['HBM_AXI_PACK_SIZE_seq'].append(i)
  
-context['HBM_CHANNEL_PACK_SIZE_seq'] = []
-for i in range (0,(context['HBM_CHANNEL_PACK_SIZE'])):
-		context['HBM_CHANNEL_PACK_SIZE_seq'].append(i) 
-     
+# context['HBM_CHANNEL_PACK_SIZE_seq'] = []
+# for i in range (0,(context['HBM_CHANNEL_PACK_SIZE'])):
+		# context['HBM_CHANNEL_PACK_SIZE_seq'].append(i) 
+ 
+context['EDGE_PACK_SIZE_seq'] = []
+for i in range (0,(context['EDGE_PACK_SIZE'])):
+		context['EDGE_PACK_SIZE_seq'].append(i) 
+        
 env0 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path0)), trim_blocks=True, lstrip_blocks=True)
 env1 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path1)), trim_blocks=True, lstrip_blocks=True)
 env2 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path2)), trim_blocks=True, lstrip_blocks=True)
@@ -109,7 +116,7 @@ env10.globals.update(zip=zip)
 template0 = env0.get_template('common_h.template')
 template1 = env1.get_template('acts_kernel.template')
 template2 = env2.get_template('acts_kernel_h.template')
-template3 = env3.get_template('common_h.template')
+template3 = env3.get_template('acts_kernel___debugging.template')
 template4 = env4.get_template('common_h.template')
 template5 = env5.get_template('common_h.template')
 template6 = env6.get_template('common_h.template')

@@ -77,9 +77,10 @@ universalparams_t app::get_universalparams(std::string algo, unsigned int numite
 	
 	return universalparams;
 }
-void app::run(std::string setup, std::string algo, unsigned int numiterations, unsigned int rootvid, string graph_path, int graphisundirected, std::string _binaryFile1){
+void app::run(std::string setup, std::string algo, unsigned int rootvid, string graph_path, int graphisundirected, unsigned int numiterations, std::string _binaryFile1){
 	cout<<"app::run:: app algo started. (algo: "<<algo<<", numiterations: "<<numiterations<<", rootvid: "<<rootvid<<", graph path: "<<graph_path<<", graph dir: "<<graphisundirected<<", _binaryFile1: "<<_binaryFile1<<")"<<endl;
-
+	// exit(EXIT_SUCCESS);
+	
 	std::string binaryFile[2]; binaryFile[0] = _binaryFile1;
 	
 	std::cout << std::setprecision(2) << std::fixed;
@@ -98,9 +99,10 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	cout<<"app:run: num_vertices: "<<num_vertices<<", num_edges: "<<num_edges<<endl;
 	
 	universalparams_t universalparams = get_universalparams(algo, numiterations, rootvid, num_vertices, num_edges, graphisundirected_bool);
+	cout<<"app::run:: NUM_VERTICES: "<<universalparams.NUM_VERTICES<<", NUM_EDGES: "<<universalparams.NUM_EDGES<<", NUM_UPARTITIONS: "<<universalparams.NUM_UPARTITIONS<<", NUM_APPLYPARTITIONS: "<<universalparams.NUM_APPLYPARTITIONS<<", VERTEX RANGE: "<<universalparams.NUM_VERTICES / NUM_PEs<<endl;			
 	utility * utilityobj = new utility(universalparams);
 	// utilityobj->printallparameters();
-	
+
 	unsigned int __NUM_UPARTITIONS = (universalparams.NUM_VERTICES + (MAX_UPARTITION_SIZE - 1)) /  MAX_UPARTITION_SIZE;
 	unsigned int __NUM_APPLYPARTITIONS = ((universalparams.NUM_VERTICES / NUM_PEs) + (MAX_APPLYPARTITION_SIZE - 1)) /  MAX_APPLYPARTITION_SIZE; // NUM_PEs
 	
@@ -112,9 +114,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ for(unsigned int t=0; t<MAX_NUM_LLPSETS; t++){ vptr_actpack[i][p_u][t].offset = 0; vptr_actpack[i][p_u][t].size = 0; }}}
 	act_pack * pack = new act_pack(universalparams);
 	pack->pack(vertexptrbuffer, edgedatabuffer, act_pack_edges, vptr_actpack); // CRITICAL REMOVEME.
-	// edge3_vec_dt edge_vec3; for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ edge_vec3.data[v].srcvid = 7; edge_vec3.data[v].dstvid = 7; edge_vec3.data[v].valid = 1; } // CRITICAL REMOVEME.
-	// for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<10240; t++){ act_pack_edges[i].push_back(edge_vec3); }} // CRITICAL REMOVEME.
-	
+
 	// create csr format
 	vector<edge3_type> csr_pack_edges[NUM_PEs]; 
 	unsigned int * degrees[NUM_PEs]; for(unsigned int i=0; i<NUM_PEs; i++){ degrees[i] = new unsigned int[(universalparams.NUM_VERTICES / NUM_PEs) + 64]; }
@@ -130,11 +130,22 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 		for(unsigned int i=0; i<edges_size; i++){
 			unsigned int H_hash = H % NUM_PEs;
 			edge3_type edge = edgedatabuffer[vptr_begin + i];
+			// if(edge.srcvid == 12){ cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ edge.srcvid: "<<edge.srcvid<<", edge.dstvid: "<<edge.dstvid<<endl; }
 			csr_pack_edges[H_hash].push_back(edge);
 			degrees[H_hash][edge.srcvid / NUM_PEs] += 1;
 		}
 		H += 1;
 	}
+	
+	edge3_type first_edge = csr_pack_edges[0][0];
+	cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ first_edge.srcvid: "<<first_edge.srcvid<<", first_edge.dstvid: "<<first_edge.dstvid<<endl;
+	#ifdef ___FORCE_SUCCESS_SINGLE_CHANNEL___
+	rootvid = first_edge.srcvid;
+	universalparams.ROOTVID = first_edge.srcvid;
+	cout<<"app::run:: [CHANGED] app algo started. (algo: "<<algo<<", numiterations: "<<numiterations<<", rootvid: "<<rootvid<<", graph path: "<<graph_path<<", graph dir: "<<graphisundirected<<", _binaryFile1: "<<_binaryFile1<<")"<<endl;
+	#endif 
+	// exit(EXIT_SUCCESS);
+	
 	unsigned int max_degree = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){ unsigned int index = 0, ind = 0; for(unsigned int vid=0; vid<universalparams.NUM_VERTICES; vid++){ if(vid % NUM_PEs == i){ 
 		if(max_degree < degrees[i][vid / NUM_PEs]){ max_degree = degrees[i][vid / NUM_PEs]; }
@@ -146,7 +157,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<max; t++){ act_pack_edges_arr[i][t] =  act_pack_edges[i][t]; }}
 	
 	HBM_channel_t * HBM_center = new HBM_channel_t[HBM_CHANNEL_SIZE];
-	for(unsigned int t=0; t<HBM_CHANNEL_SIZE; t++){ for(unsigned int v=0; v<HBM_CHANNEL_PACK_SIZE; v++){ HBM_center[t].data[v] = 0; }}
+	for(unsigned int t=0; t<HBM_CHANNEL_SIZE; t++){ for(unsigned int v=0; v<HBM_CHANNEL_PACK_SIZE; v++){ HBM_center[t].data[v] = INVALIDDATA; }}
 
 	// allocate HBM memory
 	HBM_channel_t * HBM_channel[NUM_PEs];// = new HBM_channel_t[NUM_PEs]; 
@@ -239,14 +250,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 				} else {
 					HBM_channel[i][base_offset + t].data[2 * v] = INVALIDDATA;
 					HBM_channel[i][base_offset + t].data[2 * v + 1] = act_pack_edges[i][t].data[v].dstvid; 
-				}	
-				// if(true){ // CRITICAL REMOVEME.
-					// HBM_channel[i][base_offset + t].data[2 * v] = 0;
-					// HBM_channel[i][base_offset + t].data[2 * v + 1] = 0; 
-				// } else {
-					// HBM_channel[i][base_offset + t].data[2 * v] = 0;
-					// HBM_channel[i][base_offset + t].data[2 * v + 1] = 0; 
-				// }	
+				}
 				if(i==0){ size_u32 += 2; }
 			}
 		}
@@ -307,7 +311,8 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 		for(unsigned int p=0; p<__NUM_APPLYPARTITIONS; p++){ 
 			for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE; t++){ 
 				for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-					HBM_channel[i][base_offset + (p * MAX_APPLYPARTITION_VECSIZE + t)].data[2 * v] = algorithmobj->vertex_initdata(universalparams.ALGORITHM);
+					unsigned int index = p*MAX_APPLYPARTITION_VECSIZE*EDGE_PACK_SIZE + t*EDGE_PACK_SIZE + v;
+					HBM_channel[i][base_offset + (p * MAX_APPLYPARTITION_VECSIZE + t)].data[2 * v] = algorithmobj->vertex_initdata(universalparams.ALGORITHM, index);
 					HBM_channel[i][base_offset + (p * MAX_APPLYPARTITION_VECSIZE + t)].data[2 * v + 1] = 0;
 					if(i==0){ size_u32 += 2; }
 				}
@@ -358,6 +363,8 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 		HBM_channel[i][GLOBALPARAMSCODE__PARAM__THRESHOLD__ACTIVEFRONTIERSFORCONTROLSWITCH].data[0] = 128;
 		HBM_channel[i][GLOBALPARAMSCODE__PARAM__MAXDEGREE].data[0] = max_degree;
 		HBM_channel[i][GLOBALPARAMSCODE__PARAM__ALGORITHM].data[0] = universalparams.ALGORITHM;
+		HBM_channel[i][GLOBALPARAMSCODE__PARAM__ROOTVID].data[0] = rootvid;
+		HBM_channel[i][GLOBALPARAMSCODE__PARAM__RANGEPERCHANNEL].data[0] = num_vertices / NUM_PEs;
 
 		// HBM_channel[i][GLOBALPARAMSCODE___ENABLE___RESETBUFFERSATSTART].data[0] = 0;
 		// HBM_channel[i][GLOBALPARAMSCODE___ENABLE___PROCESSEDGES].data[0] = 0;
@@ -415,7 +422,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	
 	// clear 
 	for(unsigned int i=0; i<NUM_PEs; i++){ csr_pack_edges[i].clear(); act_pack_edges[i].clear(); } // clear 
-	
+
 	// assign root vid 
 	keyvalue_t root; root.key = rootvid; root.value = 0; keyvalue_t invalid; invalid.key = INVALIDDATA; invalid.value = INVALIDDATA; 
 	for(unsigned int t=0; t<16; t++){ 
@@ -423,7 +430,9 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 			HBM_center[t].data[v] = INVALIDDATA;
 		} 
 	}
-	unsigned int index = 2*root.key;
+	// unsigned int index = 2*root.key;
+	unsigned int hash_loc = root.key % EDGE_PACK_SIZE;
+	unsigned int index = 2*hash_loc;
 	HBM_center[index / HBM_CHANNEL_PACK_SIZE].data[index % HBM_CHANNEL_PACK_SIZE] = root.key; 
 	HBM_center[(index + 1) / HBM_CHANNEL_PACK_SIZE].data[(index + 1) % HBM_CHANNEL_PACK_SIZE] = root.value; 
 

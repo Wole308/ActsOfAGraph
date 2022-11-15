@@ -30,7 +30,7 @@ public:
 	algorithm();
 	~algorithm();
 	
-	unsigned int vertex_initdata(unsigned int Algo);
+	unsigned int vertex_initdata(unsigned int Algo, unsigned int index);
 	unsigned int get_algorithm_id(std::string Algo);
 private:
 };
