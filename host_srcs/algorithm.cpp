@@ -25,7 +25,7 @@ unsigned int algorithm::get_algorithm_id(std::string Algo){
 	else if(Algo == "bfs"){ return BFS; }
 	else if(Algo == "sssp"){ return SSSP; } 
 	else if(Algo == "cc"){ return CC; } 
-	else { return 0; }
+	else { cout<<"ERROR: ALGORITHM "<<Algo<<" IS NOT DEFINED."<<endl; exit(EXIT_FAILURE); return 0; }
 	return 0;
 }
 

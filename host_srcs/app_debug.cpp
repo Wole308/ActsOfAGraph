@@ -241,8 +241,8 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	size_u32 = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){
 		unsigned int base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES];
-		for(unsigned int t=0; t<numww_actpackedges; t++){ 	
-			/* for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+		for(unsigned int t=0; t<numww_actpackedges; t++){ 
+			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 				unsigned int isvalid = act_pack_edges[i][t].data[v].valid;
 				if(isvalid==1){
 					HBM_channel[i][base_offset + t].data[2 * v] = act_pack_edges[i][t].data[v].srcvid;
@@ -252,29 +252,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 					HBM_channel[i][base_offset + t].data[2 * v + 1] = act_pack_edges[i][t].data[v].dstvid; 
 				}
 				if(i==0){ size_u32 += 2; }
-			}	 */
-			/* for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-				unsigned int isvalid = act_pack_edges[i][t].data[v].valid;
-				unsigned int src = act_pack_edges[i][t].data[v].srcvid;
-				unsigned int dest = act_pack_edges[i][t].data[v].dstvid;
-				if(isvalid==1){
-					HBM_channel[i][base_offset + t].data[2 * v] = (src & 0xFFFFFF);
-					HBM_channel[i][base_offset + t].data[2 * v + 1] = (dest & 0xFFFFFF); 
-				} else {
-					HBM_channel[i][base_offset + t].data[2 * v] = INVALIDDATA;
-					HBM_channel[i][base_offset + t].data[2 * v + 1] = (dest & 0xFFFFFF); 
-				}
-				if(i==0){ size_u32 += 2; }
-			}	 */
-			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-				unsigned int isvalid = act_pack_edges[i][t].data[v].valid;
-				if(isvalid==1){
-					HBM_channel[i][base_offset + t].data[v] = ((act_pack_edges[i][t].data[v].srcvid & MAXLOCALVALUE_ACTPACK_SRCVID) << MAXNUMBITS_ACTPACK_DESTVID) | (act_pack_edges[i][t].data[v].dstvid & MAXLOCALVALUE_ACTPACK_DESTVID);
-				} else {
-					HBM_channel[i][base_offset + t].data[v] = ((INVALIDDATA & MAXLOCALVALUE_ACTPACK_SRCVID) << MAXNUMBITS_ACTPACK_DESTVID) | (act_pack_edges[i][t].data[v].dstvid & MAXLOCALVALUE_ACTPACK_DESTVID);
-				}
-				if(i==0){ size_u32 += 2; }
-			}	
+			}
 		}
 	}
 
@@ -314,7 +292,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		}
 	}
 	unsigned int max_num_updates = maxs[MAX_NUM_LLPSETS-1].key;
-	if(true){ cout<<"-------------------------- app: max_num_updates: "<<max_num_updates<<endl; }
+	if(false){ cout<<"-------------------------- max_num_updates: "<<max_num_updates<<endl; }
 	
 	// load updates (NAp)
 	for(unsigned int i=0; i<NUM_PEs; i++){ 
@@ -460,9 +438,9 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 
 	// allocate AXI HBM memory
 	#ifdef ___USE_AXI_CHANNEL___
-	HBM_channelAXISW_t * HBM_axichannel[2][NUM_PEs]; 
+	HBM_channelAXISW_t * HBM_axichannel[4][NUM_PEs]; 
 	cout<<"app: allocating HBM memory..."<<endl;
-	for(unsigned int n=0; n<2; n++){
+	for(unsigned int n=0; n<4; n++){
 		for(unsigned int i=0; i<NUM_PEs; i++){ HBM_axichannel[n][i] = new HBM_channelAXISW_t[HBM_CHANNEL_SIZE]; }
 		for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<HBM_CHANNEL_SIZE; t++){ for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){ HBM_axichannel[n][i][t].data[v] = 0; }}}
 	}
@@ -501,7 +479,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	#else 
 	acts_kernel * acts = new acts_kernel(universalparams);
 	acts->top_function(
-		(HBM_channelAXI_t *)HBM_axichannel[0][0], (HBM_channelAXI_t *)HBM_axichannel[1][0]
+		(HBM_channelAXI_t *)HBM_axichannel[0][0], (HBM_channelAXI_t *)HBM_axichannel[1][0], (HBM_channelAXI_t *)HBM_axichannel[2][0], (HBM_channelAXI_t *)HBM_axichannel[3][0] 
 		#if NUM_VALID_PEs>1
 		,(HBM_channelAXI_t *)HBM_axichannel[0][1], (HBM_channelAXI_t *)HBM_axichannel[1][1] 
 		,(HBM_channelAXI_t *)HBM_axichannel[0][2], (HBM_channelAXI_t *)HBM_axichannel[1][2] 

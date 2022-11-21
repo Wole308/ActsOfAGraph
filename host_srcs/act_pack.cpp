@@ -262,7 +262,7 @@ void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedat
 						for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 							if(edge_vec3.data[v].srcvid != INVALIDDATA){ edge_vec3.data[v].srcvid = get_local_to_upartitionn(edge_vec3.data[v].srcvid) / EDGE_PACK_SIZE; }
 							if(edge_vec3.data[v].valid == 1){
-								edge_vec3.data[v].dstvid = get_local2(edge_vec3.data[v].dstvid) % MAX_UPARTITION_SIZE; 
+								edge_vec3.data[v].dstvid = (get_local2(edge_vec3.data[v].dstvid) % MAX_UPARTITION_SIZE);
 							}
 						}
 						// #endif 

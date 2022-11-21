@@ -4,6 +4,16 @@
 # make run TARGET=sw_emu DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201920_3/xilinx_u280_xdma_201920_3.xpfm
 # make build TARGET=sw_emu DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201920_3/xilinx_u280_xdma_201920_3.xpfm
 
+# $PR 
+# $SSSP 
+# $BFS 
+# $PR 
+# $CF
+# $HITS 
+# $SPMV 
+# $SSSP 
+# $BFS
+
 # com-Orkut.mtx (undirected)
 # soc-LiveJournal1.mtx (directed)
 # sx-stackoverflow.mtx (directed)
@@ -36,13 +46,14 @@ RESULT_PATH=/home/oj2zf/Documents/analysis_results/acts
 ./evaluate.sh
 
 make cleanall
+
 make actsobj
 # make host
 
 # rm -rf /home/oj2zf/Documents/acts-billion-nodes/outputs/golden_2.xclbin
 # make host
 # make build TARGET=sw_emu DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201920_3/xilinx_u280_xdma_201920_3.xpfm
-# cp -rf /home/oj2zf/Documents/acts-billion-nodes/build_dir.sw_emu.xilinx_u280_xdma_201920_3/vmult_vadd.link.xclbin /home/oj2zf/Documents/acts-billion-nodes/outputs/golden_2.xclbin
+# cp -rf build_dir.sw_emu.xilinx_u280_xdma_201920_3/vmult_vadd.link.xclbin /home/oj2zf/Documents/acts-billion-nodes/outputs/golden_2.xclbin
 # sleep 3
 
 DIRECTIONS=(1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0)
@@ -50,8 +61,8 @@ DIRECTIONS=(1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0)
 
 DATSETS=(
 		# com-Orkut.mtx #(undirected)(3M,234M)
-		soc-LiveJournal1.mtx #(directed)(5M,70M)
-		# sx-stackoverflow.mtx #(directed)(2.6M,36M)
+		# soc-LiveJournal1.mtx #(directed)(5M,70M)
+		sx-stackoverflow.mtx #(directed)(2.6M,36M)
 		# ljournal-2008.mtx #(directed)(5M,79M)
 		# soc-Pokec.mtx #(directed)(1.6M,30M)
 		# kron_g500-logn20.mtx #(undirected)(1M,89M)
@@ -62,34 +73,21 @@ DATSETS=(
 		# rmat_16m_256m.mtx #(directed)(16M,256M)
 		# rmat_32m_256m.mtx #(directed)(32M,256M)
 		# rmat_64m_256m.mtx #(directed)(64M,256M)
-		)		
-	
-# for algo in $PR $CF $HITS $SPMV $BFS	
-# for algo in $SSSP $BFS 
+		)
 
-# for algo in $PR 
-for algo in $SSSP 
-# for algo in $BFS 
-
-# for algo in $PR 
-# for algo in $CF
-# for algo in $HITS 
-# for algo in $SPMV 
-# for algo in $SSSP 
-# for algo in $BFS 
+for algo in $1
 do
 	for ((i = 0; i < ${#DATSETS[@]}; i++)) do
 		echo ${BUILD_DIR}/${algo} ${DATSETS[i]}
 		./host "nap" "${algo}" 1 "$DATASET_DIR/${DATSETS[i]}" "${DIRECTIONS[i]}" 12 "$XCLBIN_DIR/$XCLBIN_FILE" #> ${RESULT_PATH}/${algo}/${DATSETS[i]}.out
-		# ./host "nap" "${algo}" 1 "$DATASET_DIR/${DATSETS[i]}" "${DIRECTIONS[i]}" 1 "$XCLBIN_DIR/$XCLBIN_FILE" #> ${RESULT_PATH}/${algo}/${DATSETS[i]}.out
-		# XCL_EMULATION_MODE=sw_emu ./host "nap" "${algo}" 12 1 "$DATASET_DIR/${DATSETS[i]}" "${DIRECTIONS[i]}" "$XCLBIN_DIR/$XCLBIN_FILE"
+		# XCL_EMULATION_MODE=sw_emu ./host "nap" "${algo}" 1 "$DATASET_DIR/${DATSETS[i]}" "${DIRECTIONS[i]}" 12 "$XCLBIN_DIR/$XCLBIN_FILE"
 		# gdb ./host
 		# exit 0
 	done
 done
 
 # parameter set giving correct results @ {  NUM_PEs=24, unsigned int threshold___activefrontiers = 128,  typedef HBM_axichannel_t HBM_channelX_t;, ___FORCE_SUCCESS___(disabled) ___ENABLE___COLLECTACTIVEDSTVIDS___(disabled)   }
-# ./host "nap" "${algo}" 12 1 "$DATASET_DIR/${DATSETS[i]}" "${DIRECTIONS[i]}" "$XCLBIN_DIR/$XCLBIN_FILE" #> ${RESULT_PATH}/${algo}/${DATSETS[i]}.out
+# ./host "nap" "${algo}" 1 "$DATASET_DIR/${DATSETS[i]}" "${DIRECTIONS[i]}" 12 "$XCLBIN_DIR/$XCLBIN_FILE" #> ${RESULT_PATH}/${algo}/${DATSETS[i]}.out
 
 
 

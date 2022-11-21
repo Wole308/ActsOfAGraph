@@ -20,10 +20,13 @@ const int pc[MAX_HBM_PC_COUNT] = {
     PC_NAME(24), PC_NAME(25), PC_NAME(26), PC_NAME(27), PC_NAME(28), PC_NAME(29), PC_NAME(30), PC_NAME(31)};
 
 long double app_hw::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_axichannel[2][NUM_PEs], HBM_channelAXISW_t * HBM_axicenter[2], universalparams_t universalparams){
-	unsigned int num_axi_interfaces = (NUM_AXI_CHANNELS_IN_PE * NUM_VALID_PEs) + 2;
+	unsigned int num_axi_interfaces = (2 * VALID_NUMPEs) + 2;
+	// unsigned int num_axi_vertex_interfaces = 2 * VALID_NUMPEs;
+	unsigned int total_num_axi_interfaces = num_axi_interfaces; // (2 * NUM_PEs) + 2;
+	// unsigned int total_num_axi_vertex_interfaces = 2 * NUM_PEs;
 	unsigned int dataSize = 64 * 1024 * 1024;
 	
-	cout<<"--------------------------- NUM_VALID_PEs: "<<NUM_VALID_PEs<<" ----------------------------------"<<endl;
+	cout<<"--------------------------- VALID_NUMPEs: "<<VALID_NUMPEs<<" ----------------------------------"<<endl;
 
     std::string binaryFile = binaryFile__[0]; 
     cl_int err;
@@ -35,11 +38,10 @@ long double app_hw::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM
 	std::vector<cl::Event> write_events(48);
 	std::vector<cl::Event> read_events(48);
 	
-	std::vector<int, aligned_allocator<int> > source_in1[16]; for(unsigned int i=0; i<16; i++){ source_in1[i] = std::vector<int, aligned_allocator<int> >(HBM_CHANNEL_INTSIZE); }				
-	std::vector<int, aligned_allocator<int> > dest_out1[16]; for(unsigned int i=0; i<16; i++){ dest_out1[i] = std::vector<int, aligned_allocator<int> >(HBM_CHANNEL_INTSIZE); }				
-	std::vector<int, aligned_allocator<int> > sync_in1[2]; for(unsigned int i=0; i<2; i++){ sync_in1[i] = std::vector<int, aligned_allocator<int> >(HBM_CHANNEL_INTSIZE); }				
+	std::vector<int, aligned_allocator<int> > source_in1[16]; for(unsigned int i=0; i<total_num_axi_interfaces; i++){ source_in1[i] = std::vector<int, aligned_allocator<int> >(HBM_CHANNEL_INTSIZE); }				
+	std::vector<int, aligned_allocator<int> > source_out1[16]; for(unsigned int i=0; i<total_num_axi_interfaces; i++){ source_out1[i] = std::vector<int, aligned_allocator<int> >(HBM_CHANNEL_INTSIZE); }				
 	unsigned int bank_index = 0;
-	for(unsigned int i=0; i<NUM_VALID_PEs; i++){ 
+	for(unsigned int i=0; i<VALID_NUMPEs; i++){ 
 		cout<<"filling host buffer "<<bank_index<<"..."<<endl;
 		for(unsigned int t=0; t<HBM_CHANNEL_SIZE; t++){ 
 			if(t<64 && false){ cout<<t<<": "; for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){ cout<<HBM_axichannel[0][i][t].data[v]<<", "; } cout<<endl; }
@@ -74,7 +76,7 @@ long double app_hw::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM
 		}
 	}
 	bank_index += 1;
-    // for (int i = 0; i < num_axi_interfaces; i++) { std::generate(source_in1[i].begin(), source_in1[i].end(), std::rand); }
+    // for (int i = 0; i < total_num_axi_interfaces; i++) { std::generate(source_in1[i].begin(), source_in1[i].end(), std::rand); }
 
     // OPENCL HOST CODE AREA START
     // The get_xil_devices will return vector of Xilinx Devices
@@ -114,54 +116,37 @@ long double app_hw::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM
         exit(EXIT_FAILURE);
     }
 
-    std::vector<cl_mem_ext_ptr_t> inBufExt1(num_axi_interfaces);
-    std::vector<cl::Buffer> buffer_input1(num_axi_interfaces);
+    std::vector<cl_mem_ext_ptr_t> inBufExt1(total_num_axi_interfaces);
+    std::vector<cl::Buffer> buffer_input1(total_num_axi_interfaces);
 
     // For Allocating Buffer to specific Global Memory PC, user has to use cl_mem_ext_ptr_t and provide the PCs
 	unsigned int pc_index = 0;
-	unsigned int source_index = 0; unsigned int dest_index = 0; unsigned int sync_index = 0;
-	unsigned int buffext_index = 0;
-    for (int i = 0; i < NUM_VALID_PEs; i++) {
-		cout<<"attaching inBufExt1["<<buffext_index<<"] @ source_in1["<<source_index<<"] to pc["<<pc_index<<"]... "<<endl;
-		inBufExt1[buffext_index].obj = source_in1[source_index].data(); source_index += 1;
-		inBufExt1[buffext_index].param = 0;
-		inBufExt1[buffext_index].flags = pc[pc_index]; pc_index += 1;
-		buffext_index += 1;
+    for (int i = 0; i < total_num_axi_interfaces; i++) {
+		cout<<"attaching inBufExt1["<<i<<"] @ source_in1["<<i<<"] to pc["<<i<<"]... "<<endl;
+		inBufExt1[i].obj = source_in1[2*i].data();
+		inBufExt1[i].param = 0;
+		inBufExt1[i].flags = pc[pc_index]; pc_index += 1;
 		
-		cout<<"attaching inBufExt1["<<buffext_index<<"] @ source_in1["<<source_index<<"] to pc["<<pc_index<<"]... "<<endl;
-		inBufExt1[buffext_index].obj = source_in1[source_index].data(); source_index += 1;
-		inBufExt1[buffext_index].param = 0;
-		inBufExt1[buffext_index].flags = pc[pc_index]; pc_index += 1;
-		buffext_index += 1;
+		cout<<"attaching inBufExt1["<<i<<"] @ source_in1["<<i<<"] to pc["<<i<<"]... "<<endl;
+		inBufExt1[i].obj = source_in1[2*i+1].data();
+		inBufExt1[i].param = 0;
+		inBufExt1[i].flags = pc[pc_index]; pc_index += 1;
 		
-		cout<<"attaching inBufExt1["<<buffext_index<<"] @ dest_out1["<<dest_index<<"] to pc["<<pc_index<<"]... "<<endl;
-		inBufExt1[buffext_index].obj = dest_out1[dest_index].data(); dest_index += 1;
-		inBufExt1[buffext_index].param = 0;
-		inBufExt1[buffext_index].flags = pc[pc_index]; pc_index += 1;
-		buffext_index += 1;
+		cout<<"attaching inBufExt1["<<i<<"] @ source_in1["<<i<<"] to pc["<<i<<"]... "<<endl;
+		inBufExt1[i].obj = source_in1[i].data();
+		inBufExt1[i].param = 0;
+		inBufExt1[i].flags = pc[pc_index]; pc_index += 1;
 		
-		cout<<"attaching inBufExt1["<<buffext_index<<"] @ dest_out1["<<dest_index<<"] to pc["<<pc_index<<"]... "<<endl;
-		inBufExt1[buffext_index].obj = dest_out1[dest_index].data(); dest_index += 1;
-		inBufExt1[buffext_index].param = 0;
-		inBufExt1[buffext_index].flags = pc[pc_index]; pc_index += 1;
-		buffext_index += 1;
+		cout<<"attaching inBufExt1["<<i<<"] @ source_in1["<<i<<"] to pc["<<i<<"]... "<<endl;
+		inBufExt1[i].obj = source_in1[i].data();
+		inBufExt1[i].param = 0;
+		inBufExt1[i].flags = pc[pc_index]; pc_index += 1;
     }
-	cout<<"attaching inBufExt1["<<buffext_index<<"] @ sync_in1["<<sync_index<<"] to pc["<<pc_index<<"]... "<<endl;
-	inBufExt1[buffext_index].obj = sync_in1[sync_index].data(); sync_index += 1;
-	inBufExt1[buffext_index].param = 0;
-	inBufExt1[buffext_index].flags = pc[pc_index]; pc_index += 1;
-	buffext_index += 1;
-	
-	cout<<"attaching inBufExt1["<<buffext_index<<"] @ sync_in1["<<sync_index<<"] to pc["<<pc_index<<"]... "<<endl;
-	inBufExt1[buffext_index].obj = sync_in1[sync_index].data(); sync_index += 1;
-	inBufExt1[buffext_index].param = 0;
-	inBufExt1[buffext_index].flags = pc[pc_index]; pc_index += 1;
-	buffext_index += 1;
 
     // These commands will allocate memory on the FPGA. The cl::Buffer objects can
     // be used to reference the memory locations on the device.
     // Creating Buffers
-    for (int i = 0; i < num_axi_interfaces; i++) {
+    for (int i = 0; i < total_num_axi_interfaces; i++) {
 		cout<<"+++ app_hw: creating buffer_input1["<<i<<"]... "<<endl;
 		OCL_CHECK(err,
 			buffer_input1[i] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
@@ -169,26 +154,26 @@ long double app_hw::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM
 	}
 
     // Copy input data to Device Global Memory
-    // for (int i = 0; i < num_axi_interfaces; i++) {
+    // for (int i = 0; i < total_num_axi_interfaces; i++) {
 		// OCL_CHECK(err,
 			// err = q.enqueueMigrateMemObjects({buffer_input1[i]}, 0 /* 0 means from host*/));
 	// }
 	cout<<"app_hw:: Migrating input data from host memory to device global memory..."<<endl;
-	#if NUM_VALID_PEs==1
+	#if VALID_NUMPEs==1
 	cout<<"app_hw:: Migrating input data from host memory to device global memory (B)..."<<endl;
 	OCL_CHECK(err, err = q.enqueueMigrateMemObjects({												
-													buffer_input1[0], buffer_input1[1], buffer_input1[2], buffer_input1[3],
-													buffer_input1[4], buffer_input1[5]}, 
+													buffer_input1[0], buffer_input1[1],
+													buffer_input1[2], buffer_input1[3]}, 
 													0, NULL, &write_events[0]));
 	#endif 
-	#if NUM_VALID_PEs==2
+	#if VALID_NUMPEs==2
 	OCL_CHECK(err, err = q.enqueueMigrateMemObjects({													
 													buffer_input1[0], buffer_input1[1], 
 													buffer_input1[2], buffer_input1[3], 
 													buffer_input1[4], buffer_input1[5]}, 
 													0, NULL, &write_events[0]));
 	#endif 
-	#if NUM_VALID_PEs==4
+	#if VALID_NUMPEs==4
 	OCL_CHECK(err, err = q.enqueueMigrateMemObjects({													
 													buffer_input1[0], buffer_input1[1], 
 													buffer_input1[2], buffer_input1[3], 
@@ -197,7 +182,7 @@ long double app_hw::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM
 													buffer_input1[8], buffer_input1[9]}, 
 													0, NULL, &write_events[0]));
 	#endif 
-	#if NUM_VALID_PEs==6
+	#if VALID_NUMPEs==6
 	OCL_CHECK(err, err = q.enqueueMigrateMemObjects({													
 													buffer_input1[0], buffer_input1[1], 
 													buffer_input1[2], buffer_input1[3], 
@@ -248,22 +233,21 @@ long double app_hw::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM
         // OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_input1[i]},
                                                         // CL_MIGRATE_MEM_OBJECT_HOST));
     // }
-	#ifdef OOOFFFFFFFFFFFFFFFFFFF
-	#if NUM_VALID_PEs==1
+	#if VALID_NUMPEs==1
 	cout<<"app_hw:: Migrating input data from device global memory to host memory (B)..."<<endl;
 	OCL_CHECK(err, err = q.enqueueMigrateMemObjects({												
-													buffer_input1[0], buffer_input1[1], buffer_input1[2], buffer_input1[3],
-													buffer_input1[4], buffer_input1[5]}, 
+													buffer_input1[0], buffer_input1[1],
+													buffer_input1[2], buffer_input1[3]}, 
 													CL_MIGRATE_MEM_OBJECT_HOST));
 	#endif 
-	#if NUM_VALID_PEs==2
+	#if VALID_NUMPEs==2
 	OCL_CHECK(err, err = q.enqueueMigrateMemObjects({													
 													buffer_input1[0], buffer_input1[1], 
 													buffer_input1[2], buffer_input1[3], 
 													buffer_input1[4], buffer_input1[5]}, 
 													CL_MIGRATE_MEM_OBJECT_HOST));
 	#endif 
-	#if NUM_VALID_PEs==4
+	#if VALID_NUMPEs==4
 	OCL_CHECK(err, err = q.enqueueMigrateMemObjects({													
 													buffer_input1[0], buffer_input1[1], 
 													buffer_input1[2], buffer_input1[3], 
@@ -272,7 +256,7 @@ long double app_hw::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM
 													buffer_input1[8], buffer_input1[9]}, 
 													CL_MIGRATE_MEM_OBJECT_HOST));
 	#endif 
-	#if NUM_VALID_PEs==6
+	#if VALID_NUMPEs==6
 	OCL_CHECK(err, err = q.enqueueMigrateMemObjects({													
 													buffer_input1[0], buffer_input1[1], 
 													buffer_input1[2], buffer_input1[3], 
@@ -283,7 +267,6 @@ long double app_hw::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM
 													buffer_input1[12], buffer_input1[13]}, 
 													CL_MIGRATE_MEM_OBJECT_HOST));
 	#endif
-	#endif 
     q.finish();
     return EXIT_SUCCESS;
 }
