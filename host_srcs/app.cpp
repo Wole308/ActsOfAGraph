@@ -423,21 +423,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___APPLYUPDATES].data[0] = 1; 
 		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES].data[0] = 1; 
 		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___SAVE_DEST_PROPERTIES].data[0] = 1; 
-		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___EXCHANGEFRONTIERINFOS].data[0] = 1; 
-		
-		// HBM_channel[i][GLOBALPARAMSCODE___ENABLE___RESETBUFFERSATSTART].data[0] = 1;
-		// HBM_channel[i][GLOBALPARAMSCODE___ENABLE___PROCESSEDGES].data[0] = 1;
-		// HBM_channel[i][GLOBALPARAMSCODE___ENABLE___READ_FRONTIER_PROPERTIES].data[0] = 1;
-		// HBM_channel[i][GLOBALPARAMSCODE___ENABLE___VCPROCESSEDGES].data[0] = 1; 
-		// HBM_channel[i][GLOBALPARAMSCODE___ENABLE___ECPROCESSEDGES].data[0] = 1; 
-		// HBM_channel[i][GLOBALPARAMSCODE___ENABLE___SAVEVCUPDATES].data[0] = 1; 
-		// HBM_channel[i][GLOBALPARAMSCODE___ENABLE___COLLECTACTIVEDSTVIDS].data[0] = 1;
-		// HBM_channel[i][GLOBALPARAMSCODE___ENABLE___APPLYUPDATESMODULE].data[0] = 0; 
-		// HBM_channel[i][GLOBALPARAMSCODE___ENABLE___READ_DEST_PROPERTIES].data[0] = 1;
-		// HBM_channel[i][GLOBALPARAMSCODE___ENABLE___APPLYUPDATES].data[0] = 1; 
-		// HBM_channel[i][GLOBALPARAMSCODE___ENABLE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES].data[0] = 1; 
-		// HBM_channel[i][GLOBALPARAMSCODE___ENABLE___SAVE_DEST_PROPERTIES].data[0] = 1; 
-		// HBM_channel[i][GLOBALPARAMSCODE___ENABLE___EXCHANGEFRONTIERINFOS].data[0] = 1; 
+		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___EXCHANGEFRONTIERINFOS].data[0] = 1;
 	}
 
 	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__WWSIZE__CSRVPTRS: "<<globalparams[GLOBALPARAMSCODE__WWSIZE__CSRVPTRS]<<endl;
@@ -475,14 +461,12 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 			HBM_center[t].data[v] = INVALIDDATA;
 		} 
 	}
-	// unsigned int index = 2*root.key;
 	unsigned int hash_loc = root.key % EDGE_PACK_SIZE;
 	unsigned int index = 2*hash_loc;
 	HBM_center[index / HBM_CHANNEL_PACK_SIZE].data[index % HBM_CHANNEL_PACK_SIZE] = root.key; 
 	HBM_center[(index + 1) / HBM_CHANNEL_PACK_SIZE].data[(index + 1) % HBM_CHANNEL_PACK_SIZE] = root.value; 
 
 	// allocate AXI HBM memory
-	#ifdef ___USE_AXI_CHANNEL___
 	HBM_channelAXISW_t * HBM_axichannel[2][NUM_PEs]; 
 	cout<<"app: allocating HBM memory..."<<endl;
 	for(unsigned int n=0; n<2; n++){
@@ -515,7 +499,6 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 			HBM_axicenter[1][t].data[v] = HBM_center[t].data[HBM_AXI_PACK_SIZE + v];
 		}
 	}
-	#endif 
 	
 	// run acts
 	#ifdef FPGA_IMPL

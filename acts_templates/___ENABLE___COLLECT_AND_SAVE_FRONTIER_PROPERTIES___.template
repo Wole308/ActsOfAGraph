@@ -54,8 +54,7 @@ COLLECT_AND_SAVE_FRONTIER_INFO_LOOP1: for(unsigned int p_actvv=0; p_actvv<NUM_AC
 						if(en==true){ 
 							#ifdef _DEBUGMODE_CHECKS3
 							checkoutofbounds("acts_kernel::ERROR 713::", dstvid_lpv, MAX_APPLYPARTITION_VECSIZE, p_actvv, au_p, t); 
-							#endif 
-							// checkoutofbounds("acts_kernel::ERROR 103-d::", dstvid_lpv, MAX_UPARTITION_VECSIZE, NAp, NAp, NAp);
+							#endif	
 							vprop_t vprop =  retrieve_vdatabuffer(v, dstvid_lpv, vdata_buffer[inst]);
 							unsigned int vid = vid_first1[inst] + v;
 							#ifdef _DEBUGMODE_CHECKS3
