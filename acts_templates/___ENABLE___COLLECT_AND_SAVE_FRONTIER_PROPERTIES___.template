@@ -1,0 +1,138 @@
+MY_LOOP234: for(unsigned int n=0; n<NUM_VALID_PEs; n++){ offsets[n] = 0; }
+MY_LOOP235: for(unsigned int n=0; n<NUM_VALID_PEs; n++){ 
+#pragma HLS UNROLL
+	MY_LOOP236: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
+	#pragma HLS UNROLL
+		MY_LOOP237: for(unsigned int p_actvv=0; p_actvv<NUM_ACTVVPARTITIONS_PER_APPLYPARTITION; p_actvv++){ nfrontier_buffer___size[n][v][p_actvv] = 0; }
+	}
+}
+MY_LOOP238: for(unsigned int n=0; n<NUM_VALID_PEs; n++){ 
+#pragma HLS UNROLL
+	vid_first0[n] = get_global(((p_v * MAX_APPLYPARTITION_SIZE) + ((0 * MAX_ACTVV_VECSIZE + 0) * EDGE_PACK_SIZE + 0)), n); 
+}
+
+COLLECT_AND_SAVE_FRONTIER_INFO_LOOP1: for(unsigned int p_actvv=0; p_actvv<NUM_ACTVVPARTITIONS_PER_APPLYPARTITION; p_actvv++){
+	unsigned int temp_[NUM_VALID_PEs][EDGE_PACK_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=temp_ complete dim=0
+	unsigned int temp_2_[NUM_VALID_PEs];
+	#pragma HLS ARRAY_PARTITION variable=temp_2_ complete
+	unsigned int p_actvv_ = (p_v * NUM_ACTVVPARTITIONS_PER_APPLYPARTITION) + p_actvv;
+	MY_LOOP100: for(unsigned int n=0; n<NUM_VALID_PEs; n++){
+	#pragma HLS UNROLL
+		MY_LOOP101: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+		#pragma HLS UNROLL
+			temp_[n][v] = nfrontier_buffer___size[n][v][p_actvv];
+		}
+		temp_2_[n] = nfrontier_dram___size[n][p_actvv_];
+	}
+	
+	// collect frontier information [done]
+	MY_LOOP103: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
+	#pragma HLS UNROLL
+		vid_first1[inst] = vid_first0[inst]; 
+	}
+
+	unsigned int num_its = (MAX_ACTVV_VECSIZE + (ACTVUPDATESBLOCK_VECSIZE - 1)) / ACTVUPDATESBLOCK_VECSIZE;
+	unsigned int baseoffset0_aup = p_actvv * MAX_ACTVV_VECSIZE;
+	unsigned int baseoffset1_aup = 0;
+	COLLECT_FRONTIER_INFO_LOOP1A: for(unsigned int au_p=0; au_p<num_its; au_p++){
+		unsigned int offset_aup = (baseoffset0_aup + baseoffset1_aup) / ACTVUPDATESBLOCK_VECSIZE;
+		#ifdef _DEBUGMODE_CHECKS3
+		checkoutofbounds("acts_kernel::ERROR 772::", ((p_actvv * MAX_ACTVV_VECSIZE) + (au_p * ACTVUPDATESBLOCK_VECSIZE)), MAX_APPLYPARTITION_VECSIZE, p_actvv, au_p, MAX_ACTVV_VECSIZE);
+		checkoutofbounds("acts_kernel::ERROR 773::", offset_aup, BLOCKRAM_SIZE, p_actvv, au_p, MAX_ACTVV_VECSIZE);
+		#endif 
+		unsigned int mask = 1; if(enable___collectactivedstvids == true){ mask = {%for i in context['NUM_VALID_PEs_seq']%}{%if(i>0)%}+{%endif%}statsbuffer_maskbased[{{i}}][p_v][offset_aup]{%endfor%}; } else { mask = 1; }
+		if(mask > 0){ 	
+			COLLECT_FRONTIER_INFO_LOOP1B: for(unsigned int t=0; t<ACTVUPDATESBLOCK_VECSIZE; t++){
+			#pragma HLS PIPELINE II=1
+				unsigned int dstvid_lpv = baseoffset0_aup + baseoffset1_aup + t;
+				bool en; if(baseoffset1_aup + t < MAX_ACTVV_VECSIZE && dstvid_lpv < MAX_APPLYPARTITION_VECSIZE){ en = true; } else { en = false; }
+				MY_LOOP114: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
+				#pragma HLS UNROLL
+					MY_LOOP104: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+					#pragma HLS UNROLL
+						if(en==true){ 
+							#ifdef _DEBUGMODE_CHECKS3
+							checkoutofbounds("acts_kernel::ERROR 713::", dstvid_lpv, MAX_APPLYPARTITION_VECSIZE, p_actvv, au_p, t); 
+							#endif 
+							// checkoutofbounds("acts_kernel::ERROR 103-d::", dstvid_lpv, MAX_UPARTITION_VECSIZE, NAp, NAp, NAp);
+							vprop_t vprop =  retrieve_vdatabuffer(v, dstvid_lpv, vdata_buffer[inst]);
+							unsigned int vid = vid_first1[inst] + v;
+							#ifdef _DEBUGMODE_CHECKS3
+							if((vid % EDGE_PACK_SIZE != v)){ cout<<"acts_kernel:: ERROR 234. vid("<<vid<<") % EDGE_PACK_SIZE("<<EDGE_PACK_SIZE<<")(="<<vid % EDGE_PACK_SIZE<<") != v("<<v<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }
+							#endif
+							if(vprop.mask == MASK_CODE_AU){ 
+								#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+								std::cout<<"COLLECT FRONTIER INFORMATION SEEN @: inst: ["<<inst<<"]: dstvid_lpv: "<<dstvid_lpv<<", v: "<<v<<", p__u__: "<<(vid / MAX_UPARTITION_SIZE)<<", vid: "<<vid<<std::endl;
+								#endif
+								frontier_t actvv; actvv.key = vid; actvv.value = vprop.prop; 
+								#ifndef FPGA_IMPL
+								checkoutofbounds("acts_kernel::ERROR 21888::", temp_[inst][v], MAX_ACTVV_VECSIZE, NAp, NAp, NAp);
+								#endif
+								insert_nfrontierbuffer(v, temp_[inst][v], actvv, nfrontier_buffer[inst]); // NEW*
+								temp_[inst][v] += 1;
+							}
+						}
+					}
+				}
+				MY_LOOP105: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
+				#pragma HLS UNROLL
+					vid_first1[inst] += CONST1; 
+				}
+				update_bramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES___, 1);
+			}
+		}
+		baseoffset1_aup += ACTVUPDATESBLOCK_VECSIZE;
+	}
+	
+	// save frontier information [done]
+	unsigned int max_limit = 0; for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ max_limits[inst] = 0; }
+	MY_LOOP106: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
+		MY_LOOP107: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
+		#pragma HLS UNROLL
+			if(max_limits[inst] < temp_[inst][v]){ max_limits[inst] = temp_[inst][v]; }
+		}
+	}
+	MY_LOOP108: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ if(max_limit < max_limits[inst]){ max_limit = max_limits[inst]; }}
+	unsigned int offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS] + (p_actvv_ * MAX_APPLYPARTITION_VECSIZE);
+	keyvalue_t invalidkv; invalidkv.key = INVALIDDATA; invalidkv.value = INVALIDDATA;
+	SAVE_FRONTIER_INFO_LOOP2B: for(unsigned int t=0; t<max_limit; t++){
+	#pragma HLS PIPELINE II=1
+		MY_LOOP1092: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
+		#pragma HLS UNROLL
+			#ifndef FPGA_IMPL
+			checkoutofbounds("acts_kernel::ERROR 21777::", t, MAX_ACTVV_VECSIZE, NAp, NAp, NAp);
+			#endif 
+			retrievevec_nfrontierbuffer(t, actvvs[inst], nfrontier_buffer[inst]); 
+			MY_LOOP109: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 	
+			#pragma HLS UNROLL
+				if(t >= temp_[inst][v]){ actvvs[inst][v] = invalidkv; } 
+				if(t < max_limits[inst]){ ens[inst][v] = true; } else { ens[inst][v] = false; }
+			}	
+		}
+		MY_LOOP1019: for(unsigned int n=0; n<NUM_VALID_PEs; n++){ 
+		#pragma HLS UNROLL
+			offsets2[n] = offset + offsets[n] + t;
+		}
+		dinsertmany_nfrontierdram(offset, p_actvv_, offsets2, t, actvvs, ens, {% include 'arguments_allchannelsinslr.template' %});
+		MY_LOOP110: for(unsigned int n=0; n<NUM_VALID_PEs; n++){ 
+		#pragma HLS UNROLL
+			if(t < max_limits[n]){ temp_2_[n] += 1; }
+		}
+		update_bramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES___, 1);
+	}
+	
+	MY_LOOP111: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
+	#pragma HLS UNROLL
+		vid_first0[inst] += CONST2; 
+	}
+	MY_LOOP112: for(unsigned int n=0; n<NUM_VALID_PEs; n++){
+	#pragma HLS UNROLL
+		MY_LOOP113: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+		#pragma HLS UNROLL
+			nfrontier_buffer___size[n][v][p_actvv] = temp_[n][v];
+		}
+		nfrontier_dram___size[n][p_actvv_] = temp_2_[n];
+	}
+}
+				

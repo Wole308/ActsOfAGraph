@@ -33,10 +33,10 @@ SPMV="spmv"
 BFS="bfs"
 SSSP="sssp"
 
-# XCLBIN_DIR="/home/oj2zf/Documents/acts-billion-nodes/ytest_portal/xclbin"
+# XCLBIN_DIR="/home/oj2zf/Documents/acts-clusterscale/ytest_portal/xclbin"
 # XCLBIN_FILE="acts.hw.xilinx_u280_xdma_201920_3.xclbin"
 
-XCLBIN_DIR="/home/oj2zf/Documents/acts-billion-nodes/outputs"
+XCLBIN_DIR="/home/oj2zf/Documents/acts-clusterscale/outputs"
 XCLBIN_FILE="golden_2.xclbin"
 # XCLBIN_FILE="golden_6p.xclbin"
 
@@ -50,19 +50,19 @@ make cleanall
 make actsobj
 # make host
 
-# rm -rf /home/oj2zf/Documents/acts-billion-nodes/outputs/golden_2.xclbin
+# rm -rf /home/oj2zf/Documents/acts-clusterscale/outputs/golden_2.xclbin
 # make host
 # make build TARGET=sw_emu DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201920_3/xilinx_u280_xdma_201920_3.xpfm
-# cp -rf build_dir.sw_emu.xilinx_u280_xdma_201920_3/vmult_vadd.link.xclbin /home/oj2zf/Documents/acts-billion-nodes/outputs/golden_2.xclbin
+# cp -rf build_dir.sw_emu.xilinx_u280_xdma_201920_3/vmult_vadd.link.xclbin /home/oj2zf/Documents/acts-clusterscale/outputs/golden_2.xclbin
 # sleep 3
 
 DIRECTIONS=(1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0)
 # DIRECTIONS=(1)
 
 DATSETS=(
-		# com-Orkut.mtx #(undirected)(3M,234M)
+		com-Orkut.mtx #(undirected)(3M,234M)
 		# soc-LiveJournal1.mtx #(directed)(5M,70M)
-		sx-stackoverflow.mtx #(directed)(2.6M,36M)
+		# sx-stackoverflow.mtx #(directed)(2.6M,36M)
 		# ljournal-2008.mtx #(directed)(5M,79M)
 		# soc-Pokec.mtx #(directed)(1.6M,30M)
 		# kron_g500-logn20.mtx #(undirected)(1M,89M)

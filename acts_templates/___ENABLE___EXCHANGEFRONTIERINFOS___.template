@@ -1,0 +1,9 @@
+frontier_t actvv[EDGE_PACK_SIZE]; 
+MY_LOOP311: for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){ upartition_vertices[p_u].count = 0; }
+MY_LOOP312: for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){ cfrontier_dram___size[p_u] = 0; } // reset
+EXCHANGE_FRONTIER_MODULE_LOOP: for(unsigned int p_v=0; p_v<__NUM_APPLYPARTITIONS; p_v++){
+	{%for i in context['NUM_VALID_PEs_seq']%}
+	transport_frontier({{i}}, p_v, globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS], cfrontier_dram___size, nfrontier_dram___size[{{i}}], upartition_vertices, HBM_channelA{{i}}, HBM_channelB{{i}}, HBM_centerA, HBM_centerB, &totalactvvs2);
+	{%endfor%}
+}
+		

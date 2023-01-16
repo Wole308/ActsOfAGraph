@@ -9,7 +9,7 @@
 # https://docs.xilinx.com/r/en-US/ug1393-vitis-application-acceleration/Profile-Summary-Report
 # https://docs.xilinx.com/r/en-US/ug1393-vitis-application-acceleration/profile-Options *
 
-ROOTDIR="/home/oj2zf/Documents/actsofagraph"
+ROOTDIR="/home/oj2zf/Documents/acts-clusterscale"
 OUTPUTDIRNAME="outputs"
 DEVICEPATH=/opt/xilinx/platforms/xilinx_u280_xdma_201920_3/xilinx_u280_xdma_201920_3.xpfm 
 

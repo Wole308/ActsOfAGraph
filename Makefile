@@ -130,9 +130,9 @@ endif
 EXECUTABLE = ./slr_assign
 EMCONFIG_DIR = $(TEMP_DIR)
 
-# CONNECTIVITY_FILE = connectivity_2w.cfg
-CONNECTIVITY_FILE = connectivity_12w.cfg
-# CONNECTIVITY_FILE = connectivity_24w.cfg
+CONNECTIVITY_FILE = connectivity_1w.cfg
+# CONNECTIVITY_FILE = connectivity_6w.cfg
+# CONNECTIVITY_FILE = connectivity_12w.cfg
 
 ############################## Declaring Binary Containers ##############################
 BINARY_CONTAINER_vmult_vadd_OBJS += $(TEMP_DIR)/kernel.xo

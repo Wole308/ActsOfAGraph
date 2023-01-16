@@ -1,0 +1,42 @@
+READ_DEST_PROPERTIES_LOOP1: for(unsigned int n=0; n<NUM_VALID_PEs; n++){ offsets[n] = 0; }
+if(stats_buffer___size[0][p_v] < threshold___activedstvids && enable___collectactivedstvids == true){
+	#ifdef ___ENABLE___COLLECTACTIVEDSTVIDS___
+	if(___ENABLE___COLLECTACTIVEDSTVIDS___BOOL___ == 1){
+	max_limit = 0; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ if(max_limit < statsbuffer_idbased___size[n][p_v]){ max_limit = statsbuffer_idbased___size[n][p_v]; }}
+	READ_DEST_PROPERTIES_LOOP1B: for(unsigned int k=0; k<max_limit; k++){
+		for(unsigned int n=0; n<NUM_VALID_PEs; n++){ 
+		#pragma HLS UNROLL
+			if(k < statsbuffer_idbased___size[n][p_v]){
+				offsets[n] = retrieve_stats2buffer(k, p_v, statsbuffer_idbased[n]) * ACTVUPDATESBLOCK_VECSIZE;
+				#ifndef FPGA_IMPL
+				checkoutofbounds("acts_kernel::ERROR 117::", offsets[n], MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
+				#endif 
+			}
+		}
+		update_bramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___READ_DEST_PROPERTIES___, 1);
+		READ_DEST_PROPERTIES_LOOP1C: for(unsigned int t=0; t<ACTVUPDATESBLOCK_VECSIZE; t++){
+		#pragma HLS PIPELINE II=1
+			dretrievemany_vdatadram(voffset, offsets, t, datas, {% include 'arguments_allchannelsinslr.template' %});
+			for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
+			#pragma HLS UNROLL
+				if((k < statsbuffer_idbased___size[inst][p_v]) && (offsets[inst] + t < MAX_APPLYPARTITION_VECSIZE)){ 
+					insertvec_vdatabuffer(offsets[inst] + t, datas[inst], vdata_buffer[inst]);
+				}
+			}
+			update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___READ_DEST_PROPERTIES___, 1);
+		}
+	}
+	}
+	#endif 
+} else {
+	READ_DEST_PROPERTIES_LOOP2B: for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE; t++){
+	#pragma HLS PIPELINE II=1
+		dretrievemany_vdatadram(voffset, offsets, t, datas, {% include 'arguments_allchannelsinslr.template' %});
+		READ_DEST_PROPERTIES_LOOP2C: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
+		#pragma HLS UNROLL
+			insertvec_vdatabuffer(t, datas[inst], vdata_buffer[inst]);
+		}
+		update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___READ_DEST_PROPERTIES___, 1);
+	}
+}
+				
