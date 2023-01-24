@@ -36,9 +36,14 @@ SSSP="sssp"
 # XCLBIN_DIR="/home/oj2zf/Documents/acts-clusterscale/ytest_portal/xclbin"
 # XCLBIN_FILE="acts.hw.xilinx_u280_xdma_201920_3.xclbin"
 
+# XCLBIN_DIR="/home/oj2zf/Documents/acts-clusterscale/outputs"
+# XCLBIN_FILE="golden_2.xclbin"
+
+# XCLBIN_DIR="/home/oj2zf/Documents/acts-clusterscale"
+# XCLBIN_FILE="vector_addition.xclbin"
+
 XCLBIN_DIR="/home/oj2zf/Documents/acts-clusterscale/outputs"
-XCLBIN_FILE="golden_2.xclbin"
-# XCLBIN_FILE="golden_6p.xclbin"
+XCLBIN_FILE="vector_addition.xclbin"
 
 DATASET_DIR=/home/oj2zf/Documents/dataset
 RESULT_PATH=/home/oj2zf/Documents/analysis_results/acts
@@ -47,8 +52,8 @@ RESULT_PATH=/home/oj2zf/Documents/analysis_results/acts
 
 make cleanall
 
-make actsobj
-# make host
+# make actsobj
+make host
 
 # rm -rf /home/oj2zf/Documents/acts-clusterscale/outputs/golden_2.xclbin
 # make host
@@ -56,8 +61,8 @@ make actsobj
 # cp -rf build_dir.sw_emu.xilinx_u280_xdma_201920_3/vmult_vadd.link.xclbin /home/oj2zf/Documents/acts-clusterscale/outputs/golden_2.xclbin
 # sleep 3
 
-DIRECTIONS=(1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0)
-# DIRECTIONS=(1)
+# DIRECTIONS=(1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0)
+DIRECTIONS=(0)
 
 DATSETS=(
 		com-Orkut.mtx #(undirected)(3M,234M)
@@ -78,7 +83,7 @@ DATSETS=(
 for algo in $1
 do
 	for ((i = 0; i < ${#DATSETS[@]}; i++)) do
-		echo ${BUILD_DIR}/${algo} ${DATSETS[i]}
+		echo ${BUILD_DIR}/${algo} ${DATSETS[i]}	
 		./host "nap" "${algo}" 1 "$DATASET_DIR/${DATSETS[i]}" "${DIRECTIONS[i]}" 12 "$XCLBIN_DIR/$XCLBIN_FILE" #> ${RESULT_PATH}/${algo}/${DATSETS[i]}.out
 		# XCL_EMULATION_MODE=sw_emu ./host "nap" "${algo}" 1 "$DATASET_DIR/${DATSETS[i]}" "${DIRECTIONS[i]}" 12 "$XCLBIN_DIR/$XCLBIN_FILE"
 		# gdb ./host

@@ -94,15 +94,11 @@ void prepare_graph::start(string graphpath, vector<edge3_type> &edgesbuffer_dup,
 	if(graphisundirected==true){ mult_factor = 2; } else { mult_factor = 1; }
 	
 	cout<<"prepare_graph: assigning variables..."<<endl;
-	// num_vertices = num_vertices + 1000;
-	// num_edges = num_edges + 1000;
 	num_vertices = max_vertex + 1;
 	unsigned int padded_num_vertices = num_vertices + 1000;
 	unsigned int padded_num_edges = num_edges + 1000;
 	
 	cout<<"prepare_graph: creating buffers..."<<endl;
-	// edgesbuffer_dup.resize((2 * num_edges));
-	// vptr_dup.resize((num_vertices));
 	edgesbuffer_dup.resize((mult_factor * padded_num_edges));
 	vptr_dup.resize((padded_num_vertices));
 	

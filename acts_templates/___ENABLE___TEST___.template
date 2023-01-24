@@ -1,0 +1,106 @@
+#ifdef FPGA_IMPL
+#define MY_IFDEF_TOPLEVELFUNC() void top_function({% include 'parameters_allchannelsinslr.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, unsigned int batch)
+#else
+#define MY_IFDEF_TOPLEVELFUNC() void acts_kernel::top_function({% include 'parameters_allchannelsinslr.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, unsigned int batch)
+#endif
+
+#ifndef FPGA_IMPL
+unsigned int * globalparams_debug;
+unsigned int _NUMCLOCKCYCLES_[2][16]; 
+#endif 
+
+#ifndef FPGA_IMPL
+acts_kernel::acts_kernel(universalparams_t _universalparams){
+	utilityobj = new utility(_universalparams);
+	universalparams = _universalparams;
+	algorithmobj = new algorithm();
+}
+acts_kernel::~acts_kernel(){} 
+#endif 
+
+{% include '___ENABLE___UTILFUNCS___.template' %}	
+{% include '___ENABLE___ACCESSHBM___.template' %}	
+
+//////////////////////////////////////////////////////////////////
+extern "C" {	
+MY_IFDEF_TOPLEVELFUNC(){		
+
+// {%for i in context['NUM_VALID_PEs_seq']%} 
+// #pragma HLS INTERFACE m_axi port = HBM_channelA{{i}} offset = slave bundle = gmem{{2*i}}
+// #pragma HLS INTERFACE m_axi port = HBM_channelB{{i}} offset = slave bundle = gmem{{2*i+1}}
+// {%endfor%}
+// #pragma HLS INTERFACE m_axi port = HBM_centerA offset = slave bundle = gmem{{2*context['NUM_VALID_PEs']}}
+// #pragma HLS INTERFACE m_axi port = HBM_centerB offset = slave bundle = gmem{{2*context['NUM_VALID_PEs']+1}}
+
+// {%for i in context['NUM_VALID_PEs_seq']%}
+// #pragma HLS INTERFACE s_axilite port = HBM_channelA{{i}} bundle = control
+// #pragma HLS INTERFACE s_axilite port = HBM_channelB{{i}} bundle = control
+// {%endfor%}	
+// #pragma HLS INTERFACE s_axilite port = HBM_centerA bundle = control
+// #pragma HLS INTERFACE s_axilite port = HBM_centerB bundle = control
+
+// #pragma HLS INTERFACE s_axilite port=return bundle=control
+
+	// #ifdef _DEBUGMODE_KERNELPRINTS4
+	std::cout<<"-------------------------------------------------------------- acts_test::run:: acts started "<<std::endl;
+	// #endif 
+	
+	unsigned int globalparams[GLOBALBUFFER_SIZE];
+	unsigned int offsets3[NUM_VALID_PEs]; 
+	#pragma HLS ARRAY_PARTITION variable = offsets3 complete
+	bool ens[NUM_VALID_PEs][EDGE_PACK_SIZE]; 
+	#pragma HLS ARRAY_PARTITION variable = ens complete dim=0
+	edge3_vec_dt edge3_vecs[NUM_VALID_PEs]; 
+	#pragma HLS ARRAY_PARTITION variable=edge3_vecs complete
+	unsigned int offsets[NUM_VALID_PEs];
+	#pragma HLS ARRAY_PARTITION variable = offsets complete
+	keyvalue_t update_out[NUM_VALID_PEs][EDGE_PACK_SIZE];
+	#pragma HLS ARRAY_PARTITION variable = update_out complete dim=0
+			
+	for(unsigned int n=0; n<NUM_VALID_PEs; n++){ offsets[n] = 0; }
+	#ifndef FPGA_IMPL
+	globalparams_debug = (unsigned int *)&globalparams[0];
+	globalparams_debug[GLOBALPARAMSCODE__WWSIZE__ACTPACKEDGES] = 0xFFFFFFF;
+	globalparams_debug[GLOBALPARAMSCODE__BASEOFFSET__VDATAS] = 0xFFFFFFF;
+	#endif
+	
+	// process edges [done]
+	unsigned int total_read_writes = 0;
+	EC_PROCESS_EDGES_LOOP1B: for(unsigned int it=0; it<64; it++){
+		#ifdef _DEBUGMODE_KERNELPRINTS4
+		cout<<"acts_test::run:: trasferring in iteration: "<<it<<endl;
+		#endif 
+		
+		// read and process 
+		EC_PROCESS_EDGES_MAINLOOP1D: for(unsigned int t_=0; t_<BLOCKRAM_SIZE; t_++){ 
+		#pragma HLS PIPELINE II=1
+			dretrievemany_actpackedges(0, offsets, t_, edge3_vecs, {% include 'arguments_allchannelsinslr.template' %});
+			
+			EC_PROCESS_EDGES_LOOP1E: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
+			#pragma HLS UNROLL
+				edge3_vec_dt edge_vec = edge3_vecs[inst];
+				
+				MY_LOOP16214: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+				#pragma HLS UNROLL
+					update_out[inst][v].key = edge_vec.data[v].dstvid;
+					update_out[inst][v].value = edge_vec.data[v].srcvid;
+				}
+				
+				ens[inst][0] = false;
+				for(unsigned int n=0; n<NUM_VALID_PEs; n++){ 
+				#pragma HLS UNROLL
+					offsets3[n] = t_;
+				}	
+			
+				dinsertmany_updatesdram(offsets3, update_out, ens, {% include 'arguments_allchannelsinslr.template' %});	
+				total_read_writes += 1;
+			}
+		}
+	}
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS4
+	cout<<"acts_test::run:: finished: "<<total_read_writes<<" wide words transferred"<<endl;
+	#endif 
+	return;
+}
+}

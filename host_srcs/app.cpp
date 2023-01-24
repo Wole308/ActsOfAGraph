@@ -42,6 +42,7 @@ github.com/GRAND-Lab/graph_datasets
 # lightweight graph re-ordering: https://github.com/faldupriyank/dbg 
 */
 
+#define BUILD_GRAPH_FOR_DEVICE
 #define APP_LOADEDGES
 #define APP_LOADSRCVERTICES
 #define APP_LOADDESTVERTICES
@@ -87,10 +88,55 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	
 	vector<edge3_type> edgedatabuffer;
 	vector<edge_t> vertexptrbuffer;
-
+	
+	vector<edge3_type> edgedatabuffers[NUM_PROCS];
+	vector<edge_t> vertexptrbuffers[NUM_PROCS];
+	
+	HBM_channel_t * HBM_center = new HBM_channel_t[HBM_CHANNEL_SIZE];
+	HBM_channel_t * HBM_channel[NUM_PEs];
+	HBM_channelAXISW_t * HBM_axichannel[2][NUM_PEs]; 
+	HBM_channelAXISW_t * HBM_axicenter[2]; 
+	unsigned int globalparams[1024];
+	vector<edge3_type> csr_pack_edges[NUM_PEs]; 
+	map_t * vptr_actpack[NUM_PEs][MAX_NUM_UPARTITIONS];
+	vector<edge3_vec_dt> act_pack_edges[NUM_PEs];
+	edge3_vec_dt * act_pack_edges_arr[NUM_PEs];
+	
+	// allocate HBM memory
+	cout<<"app: initializing HBM_centers..."<<endl;
+	for(unsigned int t=0; t<HBM_CHANNEL_SIZE; t++){ for(unsigned int v=0; v<HBM_CHANNEL_PACK_SIZE; v++){ HBM_center[t].data[v] = INVALIDDATA; }}
+	
+	// HBM_channel_t * HBM_channel[NUM_PEs];
+	cout<<"app: initializing HBM_channels..."<<endl;
+	for(unsigned int i=0; i<NUM_PEs; i++){ HBM_channel[i] = new HBM_channel_t[HBM_CHANNEL_SIZE]; }
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<HBM_CHANNEL_SIZE; t++){ for(unsigned int v=0; v<HBM_CHANNEL_PACK_SIZE; v++){ HBM_channel[i][t].data[v] = 0; }}}
+	
+	// allocate AXI HBM memory
+	// HBM_channelAXISW_t * HBM_axichannel[2][NUM_PEs]; 
+	cout<<"app: initializing HBM_axichannels..."<<endl;
+	for(unsigned int n=0; n<2; n++){
+		for(unsigned int i=0; i<NUM_PEs; i++){ HBM_axichannel[n][i] = new HBM_channelAXISW_t[HBM_CHANNEL_SIZE]; }
+		for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<HBM_CHANNEL_SIZE; t++){ for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){ HBM_axichannel[n][i][t].data[v] = 0; }}}
+	}
+	
+	cout<<"app: initializing HBM_axicenters"<<endl;
+	// HBM_channelAXISW_t * HBM_axicenter[2]; 
+	for(unsigned int n=0; n<2; n++){
+		HBM_axicenter[n] = new HBM_channelAXISW_t[HBM_CHANNEL_SIZE]; 
+		for(unsigned int t=0; t<HBM_CHANNEL_SIZE; t++){ for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){ HBM_axicenter[n][t].data[v] = 0; }}
+	}
+	
 	string GRAPH_NAME = ""; 
 	string GRAPH_PATH = graph_path;
 	bool graphisundirected_bool = true; if(graphisundirected == 0){ graphisundirected_bool = false; }
+	
+	#ifdef GGGGGG
+	make_graph * make_graphobj = new make_graph();
+	graphisundirected_bool = false;
+	make_graphobj->start(GRAPH_PATH, edgedatabuffers, vertexptrbuffers, graphisundirected_bool);
+	// start(vector<edge3_type> (&edgesbuffer_outs)[NUM_PROCS], vector<edge_t> (&vptr_out)[NUM_PROCS], bool graphisundirected)
+	exit(EXIT_SUCCESS); //
+	#endif 
 	
 	prepare_graph * prepare_graphobj = new prepare_graph();
 	prepare_graphobj->start(GRAPH_PATH, edgedatabuffer, vertexptrbuffer, graphisundirected_bool);
@@ -106,17 +152,14 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	unsigned int __NUM_UPARTITIONS = (universalparams.NUM_VERTICES + (MAX_UPARTITION_SIZE - 1)) /  MAX_UPARTITION_SIZE;
 	unsigned int __NUM_APPLYPARTITIONS = ((universalparams.NUM_VERTICES / NUM_PEs) + (MAX_APPLYPARTITION_SIZE - 1)) /  MAX_APPLYPARTITION_SIZE; // NUM_PEs
 	
+	#ifdef BUILD_GRAPH_FOR_DEVICE
 	// create act-pack format
-	map_t * vptr_actpack[NUM_PEs][MAX_NUM_UPARTITIONS];
-	vector<edge3_vec_dt> act_pack_edges[NUM_PEs];
-	edge3_vec_dt * act_pack_edges_arr[NUM_PEs];
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ vptr_actpack[i][p_u] = new map_t[MAX_NUM_LLPSETS]; }}
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ for(unsigned int t=0; t<MAX_NUM_LLPSETS; t++){ vptr_actpack[i][p_u][t].offset = 0; vptr_actpack[i][p_u][t].size = 0; }}}
 	act_pack * pack = new act_pack(universalparams);
 	pack->pack(vertexptrbuffer, edgedatabuffer, act_pack_edges, vptr_actpack); // CRITICAL REMOVEME.
 
 	// create csr format
-	vector<edge3_type> csr_pack_edges[NUM_PEs]; 
 	unsigned int * degrees[NUM_PEs]; for(unsigned int i=0; i<NUM_PEs; i++){ degrees[i] = new unsigned int[(universalparams.NUM_VERTICES / NUM_PEs) + 64]; }
 	unsigned int * v_ptr[NUM_PEs]; for(unsigned int i=0; i<NUM_PEs; i++){ v_ptr[i] = new unsigned int[(universalparams.NUM_VERTICES / NUM_PEs) + 64]; }
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<(universalparams.NUM_VERTICES / NUM_PEs) + 64; t++){ v_ptr[i][t] = 0; degrees[i][t] = 0; }}
@@ -130,7 +173,6 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		for(unsigned int i=0; i<edges_size; i++){
 			unsigned int H_hash = H % NUM_PEs;
 			edge3_type edge = edgedatabuffer[vptr_begin + i];
-			// if(edge.srcvid == 12){ cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ edge.srcvid: "<<edge.srcvid<<", edge.dstvid: "<<edge.dstvid<<endl; }
 			csr_pack_edges[H_hash].push_back(edge);
 			degrees[H_hash][edge.srcvid / NUM_PEs] += 1;
 		}
@@ -155,16 +197,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	unsigned int max = 0; for(unsigned int i=0; i<NUM_PEs; i++){ if(max < act_pack_edges[i].size()){ max = act_pack_edges[i].size(); }} 
 	for(unsigned int i=0; i<NUM_PEs; i++){ act_pack_edges_arr[i] = new edge3_vec_dt[max]; }
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<max; t++){ act_pack_edges_arr[i][t] =  act_pack_edges[i][t]; }}
-	
-	HBM_channel_t * HBM_center = new HBM_channel_t[HBM_CHANNEL_SIZE];
-	for(unsigned int t=0; t<HBM_CHANNEL_SIZE; t++){ for(unsigned int v=0; v<HBM_CHANNEL_PACK_SIZE; v++){ HBM_center[t].data[v] = INVALIDDATA; }}
 
-	// allocate HBM memory
-	HBM_channel_t * HBM_channel[NUM_PEs];
-	cout<<"app: allocating HBM memory..."<<endl;
-	for(unsigned int i=0; i<NUM_PEs; i++){ HBM_channel[i] = new HBM_channel_t[HBM_CHANNEL_SIZE]; }
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<HBM_CHANNEL_SIZE; t++){ for(unsigned int v=0; v<HBM_CHANNEL_PACK_SIZE; v++){ HBM_channel[i][t].data[v] = 0; }}}
-	
 	// load globalparams: {vptrs, edges, updatesptrs, updates, vertexprops, frontiers}
 	cout<<"app: loading global addresses: {vptrs, edges, updates, vertexprops, frontiers}..."<<endl;
 	unsigned int numcsredges = 0; for(unsigned int i=0; i<NUM_PEs; i++){ if(numcsredges < csr_pack_edges[i].size()){ numcsredges = csr_pack_edges[i].size(); }} 
@@ -200,13 +233,13 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	cout<<"app: UPDATES_BUFFER_PACK_SIZE: "<<UPDATES_BUFFER_PACK_SIZE<<endl;
 	#endif 
 	
-	unsigned int globalparams[1024];
+	// unsigned int globalparams[1024];
 	for(unsigned int t=0; t<1024; t++){ globalparams[t] = 0; }
 	
+	// #ifdef BUILD_GRAPH_FOR_DEVICE
 	// load csr vptrs  
 	unsigned int size_u32 = 0;
-	// for(unsigned int i=0; i<NUM_PEs; i++){ globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS] = 0; }
-	for(unsigned int i=0; i<NUM_PEs; i++){ globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS] = 512; } // CRITICAL FIXME_HARDWARE
+	for(unsigned int i=0; i<NUM_PEs; i++){ globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS] = 512; } 
 	for(unsigned int i=0; i<NUM_PEs; i++){ 
 		unsigned int index = 0;
 		unsigned int base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS];
@@ -366,7 +399,6 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		globalparams[GLOBALPARAMSCODE__WWSIZE__VDATAS] = (vdatasz_u32 / HBM_CHANNEL_PACK_SIZE) + 16;
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__VDATAS] + globalparams[GLOBALPARAMSCODE__WWSIZE__VDATAS]; 
 	}
-	
 	// nfrontier
 	for(unsigned int i=0; i<NUM_PEs; i++){ 
 		globalparams[GLOBALPARAMSCODE__WWSIZE__CFRONTIERSTMP] = (cfrontiersz_u32 / HBM_CHANNEL_PACK_SIZE) + 16;
@@ -418,12 +450,27 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___ECPROCESSEDGES].data[0] = 1; 
 		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___SAVEVCUPDATES].data[0] = 1; // FIXME? CAUSE OF HANGING?
 		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___COLLECTACTIVEDSTVIDS].data[0] = 1;
-		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___APPLYUPDATESMODULE].data[0] = 1; 
+		
+		//////////////////////////////////////////////////////////////////////////////////////////////
+		
+		/* HBM_channel[i][GLOBALPARAMSCODE___ENABLE___APPLYUPDATESMODULE].data[0] = 1; 
 		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___READ_DEST_PROPERTIES].data[0] = 1;
 		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___APPLYUPDATES].data[0] = 1; 
 		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES].data[0] = 1; 
+		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___SAVE_DEST_PROPERTIES].data[0] = 1;  */
+		
+		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___APPLYUPDATESMODULE].data[0] = 1; 
+		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___READ_DEST_PROPERTIES].data[0] = 1;
+		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___APPLYUPDATES].data[0] = 1; ////////////////////
+		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES].data[0] = 1; 
 		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___SAVE_DEST_PROPERTIES].data[0] = 1; 
+		
+		//////////////////////////////////////////////////////////////////////////////////////////////
+		
 		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___EXCHANGEFRONTIERINFOS].data[0] = 1;
+		
+		HBM_channel[i][GLOBALPARAMSCODE__ASYNC__BATCH].data[0] = 0;
+		HBM_channel[i][GLOBALPARAMSCODE__ASYNC__BATCHSIZE].data[0] = universalparams.NUM_APPLYPARTITIONS;
 	}
 
 	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__WWSIZE__CSRVPTRS: "<<globalparams[GLOBALPARAMSCODE__WWSIZE__CSRVPTRS]<<endl;
@@ -450,6 +497,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__PARAM__NUM_VERTICES: "<<globalparams[GLOBALPARAMSCODE__PARAM__NUM_VERTICES]<<endl;
 	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__PARAM__NUM_EDGES: "<<globalparams[GLOBALPARAMSCODE__PARAM__NUM_EDGES]<<endl;
 	// exit(EXIT_SUCCESS);
+	#endif 
 	
 	// clear 
 	for(unsigned int i=0; i<NUM_PEs; i++){ csr_pack_edges[i].clear(); act_pack_edges[i].clear(); } // clear 
@@ -465,14 +513,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	unsigned int index = 2*hash_loc;
 	HBM_center[index / HBM_CHANNEL_PACK_SIZE].data[index % HBM_CHANNEL_PACK_SIZE] = root.key; 
 	HBM_center[(index + 1) / HBM_CHANNEL_PACK_SIZE].data[(index + 1) % HBM_CHANNEL_PACK_SIZE] = root.value; 
-
-	// allocate AXI HBM memory
-	HBM_channelAXISW_t * HBM_axichannel[2][NUM_PEs]; 
-	cout<<"app: allocating HBM memory..."<<endl;
-	for(unsigned int n=0; n<2; n++){
-		for(unsigned int i=0; i<NUM_PEs; i++){ HBM_axichannel[n][i] = new HBM_channelAXISW_t[HBM_CHANNEL_SIZE]; }
-		for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<HBM_CHANNEL_SIZE; t++){ for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){ HBM_axichannel[n][i][t].data[v] = 0; }}}
-	}
+	
 	cout<<"app: copying to axi-friendly channels..."<<endl;
 	for(unsigned int i=0; i<NUM_PEs; i++){ 
 		for(unsigned int t=0; t<HBM_CHANNEL_SIZE; t++){ 
@@ -484,12 +525,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 			}
 		}
 	}
-	
-	HBM_channelAXISW_t * HBM_axicenter[2]; 
-	for(unsigned int n=0; n<2; n++){
-		HBM_axicenter[n] = new HBM_channelAXISW_t[HBM_CHANNEL_SIZE]; 
-		for(unsigned int t=0; t<HBM_CHANNEL_SIZE; t++){ for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){ HBM_axicenter[n][t].data[v] = 0; }}
-	}
+		
 	cout<<"app: copying to axi-friendly channels..."<<endl;
 	for(unsigned int t=0; t<HBM_CHANNEL_SIZE; t++){ 
 		for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){ 
@@ -499,13 +535,15 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 			HBM_axicenter[1][t].data[v] = HBM_center[t].data[HBM_AXI_PACK_SIZE + v];
 		}
 	}
+	// exit(EXIT_SUCCESS); /////////////////////////////////////////////////////
 	
 	// run acts
 	#ifdef FPGA_IMPL
-	app_hw * app_hwobj = new app_hw(universalparams);
-	app_hwobj->runapp(binaryFile, HBM_axichannel, HBM_axicenter, universalparams);
+	host_fpga * fpgaobj = new host_fpga(universalparams);
+	fpgaobj->runapp(binaryFile, HBM_axichannel, HBM_axicenter, universalparams);
 	#else 
 	acts_kernel * acts = new acts_kernel(universalparams);
+	for(unsigned int batch=0; batch<1; batch++){
 	acts->top_function(
 		(HBM_channelAXI_t *)HBM_axichannel[0][0], (HBM_channelAXI_t *)HBM_axichannel[1][0]
 		#if NUM_VALID_PEs>1
@@ -538,7 +576,9 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		#endif 
 		#endif
 		,(HBM_channelAXI_t *)HBM_axicenter[0], (HBM_channelAXI_t *)HBM_axicenter[1]
+		,batch
 		);
+	}
 	#endif 
 	return;
 }

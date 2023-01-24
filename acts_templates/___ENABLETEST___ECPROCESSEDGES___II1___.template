@@ -17,9 +17,11 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_APPLYPARTITION
 		
 	// process edges [done]
 	EC_PROCESS_EDGES_LOOP1B: for(unsigned int it=0; it<(max_sz + (BLOCKRAM_SIZE - 1)) / BLOCKRAM_SIZE; it++){
+	#pragma HLS loop_flatten off
+		// std::cout<<"------------------------------------------------------ ___ENABLETEST___ECPROCESSEDGES___II1___:: it: "<<it<<std::endl;	
 		// read and process 
 		unsigned int sz = 0; if((it + 1) * BLOCKRAM_SIZE >= max_sz){ sz = max_sz - (it * BLOCKRAM_SIZE); } else { sz = BLOCKRAM_SIZE; }
-		EC_PROCESS_EDGES_MAINLOOP1D: for(unsigned int t_=0; t_<sz; t_++){ 
+		EC_PROCESS_EDGES_MAINLOOP1D: for(unsigned int t_=0; t_<BLOCKRAM_SIZE; t_++){ //>>> sz
 		#pragma HLS PIPELINE II=1
 			unsigned int t = (it * BLOCKRAM_SIZE) + t_;
 			dretrievemany_actpackedges(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES], offsets, t, edge3_vecs, {% include 'arguments_allchannelsinslr.template' %});

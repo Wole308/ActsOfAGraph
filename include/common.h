@@ -2,11 +2,13 @@
 #define COMMON_H
 #include <string.h> 
 #include <cmath>
+#include <ap_int.h>
+// #include "ap_fixed.h"	
+#include <vector> 
+#include<hls_vector.h> 
+#include<hls_stream.h> 
+#include <iostream>
  
-
-// SAVE_FRONTIER_INFO_LOOP2B
-// SAVE_DEST_PROPERTIES_LOOP2 ?
-// SAVE_CSR_UPDATES_LOOP1D
 
 #define ___FORCE_SUCCESS___
 #define POW_VALID_VDATA 1
@@ -23,7 +25,7 @@
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
-#define SW // SWEMU, HW, *SW
+#define HW // SWEMU, HW, *SW
 #if (defined(SWEMU) || defined(HW))
 #define FPGA_IMPL
 #endif 
@@ -80,6 +82,7 @@
 
 //////////////// 
 
+#define NUM_PROCS 2
 #define NUM_PEs 12
 #define NUM_VALID_PEs 6
 #define NUM_AXI_CHANNELS_IN_PE 4
@@ -90,7 +93,7 @@
 #define HBM_AXI_PACK_BITSIZE (HBM_AXI_PACK_SIZE * 32) // 512* // NEW**
 #define HBM_CHANNEL_BYTESIZE (1 << 28)
 #define HBM_CHANNEL_INTSIZE (HBM_CHANNEL_BYTESIZE / 4)
-#define HBM_CHANNEL_SIZE ((HBM_CHANNEL_BYTESIZE / 4) / EDGE_PACK_SIZE) // in EDGE_PACK_SIZE (4194304)
+#define HBM_CHANNEL_SIZE ((HBM_CHANNEL_BYTESIZE / 4) / EDGE_PACK_SIZE) // {4194304 EDGE_PACK_SIZEs, 67108864 uints, 256MB}
 #define FOLD_SIZE 1
 #define MAX_NUM_UPARTITIONS 512
 #define MAX_NUM_APPLYPARTITIONS 16 
@@ -182,6 +185,9 @@
 #define GLOBALPARAMSCODE___ENABLE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES 46
 #define GLOBALPARAMSCODE___ENABLE___SAVE_DEST_PROPERTIES 47
 #define GLOBALPARAMSCODE___ENABLE___EXCHANGEFRONTIERINFOS 48
+
+#define GLOBALPARAMSCODE__ASYNC__BATCH 49
+#define GLOBALPARAMSCODE__ASYNC__BATCHSIZE 50
 
 ////////////////
 

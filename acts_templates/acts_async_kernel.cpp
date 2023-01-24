@@ -1,12 +1,12 @@
 #include "../include/common.h"
 #ifndef FPGA_IMPL
-#include "acts_kernel.h"
+#include "acts_async_kernel.h"
 using namespace std;
 #endif 
-// __NOT__YET__IMPLEMENTED___
-// __OBSOLETE___
-// #define ___FALSE___ 
 
+#define RUN_TEST_KERNEL
+
+#ifdef RUN_TEST_KERNEL
 #define ___ENABLE___RESETBUFFERSATSTART___ 
 #define ___ENABLE___CLEAR_COUNTERS___
 #define ___ENABLE___PROCESSEDGES___ 
@@ -14,16 +14,14 @@ using namespace std;
 #define ___ENABLE___RESET_BUFFERS___
 // #define ___ENABLE___VCPROCESSEDGES___ 
 #define ___ENABLE___ECPROCESSEDGES___II1___ 
-// #define ___ENABLE___ECPROCESSEDGES___II2___ // OBSOLETE.
 // #define ___ENABLE___SAVEVCUPDATES___ 
 // // // // // // // // // // // // // // // // // // #define ___ENABLE___COLLECTACTIVEDSTVIDS___ 
 #define ___ENABLE___APPLYUPDATESMODULE___ 
 	#define ___ENABLE___READ_DEST_PROPERTIES___ 
 	#define ___ENABLE___APPLYUPDATES___II1___
-	// #define ___ENABLE___APPLYUPDATES___II2___  // OBSOLETE.
-	#define ___ENABLE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES___ 
+	// #define ___ENABLE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES___ 
 	#define ___ENABLE___SAVE_DEST_PROPERTIES___ 
-#define ___ENABLE___EXCHANGEFRONTIERINFOS___ 
+// #define ___ENABLE___EXCHANGEFRONTIERINFOS___ 
 #define ___ENABLE___REPORT_STATISTICS___
 
 #define ___CODE___RESETBUFFERSATSTART___ 0
@@ -53,7 +51,7 @@ using namespace std;
 #define MY_IFDEF_VPTRBUFFER() vtr_t vptr_buffer[VPTR_BUFFER_SIZE]
 #define MY_IFDEF_EDGESBUFFER() edge3_type edges_buffer[EDGE_PACK_SIZE][EDGE_BUFFER_SIZE]
 #define MY_IFDEF_VDATABUFFER() vprop_t vdata_buffer[EDGE_PACK_SIZE][MAXVALID_APPLYPARTITION_VECSIZE]
-#define MY_IFDEF_TOPLEVELFUNC() void top_function( HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB)
+#define MY_IFDEF_TOPLEVELFUNC() void top_function( HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, unsigned int batch)
 #else
 #define MY_IFDEF_NFRONTIER() keyvalue_t * nfrontier_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_CFRONTIER_TMP() keyvalue_t * cfrontier_buffer_tmp[EDGE_PACK_SIZE]
@@ -65,8 +63,11 @@ using namespace std;
 #define MY_IFDEF_VPTRBUFFER() vtr_t * vptr_buffer
 #define MY_IFDEF_EDGESBUFFER() edge3_type * edges_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_VDATABUFFER() vprop_t * vdata_buffer[EDGE_PACK_SIZE]
-#define MY_IFDEF_TOPLEVELFUNC() void acts_kernel::top_function( HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB)
+#define MY_IFDEF_TOPLEVELFUNC() void acts_kernel::top_function( HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, unsigned int batch)
 #endif
+
+#define APPLY_CMD 2
+#define TRANSPORT_CMD 3
 
 #ifndef FPGA_IMPL
 unsigned int * globalparams_debug;
@@ -2506,45 +2507,6 @@ void transport_frontier(unsigned int inst, unsigned int p_v, unsigned int baseof
 //////////////////////////////////////////////////////////////////
 extern "C" {	
 MY_IFDEF_TOPLEVELFUNC(){		
- 
-#pragma HLS INTERFACE m_axi port = HBM_channelA0 offset = slave bundle = gmem0
-#pragma HLS INTERFACE m_axi port = HBM_channelB0 offset = slave bundle = gmem1
- 
-#pragma HLS INTERFACE m_axi port = HBM_channelA1 offset = slave bundle = gmem2
-#pragma HLS INTERFACE m_axi port = HBM_channelB1 offset = slave bundle = gmem3
- 
-#pragma HLS INTERFACE m_axi port = HBM_channelA2 offset = slave bundle = gmem4
-#pragma HLS INTERFACE m_axi port = HBM_channelB2 offset = slave bundle = gmem5
- 
-#pragma HLS INTERFACE m_axi port = HBM_channelA3 offset = slave bundle = gmem6
-#pragma HLS INTERFACE m_axi port = HBM_channelB3 offset = slave bundle = gmem7
- 
-#pragma HLS INTERFACE m_axi port = HBM_channelA4 offset = slave bundle = gmem8
-#pragma HLS INTERFACE m_axi port = HBM_channelB4 offset = slave bundle = gmem9
- 
-#pragma HLS INTERFACE m_axi port = HBM_channelA5 offset = slave bundle = gmem10
-#pragma HLS INTERFACE m_axi port = HBM_channelB5 offset = slave bundle = gmem11
-#pragma HLS INTERFACE m_axi port = HBM_centerA offset = slave bundle = gmem12
-#pragma HLS INTERFACE m_axi port = HBM_centerB offset = slave bundle = gmem13
-
-#pragma HLS INTERFACE s_axilite port = HBM_channelA0 bundle = control
-#pragma HLS INTERFACE s_axilite port = HBM_channelB0 bundle = control
-#pragma HLS INTERFACE s_axilite port = HBM_channelA1 bundle = control
-#pragma HLS INTERFACE s_axilite port = HBM_channelB1 bundle = control
-#pragma HLS INTERFACE s_axilite port = HBM_channelA2 bundle = control
-#pragma HLS INTERFACE s_axilite port = HBM_channelB2 bundle = control
-#pragma HLS INTERFACE s_axilite port = HBM_channelA3 bundle = control
-#pragma HLS INTERFACE s_axilite port = HBM_channelB3 bundle = control
-#pragma HLS INTERFACE s_axilite port = HBM_channelA4 bundle = control
-#pragma HLS INTERFACE s_axilite port = HBM_channelB4 bundle = control
-#pragma HLS INTERFACE s_axilite port = HBM_channelA5 bundle = control
-#pragma HLS INTERFACE s_axilite port = HBM_channelB5 bundle = control
-	
-#pragma HLS INTERFACE s_axilite port = HBM_centerA bundle = control
-#pragma HLS INTERFACE s_axilite port = HBM_centerB bundle = control
-
-#pragma HLS INTERFACE s_axilite port=return bundle=control
-
 	#ifdef _DEBUGMODE_KERNELPRINTS4
 	cout<<"acts_kernel::run:: acts started "<<endl;
 	#endif 
@@ -2752,9 +2714,9 @@ unsigned int _NUMCLOCKCYCLES_[2][16];
 	
 	int ___ENABLE___RESETBUFFERSATSTART___BOOL___ = globalparams[GLOBALPARAMSCODE___ENABLE___RESETBUFFERSATSTART];
 	int ___ENABLE___PROCESSEDGES___BOOL___ = globalparams[GLOBALPARAMSCODE___ENABLE___PROCESSEDGES];
-	int ___ENABLE___READ_FRONTIER_PROPERTIES___BOOL___ = globalparams[GLOBALPARAMSCODE___ENABLE___READ_FRONTIER_PROPERTIES];
-	int ___ENABLE___VCPROCESSEDGES___BOOL___ = globalparams[GLOBALPARAMSCODE___ENABLE___VCPROCESSEDGES]; 
-	int ___ENABLE___ECPROCESSEDGES___BOOL___ = globalparams[GLOBALPARAMSCODE___ENABLE___ECPROCESSEDGES]; 
+		int ___ENABLE___READ_FRONTIER_PROPERTIES___BOOL___ = globalparams[GLOBALPARAMSCODE___ENABLE___READ_FRONTIER_PROPERTIES];
+		int ___ENABLE___VCPROCESSEDGES___BOOL___ = globalparams[GLOBALPARAMSCODE___ENABLE___VCPROCESSEDGES]; 
+		int ___ENABLE___ECPROCESSEDGES___BOOL___ = globalparams[GLOBALPARAMSCODE___ENABLE___ECPROCESSEDGES]; 
 	int ___ENABLE___SAVEVCUPDATES___BOOL___ = globalparams[GLOBALPARAMSCODE___ENABLE___SAVEVCUPDATES]; 
 	int ___ENABLE___COLLECTACTIVEDSTVIDS___BOOL___ = globalparams[GLOBALPARAMSCODE___ENABLE___COLLECTACTIVEDSTVIDS];
 	int ___ENABLE___APPLYUPDATESMODULE___BOOL___ = globalparams[GLOBALPARAMSCODE___ENABLE___APPLYUPDATESMODULE]; 
@@ -2825,7 +2787,15 @@ for(unsigned int i=0; i<MAXNUMGRAPHITERATIONS; i++){ for(unsigned int t=0; t<MAX
 		cout<<"--- updatesptrs["<<t<<"]: "<<updatesptrs[t]<<endl;
 		#endif 
 	}
-
+	
+	// load async commands (overlap pcie communication with compuation)
+	unsigned int async_batch = globalparams[GLOBALPARAMSCODE__ASYNC__BATCH]; unsigned int _ASYNC_BATCH_SIZE_ = globalparams[GLOBALPARAMSCODE__ASYNC__BATCHSIZE];
+	if(batch > 0){
+		___ENABLE___PROCESSEDGES___BOOL___ = 0;
+		___ENABLE___SAVEVCUPDATES___BOOL___ = 0;
+		___ENABLE___COLLECTACTIVEDSTVIDS___BOOL___ = 0;
+	}
+		
 	// run acts 
 	RUN_ACTS_LOOP: for(unsigned int GraphIter=0; GraphIter<globalparams[GLOBALPARAMSCODE__PARAM__NUM_ITERATIONS]; GraphIter++){
 		unsigned int MASK_CODE = 1 + GraphIter;
@@ -2849,7 +2819,7 @@ CLEAR_COUNTERS_LOOP1: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
 	}
 }	
 		#endif 
-				
+			
 		// process-edges and partition-updates
 		PROCESS_EDGES_MODULE_LOOP1: for(unsigned int sweep=0; sweep<2; sweep++){
 			// process-edges and partition-updates
@@ -2862,7 +2832,7 @@ CLEAR_COUNTERS_LOOP1: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
 				if((upartition_vertices[p_u].count < threshold___activefrontiers && enable___vertexcentric == true) && (all_vertices_active_in_all_iterations == false)){ ___use_vertex_centric___ = true; } else { ___use_vertex_centric___ = false; }
 				
 				#ifdef _DEBUGMODE_KERNELPRINTS4
-				if(all_vertices_active_in_all_iterations == true && sweep == 0){ cout<<"### processing edges in upartition "<<p_u<<"..."<<endl; }
+				if(all_vertices_active_in_all_iterations == true && sweep == 1){ cout<<"### processing edges in upartition "<<p_u<<"..."<<endl; }
 				#endif 
 			
 				// read & map frontier properties 
@@ -2878,7 +2848,7 @@ checkoutofbounds("acts_kernel::ERROR 12073::", cfrontier_dram___size[p_u], MAX_A
 unsigned int data[HBM_CHANNEL_PACK_SIZE];
 #pragma HLS ARRAY_PARTITION variable=data complete
 unsigned int offset_c = globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP];
-MY_LOOP179: for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t++){ 
+MY_LOOP179: for(unsigned int t=0; t<512; t++){ //>>> cfrontier_dram___size[p_u]
 #pragma HLS PIPELINE II=1
 	data[0] = HBM_centerA[uoffset_vecsz + t].data[0];
 	data[1] = HBM_centerA[uoffset_vecsz + t].data[1];
@@ -3111,7 +3081,7 @@ MY_LOOP179: for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t++){
 // parallel-read and map active frontiers [done]
 MY_LOOP173: for(unsigned int n=0; n<NUM_VALID_PEs; n++){ offsets[n] = 0; }
 unsigned int uoffset = p_u * MAX_UPARTITION_SIZE;
-MY_LOOP175_DEBUG: for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t++){ 
+MY_LOOP175_DEBUG: for(unsigned int t=0; t<512; t++){ //>>> cfrontier_dram___size[p_u]
 #pragma HLS PIPELINE II=1
 	dretrievemany_cfrontierdram_tmp(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP], offsets, t, kvdatas,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);
 	insertvec_cfrontierbuffer_tmp(t, kvdatas[0], cfrontier_buffer_tmp); // NEW
@@ -3415,9 +3385,11 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_APPLYPARTITION
 		
 	// process edges [done]
 	EC_PROCESS_EDGES_LOOP1B: for(unsigned int it=0; it<(max_sz + (BLOCKRAM_SIZE - 1)) / BLOCKRAM_SIZE; it++){
+	#pragma HLS loop_flatten off
+		// std::cout<<"------------------------------------------------------ ___ENABLETEST___ECPROCESSEDGES___II1___:: it: "<<it<<std::endl;	
 		// read and process 
 		unsigned int sz = 0; if((it + 1) * BLOCKRAM_SIZE >= max_sz){ sz = max_sz - (it * BLOCKRAM_SIZE); } else { sz = BLOCKRAM_SIZE; }
-		EC_PROCESS_EDGES_MAINLOOP1D: for(unsigned int t_=0; t_<sz; t_++){ 
+		EC_PROCESS_EDGES_MAINLOOP1D: for(unsigned int t_=0; t_<BLOCKRAM_SIZE; t_++){ //>>> sz
 		#pragma HLS PIPELINE II=1
 			unsigned int t = (it * BLOCKRAM_SIZE) + t_;
 			dretrievemany_actpackedges(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES], offsets, t, edge3_vecs,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);
@@ -3627,17 +3599,34 @@ if(enable___collectactivedstvids == true){
 		#endif 
 		
 		// apply updates
+		unsigned int totalactvvs2 = 0; 
 		#ifdef ___ENABLE___APPLYUPDATESMODULE___
+		// cout<<"------------------------------------------------------ CCCC 0:: "<<endl;	
 		if(___ENABLE___APPLYUPDATESMODULE___BOOL___ == 1){
-		APPLY_UPDATES_MODULE_LOOP: for(unsigned int p_v=0; p_v<__NUM_APPLYPARTITIONS; p_v++){
+		frontier_t actvv[EDGE_PACK_SIZE]; 
+		MY_LOOP311: for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){ upartition_vertices[p_u].count = 0; }
+		MY_LOOP312: for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){ cfrontier_dram___size[p_u] = 0; } // reset
+
+		unsigned int start_partition = batch * _ASYNC_BATCH_SIZE_;
+		unsigned int stop_partition = (batch + 1) * _ASYNC_BATCH_SIZE_; 
+		if(stop_partition > __NUM_APPLYPARTITIONS * 2){ stop_partition = (__NUM_APPLYPARTITIONS * 2) - ((batch + 1) * _ASYNC_BATCH_SIZE_); }
+		
+		// apply updates 
+		APPLY_UPDATES_MODULE_LOOP: for(unsigned int p_v=start_partition; p_v<stop_partition; p_v++){
+			// cout<<"------------------------------------------------------ CCCC 1:: p_v: "<<p_v<<endl;	
+			#ifndef FPGA_IMPL
+			checkoutofbounds("acts_kernel::ERROR 862::", p_v, __NUM_APPLYPARTITIONS, p_v, __NUM_APPLYPARTITIONS, NAp);
+			#endif 
+			
 			bool en = true; if(enable___collectactivedstvids == true){ if(vpartition_vertices[0][p_v].count > 0){ en=true; } else { en=false; }} else { en = true; }
 			unsigned int voffset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__VDATAS] + (p_v * MAX_APPLYPARTITION_VECSIZE);
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS4
-			if(all_vertices_active_in_all_iterations == true && en == true){ cout<<"### applying updates in vpartition "<<p_v<<"..."<<endl; }
-			#endif
-			
 			if(vpartition_vertices[0][p_v].count > 0 || all_vertices_active_in_all_iterations == true){ 
+			/* cout<<"------------------------------------------------------ CCCC 2::: "<<endl; */	
+				#ifdef _DEBUGMODE_KERNELPRINTS4
+				if(all_vertices_active_in_all_iterations == true && en == true){ cout<<"###>>> applying updates in vpartition "<<p_v<<"..."<<endl; }
+				#endif
+			
 				// read destination properties
 				#ifdef ___ENABLE___READ_DEST_PROPERTIES___
 				if(___ENABLE___READ_DEST_PROPERTIES___BOOL___ == 1){
@@ -3692,13 +3681,229 @@ if(stats_buffer___size[0][p_v] < threshold___activedstvids && enable___collectac
 uint512_vec_dt updates_vecs[NUM_VALID_PEs];
 max_limit = 0; for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ limits[inst] = actpackupdates_dram___size[inst][p_v]; } for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ if(max_limit < limits[inst]){ max_limit = limits[inst]; }}
 
-APPLY_UPDATES_LOOP1: for(unsigned int it=0; it<(max_limit + (BLOCKRAM_SIZE - 1)) / BLOCKRAM_SIZE; it++){
+// cout<<"------------------------------------------------------ ___ENABLETEST___APPLYUPDATES___II1___:: max_limit: "<<max_limit<<endl;
+// for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
+	// cout<<"------------------------------------------------------ ___ENABLETEST___APPLYUPDATES___II1___:: actpackupdates_dram___size["<<inst<<"]["<<p_v<<"]: "<<actpackupdates_dram___size[inst][p_v]<<endl;
+// }
+
+APPLY_UPDATES_LOOP1: for(unsigned int it=0; it<((max_limit + (BLOCKRAM_SIZE - 1)) / BLOCKRAM_SIZE) - 1; it++){
+#pragma HLS loop_flatten off
+	// std::cout<<"------------------------------------------------------ ___ENABLETEST___APPLYUPDATES___II1___:: it: "<<it<<std::endl;
+	
+	map_t maps[NUM_VALID_PEs];
+	#pragma HLS ARRAY_PARTITION variable=maps complete	
+	dretrievemany_actpackvptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS], p_v, 0, maps,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);
+	
 	unsigned int sz = 0; if((it + 1) * BLOCKRAM_SIZE >= max_limit){ sz = max_limit - (it * BLOCKRAM_SIZE); } else { sz = BLOCKRAM_SIZE; }
-	APPLY_UPDATES_LOOP1A: for(unsigned int t_=0; t_<sz; t_++){
+	APPLY_UPDATES_LOOP1A: for(unsigned int t_=0; t_<BLOCKRAM_SIZE; t_++){ //>>> sz, BLOCKRAM_SIZE
+	#pragma HLS loop_flatten off
 	#pragma HLS PIPELINE II=1
-		unsigned int t = (it * BLOCKRAM_SIZE) + t_;
+		/////////////////////////////////////////////////////////////////////////
+		// unsigned int t = (it * BLOCKRAM_SIZE) + t_;
+		// dretrievemany_udatesdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v], p_v, t, updates_vecs,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, updatesptrs); // NEW
+		///////////////////////////////////////////////////////////////////////
+		unsigned int t = t_; ///////////////////// FIXME.REMOVEME.
+ /////////////////
+		updates_vecs[0].data[0].key = HBM_channelB0[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[0];
+ /////////////////
+		updates_vecs[0].data[1].key = HBM_channelB0[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[1];
+ /////////////////
+		updates_vecs[0].data[2].key = HBM_channelB0[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[2];
+ /////////////////
+		updates_vecs[0].data[3].key = HBM_channelB0[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[3];
+ /////////////////
+		updates_vecs[0].data[4].key = HBM_channelB0[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[4];
+ /////////////////
+		updates_vecs[0].data[5].key = HBM_channelB0[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[5];
+ /////////////////
+		updates_vecs[0].data[6].key = HBM_channelB0[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[6];
+ /////////////////
+		updates_vecs[0].data[7].key = HBM_channelB0[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[7];
+ /////////////////
+		updates_vecs[0].data[8].key = HBM_channelB0[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[8];
+ /////////////////
+		updates_vecs[0].data[9].key = HBM_channelB0[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[9];
+ /////////////////
+		updates_vecs[0].data[10].key = HBM_channelB0[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[10];
+ /////////////////
+		updates_vecs[0].data[11].key = HBM_channelB0[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[11];
+ /////////////////
+		updates_vecs[0].data[12].key = HBM_channelB0[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[12];
+ /////////////////
+		updates_vecs[0].data[13].key = HBM_channelB0[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[13];
+ /////////////////
+		updates_vecs[0].data[14].key = HBM_channelB0[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[14];
+ /////////////////
+		updates_vecs[0].data[15].key = HBM_channelB0[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[15];
+	
+ /////////////////
+		updates_vecs[1].data[0].key = HBM_channelB1[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[0];
+ /////////////////
+		updates_vecs[1].data[1].key = HBM_channelB1[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[1];
+ /////////////////
+		updates_vecs[1].data[2].key = HBM_channelB1[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[2];
+ /////////////////
+		updates_vecs[1].data[3].key = HBM_channelB1[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[3];
+ /////////////////
+		updates_vecs[1].data[4].key = HBM_channelB1[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[4];
+ /////////////////
+		updates_vecs[1].data[5].key = HBM_channelB1[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[5];
+ /////////////////
+		updates_vecs[1].data[6].key = HBM_channelB1[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[6];
+ /////////////////
+		updates_vecs[1].data[7].key = HBM_channelB1[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[7];
+ /////////////////
+		updates_vecs[1].data[8].key = HBM_channelB1[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[8];
+ /////////////////
+		updates_vecs[1].data[9].key = HBM_channelB1[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[9];
+ /////////////////
+		updates_vecs[1].data[10].key = HBM_channelB1[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[10];
+ /////////////////
+		updates_vecs[1].data[11].key = HBM_channelB1[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[11];
+ /////////////////
+		updates_vecs[1].data[12].key = HBM_channelB1[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[12];
+ /////////////////
+		updates_vecs[1].data[13].key = HBM_channelB1[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[13];
+ /////////////////
+		updates_vecs[1].data[14].key = HBM_channelB1[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[14];
+ /////////////////
+		updates_vecs[1].data[15].key = HBM_channelB1[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[15];
+	
+ /////////////////
+		updates_vecs[2].data[0].key = HBM_channelB2[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[0];
+ /////////////////
+		updates_vecs[2].data[1].key = HBM_channelB2[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[1];
+ /////////////////
+		updates_vecs[2].data[2].key = HBM_channelB2[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[2];
+ /////////////////
+		updates_vecs[2].data[3].key = HBM_channelB2[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[3];
+ /////////////////
+		updates_vecs[2].data[4].key = HBM_channelB2[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[4];
+ /////////////////
+		updates_vecs[2].data[5].key = HBM_channelB2[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[5];
+ /////////////////
+		updates_vecs[2].data[6].key = HBM_channelB2[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[6];
+ /////////////////
+		updates_vecs[2].data[7].key = HBM_channelB2[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[7];
+ /////////////////
+		updates_vecs[2].data[8].key = HBM_channelB2[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[8];
+ /////////////////
+		updates_vecs[2].data[9].key = HBM_channelB2[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[9];
+ /////////////////
+		updates_vecs[2].data[10].key = HBM_channelB2[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[10];
+ /////////////////
+		updates_vecs[2].data[11].key = HBM_channelB2[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[11];
+ /////////////////
+		updates_vecs[2].data[12].key = HBM_channelB2[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[12];
+ /////////////////
+		updates_vecs[2].data[13].key = HBM_channelB2[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[13];
+ /////////////////
+		updates_vecs[2].data[14].key = HBM_channelB2[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[14];
+ /////////////////
+		updates_vecs[2].data[15].key = HBM_channelB2[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[15];
+	
+ /////////////////
+		updates_vecs[3].data[0].key = HBM_channelB3[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[0];
+ /////////////////
+		updates_vecs[3].data[1].key = HBM_channelB3[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[1];
+ /////////////////
+		updates_vecs[3].data[2].key = HBM_channelB3[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[2];
+ /////////////////
+		updates_vecs[3].data[3].key = HBM_channelB3[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[3];
+ /////////////////
+		updates_vecs[3].data[4].key = HBM_channelB3[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[4];
+ /////////////////
+		updates_vecs[3].data[5].key = HBM_channelB3[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[5];
+ /////////////////
+		updates_vecs[3].data[6].key = HBM_channelB3[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[6];
+ /////////////////
+		updates_vecs[3].data[7].key = HBM_channelB3[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[7];
+ /////////////////
+		updates_vecs[3].data[8].key = HBM_channelB3[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[8];
+ /////////////////
+		updates_vecs[3].data[9].key = HBM_channelB3[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[9];
+ /////////////////
+		updates_vecs[3].data[10].key = HBM_channelB3[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[10];
+ /////////////////
+		updates_vecs[3].data[11].key = HBM_channelB3[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[11];
+ /////////////////
+		updates_vecs[3].data[12].key = HBM_channelB3[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[12];
+ /////////////////
+		updates_vecs[3].data[13].key = HBM_channelB3[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[13];
+ /////////////////
+		updates_vecs[3].data[14].key = HBM_channelB3[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[14];
+ /////////////////
+		updates_vecs[3].data[15].key = HBM_channelB3[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[15];
+	
+ /////////////////
+		updates_vecs[4].data[0].key = HBM_channelB4[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[0];
+ /////////////////
+		updates_vecs[4].data[1].key = HBM_channelB4[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[1];
+ /////////////////
+		updates_vecs[4].data[2].key = HBM_channelB4[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[2];
+ /////////////////
+		updates_vecs[4].data[3].key = HBM_channelB4[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[3];
+ /////////////////
+		updates_vecs[4].data[4].key = HBM_channelB4[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[4];
+ /////////////////
+		updates_vecs[4].data[5].key = HBM_channelB4[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[5];
+ /////////////////
+		updates_vecs[4].data[6].key = HBM_channelB4[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[6];
+ /////////////////
+		updates_vecs[4].data[7].key = HBM_channelB4[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[7];
+ /////////////////
+		updates_vecs[4].data[8].key = HBM_channelB4[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[8];
+ /////////////////
+		updates_vecs[4].data[9].key = HBM_channelB4[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[9];
+ /////////////////
+		updates_vecs[4].data[10].key = HBM_channelB4[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[10];
+ /////////////////
+		updates_vecs[4].data[11].key = HBM_channelB4[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[11];
+ /////////////////
+		updates_vecs[4].data[12].key = HBM_channelB4[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[12];
+ /////////////////
+		updates_vecs[4].data[13].key = HBM_channelB4[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[13];
+ /////////////////
+		updates_vecs[4].data[14].key = HBM_channelB4[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[14];
+ /////////////////
+		updates_vecs[4].data[15].key = HBM_channelB4[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[15];
+	
+ /////////////////
+		updates_vecs[5].data[0].key = HBM_channelB5[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[0];
+ /////////////////
+		updates_vecs[5].data[1].key = HBM_channelB5[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[1];
+ /////////////////
+		updates_vecs[5].data[2].key = HBM_channelB5[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[2];
+ /////////////////
+		updates_vecs[5].data[3].key = HBM_channelB5[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[3];
+ /////////////////
+		updates_vecs[5].data[4].key = HBM_channelB5[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[4];
+ /////////////////
+		updates_vecs[5].data[5].key = HBM_channelB5[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[5];
+ /////////////////
+		updates_vecs[5].data[6].key = HBM_channelB5[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[6];
+ /////////////////
+		updates_vecs[5].data[7].key = HBM_channelB5[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[7];
+ /////////////////
+		updates_vecs[5].data[8].key = HBM_channelB5[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[8];
+ /////////////////
+		updates_vecs[5].data[9].key = HBM_channelB5[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[9];
+ /////////////////
+		updates_vecs[5].data[10].key = HBM_channelB5[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[10];
+ /////////////////
+		updates_vecs[5].data[11].key = HBM_channelB5[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[11];
+ /////////////////
+		updates_vecs[5].data[12].key = HBM_channelB5[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[12];
+ /////////////////
+		updates_vecs[5].data[13].key = HBM_channelB5[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[13];
+ /////////////////
+		updates_vecs[5].data[14].key = HBM_channelB5[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[14];
+ /////////////////
+		updates_vecs[5].data[15].key = HBM_channelB5[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[15];
+	
+	
+		/////////////////////////////////////////////////////////////////////////
 		
-		dretrievemany_udatesdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v], p_v, t, updates_vecs,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, updatesptrs); // NEW
 		MY_LOOP1521: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
 		#pragma HLS UNROLL
 			if(t < limits[inst]){
@@ -3707,16 +3912,19 @@ APPLY_UPDATES_LOOP1: for(unsigned int it=0; it<(max_limit + (BLOCKRAM_SIZE - 1))
 				#pragma HLS UNROLL
 					keyvalue_t update = updates_vec.data[v];
 					unsigned int dstvid_lp = update.key; 
-					unsigned int dstvid_lpv = update.key / EDGE_PACK_SIZE;
-					if(update.key != INVALIDDATA && update.key < MAX_APPLYPARTITION_SIZE){
-						#ifdef _DEBUGMODE_CHECKS3
+					// unsigned int dstvid_lpv = update.key / EDGE_PACK_SIZE;
+					unsigned int dstvid_lpv = update.key % 512; // REMOVEME.
+					// if(update.key != INVALIDDATA && update.key < MAX_APPLYPARTITION_SIZE){
+						#ifdef _DEBUGMODE_CHECKS3___________
 						#ifndef ___FORCE_SUCCESS___
 						if(t < limits[inst] && ((dstvid_lp % EDGE_PACK_SIZE) != v)){ cout<<"acts_kernel 234:: dstvid_lp("<<dstvid_lp<<") % v("<<v<<") != 0. EXITING..."<<endl; exit(EXIT_FAILURE); }
 						#endif 
 						if(t < limits[inst]){ checkoutofbounds("acts_kernel::ERROR 727a::", dstvid_lp, MAX_APPLYPARTITION_SIZE, NAp, inst, update.key); checkoutofbounds("acts_kernel::ERROR 727b::", dstvid_lpv, MAX_APPLYPARTITION_VECSIZE, NAp, inst, update.key); }
 						#endif
-						vprop_t vprop =  retrieve_vdatabuffer(v, dstvid_lpv, vdata_buffer[inst]);
-						unsigned int new_vprop = reduce_funcG(vprop.prop, vprop.prop, update.value, globalparams[GLOBALPARAMSCODE__PARAM__ALGORITHM]);
+						// vprop_t vprop =  retrieve_vdatabuffer(v, dstvid_lpv, vdata_buffer[inst]);
+						vprop_t vprop; vprop.prop = update.key; ////////////////
+						// unsigned int new_vprop = reduce_funcG(vprop.prop, vprop.prop, update.value, globalparams[GLOBALPARAMSCODE__PARAM__ALGORITHM]);
+						unsigned int new_vprop = reduce_funcG(vprop.prop, vprop.prop, maps[inst].size, globalparams[GLOBALPARAMSCODE__PARAM__ALGORITHM]); // REMOVEME.
 						if(new_vprop != vprop.prop && t < limits[inst]){ 
 							#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 							std::cout<<"APPLY (ACT-PACK) UPDATE SEEN @: inst: ["<<inst<<"]: dstvid_lp: "<<dstvid_lp<<", dstvid_lpv: "<<dstvid_lpv<<", new_vprop: "<<new_vprop<<", vid: "<<update.key<<std::endl;
@@ -3724,7 +3932,7 @@ APPLY_UPDATES_LOOP1: for(unsigned int it=0; it<(max_limit + (BLOCKRAM_SIZE - 1))
 							vprop_t newprop; newprop.prop = new_vprop; newprop.mask = MASK_CODE_AU;
 							insert_vdatabuffer(v, dstvid_lpv, newprop, vdata_buffer[inst]);
 						}
-					}
+					// }
 				}
 			}
 		}
@@ -3939,28 +4147,28 @@ if(stats_buffer___size[0][p_v] < threshold___activedstvids && enable___collectac
 				}
 				#endif 
 			}
-		} // p_v
-		}
-		#endif 
+		} 
 		
-		// end of GAS iteration - gathering frontier information
-		unsigned int totalactvvs2 = 0; 
-		#ifdef ___ENABLE___EXCHANGEFRONTIERINFOS___
-		if(___ENABLE___EXCHANGEFRONTIERINFOS___BOOL___ == 1){
-frontier_t actvv[EDGE_PACK_SIZE]; 
-MY_LOOP311: for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){ upartition_vertices[p_u].count = 0; }
-MY_LOOP312: for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){ cfrontier_dram___size[p_u] = 0; } // reset
-EXCHANGE_FRONTIER_MODULE_LOOP: for(unsigned int p_v=0; p_v<__NUM_APPLYPARTITIONS; p_v++){
-	transport_frontier(0, p_v, globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS], cfrontier_dram___size, nfrontier_dram___size[0], upartition_vertices, HBM_channelA0, HBM_channelB0, HBM_centerA, HBM_centerB, &totalactvvs2);
-	transport_frontier(1, p_v, globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS], cfrontier_dram___size, nfrontier_dram___size[1], upartition_vertices, HBM_channelA1, HBM_channelB1, HBM_centerA, HBM_centerB, &totalactvvs2);
-	transport_frontier(2, p_v, globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS], cfrontier_dram___size, nfrontier_dram___size[2], upartition_vertices, HBM_channelA2, HBM_channelB2, HBM_centerA, HBM_centerB, &totalactvvs2);
-	transport_frontier(3, p_v, globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS], cfrontier_dram___size, nfrontier_dram___size[3], upartition_vertices, HBM_channelA3, HBM_channelB3, HBM_centerA, HBM_centerB, &totalactvvs2);
-	transport_frontier(4, p_v, globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS], cfrontier_dram___size, nfrontier_dram___size[4], upartition_vertices, HBM_channelA4, HBM_channelB4, HBM_centerA, HBM_centerB, &totalactvvs2);
-	transport_frontier(5, p_v, globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS], cfrontier_dram___size, nfrontier_dram___size[5], upartition_vertices, HBM_channelA5, HBM_channelB5, HBM_centerA, HBM_centerB, &totalactvvs2);
-}
+		// transport dest to center and ddr (for export to remote fpga)
+		GATHER_FRONTIERS_MODULE_LOOP: for(unsigned int p_v=start_partition; p_v<stop_partition; p_v++){
+			#ifdef _DEBUGMODE_KERNELPRINTS4
+			if(vpartition_vertices[0][p_v].count > 0 || all_vertices_active_in_all_iterations == true){ cout<<"###>>> gathering vertex properties in "<<p_v<<" for transport..."<<endl; }
+			#endif
+				
+			#ifdef ___ENABLE___EXCHANGEFRONTIERINFOS___
+			if(___ENABLE___EXCHANGEFRONTIERINFOS___BOOL___ == 1){
+transport_frontier(0, p_v, globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS], cfrontier_dram___size, nfrontier_dram___size[0], upartition_vertices, HBM_channelA0, HBM_channelB0, HBM_centerA, HBM_centerB, &totalactvvs2);
+transport_frontier(1, p_v, globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS], cfrontier_dram___size, nfrontier_dram___size[1], upartition_vertices, HBM_channelA1, HBM_channelB1, HBM_centerA, HBM_centerB, &totalactvvs2);
+transport_frontier(2, p_v, globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS], cfrontier_dram___size, nfrontier_dram___size[2], upartition_vertices, HBM_channelA2, HBM_channelB2, HBM_centerA, HBM_centerB, &totalactvvs2);
+transport_frontier(3, p_v, globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS], cfrontier_dram___size, nfrontier_dram___size[3], upartition_vertices, HBM_channelA3, HBM_channelB3, HBM_centerA, HBM_centerB, &totalactvvs2);
+transport_frontier(4, p_v, globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS], cfrontier_dram___size, nfrontier_dram___size[4], upartition_vertices, HBM_channelA4, HBM_channelB4, HBM_centerA, HBM_centerB, &totalactvvs2);
+transport_frontier(5, p_v, globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS], cfrontier_dram___size, nfrontier_dram___size[5], upartition_vertices, HBM_channelA5, HBM_channelB5, HBM_centerA, HBM_centerB, &totalactvvs2);
 			
+			}
+			#endif 
 		}
-		#endif 
+		}
+		#endif
 		
 		#ifdef ___ENABLE___REPORT_STATISTICS___
 #ifdef _DEBUGMODE_CHECKS3 
@@ -4030,4 +4238,5 @@ for(unsigned int t=0; t<16; t++){ _NUMCLOCKCYCLES_[0][t] = 0; }
 	#endif
 	return;
 }
-}
+}	
+#endif 

@@ -5,8 +5,8 @@ DEVICEPATH=/opt/xilinx/platforms/xilinx_u280_xdma_201920_3/xilinx_u280_xdma_2019
 
 ./evaluate.sh
 make cleanall
-faketime -f "-1y" make hw PLATFORM=$DEVICEPATH SYNFREQUENCY=300
-cp xclbin/acts.hw.xilinx_u280_xdma_201920_3.xclbin /home/oj2zf/Documents/acts-clusterscale/outputs/golden_2.xclbin
+make build TARGET=hw PLATFORM=$DEVICEPATH SYNFREQUENCY=300
+cp xclbin/acts.hw.xilinx_u280_xdma_201920_3.xclbin /home/oj2zf/Documents/acts-clusterscale/golden_kernel.xclbin
 cp v++_vmult_vadd.link.log /home/oj2zf/Documents/acts-clusterscale/outputs/golden_2.log
 
 

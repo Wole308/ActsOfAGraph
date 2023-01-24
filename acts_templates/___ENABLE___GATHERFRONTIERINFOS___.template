@@ -1,0 +1,4 @@
+{%for i in context['NUM_VALID_PEs_seq']%}
+transport_frontier({{i}}, p_v, globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS], cfrontier_dram___size, nfrontier_dram___size[{{i}}], upartition_vertices, HBM_channelA{{i}}, HBM_channelB{{i}}, HBM_centerA, HBM_centerB, &totalactvvs2);
+{%endfor%}
+		

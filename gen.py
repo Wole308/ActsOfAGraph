@@ -37,8 +37,8 @@ relref=""
 o_path0=relref+"include/common.h"
 o_path1=relref+"acts_templates/acts_kernel.cpp"
 o_path2=relref+"acts_templates/acts_kernel.h"
-o_path3=relref+"acts_templates/acts_kernel.cpp"
-o_path4=relref+"include/common.h"
+o_path3=relref+"acts_templates/acts_async_kernel.cpp"
+o_path4=relref+"acts_templates/acts_async_kernel.h"
 o_path5=relref+"include/common.h"
 o_path6=relref+"include/common.h"
 o_path7=relref+"include/common.h"
@@ -62,7 +62,7 @@ templ_path0=relref+"include/"
 templ_path1=relref+"acts_templates/"
 templ_path2=relref+"acts_templates/"
 templ_path3=relref+"acts_templates/"
-templ_path4=relref+"include/"
+templ_path4=relref+"acts_templates/"
 templ_path5=relref+"include/"
 templ_path6=relref+"include/"
 templ_path7=relref+"include/"
@@ -82,10 +82,6 @@ for i in range (0,(context['NUM_VALID_PEs'])):
 context['HBM_AXI_PACK_SIZE_seq'] = []
 for i in range (0,(context['HBM_AXI_PACK_SIZE'])):
 		context['HBM_AXI_PACK_SIZE_seq'].append(i)
- 
-# context['HBM_CHANNEL_PACK_SIZE_seq'] = []
-# for i in range (0,(context['HBM_CHANNEL_PACK_SIZE'])):
-		# context['HBM_CHANNEL_PACK_SIZE_seq'].append(i) 
  
 context['EDGE_PACK_SIZE_seq'] = []
 for i in range (0,(context['EDGE_PACK_SIZE'])):
@@ -118,8 +114,8 @@ env10.globals.update(zip=zip)
 template0 = env0.get_template('common_h.template')
 template1 = env1.get_template('acts_kernel.template')
 template2 = env2.get_template('acts_kernel_h.template')
-template3 = env3.get_template('acts_kernel.template')
-template4 = env4.get_template('common_h.template')
+template3 = env3.get_template('acts_async_kernel.template')
+template4 = env4.get_template('acts_async_kernel_h.template')
 template5 = env5.get_template('common_h.template')
 template6 = env6.get_template('common_h.template')
 template7 = env7.get_template('common_h.template')
