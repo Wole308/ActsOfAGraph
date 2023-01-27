@@ -1,6 +1,10 @@
 uint512_vec_dt updates_vecs[NUM_VALID_PEs];
 max_limit = 0; for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ limits[inst] = actpackupdates_dram___size[inst][p_v]; } for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ if(max_limit < limits[inst]){ max_limit = limits[inst]; }}
 
+
+// cout<<"----------------------------------------------------- max_limit "<<max_limit<<" ------------------------------------------------------------------"<<endl;
+
+
 APPLY_UPDATES_LOOP1: for(unsigned int it=0; it<(max_limit + (BLOCKRAM_SIZE - 1)) / BLOCKRAM_SIZE; it++){
 	unsigned int sz = 0; if((it + 1) * BLOCKRAM_SIZE >= max_limit){ sz = max_limit - (it * BLOCKRAM_SIZE); } else { sz = BLOCKRAM_SIZE; }
 	APPLY_UPDATES_LOOP1A: for(unsigned int t_=0; t_<sz; t_++){

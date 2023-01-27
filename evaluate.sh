@@ -16,9 +16,16 @@ DEVICEPATH=/opt/xilinx/platforms/xilinx_u280_xdma_201920_3/xilinx_u280_xdma_2019
 TESTKERNEL="RK"
 # TESTKERNEL="TESTKERNEL"
 
-# XWARE="SWEMU" 
-XWARE="HW" 
-# XWARE="SW" 
+if [ $1 -eq 0 ]; then
+     echo -------------------------------------------------- EVALUATE.SH: SOFTWARE ACTS APPLICATION RUNNING --------------------------------------------------
+	 XWARE="SW"
+elif [ $1 -eq 1 ]; then
+     echo -------------------------------------------------- EVALUATE.SH: HARDWARE ACTS APPLICATION RUNNING --------------------------------------------------
+	 XWARE="HW" 
+else
+     echo -------------------------------------------------- EVALUATE.SH: CMD ARGS NOT DEFINED. EXITING.... --------------------------------------------------
+	 quit
+fi
 
 #evaluation_type=EV_CREATENDGRAPH 
 evaluation_type=EV_PERFORMANCEOFALGORITHM

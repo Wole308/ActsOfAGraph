@@ -29,6 +29,29 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_APPLYPARTITION
 			keyvalue_t update_out[NUM_VALID_PEs][EDGE_PACK_SIZE];
 			#pragma HLS ARRAY_PARTITION variable = update_out complete dim=0
 			
+			// read and apply edge update for dynamic graphs
+			#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
+			EC_PROCESS_EDGES_LOOP1E: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
+			#pragma HLS UNROLL
+				edge3_vec_dt edge_vec_out;
+				for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+					unsigned int edge_hashid = hash_edge(edge3_vecs[inst].data[v].srcvid, edge3_vecs[inst].data[v].dstvid);
+					edge_update_type edge_update = retrieve_edgeupdatebuffer(v, edge_hashid, edgeupdate_buffer[inst]);
+					if(edge_update.srcvid == INVALIDDATA){
+						// no edge update found. do nothing
+					} else {
+						if(edge3_vecs[inst].data[v].dstvid == edge_update.dstvid){
+							// edge update found. merge edge with edge update 
+							edge3_vecs[inst].data[v].weight += 1; // edge_update.weight;
+						} else {
+							// colloision occurred. invalidate edge ?
+							edge3_vecs[inst].data[v].valid = 0;
+						} 
+					}
+				}
+			}
+			#endif 
+			
 			EC_PROCESS_EDGES_LOOP1E: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
 			#pragma HLS UNROLL
 				bool en = true; if(t >= limits[inst]){ en = false; } else { en = true; } // NEW*
@@ -38,10 +61,11 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_APPLYPARTITION
 				checkoutofbounds("acts_kernel::ERROR 213::", rotateby, EDGE_PACK_SIZE, NAp, NAp, NAp);
 				#endif
 				
+				// read source properties and process edge to form vertex-updates 
 				MY_LOOP16214: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 				#pragma HLS UNROLL
 					edge3_type edge = edge_vec.data[v];
-					unsigned int srcvid_lpv = edge.srcvid; // && edge.srcvid != INVALIDDATA_MINI 
+					unsigned int srcvid_lpv = edge.srcvid; 
 					vprop_t uprop; if(edge.srcvid != INVALIDDATA && edge.srcvid < MAX_UPARTITION_VECSIZE){ uprop = retrieve_vdatabuffer(v, srcvid_lpv, vdata_buffer[inst]); }
 					if(edge.srcvid != INVALIDDATA && edge.srcvid < MAX_UPARTITION_VECSIZE && (uprop.mask == MASK_CODE_PE || all_vertices_active_in_all_iterations == true)){
 						unsigned int res = process_funcG(uprop.prop, 1, globalparams[GLOBALPARAMSCODE__PARAM__ALGORITHM]);
@@ -60,6 +84,7 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_APPLYPARTITION
 				if(en == true){ check_if_contiguous(update_out[inst], update_in[inst], update_in[inst], sample_key, 0, rotateby); }
 				#endif
 				
+				// collect stats 
 				bool isvalid = true;
 				if({%for v in context['EDGE_PACK_SIZE_seq']%}{%if(v>0)%}&&{%endif%} update_out[inst][{{v}}].key==INVALIDDATA{%endfor%}){ isvalid = false; }
 				if(en == true && isvalid == true){
@@ -67,7 +92,7 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_APPLYPARTITION
 					#pragma HLS UNROLL
 						if(update_out[inst][v].key != INVALIDDATA){
 							#ifndef FPGA_IMPL
-							if(update_out[inst][v].key != INVALIDDATA){ checkoutofbounds("acts_kernel::ERROR 623::", ((update_out[inst][v].key / EDGE_PACK_SIZE) >> ACTVUPDATESBLOCK_VECSIZE_POW), BLOCKRAM_SIZE, update_out[inst][v].key, (update_out[inst][v].key / EDGE_PACK_SIZE), (MAX_APPLYPARTITION_VECSIZE / BLOCKRAM_SIZE)); }
+							if(update_out[inst][v].key != INVALIDDATA){ checkoutofbounds("acts_kernel::ERROR 623::", ((update_out[inst][v].key / EDGE_PACK_SIZE) >> ACTVUPDATESBLOCK_VECSIZE_POW), BLOCKRAM_SIZE, update_out[inst][v].key, (update_out[inst][v].key / EDGE_PACK_SIZE), (MAX_APPLYPARTITION_VECSIZE / BLOCKRAM_SIZE)); }				
 							#endif
 							unsigned int dstvid_lpv = update_out[inst][v].key / EDGE_PACK_SIZE;
 							if(update_out[inst][v].key != INVALIDDATA){ insert_statstmpbuffer((dstvid_lpv >> ACTVUPDATESBLOCK_VECSIZE_POW), v, 1, statsbuffer_maskbased_tmp[inst]); }
@@ -88,6 +113,9 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_APPLYPARTITION
 				offsets3[n] = offsets2[n] + actpackupdates_dram___size[n][llp_set] + counts[n];
 			}	
 			dinsertmany_updatesdram(offsets3, update_out, ens, {% include 'arguments_allchannelsinslr.template' %});	
+			#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
+			dinsertmany_actpackedges(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES], offsets, t, edge3_vecs, {% include 'arguments_allchannelsinslr.template' %});
+			#endif 
 			update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___ECPROCESSEDGES___, 1);
 		}
 	}

@@ -48,12 +48,20 @@ XCLBIN_FILE="vector_addition.xclbin"
 DATASET_DIR=/home/oj2zf/Documents/dataset
 RESULT_PATH=/home/oj2zf/Documents/analysis_results/acts
 
-./evaluate.sh
-
 make cleanall
 
-# make actsobj
-make host
+if [ $2 -eq 0 ]; then
+     echo -------------------------------------------------- EVALUATE_DATASET.SH: SOFTWARE ACTS APPLICATION RUNNING --------------------------------------------------
+	 ./evaluate.sh 0
+	 make actsobj
+elif [ $2 -eq 1 ]; then
+     echo -------------------------------------------------- EVALUATE_DATASET.SH: HARDWARE ACTS APPLICATION RUNNING --------------------------------------------------
+	 ./evaluate.sh 1
+	 make host
+else
+     echo -------------------------------------------------- EVALUATE_DATASET.SH: CMD ARGS NOT DEFINED. EXITING.... --------------------------------------------------
+	 quit
+fi
 
 # rm -rf /home/oj2zf/Documents/acts-clusterscale/outputs/golden_2.xclbin
 # make host

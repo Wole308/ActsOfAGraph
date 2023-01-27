@@ -236,7 +236,6 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	// unsigned int globalparams[1024];
 	for(unsigned int t=0; t<1024; t++){ globalparams[t] = 0; }
 	
-	// #ifdef BUILD_GRAPH_FOR_DEVICE
 	// load csr vptrs  
 	unsigned int size_u32 = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){ globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS] = 512; } 
@@ -335,7 +334,6 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	for(unsigned int i=0; i<NUM_PEs; i++){
 		unsigned int base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES];
 		for(unsigned int t=0; t<numww_actpackedges; t++){ 	
-			#ifdef ___PARTIAL___HBM___ACCESSES___
 			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 				unsigned int isvalid = act_pack_edges[i][t].data[v].valid;
 				if(isvalid==1){
@@ -345,34 +343,14 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 				}
 				if(i==0){ size_u32 += 2; }
 			}
-			#else 
-			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-				unsigned int isvalid = act_pack_edges[i][t].data[v].valid;
-				if(isvalid==1){
-					HBM_channel[i][base_offset + t].data[2 * v] = act_pack_edges[i][t].data[v].srcvid;
-					HBM_channel[i][base_offset + t].data[2 * v + 1] = act_pack_edges[i][t].data[v].dstvid; 
-				} else {
-					HBM_channel[i][base_offset + t].data[2 * v] = INVALIDDATA;
-					HBM_channel[i][base_offset + t].data[2 * v + 1] = act_pack_edges[i][t].data[v].dstvid; 
-				}
-				if(i==0){ size_u32 += 2; }
-			}		
-			#endif 
 		}
 	}
 	
 	// load updates (NAp)
-	#ifdef ___PARTIAL___HBM___ACCESSES___//XXX
 	for(unsigned int i=0; i<NUM_PEs; i++){ 
 		globalparams[GLOBALPARAMSCODE__WWSIZE__ACTPACKEDGES] = (size_u32 / HBM_CHANNEL_PACK_SIZE) + 16;
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES] + 0; 
 	}
-	#else 
-	for(unsigned int i=0; i<NUM_PEs; i++){ 
-		globalparams[GLOBALPARAMSCODE__WWSIZE__ACTPACKEDGES] = (size_u32 / HBM_CHANNEL_PACK_SIZE) + 16;
-		globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES] + globalparams[GLOBALPARAMSCODE__WWSIZE__ACTPACKEDGES]; 
-	}	
-	#endif 
 	
 	// load vertex properties
 	for(unsigned int i=0; i<NUM_PEs; i++){

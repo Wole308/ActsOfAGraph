@@ -1,4 +1,21 @@
 //////////////////////////////////////////////////////////////////
+#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
+void insert_edgeupdatebuffer(unsigned int v, unsigned int index, edge_update_type data, MY_IFDEF_EDGEUPDATEBUFFER()){
+	#pragma HLS INLINE
+	#ifdef _DEBUGMODE_CHECKS3
+	checkoutofbounds("acts_kernel::ERROR 992::", index, EDGE_BUFFER_SIZE, NAp, NAp, NAp);
+	#endif 
+	edgeupdate_buffer[v][index] = data;
+}
+edge_update_type retrieve_edgeupdatebuffer(unsigned int v, unsigned int index, MY_IFDEF_EDGEUPDATEBUFFER()){
+	#pragma HLS INLINE
+	#ifdef _DEBUGMODE_CHECKS3
+	checkoutofbounds("acts_kernel::ERROR 993::", index, EDGE_BUFFER_SIZE, NAp, NAp, NAp);
+	#endif 
+	return edgeupdate_buffer[v][index];
+}
+#endif 
+
 void insert_vdatabuffer(unsigned int v, unsigned int index, vprop_t data, MY_IFDEF_VDATABUFFER()){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS3

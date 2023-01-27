@@ -4,9 +4,14 @@
 using namespace std;
 #endif 
 
+// ___ENABLE___ACTS___
+// ___ENABLE___TEST3___
+
 #define RUN_TEST_KERNEL
 
 #ifdef RUN_TEST_KERNEL
+// #define ___ENABLE___DYNAMICGRAPHANALYTICS___
+
 #define ___ENABLE___RESETBUFFERSATSTART___ 
 #define ___ENABLE___CLEAR_COUNTERS___
 #define ___ENABLE___PROCESSEDGES___ 
@@ -19,9 +24,9 @@ using namespace std;
 #define ___ENABLE___APPLYUPDATESMODULE___ 
 	#define ___ENABLE___READ_DEST_PROPERTIES___ 
 	#define ___ENABLE___APPLYUPDATES___II1___
-	// #define ___ENABLE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES___ 
+	#define ___ENABLE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES___ 
 	#define ___ENABLE___SAVE_DEST_PROPERTIES___ 
-// #define ___ENABLE___EXCHANGEFRONTIERINFOS___ 
+#define ___ENABLE___EXCHANGEFRONTIERINFOS___ 
 #define ___ENABLE___REPORT_STATISTICS___
 
 #define ___CODE___RESETBUFFERSATSTART___ 0
@@ -50,6 +55,7 @@ using namespace std;
 #define MY_IFDEF_UPDATESTMPBUFFER() keyvalue_t updates_buffer2[UPDATES_BUFFER_PACK_SIZE][UPDATES_BUFFER_SIZE]	
 #define MY_IFDEF_VPTRBUFFER() vtr_t vptr_buffer[VPTR_BUFFER_SIZE]
 #define MY_IFDEF_EDGESBUFFER() edge3_type edges_buffer[EDGE_PACK_SIZE][EDGE_BUFFER_SIZE]
+#define MY_IFDEF_EDGESUPDATEBUFFER() edge_update_type edgeupdates_buffer[EDGE_PACK_SIZE][EDGE_UPDATES_BUFFER_SIZE]
 #define MY_IFDEF_VDATABUFFER() vprop_t vdata_buffer[EDGE_PACK_SIZE][MAXVALID_APPLYPARTITION_VECSIZE]
 #define MY_IFDEF_TOPLEVELFUNC() void top_function( HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, unsigned int batch)
 #else
@@ -62,6 +68,7 @@ using namespace std;
 #define MY_IFDEF_UPDATESTMPBUFFER() keyvalue_t * updates_buffer2[UPDATES_BUFFER_PACK_SIZE]
 #define MY_IFDEF_VPTRBUFFER() vtr_t * vptr_buffer
 #define MY_IFDEF_EDGESBUFFER() edge3_type * edges_buffer[EDGE_PACK_SIZE]
+#define MY_IFDEF_EDGESUPDATEBUFFER() edge_update_type * edgeupdates_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_VDATABUFFER() vprop_t * vdata_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_TOPLEVELFUNC() void acts_kernel::top_function( HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, unsigned int batch)
 #endif
@@ -107,6 +114,11 @@ unsigned int get_local_to_upartition(unsigned int lvid){
 unsigned int get_local_to_vpartition(unsigned int lvid){
 	return lvid % MAX_APPLYPARTITION_SIZE;
 }
+#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
+unsigned int hash_edge(unsigned int srcvid, unsigned int dstvid){
+	return ((srcvid % EDGE_UPDATES_BUFFER_SIZE) + (dstvid % EDGE_UPDATES_BUFFER_SIZE)) / 2;
+}
+#endif 
 
 void rearrangeLayoutVx16B(unsigned int s, keyvalue_t in[EDGE_PACK_SIZE], keyvalue_t out[EDGE_PACK_SIZE]){
  if(s==0){ 
@@ -921,226 +933,6 @@ void master_insertmany_vec(unsigned int offsets[NUM_VALID_PEs], bool ens[NUM_VAL
 	
 	return;
 }
-void master_insertmanyG_vec(unsigned int offsets[NUM_VALID_PEs], bool ens[NUM_VALID_PEs], unsigned int data[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5){
-	#pragma HLS INLINE // FIXME_HARDWARE
-	
-	if(ens[0]==true){
-		HBM_channelA0[offsets[0]].data[0] = data[0][0];
-		HBM_channelA0[offsets[0]].data[1] = data[0][1];
-		HBM_channelA0[offsets[0]].data[2] = data[0][2];
-		HBM_channelA0[offsets[0]].data[3] = data[0][3];
-		HBM_channelA0[offsets[0]].data[4] = data[0][4];
-		HBM_channelA0[offsets[0]].data[5] = data[0][5];
-		HBM_channelA0[offsets[0]].data[6] = data[0][6];
-		HBM_channelA0[offsets[0]].data[7] = data[0][7];
-		HBM_channelA0[offsets[0]].data[8] = data[0][8];
-		HBM_channelA0[offsets[0]].data[9] = data[0][9];
-		HBM_channelA0[offsets[0]].data[10] = data[0][10];
-		HBM_channelA0[offsets[0]].data[11] = data[0][11];
-		HBM_channelA0[offsets[0]].data[12] = data[0][12];
-		HBM_channelA0[offsets[0]].data[13] = data[0][13];
-		HBM_channelA0[offsets[0]].data[14] = data[0][14];
-		HBM_channelA0[offsets[0]].data[15] = data[0][15];
-		HBM_channelB0[offsets[0]].data[0] = data[0][16];
-		HBM_channelB0[offsets[0]].data[1] = data[0][17];
-		HBM_channelB0[offsets[0]].data[2] = data[0][18];
-		HBM_channelB0[offsets[0]].data[3] = data[0][19];
-		HBM_channelB0[offsets[0]].data[4] = data[0][20];
-		HBM_channelB0[offsets[0]].data[5] = data[0][21];
-		HBM_channelB0[offsets[0]].data[6] = data[0][22];
-		HBM_channelB0[offsets[0]].data[7] = data[0][23];
-		HBM_channelB0[offsets[0]].data[8] = data[0][24];
-		HBM_channelB0[offsets[0]].data[9] = data[0][25];
-		HBM_channelB0[offsets[0]].data[10] = data[0][26];
-		HBM_channelB0[offsets[0]].data[11] = data[0][27];
-		HBM_channelB0[offsets[0]].data[12] = data[0][28];
-		HBM_channelB0[offsets[0]].data[13] = data[0][29];
-		HBM_channelB0[offsets[0]].data[14] = data[0][30];
-		HBM_channelB0[offsets[0]].data[15] = data[0][31];
-	
-	}
-	
-	if(ens[1]==true){
-		HBM_channelA1[offsets[1]].data[0] = data[1][0];
-		HBM_channelA1[offsets[1]].data[1] = data[1][1];
-		HBM_channelA1[offsets[1]].data[2] = data[1][2];
-		HBM_channelA1[offsets[1]].data[3] = data[1][3];
-		HBM_channelA1[offsets[1]].data[4] = data[1][4];
-		HBM_channelA1[offsets[1]].data[5] = data[1][5];
-		HBM_channelA1[offsets[1]].data[6] = data[1][6];
-		HBM_channelA1[offsets[1]].data[7] = data[1][7];
-		HBM_channelA1[offsets[1]].data[8] = data[1][8];
-		HBM_channelA1[offsets[1]].data[9] = data[1][9];
-		HBM_channelA1[offsets[1]].data[10] = data[1][10];
-		HBM_channelA1[offsets[1]].data[11] = data[1][11];
-		HBM_channelA1[offsets[1]].data[12] = data[1][12];
-		HBM_channelA1[offsets[1]].data[13] = data[1][13];
-		HBM_channelA1[offsets[1]].data[14] = data[1][14];
-		HBM_channelA1[offsets[1]].data[15] = data[1][15];
-		HBM_channelB1[offsets[1]].data[0] = data[1][16];
-		HBM_channelB1[offsets[1]].data[1] = data[1][17];
-		HBM_channelB1[offsets[1]].data[2] = data[1][18];
-		HBM_channelB1[offsets[1]].data[3] = data[1][19];
-		HBM_channelB1[offsets[1]].data[4] = data[1][20];
-		HBM_channelB1[offsets[1]].data[5] = data[1][21];
-		HBM_channelB1[offsets[1]].data[6] = data[1][22];
-		HBM_channelB1[offsets[1]].data[7] = data[1][23];
-		HBM_channelB1[offsets[1]].data[8] = data[1][24];
-		HBM_channelB1[offsets[1]].data[9] = data[1][25];
-		HBM_channelB1[offsets[1]].data[10] = data[1][26];
-		HBM_channelB1[offsets[1]].data[11] = data[1][27];
-		HBM_channelB1[offsets[1]].data[12] = data[1][28];
-		HBM_channelB1[offsets[1]].data[13] = data[1][29];
-		HBM_channelB1[offsets[1]].data[14] = data[1][30];
-		HBM_channelB1[offsets[1]].data[15] = data[1][31];
-	
-	}
-	
-	if(ens[2]==true){
-		HBM_channelA2[offsets[2]].data[0] = data[2][0];
-		HBM_channelA2[offsets[2]].data[1] = data[2][1];
-		HBM_channelA2[offsets[2]].data[2] = data[2][2];
-		HBM_channelA2[offsets[2]].data[3] = data[2][3];
-		HBM_channelA2[offsets[2]].data[4] = data[2][4];
-		HBM_channelA2[offsets[2]].data[5] = data[2][5];
-		HBM_channelA2[offsets[2]].data[6] = data[2][6];
-		HBM_channelA2[offsets[2]].data[7] = data[2][7];
-		HBM_channelA2[offsets[2]].data[8] = data[2][8];
-		HBM_channelA2[offsets[2]].data[9] = data[2][9];
-		HBM_channelA2[offsets[2]].data[10] = data[2][10];
-		HBM_channelA2[offsets[2]].data[11] = data[2][11];
-		HBM_channelA2[offsets[2]].data[12] = data[2][12];
-		HBM_channelA2[offsets[2]].data[13] = data[2][13];
-		HBM_channelA2[offsets[2]].data[14] = data[2][14];
-		HBM_channelA2[offsets[2]].data[15] = data[2][15];
-		HBM_channelB2[offsets[2]].data[0] = data[2][16];
-		HBM_channelB2[offsets[2]].data[1] = data[2][17];
-		HBM_channelB2[offsets[2]].data[2] = data[2][18];
-		HBM_channelB2[offsets[2]].data[3] = data[2][19];
-		HBM_channelB2[offsets[2]].data[4] = data[2][20];
-		HBM_channelB2[offsets[2]].data[5] = data[2][21];
-		HBM_channelB2[offsets[2]].data[6] = data[2][22];
-		HBM_channelB2[offsets[2]].data[7] = data[2][23];
-		HBM_channelB2[offsets[2]].data[8] = data[2][24];
-		HBM_channelB2[offsets[2]].data[9] = data[2][25];
-		HBM_channelB2[offsets[2]].data[10] = data[2][26];
-		HBM_channelB2[offsets[2]].data[11] = data[2][27];
-		HBM_channelB2[offsets[2]].data[12] = data[2][28];
-		HBM_channelB2[offsets[2]].data[13] = data[2][29];
-		HBM_channelB2[offsets[2]].data[14] = data[2][30];
-		HBM_channelB2[offsets[2]].data[15] = data[2][31];
-	
-	}
-	
-	if(ens[3]==true){
-		HBM_channelA3[offsets[3]].data[0] = data[3][0];
-		HBM_channelA3[offsets[3]].data[1] = data[3][1];
-		HBM_channelA3[offsets[3]].data[2] = data[3][2];
-		HBM_channelA3[offsets[3]].data[3] = data[3][3];
-		HBM_channelA3[offsets[3]].data[4] = data[3][4];
-		HBM_channelA3[offsets[3]].data[5] = data[3][5];
-		HBM_channelA3[offsets[3]].data[6] = data[3][6];
-		HBM_channelA3[offsets[3]].data[7] = data[3][7];
-		HBM_channelA3[offsets[3]].data[8] = data[3][8];
-		HBM_channelA3[offsets[3]].data[9] = data[3][9];
-		HBM_channelA3[offsets[3]].data[10] = data[3][10];
-		HBM_channelA3[offsets[3]].data[11] = data[3][11];
-		HBM_channelA3[offsets[3]].data[12] = data[3][12];
-		HBM_channelA3[offsets[3]].data[13] = data[3][13];
-		HBM_channelA3[offsets[3]].data[14] = data[3][14];
-		HBM_channelA3[offsets[3]].data[15] = data[3][15];
-		HBM_channelB3[offsets[3]].data[0] = data[3][16];
-		HBM_channelB3[offsets[3]].data[1] = data[3][17];
-		HBM_channelB3[offsets[3]].data[2] = data[3][18];
-		HBM_channelB3[offsets[3]].data[3] = data[3][19];
-		HBM_channelB3[offsets[3]].data[4] = data[3][20];
-		HBM_channelB3[offsets[3]].data[5] = data[3][21];
-		HBM_channelB3[offsets[3]].data[6] = data[3][22];
-		HBM_channelB3[offsets[3]].data[7] = data[3][23];
-		HBM_channelB3[offsets[3]].data[8] = data[3][24];
-		HBM_channelB3[offsets[3]].data[9] = data[3][25];
-		HBM_channelB3[offsets[3]].data[10] = data[3][26];
-		HBM_channelB3[offsets[3]].data[11] = data[3][27];
-		HBM_channelB3[offsets[3]].data[12] = data[3][28];
-		HBM_channelB3[offsets[3]].data[13] = data[3][29];
-		HBM_channelB3[offsets[3]].data[14] = data[3][30];
-		HBM_channelB3[offsets[3]].data[15] = data[3][31];
-	
-	}
-	
-	if(ens[4]==true){
-		HBM_channelA4[offsets[4]].data[0] = data[4][0];
-		HBM_channelA4[offsets[4]].data[1] = data[4][1];
-		HBM_channelA4[offsets[4]].data[2] = data[4][2];
-		HBM_channelA4[offsets[4]].data[3] = data[4][3];
-		HBM_channelA4[offsets[4]].data[4] = data[4][4];
-		HBM_channelA4[offsets[4]].data[5] = data[4][5];
-		HBM_channelA4[offsets[4]].data[6] = data[4][6];
-		HBM_channelA4[offsets[4]].data[7] = data[4][7];
-		HBM_channelA4[offsets[4]].data[8] = data[4][8];
-		HBM_channelA4[offsets[4]].data[9] = data[4][9];
-		HBM_channelA4[offsets[4]].data[10] = data[4][10];
-		HBM_channelA4[offsets[4]].data[11] = data[4][11];
-		HBM_channelA4[offsets[4]].data[12] = data[4][12];
-		HBM_channelA4[offsets[4]].data[13] = data[4][13];
-		HBM_channelA4[offsets[4]].data[14] = data[4][14];
-		HBM_channelA4[offsets[4]].data[15] = data[4][15];
-		HBM_channelB4[offsets[4]].data[0] = data[4][16];
-		HBM_channelB4[offsets[4]].data[1] = data[4][17];
-		HBM_channelB4[offsets[4]].data[2] = data[4][18];
-		HBM_channelB4[offsets[4]].data[3] = data[4][19];
-		HBM_channelB4[offsets[4]].data[4] = data[4][20];
-		HBM_channelB4[offsets[4]].data[5] = data[4][21];
-		HBM_channelB4[offsets[4]].data[6] = data[4][22];
-		HBM_channelB4[offsets[4]].data[7] = data[4][23];
-		HBM_channelB4[offsets[4]].data[8] = data[4][24];
-		HBM_channelB4[offsets[4]].data[9] = data[4][25];
-		HBM_channelB4[offsets[4]].data[10] = data[4][26];
-		HBM_channelB4[offsets[4]].data[11] = data[4][27];
-		HBM_channelB4[offsets[4]].data[12] = data[4][28];
-		HBM_channelB4[offsets[4]].data[13] = data[4][29];
-		HBM_channelB4[offsets[4]].data[14] = data[4][30];
-		HBM_channelB4[offsets[4]].data[15] = data[4][31];
-	
-	}
-	
-	if(ens[5]==true){
-		HBM_channelA5[offsets[5]].data[0] = data[5][0];
-		HBM_channelA5[offsets[5]].data[1] = data[5][1];
-		HBM_channelA5[offsets[5]].data[2] = data[5][2];
-		HBM_channelA5[offsets[5]].data[3] = data[5][3];
-		HBM_channelA5[offsets[5]].data[4] = data[5][4];
-		HBM_channelA5[offsets[5]].data[5] = data[5][5];
-		HBM_channelA5[offsets[5]].data[6] = data[5][6];
-		HBM_channelA5[offsets[5]].data[7] = data[5][7];
-		HBM_channelA5[offsets[5]].data[8] = data[5][8];
-		HBM_channelA5[offsets[5]].data[9] = data[5][9];
-		HBM_channelA5[offsets[5]].data[10] = data[5][10];
-		HBM_channelA5[offsets[5]].data[11] = data[5][11];
-		HBM_channelA5[offsets[5]].data[12] = data[5][12];
-		HBM_channelA5[offsets[5]].data[13] = data[5][13];
-		HBM_channelA5[offsets[5]].data[14] = data[5][14];
-		HBM_channelA5[offsets[5]].data[15] = data[5][15];
-		HBM_channelB5[offsets[5]].data[0] = data[5][16];
-		HBM_channelB5[offsets[5]].data[1] = data[5][17];
-		HBM_channelB5[offsets[5]].data[2] = data[5][18];
-		HBM_channelB5[offsets[5]].data[3] = data[5][19];
-		HBM_channelB5[offsets[5]].data[4] = data[5][20];
-		HBM_channelB5[offsets[5]].data[5] = data[5][21];
-		HBM_channelB5[offsets[5]].data[6] = data[5][22];
-		HBM_channelB5[offsets[5]].data[7] = data[5][23];
-		HBM_channelB5[offsets[5]].data[8] = data[5][24];
-		HBM_channelB5[offsets[5]].data[9] = data[5][25];
-		HBM_channelB5[offsets[5]].data[10] = data[5][26];
-		HBM_channelB5[offsets[5]].data[11] = data[5][27];
-		HBM_channelB5[offsets[5]].data[12] = data[5][28];
-		HBM_channelB5[offsets[5]].data[13] = data[5][29];
-		HBM_channelB5[offsets[5]].data[14] = data[5][30];
-		HBM_channelB5[offsets[5]].data[15] = data[5][31];
-	
-	}
-	return;
-}
 void master_retrievemany_vec(unsigned int offsets[NUM_VALID_PEs], unsigned int data[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5){
 	#pragma HLS INLINE // FIXME_HARDWARE
 	data[0][0] = HBM_channelA0[offsets[0]].data[0];
@@ -1338,8 +1130,8 @@ void master_retrievemany_vec(unsigned int offsets[NUM_VALID_PEs], unsigned int d
 	return;
 }
 
-void master_insertmanyG_partialAvec(unsigned int offsets[NUM_VALID_PEs], bool ens[NUM_VALID_PEs], unsigned int data[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5){
-	#pragma HLS INLINE // FIXME_HARDWARE
+void master_insertmany_Bvec(unsigned int offsets[NUM_VALID_PEs], bool ens[NUM_VALID_PEs], unsigned int data[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5){
+	#pragma HLS INLINE 
 	
 	if(ens[0]==true){
 		HBM_channelB0[offsets[0]].data[0] = data[0][16];
@@ -1462,7 +1254,133 @@ void master_insertmanyG_partialAvec(unsigned int offsets[NUM_VALID_PEs], bool en
 	}
 	return;
 }
-void master_retrievemany_partialAvec(unsigned int offsets[NUM_VALID_PEs], unsigned int data[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5){
+#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
+void master_insertmany_Cvec(unsigned int offsets[NUM_VALID_PEs], bool ens[NUM_VALID_PEs], unsigned int data[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5){
+	#pragma HLS INLINE 
+	
+	if(ens[0]==true){
+		HBM_channelC0[offsets[0]].data[0] = data[0][16];
+		HBM_channelC0[offsets[0]].data[1] = data[0][17];
+		HBM_channelC0[offsets[0]].data[2] = data[0][18];
+		HBM_channelC0[offsets[0]].data[3] = data[0][19];
+		HBM_channelC0[offsets[0]].data[4] = data[0][20];
+		HBM_channelC0[offsets[0]].data[5] = data[0][21];
+		HBM_channelC0[offsets[0]].data[6] = data[0][22];
+		HBM_channelC0[offsets[0]].data[7] = data[0][23];
+		HBM_channelC0[offsets[0]].data[8] = data[0][24];
+		HBM_channelC0[offsets[0]].data[9] = data[0][25];
+		HBM_channelC0[offsets[0]].data[10] = data[0][26];
+		HBM_channelC0[offsets[0]].data[11] = data[0][27];
+		HBM_channelC0[offsets[0]].data[12] = data[0][28];
+		HBM_channelC0[offsets[0]].data[13] = data[0][29];
+		HBM_channelC0[offsets[0]].data[14] = data[0][30];
+		HBM_channelC0[offsets[0]].data[15] = data[0][31];
+	
+	}
+	
+	if(ens[1]==true){
+		HBM_channelC1[offsets[1]].data[0] = data[1][16];
+		HBM_channelC1[offsets[1]].data[1] = data[1][17];
+		HBM_channelC1[offsets[1]].data[2] = data[1][18];
+		HBM_channelC1[offsets[1]].data[3] = data[1][19];
+		HBM_channelC1[offsets[1]].data[4] = data[1][20];
+		HBM_channelC1[offsets[1]].data[5] = data[1][21];
+		HBM_channelC1[offsets[1]].data[6] = data[1][22];
+		HBM_channelC1[offsets[1]].data[7] = data[1][23];
+		HBM_channelC1[offsets[1]].data[8] = data[1][24];
+		HBM_channelC1[offsets[1]].data[9] = data[1][25];
+		HBM_channelC1[offsets[1]].data[10] = data[1][26];
+		HBM_channelC1[offsets[1]].data[11] = data[1][27];
+		HBM_channelC1[offsets[1]].data[12] = data[1][28];
+		HBM_channelC1[offsets[1]].data[13] = data[1][29];
+		HBM_channelC1[offsets[1]].data[14] = data[1][30];
+		HBM_channelC1[offsets[1]].data[15] = data[1][31];
+	
+	}
+	
+	if(ens[2]==true){
+		HBM_channelC2[offsets[2]].data[0] = data[2][16];
+		HBM_channelC2[offsets[2]].data[1] = data[2][17];
+		HBM_channelC2[offsets[2]].data[2] = data[2][18];
+		HBM_channelC2[offsets[2]].data[3] = data[2][19];
+		HBM_channelC2[offsets[2]].data[4] = data[2][20];
+		HBM_channelC2[offsets[2]].data[5] = data[2][21];
+		HBM_channelC2[offsets[2]].data[6] = data[2][22];
+		HBM_channelC2[offsets[2]].data[7] = data[2][23];
+		HBM_channelC2[offsets[2]].data[8] = data[2][24];
+		HBM_channelC2[offsets[2]].data[9] = data[2][25];
+		HBM_channelC2[offsets[2]].data[10] = data[2][26];
+		HBM_channelC2[offsets[2]].data[11] = data[2][27];
+		HBM_channelC2[offsets[2]].data[12] = data[2][28];
+		HBM_channelC2[offsets[2]].data[13] = data[2][29];
+		HBM_channelC2[offsets[2]].data[14] = data[2][30];
+		HBM_channelC2[offsets[2]].data[15] = data[2][31];
+	
+	}
+	
+	if(ens[3]==true){
+		HBM_channelC3[offsets[3]].data[0] = data[3][16];
+		HBM_channelC3[offsets[3]].data[1] = data[3][17];
+		HBM_channelC3[offsets[3]].data[2] = data[3][18];
+		HBM_channelC3[offsets[3]].data[3] = data[3][19];
+		HBM_channelC3[offsets[3]].data[4] = data[3][20];
+		HBM_channelC3[offsets[3]].data[5] = data[3][21];
+		HBM_channelC3[offsets[3]].data[6] = data[3][22];
+		HBM_channelC3[offsets[3]].data[7] = data[3][23];
+		HBM_channelC3[offsets[3]].data[8] = data[3][24];
+		HBM_channelC3[offsets[3]].data[9] = data[3][25];
+		HBM_channelC3[offsets[3]].data[10] = data[3][26];
+		HBM_channelC3[offsets[3]].data[11] = data[3][27];
+		HBM_channelC3[offsets[3]].data[12] = data[3][28];
+		HBM_channelC3[offsets[3]].data[13] = data[3][29];
+		HBM_channelC3[offsets[3]].data[14] = data[3][30];
+		HBM_channelC3[offsets[3]].data[15] = data[3][31];
+	
+	}
+	
+	if(ens[4]==true){
+		HBM_channelC4[offsets[4]].data[0] = data[4][16];
+		HBM_channelC4[offsets[4]].data[1] = data[4][17];
+		HBM_channelC4[offsets[4]].data[2] = data[4][18];
+		HBM_channelC4[offsets[4]].data[3] = data[4][19];
+		HBM_channelC4[offsets[4]].data[4] = data[4][20];
+		HBM_channelC4[offsets[4]].data[5] = data[4][21];
+		HBM_channelC4[offsets[4]].data[6] = data[4][22];
+		HBM_channelC4[offsets[4]].data[7] = data[4][23];
+		HBM_channelC4[offsets[4]].data[8] = data[4][24];
+		HBM_channelC4[offsets[4]].data[9] = data[4][25];
+		HBM_channelC4[offsets[4]].data[10] = data[4][26];
+		HBM_channelC4[offsets[4]].data[11] = data[4][27];
+		HBM_channelC4[offsets[4]].data[12] = data[4][28];
+		HBM_channelC4[offsets[4]].data[13] = data[4][29];
+		HBM_channelC4[offsets[4]].data[14] = data[4][30];
+		HBM_channelC4[offsets[4]].data[15] = data[4][31];
+	
+	}
+	
+	if(ens[5]==true){
+		HBM_channelC5[offsets[5]].data[0] = data[5][16];
+		HBM_channelC5[offsets[5]].data[1] = data[5][17];
+		HBM_channelC5[offsets[5]].data[2] = data[5][18];
+		HBM_channelC5[offsets[5]].data[3] = data[5][19];
+		HBM_channelC5[offsets[5]].data[4] = data[5][20];
+		HBM_channelC5[offsets[5]].data[5] = data[5][21];
+		HBM_channelC5[offsets[5]].data[6] = data[5][22];
+		HBM_channelC5[offsets[5]].data[7] = data[5][23];
+		HBM_channelC5[offsets[5]].data[8] = data[5][24];
+		HBM_channelC5[offsets[5]].data[9] = data[5][25];
+		HBM_channelC5[offsets[5]].data[10] = data[5][26];
+		HBM_channelC5[offsets[5]].data[11] = data[5][27];
+		HBM_channelC5[offsets[5]].data[12] = data[5][28];
+		HBM_channelC5[offsets[5]].data[13] = data[5][29];
+		HBM_channelC5[offsets[5]].data[14] = data[5][30];
+		HBM_channelC5[offsets[5]].data[15] = data[5][31];
+	
+	}
+	return;
+}
+#endif 
+void master_retrievemany_Avec(unsigned int offsets[NUM_VALID_PEs], unsigned int data[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5){
 	#pragma HLS INLINE // FIXME_HARDWARE
 	data[0][0] = HBM_channelA0[offsets[0]].data[0];
 	data[0][1] = HBM_channelA0[offsets[0]].data[1];
@@ -1563,7 +1481,7 @@ void master_retrievemany_partialAvec(unsigned int offsets[NUM_VALID_PEs], unsign
 	
 	return;
 }
-void master_retrievemany_partialBvec(unsigned int offsets[NUM_VALID_PEs], unsigned int data[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5){
+void master_retrievemany_Bvec(unsigned int offsets[NUM_VALID_PEs], unsigned int data[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5){
 	#pragma HLS INLINE // FIXME_HARDWARE
  /////////////////
 	data[0][16] = HBM_channelB0[offsets[0]].data[0];
@@ -1901,6 +1819,35 @@ edge3_vec_dt dretrieve_csredges(unsigned int base_offset__, unsigned int index, 
 	return edge3_vec;
 }
 
+#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
+void dinsertmany_actpackedges(unsigned int base_offset__, unsigned int offsets[NUM_VALID_PEs], unsigned int t, edge3_vec_dt edge3_vecs[NUM_VALID_PEs],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5){
+	#pragma HLS INLINE 			
+	#ifdef _DEBUGMODE_CHECKS3
+	unsigned int wwsize = globalparams_debug[GLOBALPARAMSCODE__WWSIZE__ACTPACKEDGES];
+	checkoutofbounds("acts_kernel::ERROR 704f::", offsets[0] + t, wwsize, NAp, NAp, NAp);
+	#endif 
+	
+	unsigned int data_[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=data_ complete
+	unsigned int offsets_[NUM_VALID_PEs];
+	#pragma HLS ARRAY_PARTITION variable=offsets_ complete
+	for(unsigned int n=0; n<NUM_VALID_PEs; n++){
+	#pragma HLS UNROLL
+		offsets_[n] = base_offset__ + offsets[n] + t;
+	}
+		
+	for(unsigned int n=0; n<NUM_VALID_PEs; n++){
+	#pragma HLS UNROLL	
+		for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){	
+		#pragma HLS UNROLL	
+			data_[n][v] = (edge3_vecs[n].data[v].srcvid << MAXNUMBITS_ACTPACK_DESTVID) | act_pack_edges[i][t].data[v].dstvid;
+		}	
+	}
+	// master_insertmany_Cvec(offsets, ens_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);
+	master_insertmany_Bvec(offsets, ens_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5); // REMOVEME.
+	return;
+}
+#endif 
 void dretrievemany_actpackedges(unsigned int base_offset__, unsigned int offsets[NUM_VALID_PEs], unsigned int t, edge3_vec_dt edge3_vecs[NUM_VALID_PEs],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5){
 	#pragma HLS INLINE // FIXME_HARDWARE
 	#ifdef _DEBUGMODE_CHECKS3
@@ -1917,8 +1864,7 @@ void dretrievemany_actpackedges(unsigned int base_offset__, unsigned int offsets
 		offsets_[n] = base_offset__ + offsets[n] + t;
 	}
 	
-	#ifdef ___PARTIAL___HBM___ACCESSES___
-	master_retrievemany_partialAvec(offsets_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);		
+	master_retrievemany_Avec(offsets_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);		
 	for(unsigned int n=0; n<NUM_VALID_PEs; n++){
 	#pragma HLS UNROLL	
 		for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){	
@@ -1931,19 +1877,6 @@ void dretrievemany_actpackedges(unsigned int base_offset__, unsigned int offsets
 			if(edge3_vecs[n].data[v].dstvid == INVALIDDATA_DESTVID){ edge3_vecs[n].data[v].dstvid = INVALIDDATA; }
 		}	
 	}
-	#else 
-	master_retrievemany_vec(offsets_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);		
-	for(unsigned int n=0; n<NUM_VALID_PEs; n++){
-	#pragma HLS UNROLL
-		for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-		#pragma HLS UNROLL
-			edge3_vecs[n].data[v].srcvid = data_[n][2*v];
-			edge3_vecs[n].data[v].dstvid = data_[n][2*v+1];
-			edge3_vecs[n].data[v].weight = 1;
-			edge3_vecs[n].data[v].valid = NAp;
-		}
-	}	
-	#endif 	
 	return;
 }
 
@@ -1972,7 +1905,6 @@ void dinsertmany_updatesdram(unsigned int offsets[NUM_VALID_PEs], keyvalue_t dat
 		ens_[n] = ens[n][0];
 	}	
 
-	#ifdef ___PARTIAL___HBM___ACCESSES___//XXXX
 	for(unsigned int n=0; n<NUM_VALID_PEs; n++){ 
 	#pragma HLS UNROLL
 		for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
@@ -1988,23 +1920,7 @@ void dinsertmany_updatesdram(unsigned int offsets[NUM_VALID_PEs], keyvalue_t dat
 			}
 		}
 	}
-	master_insertmanyG_partialAvec(offsets, ens_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5); // CRITICAL FIXME. the issue.
-	#else 
-	for(unsigned int n=0; n<NUM_VALID_PEs; n++){ 
-	#pragma HLS UNROLL
-		for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-		#pragma HLS UNROLL
-			if(ens[n][v] == true){
-				data_[n][2*v] = data[n][v].key;
-				data_[n][2*v+1] = data[n][v].value;
-			} else {
-				data_[n][2*v] = INVALIDDATA;
-				data_[n][2*v+1] = INVALIDDATA;
-			}
-		}
-	}
-	master_insertmanyG_vec(offsets, ens_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5); // CRITICAL FIXME. the issue.
-	#endif
+	master_insertmany_Bvec(offsets, ens_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5); // CRITICAL FIXME. the issue.
 }
 void dretrievemany_udatesdram(unsigned int offset__, unsigned int llp_set, unsigned int index, uint512_vec_dt data[NUM_VALID_PEs],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5, unsigned int updatesptrs[MAX_NUM_LLPSETS]){
 	#pragma HLS INLINE // FIXME_HARDWARE
@@ -2022,8 +1938,7 @@ void dretrievemany_udatesdram(unsigned int offset__, unsigned int llp_set, unsig
 		offsets_[n] = offset__ + index;
 	}
 	
-	#ifdef ___PARTIAL___HBM___ACCESSES___//XXXX
-	master_retrievemany_partialBvec(offsets_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);
+	master_retrievemany_Bvec(offsets_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);
 	for(unsigned int n=0; n<NUM_VALID_PEs; n++){
 	#pragma HLS UNROLL
 		for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
@@ -2034,18 +1949,7 @@ void dretrievemany_udatesdram(unsigned int offset__, unsigned int llp_set, unsig
 			if(data[n].data[v].key == INVALIDDATA_DESTVID){ data[n].data[v].key = INVALIDDATA; }//////////////////////////////// CRITICAL
 			if(data[n].data[v].value == INVALIDDATA_SRCVID){ data[n].data[v].value = INVALIDDATA; }			
 		}
-	}	
-	#else 
-	master_retrievemany_vec(offsets_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);
-	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-	#pragma HLS UNROLL
-		for(unsigned int n=0; n<NUM_VALID_PEs; n++){
-		#pragma HLS UNROLL
-			data[n].data[v].key = data_[n][2*v];
-			data[n].data[v].value = data_[n][2*v+1];
-		}
-	}		
-	#endif 
+	}
 	return; 
 }
 
@@ -2151,12 +2055,7 @@ void dinsertmany_nfrontierdram(unsigned int offset__, unsigned int p_u, unsigned
 		ens_[n] = ens[n][0];
 	}
 	for(unsigned int n=0; n<NUM_VALID_PEs; n++){
-	#pragma HLS UNROLL
-		// for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-		// #pragma HLS UNROLL
-			// data_[n][2*v] = datas[n][v].key;
-			// data_[n][2*v+1] = datas[n][v].value;
-		// }	
+	#pragma HLS UNROLL	
 		for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 		#pragma HLS UNROLL
 			if(ens[n][v] == true){
@@ -2172,6 +2071,23 @@ void dinsertmany_nfrontierdram(unsigned int offset__, unsigned int p_u, unsigned
 }	
 
 //////////////////////////////////////////////////////////////////
+#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
+void insert_edgeupdatebuffer(unsigned int v, unsigned int index, edge_update_type data, MY_IFDEF_EDGEUPDATEBUFFER()){
+	#pragma HLS INLINE
+	#ifdef _DEBUGMODE_CHECKS3
+	checkoutofbounds("acts_kernel::ERROR 992::", index, EDGE_BUFFER_SIZE, NAp, NAp, NAp);
+	#endif 
+	edgeupdate_buffer[v][index] = data;
+}
+edge_update_type retrieve_edgeupdatebuffer(unsigned int v, unsigned int index, MY_IFDEF_EDGEUPDATEBUFFER()){
+	#pragma HLS INLINE
+	#ifdef _DEBUGMODE_CHECKS3
+	checkoutofbounds("acts_kernel::ERROR 993::", index, EDGE_BUFFER_SIZE, NAp, NAp, NAp);
+	#endif 
+	return edgeupdate_buffer[v][index];
+}
+#endif 
+
 void insert_vdatabuffer(unsigned int v, unsigned int index, vprop_t data, MY_IFDEF_VDATABUFFER()){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS3
@@ -2534,10 +2450,15 @@ unsigned int statsbuffer_idbased[NUM_VALID_PEs][MAX_NUM_APPLYPARTITIONS][BLOCKRA
 #pragma HLS ARRAY_PARTITION variable=statsbuffer_idbased complete dim=2
 vtr_t vptr_buffer[NUM_VALID_PEs][VPTR_BUFFER_SIZE];
 #pragma HLS ARRAY_PARTITION variable=vptr_buffer complete dim=1
-edge3_type edges_buffer[NUM_VALID_PEs][EDGE_PACK_SIZE][EDGE_BUFFER_SIZE];
-#pragma HLS ARRAY_PARTITION variable=edges_buffer complete dim=1
-#pragma HLS ARRAY_PARTITION variable=edges_buffer complete dim=2
-keyvalue_t updates_buffer2[NUM_VALID_PEs][UPDATES_BUFFER_PACK_SIZE][UPDATES_BUFFER_SIZE]; // EDGE_PACK_SIZE
+edge3_type edges_buffer[NUM_VALID_PEs][EDGE_PACK_SIZE][EDGE_BUFFER_SIZE];	
+#pragma HLS ARRAY_PARTITION variable=edges_buffer complete dim=1	
+#pragma HLS ARRAY_PARTITION variable=edges_buffer complete dim=2	
+#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
+edge_update_type edgeupdates_buffer[NUM_VALID_PEs][EDGE_PACK_SIZE][EDGE_UPDATES_BUFFER_SIZE];	
+#pragma HLS ARRAY_PARTITION variable=edgeupdates_buffer complete dim=1	
+#pragma HLS ARRAY_PARTITION variable=edgeupdates_buffer complete dim=2	
+#endif 
+keyvalue_t updates_buffer2[NUM_VALID_PEs][UPDATES_BUFFER_PACK_SIZE][UPDATES_BUFFER_SIZE];		
 #pragma HLS ARRAY_PARTITION variable=updates_buffer2 complete dim=1
 #pragma HLS ARRAY_PARTITION variable=updates_buffer2 complete dim=2
 vprop_t vdata_buffer[NUM_VALID_PEs][EDGE_PACK_SIZE][MAXVALID_APPLYPARTITION_VECSIZE];
@@ -2554,6 +2475,9 @@ unsigned int * statsbuffer_maskbased[NUM_VALID_PEs][MAX_NUM_APPLYPARTITIONS];
 unsigned int * statsbuffer_idbased[NUM_VALID_PEs][MAX_NUM_APPLYPARTITIONS]; 
 vtr_t * vptr_buffer[NUM_VALID_PEs]; 
 edge3_type * edges_buffer[NUM_VALID_PEs][EDGE_PACK_SIZE];
+#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
+edge_update_type * edgeupdates_buffer[NUM_VALID_PEs][EDGE_PACK_SIZE];
+#endif 
 keyvalue_t * updates_buffer2[NUM_VALID_PEs][UPDATES_BUFFER_PACK_SIZE]; 
 vprop_t * vdata_buffer[NUM_VALID_PEs][EDGE_PACK_SIZE];
 for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ nfrontier_buffer[i][v] = new keyvalue_t[MAX_ACTVV_VECSIZE]; }}
@@ -2564,6 +2488,9 @@ for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<MAX_NUM_APP
 for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<MAX_NUM_APPLYPARTITIONS; v++){ statsbuffer_idbased[i][v] = new unsigned int[BLOCKRAM_SIZE]; }}
 for(unsigned int i=0; i<NUM_VALID_PEs; i++){ vptr_buffer[i] = new vtr_t[VPTR_BUFFER_SIZE]; }
 for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ edges_buffer[i][v] = new edge3_type[EDGE_BUFFER_SIZE]; }}
+#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
+for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ edgeupdates_buffer[i][v] = new edge_update_type[EDGE_UPDATES_BUFFER_SIZE]; }}
+#endif 
 for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<UPDATES_BUFFER_PACK_SIZE; v++){ updates_buffer2[i][v] = new keyvalue_t[UPDATES_BUFFER_SIZE]; }}
 for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ vdata_buffer[i][v] = new vprop_t[MAX_APPLYPARTITION_VECSIZE]; }}
 #endif 
@@ -2831,8 +2758,8 @@ CLEAR_COUNTERS_LOOP1: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
 				bool en = false;
 				if((upartition_vertices[p_u].count < threshold___activefrontiers && enable___vertexcentric == true) && (all_vertices_active_in_all_iterations == false)){ ___use_vertex_centric___ = true; } else { ___use_vertex_centric___ = false; }
 				
-				#ifdef _DEBUGMODE_KERNELPRINTS4
-				if(all_vertices_active_in_all_iterations == true && sweep == 1){ cout<<"### processing edges in upartition "<<p_u<<"..."<<endl; }
+				#ifdef _DEBUGMODE_KERNELPRINTS4 
+				if(all_vertices_active_in_all_iterations == true && sweep == 0){ cout<<"### processing edges in upartition "<<p_u<<"..."<<endl; }
 				#endif 
 			
 				// read & map frontier properties 
@@ -2848,7 +2775,7 @@ checkoutofbounds("acts_kernel::ERROR 12073::", cfrontier_dram___size[p_u], MAX_A
 unsigned int data[HBM_CHANNEL_PACK_SIZE];
 #pragma HLS ARRAY_PARTITION variable=data complete
 unsigned int offset_c = globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP];
-MY_LOOP179: for(unsigned int t=0; t<512; t++){ //>>> cfrontier_dram___size[p_u]
+MY_LOOP179: for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t++){ 
 #pragma HLS PIPELINE II=1
 	data[0] = HBM_centerA[uoffset_vecsz + t].data[0];
 	data[1] = HBM_centerA[uoffset_vecsz + t].data[1];
@@ -3081,7 +3008,7 @@ MY_LOOP179: for(unsigned int t=0; t<512; t++){ //>>> cfrontier_dram___size[p_u]
 // parallel-read and map active frontiers [done]
 MY_LOOP173: for(unsigned int n=0; n<NUM_VALID_PEs; n++){ offsets[n] = 0; }
 unsigned int uoffset = p_u * MAX_UPARTITION_SIZE;
-MY_LOOP175_DEBUG: for(unsigned int t=0; t<512; t++){ //>>> cfrontier_dram___size[p_u]
+MY_LOOP175_DEBUG: for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t++){ 
 #pragma HLS PIPELINE II=1
 	dretrievemany_cfrontierdram_tmp(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP], offsets, t, kvdatas,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);
 	insertvec_cfrontierbuffer_tmp(t, kvdatas[0], cfrontier_buffer_tmp); // NEW
@@ -3129,7 +3056,20 @@ MY_LOOP168: for(unsigned int j=0; j<NUM_VALID_PEs; j++){
 		updates_tmpbuffer___size[i][j] = 0; 
 	} 
 	update_bramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___READ_FRONTIER_PROPERTIES___, 1);
+}
+
+#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
+MY_LOOP180: for(unsigned int t=0; t<EDGE_UPDATES_BUFFER_SIZE; t++){ 
+#pragma HLS PIPELINE II=1
+	MY_LOOP181: for(unsigned int i=0; i<NUM_VALID_PEs; i++){ 
+	#pragma HLS UNROLL
+		MY_LOOP182: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
+		#pragma HLS UNROLL
+			edgeupdates_buffer[i][v][t] = INVALIDDATA; 
+		}
+	}			
 }	
+#endif 	
 				#endif 
 		
 				// process-edges and partition-updates
@@ -3385,11 +3325,9 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_APPLYPARTITION
 		
 	// process edges [done]
 	EC_PROCESS_EDGES_LOOP1B: for(unsigned int it=0; it<(max_sz + (BLOCKRAM_SIZE - 1)) / BLOCKRAM_SIZE; it++){
-	#pragma HLS loop_flatten off
-		// std::cout<<"------------------------------------------------------ ___ENABLETEST___ECPROCESSEDGES___II1___:: it: "<<it<<std::endl;	
 		// read and process 
 		unsigned int sz = 0; if((it + 1) * BLOCKRAM_SIZE >= max_sz){ sz = max_sz - (it * BLOCKRAM_SIZE); } else { sz = BLOCKRAM_SIZE; }
-		EC_PROCESS_EDGES_MAINLOOP1D: for(unsigned int t_=0; t_<BLOCKRAM_SIZE; t_++){ //>>> sz
+		EC_PROCESS_EDGES_MAINLOOP1D: for(unsigned int t_=0; t_<sz; t_++){ 
 		#pragma HLS PIPELINE II=1
 			unsigned int t = (it * BLOCKRAM_SIZE) + t_;
 			dretrievemany_actpackedges(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES], offsets, t, edge3_vecs,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);
@@ -3398,6 +3336,29 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_APPLYPARTITION
 			#pragma HLS ARRAY_PARTITION variable = update_in complete dim=0
 			keyvalue_t update_out[NUM_VALID_PEs][EDGE_PACK_SIZE];
 			#pragma HLS ARRAY_PARTITION variable = update_out complete dim=0
+			
+			// read and apply edge update for dynamic graphs
+			#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
+			EC_PROCESS_EDGES_LOOP1E: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
+			#pragma HLS UNROLL
+				edge3_vec_dt edge_vec_out;
+				for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+					unsigned int edge_hashid = hash_edge(edge3_vecs[inst].data[v].srcvid, edge3_vecs[inst].data[v].dstvid);
+					edge_update_type edge_update = retrieve_edgeupdatebuffer(v, edge_hashid, edgeupdate_buffer[inst]);
+					if(edge_update.srcvid == INVALIDDATA){
+						// no edge update found. do nothing
+					} else {
+						if(edge3_vecs[inst].data[v].dstvid == edge_update.dstvid){
+							// edge update found. merge edge with edge update 
+							edge3_vecs[inst].data[v].weight += 1; // edge_update.weight;
+						} else {
+							// colloision occurred. invalidate edge ?
+							edge3_vecs[inst].data[v].valid = 0;
+						} 
+					}
+				}
+			}
+			#endif 
 			
 			EC_PROCESS_EDGES_LOOP1E: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
 			#pragma HLS UNROLL
@@ -3408,10 +3369,11 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_APPLYPARTITION
 				checkoutofbounds("acts_kernel::ERROR 213::", rotateby, EDGE_PACK_SIZE, NAp, NAp, NAp);
 				#endif
 				
+				// read source properties and process edge to form vertex-updates 
 				MY_LOOP16214: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 				#pragma HLS UNROLL
 					edge3_type edge = edge_vec.data[v];
-					unsigned int srcvid_lpv = edge.srcvid; // && edge.srcvid != INVALIDDATA_MINI 
+					unsigned int srcvid_lpv = edge.srcvid; 
 					vprop_t uprop; if(edge.srcvid != INVALIDDATA && edge.srcvid < MAX_UPARTITION_VECSIZE){ uprop = retrieve_vdatabuffer(v, srcvid_lpv, vdata_buffer[inst]); }
 					if(edge.srcvid != INVALIDDATA && edge.srcvid < MAX_UPARTITION_VECSIZE && (uprop.mask == MASK_CODE_PE || all_vertices_active_in_all_iterations == true)){
 						unsigned int res = process_funcG(uprop.prop, 1, globalparams[GLOBALPARAMSCODE__PARAM__ALGORITHM]);
@@ -3430,6 +3392,7 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_APPLYPARTITION
 				if(en == true){ check_if_contiguous(update_out[inst], update_in[inst], update_in[inst], sample_key, 0, rotateby); }
 				#endif
 				
+				// collect stats 
 				bool isvalid = true;
 				if( update_out[inst][0].key==INVALIDDATA&& update_out[inst][1].key==INVALIDDATA&& update_out[inst][2].key==INVALIDDATA&& update_out[inst][3].key==INVALIDDATA&& update_out[inst][4].key==INVALIDDATA&& update_out[inst][5].key==INVALIDDATA&& update_out[inst][6].key==INVALIDDATA&& update_out[inst][7].key==INVALIDDATA&& update_out[inst][8].key==INVALIDDATA&& update_out[inst][9].key==INVALIDDATA&& update_out[inst][10].key==INVALIDDATA&& update_out[inst][11].key==INVALIDDATA&& update_out[inst][12].key==INVALIDDATA&& update_out[inst][13].key==INVALIDDATA&& update_out[inst][14].key==INVALIDDATA&& update_out[inst][15].key==INVALIDDATA){ isvalid = false; }
 				if(en == true && isvalid == true){
@@ -3437,7 +3400,7 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_APPLYPARTITION
 					#pragma HLS UNROLL
 						if(update_out[inst][v].key != INVALIDDATA){
 							#ifndef FPGA_IMPL
-							if(update_out[inst][v].key != INVALIDDATA){ checkoutofbounds("acts_kernel::ERROR 623::", ((update_out[inst][v].key / EDGE_PACK_SIZE) >> ACTVUPDATESBLOCK_VECSIZE_POW), BLOCKRAM_SIZE, update_out[inst][v].key, (update_out[inst][v].key / EDGE_PACK_SIZE), (MAX_APPLYPARTITION_VECSIZE / BLOCKRAM_SIZE)); }
+							if(update_out[inst][v].key != INVALIDDATA){ checkoutofbounds("acts_kernel::ERROR 623::", ((update_out[inst][v].key / EDGE_PACK_SIZE) >> ACTVUPDATESBLOCK_VECSIZE_POW), BLOCKRAM_SIZE, update_out[inst][v].key, (update_out[inst][v].key / EDGE_PACK_SIZE), (MAX_APPLYPARTITION_VECSIZE / BLOCKRAM_SIZE)); }				
 							#endif
 							unsigned int dstvid_lpv = update_out[inst][v].key / EDGE_PACK_SIZE;
 							if(update_out[inst][v].key != INVALIDDATA){ insert_statstmpbuffer((dstvid_lpv >> ACTVUPDATESBLOCK_VECSIZE_POW), v, 1, statsbuffer_maskbased_tmp[inst]); }
@@ -3458,6 +3421,9 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_APPLYPARTITION
 				offsets3[n] = offsets2[n] + actpackupdates_dram___size[n][llp_set] + counts[n];
 			}	
 			dinsertmany_updatesdram(offsets3, update_out, ens,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);	
+			#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
+			dinsertmany_actpackedges(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES], offsets, t, edge3_vecs,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);
+			#endif 
 			update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___ECPROCESSEDGES___, 1);
 		}
 	}
@@ -3601,7 +3567,6 @@ if(enable___collectactivedstvids == true){
 		// apply updates
 		unsigned int totalactvvs2 = 0; 
 		#ifdef ___ENABLE___APPLYUPDATESMODULE___
-		// cout<<"------------------------------------------------------ CCCC 0:: "<<endl;	
 		if(___ENABLE___APPLYUPDATESMODULE___BOOL___ == 1){
 		frontier_t actvv[EDGE_PACK_SIZE]; 
 		MY_LOOP311: for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){ upartition_vertices[p_u].count = 0; }
@@ -3613,7 +3578,6 @@ if(enable___collectactivedstvids == true){
 		
 		// apply updates 
 		APPLY_UPDATES_MODULE_LOOP: for(unsigned int p_v=start_partition; p_v<stop_partition; p_v++){
-			// cout<<"------------------------------------------------------ CCCC 1:: p_v: "<<p_v<<endl;	
 			#ifndef FPGA_IMPL
 			checkoutofbounds("acts_kernel::ERROR 862::", p_v, __NUM_APPLYPARTITIONS, p_v, __NUM_APPLYPARTITIONS, NAp);
 			#endif 
@@ -3622,7 +3586,6 @@ if(enable___collectactivedstvids == true){
 			unsigned int voffset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__VDATAS] + (p_v * MAX_APPLYPARTITION_VECSIZE);
 			
 			if(vpartition_vertices[0][p_v].count > 0 || all_vertices_active_in_all_iterations == true){ 
-			/* cout<<"------------------------------------------------------ CCCC 2::: "<<endl; */	
 				#ifdef _DEBUGMODE_KERNELPRINTS4
 				if(all_vertices_active_in_all_iterations == true && en == true){ cout<<"###>>> applying updates in vpartition "<<p_v<<"..."<<endl; }
 				#endif
@@ -3681,263 +3644,45 @@ if(stats_buffer___size[0][p_v] < threshold___activedstvids && enable___collectac
 uint512_vec_dt updates_vecs[NUM_VALID_PEs];
 max_limit = 0; for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ limits[inst] = actpackupdates_dram___size[inst][p_v]; } for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ if(max_limit < limits[inst]){ max_limit = limits[inst]; }}
 
-// cout<<"------------------------------------------------------ ___ENABLETEST___APPLYUPDATES___II1___:: max_limit: "<<max_limit<<endl;
-// for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
-	// cout<<"------------------------------------------------------ ___ENABLETEST___APPLYUPDATES___II1___:: actpackupdates_dram___size["<<inst<<"]["<<p_v<<"]: "<<actpackupdates_dram___size[inst][p_v]<<endl;
-// }
-
-APPLY_UPDATES_LOOP1: for(unsigned int it=0; it<((max_limit + (BLOCKRAM_SIZE - 1)) / BLOCKRAM_SIZE) - 1; it++){
-#pragma HLS loop_flatten off
-	// std::cout<<"------------------------------------------------------ ___ENABLETEST___APPLYUPDATES___II1___:: it: "<<it<<std::endl;
-	
-	map_t maps[NUM_VALID_PEs];
-	#pragma HLS ARRAY_PARTITION variable=maps complete	
-	dretrievemany_actpackvptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS], p_v, 0, maps,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);
-	
-	unsigned int sz = 0; if((it + 1) * BLOCKRAM_SIZE >= max_limit){ sz = max_limit - (it * BLOCKRAM_SIZE); } else { sz = BLOCKRAM_SIZE; }
-	APPLY_UPDATES_LOOP1A: for(unsigned int t_=0; t_<BLOCKRAM_SIZE; t_++){ //>>> sz, BLOCKRAM_SIZE
-	#pragma HLS loop_flatten off
-	#pragma HLS PIPELINE II=1
-		/////////////////////////////////////////////////////////////////////////
-		// unsigned int t = (it * BLOCKRAM_SIZE) + t_;
-		// dretrievemany_udatesdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v], p_v, t, updates_vecs,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, updatesptrs); // NEW
-		///////////////////////////////////////////////////////////////////////
-		unsigned int t = t_; ///////////////////// FIXME.REMOVEME.
- /////////////////
-		updates_vecs[0].data[0].key = HBM_channelB0[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[0];
- /////////////////
-		updates_vecs[0].data[1].key = HBM_channelB0[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[1];
- /////////////////
-		updates_vecs[0].data[2].key = HBM_channelB0[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[2];
- /////////////////
-		updates_vecs[0].data[3].key = HBM_channelB0[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[3];
- /////////////////
-		updates_vecs[0].data[4].key = HBM_channelB0[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[4];
- /////////////////
-		updates_vecs[0].data[5].key = HBM_channelB0[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[5];
- /////////////////
-		updates_vecs[0].data[6].key = HBM_channelB0[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[6];
- /////////////////
-		updates_vecs[0].data[7].key = HBM_channelB0[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[7];
- /////////////////
-		updates_vecs[0].data[8].key = HBM_channelB0[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[8];
- /////////////////
-		updates_vecs[0].data[9].key = HBM_channelB0[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[9];
- /////////////////
-		updates_vecs[0].data[10].key = HBM_channelB0[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[10];
- /////////////////
-		updates_vecs[0].data[11].key = HBM_channelB0[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[11];
- /////////////////
-		updates_vecs[0].data[12].key = HBM_channelB0[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[12];
- /////////////////
-		updates_vecs[0].data[13].key = HBM_channelB0[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[13];
- /////////////////
-		updates_vecs[0].data[14].key = HBM_channelB0[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[14];
- /////////////////
-		updates_vecs[0].data[15].key = HBM_channelB0[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[15];
-	
- /////////////////
-		updates_vecs[1].data[0].key = HBM_channelB1[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[0];
- /////////////////
-		updates_vecs[1].data[1].key = HBM_channelB1[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[1];
- /////////////////
-		updates_vecs[1].data[2].key = HBM_channelB1[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[2];
- /////////////////
-		updates_vecs[1].data[3].key = HBM_channelB1[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[3];
- /////////////////
-		updates_vecs[1].data[4].key = HBM_channelB1[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[4];
- /////////////////
-		updates_vecs[1].data[5].key = HBM_channelB1[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[5];
- /////////////////
-		updates_vecs[1].data[6].key = HBM_channelB1[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[6];
- /////////////////
-		updates_vecs[1].data[7].key = HBM_channelB1[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[7];
- /////////////////
-		updates_vecs[1].data[8].key = HBM_channelB1[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[8];
- /////////////////
-		updates_vecs[1].data[9].key = HBM_channelB1[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[9];
- /////////////////
-		updates_vecs[1].data[10].key = HBM_channelB1[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[10];
- /////////////////
-		updates_vecs[1].data[11].key = HBM_channelB1[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[11];
- /////////////////
-		updates_vecs[1].data[12].key = HBM_channelB1[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[12];
- /////////////////
-		updates_vecs[1].data[13].key = HBM_channelB1[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[13];
- /////////////////
-		updates_vecs[1].data[14].key = HBM_channelB1[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[14];
- /////////////////
-		updates_vecs[1].data[15].key = HBM_channelB1[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[15];
-	
- /////////////////
-		updates_vecs[2].data[0].key = HBM_channelB2[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[0];
- /////////////////
-		updates_vecs[2].data[1].key = HBM_channelB2[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[1];
- /////////////////
-		updates_vecs[2].data[2].key = HBM_channelB2[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[2];
- /////////////////
-		updates_vecs[2].data[3].key = HBM_channelB2[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[3];
- /////////////////
-		updates_vecs[2].data[4].key = HBM_channelB2[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[4];
- /////////////////
-		updates_vecs[2].data[5].key = HBM_channelB2[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[5];
- /////////////////
-		updates_vecs[2].data[6].key = HBM_channelB2[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[6];
- /////////////////
-		updates_vecs[2].data[7].key = HBM_channelB2[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[7];
- /////////////////
-		updates_vecs[2].data[8].key = HBM_channelB2[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[8];
- /////////////////
-		updates_vecs[2].data[9].key = HBM_channelB2[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[9];
- /////////////////
-		updates_vecs[2].data[10].key = HBM_channelB2[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[10];
- /////////////////
-		updates_vecs[2].data[11].key = HBM_channelB2[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[11];
- /////////////////
-		updates_vecs[2].data[12].key = HBM_channelB2[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[12];
- /////////////////
-		updates_vecs[2].data[13].key = HBM_channelB2[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[13];
- /////////////////
-		updates_vecs[2].data[14].key = HBM_channelB2[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[14];
- /////////////////
-		updates_vecs[2].data[15].key = HBM_channelB2[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[15];
-	
- /////////////////
-		updates_vecs[3].data[0].key = HBM_channelB3[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[0];
- /////////////////
-		updates_vecs[3].data[1].key = HBM_channelB3[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[1];
- /////////////////
-		updates_vecs[3].data[2].key = HBM_channelB3[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[2];
- /////////////////
-		updates_vecs[3].data[3].key = HBM_channelB3[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[3];
- /////////////////
-		updates_vecs[3].data[4].key = HBM_channelB3[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[4];
- /////////////////
-		updates_vecs[3].data[5].key = HBM_channelB3[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[5];
- /////////////////
-		updates_vecs[3].data[6].key = HBM_channelB3[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[6];
- /////////////////
-		updates_vecs[3].data[7].key = HBM_channelB3[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[7];
- /////////////////
-		updates_vecs[3].data[8].key = HBM_channelB3[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[8];
- /////////////////
-		updates_vecs[3].data[9].key = HBM_channelB3[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[9];
- /////////////////
-		updates_vecs[3].data[10].key = HBM_channelB3[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[10];
- /////////////////
-		updates_vecs[3].data[11].key = HBM_channelB3[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[11];
- /////////////////
-		updates_vecs[3].data[12].key = HBM_channelB3[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[12];
- /////////////////
-		updates_vecs[3].data[13].key = HBM_channelB3[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[13];
- /////////////////
-		updates_vecs[3].data[14].key = HBM_channelB3[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[14];
- /////////////////
-		updates_vecs[3].data[15].key = HBM_channelB3[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[15];
-	
- /////////////////
-		updates_vecs[4].data[0].key = HBM_channelB4[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[0];
- /////////////////
-		updates_vecs[4].data[1].key = HBM_channelB4[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[1];
- /////////////////
-		updates_vecs[4].data[2].key = HBM_channelB4[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[2];
- /////////////////
-		updates_vecs[4].data[3].key = HBM_channelB4[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[3];
- /////////////////
-		updates_vecs[4].data[4].key = HBM_channelB4[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[4];
- /////////////////
-		updates_vecs[4].data[5].key = HBM_channelB4[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[5];
- /////////////////
-		updates_vecs[4].data[6].key = HBM_channelB4[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[6];
- /////////////////
-		updates_vecs[4].data[7].key = HBM_channelB4[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[7];
- /////////////////
-		updates_vecs[4].data[8].key = HBM_channelB4[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[8];
- /////////////////
-		updates_vecs[4].data[9].key = HBM_channelB4[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[9];
- /////////////////
-		updates_vecs[4].data[10].key = HBM_channelB4[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[10];
- /////////////////
-		updates_vecs[4].data[11].key = HBM_channelB4[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[11];
- /////////////////
-		updates_vecs[4].data[12].key = HBM_channelB4[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[12];
- /////////////////
-		updates_vecs[4].data[13].key = HBM_channelB4[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[13];
- /////////////////
-		updates_vecs[4].data[14].key = HBM_channelB4[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[14];
- /////////////////
-		updates_vecs[4].data[15].key = HBM_channelB4[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[15];
-	
- /////////////////
-		updates_vecs[5].data[0].key = HBM_channelB5[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[0];
- /////////////////
-		updates_vecs[5].data[1].key = HBM_channelB5[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[1];
- /////////////////
-		updates_vecs[5].data[2].key = HBM_channelB5[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[2];
- /////////////////
-		updates_vecs[5].data[3].key = HBM_channelB5[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[3];
- /////////////////
-		updates_vecs[5].data[4].key = HBM_channelB5[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[4];
- /////////////////
-		updates_vecs[5].data[5].key = HBM_channelB5[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[5];
- /////////////////
-		updates_vecs[5].data[6].key = HBM_channelB5[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[6];
- /////////////////
-		updates_vecs[5].data[7].key = HBM_channelB5[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[7];
- /////////////////
-		updates_vecs[5].data[8].key = HBM_channelB5[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[8];
- /////////////////
-		updates_vecs[5].data[9].key = HBM_channelB5[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[9];
- /////////////////
-		updates_vecs[5].data[10].key = HBM_channelB5[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[10];
- /////////////////
-		updates_vecs[5].data[11].key = HBM_channelB5[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[11];
- /////////////////
-		updates_vecs[5].data[12].key = HBM_channelB5[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[12];
- /////////////////
-		updates_vecs[5].data[13].key = HBM_channelB5[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[13];
- /////////////////
-		updates_vecs[5].data[14].key = HBM_channelB5[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[14];
- /////////////////
-		updates_vecs[5].data[15].key = HBM_channelB5[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + (it * BLOCKRAM_SIZE) + t_].data[15];
-	
-	
-		/////////////////////////////////////////////////////////////////////////
+APPLY_UPDATES_LOOP1: for(unsigned int t=0; t<max_limit; t++){			
+#pragma HLS PIPELINE II=1
+	dretrievemany_udatesdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v], p_v, t, updates_vecs,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, updatesptrs); // NEW
+	MY_LOOP1521: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
+	#pragma HLS UNROLL
+		if(t < limits[inst]){
+			uint512_vec_dt updates_vec = updates_vecs[inst];
+			APPLY_UPDATES_LOOP1C: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+			#pragma HLS UNROLL
+				keyvalue_t update = updates_vec.data[v];
+				unsigned int dstvid_lp = update.key; 
+				unsigned int dstvid_lpv = update.key / EDGE_PACK_SIZE;
+				
+				// if(t < 64 && inst==0){ std::cout<<"APPLY (ACT-PACK) UPDATE SEEN @: inst: [0]: dstvid_lp: "<<dstvid_lp<<", dstvid_lpv: "<<dstvid_lpv<<", vid: "<<update.key<<std::endl; }
 		
-		MY_LOOP1521: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
-		#pragma HLS UNROLL
-			if(t < limits[inst]){
-				uint512_vec_dt updates_vec = updates_vecs[inst];
-				APPLY_UPDATES_LOOP1C: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-				#pragma HLS UNROLL
-					keyvalue_t update = updates_vec.data[v];
-					unsigned int dstvid_lp = update.key; 
-					// unsigned int dstvid_lpv = update.key / EDGE_PACK_SIZE;
-					unsigned int dstvid_lpv = update.key % 512; // REMOVEME.
-					// if(update.key != INVALIDDATA && update.key < MAX_APPLYPARTITION_SIZE){
-						#ifdef _DEBUGMODE_CHECKS3___________
-						#ifndef ___FORCE_SUCCESS___
-						if(t < limits[inst] && ((dstvid_lp % EDGE_PACK_SIZE) != v)){ cout<<"acts_kernel 234:: dstvid_lp("<<dstvid_lp<<") % v("<<v<<") != 0. EXITING..."<<endl; exit(EXIT_FAILURE); }
-						#endif 
-						if(t < limits[inst]){ checkoutofbounds("acts_kernel::ERROR 727a::", dstvid_lp, MAX_APPLYPARTITION_SIZE, NAp, inst, update.key); checkoutofbounds("acts_kernel::ERROR 727b::", dstvid_lpv, MAX_APPLYPARTITION_VECSIZE, NAp, inst, update.key); }
+				
+				if(update.key != INVALIDDATA && update.key < MAX_APPLYPARTITION_SIZE){
+					#ifdef _DEBUGMODE_CHECKS3
+					#ifndef ___FORCE_SUCCESS___
+					if(t < limits[inst] && ((dstvid_lp % EDGE_PACK_SIZE) != v)){ cout<<"acts_kernel 234:: dstvid_lp("<<dstvid_lp<<") % v("<<v<<") != 0. EXITING..."<<endl; exit(EXIT_FAILURE); }
+					#endif 
+					if(t < limits[inst]){ checkoutofbounds("acts_kernel::ERROR 727a::", dstvid_lp, MAX_APPLYPARTITION_SIZE, NAp, inst, update.key); checkoutofbounds("acts_kernel::ERROR 727b::", dstvid_lpv, MAX_APPLYPARTITION_VECSIZE, NAp, inst, update.key); }					
+					#endif
+					vprop_t vprop =  retrieve_vdatabuffer(v, dstvid_lpv, vdata_buffer[inst]);
+					unsigned int new_vprop = reduce_funcG(vprop.prop, vprop.prop, update.value, globalparams[GLOBALPARAMSCODE__PARAM__ALGORITHM]);
+					if((all_vertices_active_in_all_iterations == true || new_vprop != vprop.prop) && t < limits[inst]){ 
+						#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+						std::cout<<"APPLY (ACT-PACK) UPDATE SEEN @: t: "<<t<<", inst: ["<<inst<<"]: dstvid_lp: "<<dstvid_lp<<", dstvid_lpv: "<<dstvid_lpv<<", new_vprop: "<<new_vprop<<", vid: "<<update.key<<std::endl;
 						#endif
-						// vprop_t vprop =  retrieve_vdatabuffer(v, dstvid_lpv, vdata_buffer[inst]);
-						vprop_t vprop; vprop.prop = update.key; ////////////////
-						// unsigned int new_vprop = reduce_funcG(vprop.prop, vprop.prop, update.value, globalparams[GLOBALPARAMSCODE__PARAM__ALGORITHM]);
-						unsigned int new_vprop = reduce_funcG(vprop.prop, vprop.prop, maps[inst].size, globalparams[GLOBALPARAMSCODE__PARAM__ALGORITHM]); // REMOVEME.
-						if(new_vprop != vprop.prop && t < limits[inst]){ 
-							#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-							std::cout<<"APPLY (ACT-PACK) UPDATE SEEN @: inst: ["<<inst<<"]: dstvid_lp: "<<dstvid_lp<<", dstvid_lpv: "<<dstvid_lpv<<", new_vprop: "<<new_vprop<<", vid: "<<update.key<<std::endl;
-							#endif
-							vprop_t newprop; newprop.prop = new_vprop; newprop.mask = MASK_CODE_AU;
-							insert_vdatabuffer(v, dstvid_lpv, newprop, vdata_buffer[inst]);
-						}
-					// }
+						vprop_t newprop; newprop.prop = new_vprop; newprop.mask = MASK_CODE_AU;
+						insert_vdatabuffer(v, dstvid_lpv, newprop, vdata_buffer[inst]);
+						
+						if(inst==0){ update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___APPLYUPDATES___, 1); }
+					}
 				}
 			}
 		}
-		update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___APPLYUPDATES___, 1);
 	}
+	// update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___APPLYUPDATES___, 1);
 }	
 					 
 				}
@@ -4008,7 +3753,7 @@ COLLECT_AND_SAVE_FRONTIER_INFO_LOOP1: for(unsigned int p_actvv=0; p_actvv<NUM_AC
 							#ifdef _DEBUGMODE_CHECKS3
 							if((vid % EDGE_PACK_SIZE != v)){ cout<<"acts_kernel:: ERROR 234. vid("<<vid<<") % EDGE_PACK_SIZE("<<EDGE_PACK_SIZE<<")(="<<vid % EDGE_PACK_SIZE<<") != v("<<v<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }
 							#endif
-							if(vprop.mask == MASK_CODE_AU){ 
+							if(all_vertices_active_in_all_iterations == true || vprop.mask == MASK_CODE_AU){ 
 								#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 								std::cout<<"COLLECT FRONTIER INFORMATION SEEN @: inst: ["<<inst<<"]: dstvid_lpv: "<<dstvid_lpv<<", v: "<<v<<", p__u__: "<<(vid / MAX_UPARTITION_SIZE)<<", vid: "<<vid<<std::endl;
 								#endif
@@ -4184,7 +3929,7 @@ cout<<"acts_kernel SUMMARY:: number of DRAM clock cycles seen @ ___CODE___READ_D
 cout<<"acts_kernel SUMMARY:: number of DRAM clock cycles seen @ ___CODE___APPLYUPDATES___: "<<_NUMCLOCKCYCLES_[0][___CODE___APPLYUPDATES___]<<" (# updates per hbm channel: "<<_NUMCLOCKCYCLES_[0][___CODE___APPLYUPDATES___] * EDGE_PACK_SIZE<<")"<<endl;
 cout<<"acts_kernel SUMMARY:: number of DRAM clock cycles seen @ ___CODE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES___: "<<_NUMCLOCKCYCLES_[0][___CODE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES___]<<" (total # frontiers: "<<_NUMCLOCKCYCLES_[0][___CODE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES___] * EDGE_PACK_SIZE * NUM_PEs<<")"<<endl;			
 cout<<"acts_kernel SUMMARY:: number of DRAM clock cycles seen @ ___CODE___SAVE_DEST_PROPERTIES___: "<<_NUMCLOCKCYCLES_[0][___CODE___SAVE_DEST_PROPERTIES___]<<" (total # vertices: "<<_NUMCLOCKCYCLES_[0][___CODE___SAVE_DEST_PROPERTIES___] * EDGE_PACK_SIZE * NUM_PEs<<")"<<endl;
-cout<<"acts_kernel SUMMARY:: number of DRAM clock cycles seen @ ___CODE___EXCHANGEFRONTIERINFOS___: "<<_NUMCLOCKCYCLES_[0][___CODE___EXCHANGEFRONTIERINFOS___]<<endl;
+cout<<"acts_kernel SUMMARY:: number of DRAM clock cycles seen @ ___CODE___EXCHANGEFRONTIERINFOS___: "<<_NUMCLOCKCYCLES_[0][___CODE___EXCHANGEFRONTIERINFOS___]<<" (total # frontiers: "<<_NUMCLOCKCYCLES_[0][___CODE___EXCHANGEFRONTIERINFOS___] * EDGE_PACK_SIZE * 2<<")"<<endl;
 cout<<"acts_kernel SUMMARY:: number of edges processed: "<<(_NUMCLOCKCYCLES_[0][___CODE___ECPROCESSEDGES___] * EDGE_PACK_SIZE) / (1+1)<<endl;
 cout<<"acts_kernel SUMMARY:: number of vertex updates applied: "<<(_NUMCLOCKCYCLES_[0][___CODE___APPLYUPDATES___] * EDGE_PACK_SIZE) / (1+4)<<endl;
 }

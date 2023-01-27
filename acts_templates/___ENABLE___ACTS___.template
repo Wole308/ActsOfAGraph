@@ -1,3 +1,5 @@
+// #define ___ENABLE___DYNAMICGRAPHANALYTICS___
+
 #define ___ENABLE___RESETBUFFERSATSTART___ 
 #define ___ENABLE___CLEAR_COUNTERS___
 #define ___ENABLE___PROCESSEDGES___ 
@@ -10,9 +12,9 @@
 #define ___ENABLE___APPLYUPDATESMODULE___ 
 	#define ___ENABLE___READ_DEST_PROPERTIES___ 
 	#define ___ENABLE___APPLYUPDATES___II1___
-	#define ___ENABLE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES___ //////////////////
+	#define ___ENABLE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES___ 
 	#define ___ENABLE___SAVE_DEST_PROPERTIES___ 
-#define ___ENABLE___EXCHANGEFRONTIERINFOS___ /////////////////////
+#define ___ENABLE___EXCHANGEFRONTIERINFOS___ 
 #define ___ENABLE___REPORT_STATISTICS___
 
 #define ___CODE___RESETBUFFERSATSTART___ 0
@@ -41,6 +43,7 @@
 #define MY_IFDEF_UPDATESTMPBUFFER() keyvalue_t updates_buffer2[UPDATES_BUFFER_PACK_SIZE][UPDATES_BUFFER_SIZE]	
 #define MY_IFDEF_VPTRBUFFER() vtr_t vptr_buffer[VPTR_BUFFER_SIZE]
 #define MY_IFDEF_EDGESBUFFER() edge3_type edges_buffer[EDGE_PACK_SIZE][EDGE_BUFFER_SIZE]
+#define MY_IFDEF_EDGESUPDATEBUFFER() edge_update_type edgeupdates_buffer[EDGE_PACK_SIZE][EDGE_UPDATES_BUFFER_SIZE]
 #define MY_IFDEF_VDATABUFFER() vprop_t vdata_buffer[EDGE_PACK_SIZE][MAXVALID_APPLYPARTITION_VECSIZE]
 #define MY_IFDEF_TOPLEVELFUNC() void top_function({% include 'parameters_allchannelsinslr.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, unsigned int batch)
 #else
@@ -53,6 +56,7 @@
 #define MY_IFDEF_UPDATESTMPBUFFER() keyvalue_t * updates_buffer2[UPDATES_BUFFER_PACK_SIZE]
 #define MY_IFDEF_VPTRBUFFER() vtr_t * vptr_buffer
 #define MY_IFDEF_EDGESBUFFER() edge3_type * edges_buffer[EDGE_PACK_SIZE]
+#define MY_IFDEF_EDGESUPDATEBUFFER() edge_update_type * edgeupdates_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_VDATABUFFER() vprop_t * vdata_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_TOPLEVELFUNC() void acts_kernel::top_function({% include 'parameters_allchannelsinslr.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, unsigned int batch)
 #endif
@@ -134,7 +138,7 @@ void transport_frontier(unsigned int inst, unsigned int p_v, unsigned int baseof
 		unsigned int offset_n = baseoffset_nfdram + (p_actvv_ * MAX_APPLYPARTITION_VECSIZE);
 		unsigned int offset_c = p_actvv_ * MAX_UPARTITION_VECSIZE;
 		unsigned int st = cfrontier_dram___size[p_actvv_];
-		TRANSPORT_FRONTIER_PROPERTIES_LOOP1B: for(unsigned int t=0; t<MAX_ACTVV_VECSIZE; t++){ // MAX_ACTVV_VECSIZE, nfrontier_dram___size[p_actvv_]* (REMOVEME)
+		TRANSPORT_FRONTIER_PROPERTIES_LOOP1B: for(unsigned int t=0; t<nfrontier_dram___size[p_actvv_]; t++){
 		#pragma HLS PIPELINE II=1
 			{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 			data[{{v}}] = HBM_channelA[offset_n + t].data[{{v}}];
@@ -297,14 +301,14 @@ MY_IFDEF_TOPLEVELFUNC(){
 				bool en = false;
 				if((upartition_vertices[p_u].count < threshold___activefrontiers && enable___vertexcentric == true) && (all_vertices_active_in_all_iterations == false)){ ___use_vertex_centric___ = true; } else { ___use_vertex_centric___ = false; }
 				
-				#ifdef _DEBUGMODE_KERNELPRINTS4
-				if(all_vertices_active_in_all_iterations == true && sweep == 1){ cout<<"### processing edges in upartition "<<p_u<<"..."<<endl; }
+				#ifdef _DEBUGMODE_KERNELPRINTS4 
+				if(all_vertices_active_in_all_iterations == true && sweep == 0){ cout<<"### processing edges in upartition "<<p_u<<"..."<<endl; }
 				#endif 
 			
 				// read & map frontier properties 
 				#ifdef ___ENABLE___READ_FRONTIER_PROPERTIES___
 				if(___ENABLE___READ_FRONTIER_PROPERTIES___BOOL___ == 1){ 
-				{% include '___ENABLETEST___READ_FRONTIER_PROPERTIES___.template' %}	
+				{% include '___ENABLE___READ_FRONTIER_PROPERTIES___.template' %}	
 				}
 				#endif 
 				
@@ -324,7 +328,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 					} else if (sweep == 1  && ___use_vertex_centric___ == false) { // edge-centric [done]
 						#ifdef ___ENABLE___ECPROCESSEDGES___II1___
 						if(___ENABLE___ECPROCESSEDGES___BOOL___ == 1){
-						{% include '___ENABLETEST___ECPROCESSEDGES___II1___.template' %}	
+						{% include '___ENABLE___ECPROCESSEDGES___II1___.template' %}	
 						}
 						#endif
 					} else {
@@ -353,7 +357,6 @@ MY_IFDEF_TOPLEVELFUNC(){
 		// apply updates
 		unsigned int totalactvvs2 = 0; 
 		#ifdef ___ENABLE___APPLYUPDATESMODULE___
-		// cout<<"------------------------------------------------------ CCCC 0:: "<<endl;	
 		if(___ENABLE___APPLYUPDATESMODULE___BOOL___ == 1){
 		frontier_t actvv[EDGE_PACK_SIZE]; 
 		MY_LOOP311: for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){ upartition_vertices[p_u].count = 0; }
@@ -365,7 +368,6 @@ MY_IFDEF_TOPLEVELFUNC(){
 		
 		// apply updates 
 		APPLY_UPDATES_MODULE_LOOP: for(unsigned int p_v=start_partition; p_v<stop_partition; p_v++){
-			// cout<<"------------------------------------------------------ CCCC 1:: p_v: "<<p_v<<endl;	
 			#ifndef FPGA_IMPL
 			checkoutofbounds("acts_kernel::ERROR 862::", p_v, __NUM_APPLYPARTITIONS, p_v, __NUM_APPLYPARTITIONS, NAp);
 			#endif 
@@ -374,7 +376,6 @@ MY_IFDEF_TOPLEVELFUNC(){
 			unsigned int voffset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__VDATAS] + (p_v * MAX_APPLYPARTITION_VECSIZE);
 			
 			if(vpartition_vertices[0][p_v].count > 0 || all_vertices_active_in_all_iterations == true){ 
-			/* cout<<"------------------------------------------------------ CCCC 2::: "<<endl; */	
 				#ifdef _DEBUGMODE_KERNELPRINTS4
 				if(all_vertices_active_in_all_iterations == true && en == true){ cout<<"###>>> applying updates in vpartition "<<p_v<<"..."<<endl; }
 				#endif
@@ -382,14 +383,14 @@ MY_IFDEF_TOPLEVELFUNC(){
 				// read destination properties
 				#ifdef ___ENABLE___READ_DEST_PROPERTIES___
 				if(___ENABLE___READ_DEST_PROPERTIES___BOOL___ == 1){
-				{% include '___ENABLETEST___READ_DEST_PROPERTIES___.template' %}	
+				{% include '___ENABLE___READ_DEST_PROPERTIES___.template' %}	
 				}
 				#endif 
 				
 				// apply updates [done]
 				#ifdef ___ENABLE___APPLYUPDATES___II1___ 
 				if(___ENABLE___APPLYUPDATES___BOOL___ == 1){
-				{% include '___ENABLETEST___APPLYUPDATES___II1___.template' %}	 
+				{% include '___ENABLE___APPLYUPDATES___II3___.template' %}	 
 				}
 				#endif 
 				
@@ -403,7 +404,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 				// save destination properties
 				#ifdef ___ENABLE___SAVE_DEST_PROPERTIES___
 				if(___ENABLE___SAVE_DEST_PROPERTIES___BOOL___ == 1){	
-				{% include '___ENABLETEST___SAVE_DEST_PROPERTIES___.template' %}	
+				{% include '___ENABLE___SAVE_DEST_PROPERTIES___.template' %}	
 				}
 				#endif 
 			}
