@@ -78,9 +78,10 @@ void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedat
 	cout<<"=== act-pack: MAX_UPARTITION_SIZE: "<<MAX_UPARTITION_SIZE<<" ==="<<endl;
 	cout<<"=== act-pack: HBM_CHANNEL_BYTESIZE: "<<HBM_CHANNEL_BYTESIZE<<" ==="<<endl;
 	cout<<"=== act-pack: HBM_CHANNEL_SIZE: "<<HBM_CHANNEL_SIZE<<" ==="<<endl;
+	cout<<"=== act-pack: MAX_NUM_LLPSETS: "<<MAX_NUM_LLPSETS<<" ==="<<endl;
 	cout<<"=== act-pack: UPDATES_BUFFER_PACK_SIZE: "<<UPDATES_BUFFER_PACK_SIZE<<" ==="<<endl;
 	
-	bool debug = false;
+	bool debug = false; // true;// false;
 
 	vector<edge3_type> edges_in_channel[NUM_PEs];
 	vector<edge3_type> edgesin_srcvp[MAX_NUM_UPARTITIONS];
@@ -126,7 +127,12 @@ void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedat
 		if(debug){ cout<<"STAGE 1: within a HBM channel, partition into v-partitions "<<endl; }
 		for(unsigned int t=0; t<edges_in_channel[i].size(); t++){
 			edge3_type edge = edges_in_channel[i][t];
+			
+			if(edge.srcvid >= 60000000){ edge.srcvid = 60000000; } // FIXME.
+			if(edge.dstvid >= 60000000){ edge.dstvid = 60000000; } // FIXME.
+			
 			unsigned int vP = (edge.srcvid / vsize_vP);
+			if(vP >= num_vPs){ vP = num_vPs-1; } // FIXME.
 	
 			#ifdef _DEBUGMODE_HOSTCHECKS3
 			utilityobj->checkoutofbounds("act_pack::ERROR 22::", vP, num_vPs, edge.srcvid, edge.srcvid, vsize_vP);
@@ -166,6 +172,8 @@ void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedat
 				}
 			}
 			
+			// #ifdef rrrrrrrrrrrrrrrrRRRR
+			
 			// witihin a LLP, re-arrange by srcvids
 			if(debug){ cout<<"STAGE 4: preparing edges and loading into dram..."<<endl; }
 			unsigned int depths[EDGE_PACK_SIZE];
@@ -185,9 +193,13 @@ void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedat
 						else if(edgesin_srcvp_lldstvp_srcv2p[offset_llpset + v][depths[v]].size() == 0){ if(false){ cout<<"!!!!!!!!!!!!!!!!! act_pack:: EMPTY PARTITION SEEN @ p: "<<offset_llpset + v<<", v: "<<v<<", llp_set: "<<llp_set<<", llp_id: "<<llp_id<<", max_kvs: "<<max_kvs<<endl; }}
 					}
 				
+					// #ifdef rrrrrrrrrrrrrrrrRRRR
 					for(unsigned int t=0; t<max_kvs; t++){
 						edge3_vec_dt edge_vec;
 						for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
+							utilityobj->checkoutofbounds("loadedges::ERROR 5934a. ", offset_llpset + v, num_LLPs, NAp, NAp, NAp);	
+							utilityobj->checkoutofbounds("loadedges::ERROR 5934b. ", depths[v], MAX_NUM_PARTITIONS, NAp, NAp, NAp);
+							// vector<edge3_type> edgesin_srcvp_lldstvp_srcv2p[num_LLPs][MAX_NUM_PARTITIONS]; 
 							if(t < edgesin_srcvp_lldstvp_srcv2p[offset_llpset + v][depths[v]].size()){ 
 								edge_vec.data[v] = edgesin_srcvp_lldstvp_srcv2p[offset_llpset + v][depths[v]][t]; 
 								edge_vec.data[v].valid = 1; 
@@ -199,6 +211,7 @@ void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedat
 							} 
 						}
 						
+						// #ifdef rrrrrrrrrrrrrrrrRRRR
 						#ifdef _DEBUGMODE_HOSTCHECKS3
 						for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 							if(edge_vec.data[v].dstvid != INVALIDDATA){ 
@@ -258,20 +271,25 @@ void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedat
 							edge_vec3.data[0].dstvid = _sample_key + (EDGE_PACK_SIZE - _sample_u);
 						}
 						
-						// #ifdef CONFIG_SEND_LOCAL_VERTEXIDS_ONLY
+						// #ifdef rrrrrrrrrrrrrrrrRRRR
 						for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 							if(edge_vec3.data[v].srcvid != INVALIDDATA){ edge_vec3.data[v].srcvid = get_local_to_upartitionn(edge_vec3.data[v].srcvid) / EDGE_PACK_SIZE; }
 							if(edge_vec3.data[v].valid == 1){
 								edge_vec3.data[v].dstvid = (get_local2(edge_vec3.data[v].dstvid) % MAX_UPARTITION_SIZE);
 							}
 						}
-						// #endif 
 						
+						// #ifdef rrrrrrrrrrrrrrrrRRRR
 						act_pack_edges[i].push_back(edge_vec3);
 						act_pack_map[i][v_p][llp_set].size += 1;
+						// #endif 
 					}
+					// #endif 
 				} // iteration end: llp_id:EDGE_PACK_SIZE
 			} // iteration end: llp_set:num_LLPset
+		
+			// #endif 
+		
 		} // iteration end: v_p:num_vPs 
 		cout<<"act-pack:: PE: "<<i<<": act_pack_edges["<<i<<"].size(): "<<act_pack_edges[i].size() * EDGE_PACK_SIZE<<""<<endl;
 	} // iteration end: i(NUM_PEs) end here

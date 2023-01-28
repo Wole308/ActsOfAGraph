@@ -31,7 +31,7 @@ public:
 	host_fpga(universalparams_t _universalparams);
 	~host_fpga();
 	
-	long double runapp(std::string binaryFile[2], HBM_channelAXISW_t * HBM_axichannel[2][NUM_PEs], HBM_channelAXISW_t * HBM_axicenter[2], universalparams_t universalparams);					
+	long double runapp(std::string binaryFile[2], HBM_channelAXISW_t * HBM_axichannel[2][NUM_PEs], HBM_channelAXISW_t * HBM_axicenter[2], unsigned int globalparams[1024], universalparams_t universalparams);					
 	
 private:
 	utility * utilityobj;

@@ -140,20 +140,21 @@ void transport_frontier(unsigned int inst, unsigned int p_v, unsigned int baseof
 		unsigned int st = cfrontier_dram___size[p_actvv_];
 		TRANSPORT_FRONTIER_PROPERTIES_LOOP1B: for(unsigned int t=0; t<nfrontier_dram___size[p_actvv_]; t++){
 		#pragma HLS PIPELINE II=1
+			// #ifdef FPGA_IMPL		
 			{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 			data[{{v}}] = HBM_channelA[offset_n + t].data[{{v}}];
 			{%endfor%}
 			{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 			data[{{context['HBM_AXI_PACK_SIZE'] + v}}] = HBM_channelB[offset_n + t].data[{{v}}];
-			{%endfor%}
+			{%endfor%}	
 			
 			{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 			HBM_centerA[offset_c + st + t].data[{{v}}] = data[{{v}}];
 			{%endfor%}
 			{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 			HBM_centerB[offset_c + st + t].data[{{v}}] = data[{{context['HBM_AXI_PACK_SIZE'] + v}}];
-			{%endfor%}
-		
+			{%endfor%}	
+			
 			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 			#pragma HLS UNROLL
 				if(actvv[v].key != INVALIDDATA){ 
@@ -174,6 +175,23 @@ void transport_frontier(unsigned int inst, unsigned int p_v, unsigned int baseof
 //////////////////////////////////////////////////////////////////
 extern "C" {	
 MY_IFDEF_TOPLEVELFUNC(){		
+{%for i in context['NUM_VALID_PEs_seq']%}
+#pragma HLS INTERFACE m_axi port = HBM_channelA{{i}} offset = slave bundle = gmem{{2*i}}
+#pragma HLS INTERFACE m_axi port = HBM_channelB{{i}} offset = slave bundle = gmem{{2*i+1}}
+{%endfor%}
+#pragma HLS INTERFACE m_axi port = HBM_centerA offset = slave bundle = gmem{{2*context['NUM_VALID_PEs']}}
+#pragma HLS INTERFACE m_axi port = HBM_centerB offset = slave bundle = gmem{{2*context['NUM_VALID_PEs']+1}}
+
+{%for i in context['NUM_VALID_PEs_seq']%}
+#pragma HLS INTERFACE s_axilite port = HBM_channelA{{i}}
+#pragma HLS INTERFACE s_axilite port = HBM_channelB{{i}}
+{%endfor%}	
+#pragma HLS INTERFACE s_axilite port = HBM_centerA
+#pragma HLS INTERFACE s_axilite port = HBM_centerB
+
+#pragma HLS INTERFACE s_axilite port = batch
+#pragma HLS INTERFACE s_axilite port = return
+
 	#ifdef _DEBUGMODE_KERNELPRINTS4
 	cout<<"acts_kernel::run:: acts started "<<endl;
 	#endif 
@@ -278,7 +296,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 		___ENABLE___SAVEVCUPDATES___BOOL___ = 0;
 		___ENABLE___COLLECTACTIVEDSTVIDS___BOOL___ = 0;
 	}
-		
+	
 	// run acts 
 	RUN_ACTS_LOOP: for(unsigned int GraphIter=0; GraphIter<globalparams[GLOBALPARAMSCODE__PARAM__NUM_ITERATIONS]; GraphIter++){
 		unsigned int MASK_CODE = 1 + GraphIter;
@@ -346,6 +364,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 			}
 			#endif 
 		}
+		// exit(EXIT_SUCCESS); ////////////////////////////////////////////////////////
 		
 		// prepare active destID stats [done] 
 		#ifdef ___ENABLE___COLLECTACTIVEDSTVIDS___

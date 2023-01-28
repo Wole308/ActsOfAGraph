@@ -8,8 +8,8 @@ checkoutofbounds("acts_kernel::ERROR 12073::", cfrontier_dram___size[p_u], MAX_A
 unsigned int data[HBM_CHANNEL_PACK_SIZE];
 #pragma HLS ARRAY_PARTITION variable=data complete
 unsigned int offset_c = globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP];
-MY_LOOP179: for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t++){ 
-#pragma HLS PIPELINE II=1
+READ_FRONTIER_INFO_LOOP1: for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t++){ 
+#pragma HLS PIPELINE II=1	
 	{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 	data[{{v}}] = HBM_centerA[uoffset_vecsz + t].data[{{v}}];
 	{%endfor%}
@@ -24,7 +24,7 @@ MY_LOOP179: for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t++){
 	{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 	HBM_channelB{{n}}[offset_c + t].data[{{v}}] = data[{{context['HBM_AXI_PACK_SIZE'] + v}}];
 	{%endfor%}
-	{%endfor%}	
+	{%endfor%}
 }
 
 // parallel-read and map active frontiers [done]

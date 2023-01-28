@@ -70,7 +70,7 @@ fi
 # sleep 3
 
 # DIRECTIONS=(1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0)
-DIRECTIONS=(0)
+DIRECTIONS=(1)
 
 DATSETS=(
 		com-Orkut.mtx #(undirected)(3M,234M)
@@ -79,7 +79,7 @@ DATSETS=(
 		# ljournal-2008.mtx #(directed)(5M,79M)
 		# soc-Pokec.mtx #(directed)(1.6M,30M)
 		# kron_g500-logn20.mtx #(undirected)(1M,89M)
-		# kron_g500-logn21.mtx #(undirected)(2M,182M/)
+		# kron_g500-logn21.mtx #(undirected)(2M,182M/)	
 		
 		# uk-2002.mtx #(directed)(18.5M,298M)
 		####################### delicious.mtx #(directed)(M,M)

@@ -53,7 +53,7 @@ using namespace std;
 #define MY_IFDEF_VPTRBUFFER() vtr_t vptr_buffer[VPTR_BUFFER_SIZE]
 #define MY_IFDEF_EDGESBUFFER() edge3_type edges_buffer[EDGE_PACK_SIZE][EDGE_BUFFER_SIZE]
 #define MY_IFDEF_VDATABUFFER() vprop_t vdata_buffer[EDGE_PACK_SIZE][MAXVALID_APPLYPARTITION_VECSIZE]
-#define MY_IFDEF_TOPLEVELFUNC() void top_function( HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB)
+#define MY_IFDEF_TOPLEVELFUNC() void top_function( HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB)
 #else
 #define MY_IFDEF_NFRONTIER() keyvalue_t * nfrontier_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_CFRONTIER_TMP() keyvalue_t * cfrontier_buffer_tmp[EDGE_PACK_SIZE]
@@ -65,7 +65,7 @@ using namespace std;
 #define MY_IFDEF_VPTRBUFFER() vtr_t * vptr_buffer
 #define MY_IFDEF_EDGESBUFFER() edge3_type * edges_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_VDATABUFFER() vprop_t * vdata_buffer[EDGE_PACK_SIZE]
-#define MY_IFDEF_TOPLEVELFUNC() void acts_kernel::top_function( HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB)
+#define MY_IFDEF_TOPLEVELFUNC() void acts_kernel::top_function( HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB)
 #endif
 
 #ifndef FPGA_IMPL
@@ -717,7 +717,7 @@ void master_retrieve_vec(unsigned int offset, unsigned int data[HBM_CHANNEL_PACK
 	return;
 }
 
-void master_insertmany_vec(unsigned int offsets[NUM_VALID_PEs], bool ens[NUM_VALID_PEs], unsigned int data[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5){
+void master_insertmany_vec(unsigned int offsets[NUM_VALID_PEs], bool ens[NUM_VALID_PEs], unsigned int data[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0){
 	#pragma HLS INLINE // FIXME_HARDWARE
 	
 	HBM_channelA0[offsets[0]].data[0] = data[0][0];
@@ -753,179 +753,9 @@ void master_insertmany_vec(unsigned int offsets[NUM_VALID_PEs], bool ens[NUM_VAL
 	HBM_channelB0[offsets[0]].data[14] = data[0][30];
 	HBM_channelB0[offsets[0]].data[15] = data[0][31];
 	
-	
-	HBM_channelA1[offsets[1]].data[0] = data[1][0];
-	HBM_channelA1[offsets[1]].data[1] = data[1][1];
-	HBM_channelA1[offsets[1]].data[2] = data[1][2];
-	HBM_channelA1[offsets[1]].data[3] = data[1][3];
-	HBM_channelA1[offsets[1]].data[4] = data[1][4];
-	HBM_channelA1[offsets[1]].data[5] = data[1][5];
-	HBM_channelA1[offsets[1]].data[6] = data[1][6];
-	HBM_channelA1[offsets[1]].data[7] = data[1][7];
-	HBM_channelA1[offsets[1]].data[8] = data[1][8];
-	HBM_channelA1[offsets[1]].data[9] = data[1][9];
-	HBM_channelA1[offsets[1]].data[10] = data[1][10];
-	HBM_channelA1[offsets[1]].data[11] = data[1][11];
-	HBM_channelA1[offsets[1]].data[12] = data[1][12];
-	HBM_channelA1[offsets[1]].data[13] = data[1][13];
-	HBM_channelA1[offsets[1]].data[14] = data[1][14];
-	HBM_channelA1[offsets[1]].data[15] = data[1][15];
-	HBM_channelB1[offsets[1]].data[0] = data[1][16];
-	HBM_channelB1[offsets[1]].data[1] = data[1][17];
-	HBM_channelB1[offsets[1]].data[2] = data[1][18];
-	HBM_channelB1[offsets[1]].data[3] = data[1][19];
-	HBM_channelB1[offsets[1]].data[4] = data[1][20];
-	HBM_channelB1[offsets[1]].data[5] = data[1][21];
-	HBM_channelB1[offsets[1]].data[6] = data[1][22];
-	HBM_channelB1[offsets[1]].data[7] = data[1][23];
-	HBM_channelB1[offsets[1]].data[8] = data[1][24];
-	HBM_channelB1[offsets[1]].data[9] = data[1][25];
-	HBM_channelB1[offsets[1]].data[10] = data[1][26];
-	HBM_channelB1[offsets[1]].data[11] = data[1][27];
-	HBM_channelB1[offsets[1]].data[12] = data[1][28];
-	HBM_channelB1[offsets[1]].data[13] = data[1][29];
-	HBM_channelB1[offsets[1]].data[14] = data[1][30];
-	HBM_channelB1[offsets[1]].data[15] = data[1][31];
-	
-	
-	HBM_channelA2[offsets[2]].data[0] = data[2][0];
-	HBM_channelA2[offsets[2]].data[1] = data[2][1];
-	HBM_channelA2[offsets[2]].data[2] = data[2][2];
-	HBM_channelA2[offsets[2]].data[3] = data[2][3];
-	HBM_channelA2[offsets[2]].data[4] = data[2][4];
-	HBM_channelA2[offsets[2]].data[5] = data[2][5];
-	HBM_channelA2[offsets[2]].data[6] = data[2][6];
-	HBM_channelA2[offsets[2]].data[7] = data[2][7];
-	HBM_channelA2[offsets[2]].data[8] = data[2][8];
-	HBM_channelA2[offsets[2]].data[9] = data[2][9];
-	HBM_channelA2[offsets[2]].data[10] = data[2][10];
-	HBM_channelA2[offsets[2]].data[11] = data[2][11];
-	HBM_channelA2[offsets[2]].data[12] = data[2][12];
-	HBM_channelA2[offsets[2]].data[13] = data[2][13];
-	HBM_channelA2[offsets[2]].data[14] = data[2][14];
-	HBM_channelA2[offsets[2]].data[15] = data[2][15];
-	HBM_channelB2[offsets[2]].data[0] = data[2][16];
-	HBM_channelB2[offsets[2]].data[1] = data[2][17];
-	HBM_channelB2[offsets[2]].data[2] = data[2][18];
-	HBM_channelB2[offsets[2]].data[3] = data[2][19];
-	HBM_channelB2[offsets[2]].data[4] = data[2][20];
-	HBM_channelB2[offsets[2]].data[5] = data[2][21];
-	HBM_channelB2[offsets[2]].data[6] = data[2][22];
-	HBM_channelB2[offsets[2]].data[7] = data[2][23];
-	HBM_channelB2[offsets[2]].data[8] = data[2][24];
-	HBM_channelB2[offsets[2]].data[9] = data[2][25];
-	HBM_channelB2[offsets[2]].data[10] = data[2][26];
-	HBM_channelB2[offsets[2]].data[11] = data[2][27];
-	HBM_channelB2[offsets[2]].data[12] = data[2][28];
-	HBM_channelB2[offsets[2]].data[13] = data[2][29];
-	HBM_channelB2[offsets[2]].data[14] = data[2][30];
-	HBM_channelB2[offsets[2]].data[15] = data[2][31];
-	
-	
-	HBM_channelA3[offsets[3]].data[0] = data[3][0];
-	HBM_channelA3[offsets[3]].data[1] = data[3][1];
-	HBM_channelA3[offsets[3]].data[2] = data[3][2];
-	HBM_channelA3[offsets[3]].data[3] = data[3][3];
-	HBM_channelA3[offsets[3]].data[4] = data[3][4];
-	HBM_channelA3[offsets[3]].data[5] = data[3][5];
-	HBM_channelA3[offsets[3]].data[6] = data[3][6];
-	HBM_channelA3[offsets[3]].data[7] = data[3][7];
-	HBM_channelA3[offsets[3]].data[8] = data[3][8];
-	HBM_channelA3[offsets[3]].data[9] = data[3][9];
-	HBM_channelA3[offsets[3]].data[10] = data[3][10];
-	HBM_channelA3[offsets[3]].data[11] = data[3][11];
-	HBM_channelA3[offsets[3]].data[12] = data[3][12];
-	HBM_channelA3[offsets[3]].data[13] = data[3][13];
-	HBM_channelA3[offsets[3]].data[14] = data[3][14];
-	HBM_channelA3[offsets[3]].data[15] = data[3][15];
-	HBM_channelB3[offsets[3]].data[0] = data[3][16];
-	HBM_channelB3[offsets[3]].data[1] = data[3][17];
-	HBM_channelB3[offsets[3]].data[2] = data[3][18];
-	HBM_channelB3[offsets[3]].data[3] = data[3][19];
-	HBM_channelB3[offsets[3]].data[4] = data[3][20];
-	HBM_channelB3[offsets[3]].data[5] = data[3][21];
-	HBM_channelB3[offsets[3]].data[6] = data[3][22];
-	HBM_channelB3[offsets[3]].data[7] = data[3][23];
-	HBM_channelB3[offsets[3]].data[8] = data[3][24];
-	HBM_channelB3[offsets[3]].data[9] = data[3][25];
-	HBM_channelB3[offsets[3]].data[10] = data[3][26];
-	HBM_channelB3[offsets[3]].data[11] = data[3][27];
-	HBM_channelB3[offsets[3]].data[12] = data[3][28];
-	HBM_channelB3[offsets[3]].data[13] = data[3][29];
-	HBM_channelB3[offsets[3]].data[14] = data[3][30];
-	HBM_channelB3[offsets[3]].data[15] = data[3][31];
-	
-	
-	HBM_channelA4[offsets[4]].data[0] = data[4][0];
-	HBM_channelA4[offsets[4]].data[1] = data[4][1];
-	HBM_channelA4[offsets[4]].data[2] = data[4][2];
-	HBM_channelA4[offsets[4]].data[3] = data[4][3];
-	HBM_channelA4[offsets[4]].data[4] = data[4][4];
-	HBM_channelA4[offsets[4]].data[5] = data[4][5];
-	HBM_channelA4[offsets[4]].data[6] = data[4][6];
-	HBM_channelA4[offsets[4]].data[7] = data[4][7];
-	HBM_channelA4[offsets[4]].data[8] = data[4][8];
-	HBM_channelA4[offsets[4]].data[9] = data[4][9];
-	HBM_channelA4[offsets[4]].data[10] = data[4][10];
-	HBM_channelA4[offsets[4]].data[11] = data[4][11];
-	HBM_channelA4[offsets[4]].data[12] = data[4][12];
-	HBM_channelA4[offsets[4]].data[13] = data[4][13];
-	HBM_channelA4[offsets[4]].data[14] = data[4][14];
-	HBM_channelA4[offsets[4]].data[15] = data[4][15];
-	HBM_channelB4[offsets[4]].data[0] = data[4][16];
-	HBM_channelB4[offsets[4]].data[1] = data[4][17];
-	HBM_channelB4[offsets[4]].data[2] = data[4][18];
-	HBM_channelB4[offsets[4]].data[3] = data[4][19];
-	HBM_channelB4[offsets[4]].data[4] = data[4][20];
-	HBM_channelB4[offsets[4]].data[5] = data[4][21];
-	HBM_channelB4[offsets[4]].data[6] = data[4][22];
-	HBM_channelB4[offsets[4]].data[7] = data[4][23];
-	HBM_channelB4[offsets[4]].data[8] = data[4][24];
-	HBM_channelB4[offsets[4]].data[9] = data[4][25];
-	HBM_channelB4[offsets[4]].data[10] = data[4][26];
-	HBM_channelB4[offsets[4]].data[11] = data[4][27];
-	HBM_channelB4[offsets[4]].data[12] = data[4][28];
-	HBM_channelB4[offsets[4]].data[13] = data[4][29];
-	HBM_channelB4[offsets[4]].data[14] = data[4][30];
-	HBM_channelB4[offsets[4]].data[15] = data[4][31];
-	
-	
-	HBM_channelA5[offsets[5]].data[0] = data[5][0];
-	HBM_channelA5[offsets[5]].data[1] = data[5][1];
-	HBM_channelA5[offsets[5]].data[2] = data[5][2];
-	HBM_channelA5[offsets[5]].data[3] = data[5][3];
-	HBM_channelA5[offsets[5]].data[4] = data[5][4];
-	HBM_channelA5[offsets[5]].data[5] = data[5][5];
-	HBM_channelA5[offsets[5]].data[6] = data[5][6];
-	HBM_channelA5[offsets[5]].data[7] = data[5][7];
-	HBM_channelA5[offsets[5]].data[8] = data[5][8];
-	HBM_channelA5[offsets[5]].data[9] = data[5][9];
-	HBM_channelA5[offsets[5]].data[10] = data[5][10];
-	HBM_channelA5[offsets[5]].data[11] = data[5][11];
-	HBM_channelA5[offsets[5]].data[12] = data[5][12];
-	HBM_channelA5[offsets[5]].data[13] = data[5][13];
-	HBM_channelA5[offsets[5]].data[14] = data[5][14];
-	HBM_channelA5[offsets[5]].data[15] = data[5][15];
-	HBM_channelB5[offsets[5]].data[0] = data[5][16];
-	HBM_channelB5[offsets[5]].data[1] = data[5][17];
-	HBM_channelB5[offsets[5]].data[2] = data[5][18];
-	HBM_channelB5[offsets[5]].data[3] = data[5][19];
-	HBM_channelB5[offsets[5]].data[4] = data[5][20];
-	HBM_channelB5[offsets[5]].data[5] = data[5][21];
-	HBM_channelB5[offsets[5]].data[6] = data[5][22];
-	HBM_channelB5[offsets[5]].data[7] = data[5][23];
-	HBM_channelB5[offsets[5]].data[8] = data[5][24];
-	HBM_channelB5[offsets[5]].data[9] = data[5][25];
-	HBM_channelB5[offsets[5]].data[10] = data[5][26];
-	HBM_channelB5[offsets[5]].data[11] = data[5][27];
-	HBM_channelB5[offsets[5]].data[12] = data[5][28];
-	HBM_channelB5[offsets[5]].data[13] = data[5][29];
-	HBM_channelB5[offsets[5]].data[14] = data[5][30];
-	HBM_channelB5[offsets[5]].data[15] = data[5][31];
-	
 	return;
 }
-void master_retrievemany_vec(unsigned int offsets[NUM_VALID_PEs], unsigned int data[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5){
+void master_retrievemany_vec(unsigned int offsets[NUM_VALID_PEs], unsigned int data[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0){
 	#pragma HLS INLINE // FIXME_HARDWARE
 	data[0][0] = HBM_channelA0[offsets[0]].data[0];
 	data[0][1] = HBM_channelA0[offsets[0]].data[1];
@@ -959,170 +789,10 @@ void master_retrievemany_vec(unsigned int offsets[NUM_VALID_PEs], unsigned int d
 	data[0][29] = HBM_channelB0[offsets[0]].data[13];
 	data[0][30] = HBM_channelB0[offsets[0]].data[14];
 	data[0][31] = HBM_channelB0[offsets[0]].data[15];
-	data[1][0] = HBM_channelA1[offsets[1]].data[0];
-	data[1][1] = HBM_channelA1[offsets[1]].data[1];
-	data[1][2] = HBM_channelA1[offsets[1]].data[2];
-	data[1][3] = HBM_channelA1[offsets[1]].data[3];
-	data[1][4] = HBM_channelA1[offsets[1]].data[4];
-	data[1][5] = HBM_channelA1[offsets[1]].data[5];
-	data[1][6] = HBM_channelA1[offsets[1]].data[6];
-	data[1][7] = HBM_channelA1[offsets[1]].data[7];
-	data[1][8] = HBM_channelA1[offsets[1]].data[8];
-	data[1][9] = HBM_channelA1[offsets[1]].data[9];
-	data[1][10] = HBM_channelA1[offsets[1]].data[10];
-	data[1][11] = HBM_channelA1[offsets[1]].data[11];
-	data[1][12] = HBM_channelA1[offsets[1]].data[12];
-	data[1][13] = HBM_channelA1[offsets[1]].data[13];
-	data[1][14] = HBM_channelA1[offsets[1]].data[14];
-	data[1][15] = HBM_channelA1[offsets[1]].data[15];
-	data[1][16] = HBM_channelB1[offsets[1]].data[0];
-	data[1][17] = HBM_channelB1[offsets[1]].data[1];
-	data[1][18] = HBM_channelB1[offsets[1]].data[2];
-	data[1][19] = HBM_channelB1[offsets[1]].data[3];
-	data[1][20] = HBM_channelB1[offsets[1]].data[4];
-	data[1][21] = HBM_channelB1[offsets[1]].data[5];
-	data[1][22] = HBM_channelB1[offsets[1]].data[6];
-	data[1][23] = HBM_channelB1[offsets[1]].data[7];
-	data[1][24] = HBM_channelB1[offsets[1]].data[8];
-	data[1][25] = HBM_channelB1[offsets[1]].data[9];
-	data[1][26] = HBM_channelB1[offsets[1]].data[10];
-	data[1][27] = HBM_channelB1[offsets[1]].data[11];
-	data[1][28] = HBM_channelB1[offsets[1]].data[12];
-	data[1][29] = HBM_channelB1[offsets[1]].data[13];
-	data[1][30] = HBM_channelB1[offsets[1]].data[14];
-	data[1][31] = HBM_channelB1[offsets[1]].data[15];
-	data[2][0] = HBM_channelA2[offsets[2]].data[0];
-	data[2][1] = HBM_channelA2[offsets[2]].data[1];
-	data[2][2] = HBM_channelA2[offsets[2]].data[2];
-	data[2][3] = HBM_channelA2[offsets[2]].data[3];
-	data[2][4] = HBM_channelA2[offsets[2]].data[4];
-	data[2][5] = HBM_channelA2[offsets[2]].data[5];
-	data[2][6] = HBM_channelA2[offsets[2]].data[6];
-	data[2][7] = HBM_channelA2[offsets[2]].data[7];
-	data[2][8] = HBM_channelA2[offsets[2]].data[8];
-	data[2][9] = HBM_channelA2[offsets[2]].data[9];
-	data[2][10] = HBM_channelA2[offsets[2]].data[10];
-	data[2][11] = HBM_channelA2[offsets[2]].data[11];
-	data[2][12] = HBM_channelA2[offsets[2]].data[12];
-	data[2][13] = HBM_channelA2[offsets[2]].data[13];
-	data[2][14] = HBM_channelA2[offsets[2]].data[14];
-	data[2][15] = HBM_channelA2[offsets[2]].data[15];
-	data[2][16] = HBM_channelB2[offsets[2]].data[0];
-	data[2][17] = HBM_channelB2[offsets[2]].data[1];
-	data[2][18] = HBM_channelB2[offsets[2]].data[2];
-	data[2][19] = HBM_channelB2[offsets[2]].data[3];
-	data[2][20] = HBM_channelB2[offsets[2]].data[4];
-	data[2][21] = HBM_channelB2[offsets[2]].data[5];
-	data[2][22] = HBM_channelB2[offsets[2]].data[6];
-	data[2][23] = HBM_channelB2[offsets[2]].data[7];
-	data[2][24] = HBM_channelB2[offsets[2]].data[8];
-	data[2][25] = HBM_channelB2[offsets[2]].data[9];
-	data[2][26] = HBM_channelB2[offsets[2]].data[10];
-	data[2][27] = HBM_channelB2[offsets[2]].data[11];
-	data[2][28] = HBM_channelB2[offsets[2]].data[12];
-	data[2][29] = HBM_channelB2[offsets[2]].data[13];
-	data[2][30] = HBM_channelB2[offsets[2]].data[14];
-	data[2][31] = HBM_channelB2[offsets[2]].data[15];
-	data[3][0] = HBM_channelA3[offsets[3]].data[0];
-	data[3][1] = HBM_channelA3[offsets[3]].data[1];
-	data[3][2] = HBM_channelA3[offsets[3]].data[2];
-	data[3][3] = HBM_channelA3[offsets[3]].data[3];
-	data[3][4] = HBM_channelA3[offsets[3]].data[4];
-	data[3][5] = HBM_channelA3[offsets[3]].data[5];
-	data[3][6] = HBM_channelA3[offsets[3]].data[6];
-	data[3][7] = HBM_channelA3[offsets[3]].data[7];
-	data[3][8] = HBM_channelA3[offsets[3]].data[8];
-	data[3][9] = HBM_channelA3[offsets[3]].data[9];
-	data[3][10] = HBM_channelA3[offsets[3]].data[10];
-	data[3][11] = HBM_channelA3[offsets[3]].data[11];
-	data[3][12] = HBM_channelA3[offsets[3]].data[12];
-	data[3][13] = HBM_channelA3[offsets[3]].data[13];
-	data[3][14] = HBM_channelA3[offsets[3]].data[14];
-	data[3][15] = HBM_channelA3[offsets[3]].data[15];
-	data[3][16] = HBM_channelB3[offsets[3]].data[0];
-	data[3][17] = HBM_channelB3[offsets[3]].data[1];
-	data[3][18] = HBM_channelB3[offsets[3]].data[2];
-	data[3][19] = HBM_channelB3[offsets[3]].data[3];
-	data[3][20] = HBM_channelB3[offsets[3]].data[4];
-	data[3][21] = HBM_channelB3[offsets[3]].data[5];
-	data[3][22] = HBM_channelB3[offsets[3]].data[6];
-	data[3][23] = HBM_channelB3[offsets[3]].data[7];
-	data[3][24] = HBM_channelB3[offsets[3]].data[8];
-	data[3][25] = HBM_channelB3[offsets[3]].data[9];
-	data[3][26] = HBM_channelB3[offsets[3]].data[10];
-	data[3][27] = HBM_channelB3[offsets[3]].data[11];
-	data[3][28] = HBM_channelB3[offsets[3]].data[12];
-	data[3][29] = HBM_channelB3[offsets[3]].data[13];
-	data[3][30] = HBM_channelB3[offsets[3]].data[14];
-	data[3][31] = HBM_channelB3[offsets[3]].data[15];
-	data[4][0] = HBM_channelA4[offsets[4]].data[0];
-	data[4][1] = HBM_channelA4[offsets[4]].data[1];
-	data[4][2] = HBM_channelA4[offsets[4]].data[2];
-	data[4][3] = HBM_channelA4[offsets[4]].data[3];
-	data[4][4] = HBM_channelA4[offsets[4]].data[4];
-	data[4][5] = HBM_channelA4[offsets[4]].data[5];
-	data[4][6] = HBM_channelA4[offsets[4]].data[6];
-	data[4][7] = HBM_channelA4[offsets[4]].data[7];
-	data[4][8] = HBM_channelA4[offsets[4]].data[8];
-	data[4][9] = HBM_channelA4[offsets[4]].data[9];
-	data[4][10] = HBM_channelA4[offsets[4]].data[10];
-	data[4][11] = HBM_channelA4[offsets[4]].data[11];
-	data[4][12] = HBM_channelA4[offsets[4]].data[12];
-	data[4][13] = HBM_channelA4[offsets[4]].data[13];
-	data[4][14] = HBM_channelA4[offsets[4]].data[14];
-	data[4][15] = HBM_channelA4[offsets[4]].data[15];
-	data[4][16] = HBM_channelB4[offsets[4]].data[0];
-	data[4][17] = HBM_channelB4[offsets[4]].data[1];
-	data[4][18] = HBM_channelB4[offsets[4]].data[2];
-	data[4][19] = HBM_channelB4[offsets[4]].data[3];
-	data[4][20] = HBM_channelB4[offsets[4]].data[4];
-	data[4][21] = HBM_channelB4[offsets[4]].data[5];
-	data[4][22] = HBM_channelB4[offsets[4]].data[6];
-	data[4][23] = HBM_channelB4[offsets[4]].data[7];
-	data[4][24] = HBM_channelB4[offsets[4]].data[8];
-	data[4][25] = HBM_channelB4[offsets[4]].data[9];
-	data[4][26] = HBM_channelB4[offsets[4]].data[10];
-	data[4][27] = HBM_channelB4[offsets[4]].data[11];
-	data[4][28] = HBM_channelB4[offsets[4]].data[12];
-	data[4][29] = HBM_channelB4[offsets[4]].data[13];
-	data[4][30] = HBM_channelB4[offsets[4]].data[14];
-	data[4][31] = HBM_channelB4[offsets[4]].data[15];
-	data[5][0] = HBM_channelA5[offsets[5]].data[0];
-	data[5][1] = HBM_channelA5[offsets[5]].data[1];
-	data[5][2] = HBM_channelA5[offsets[5]].data[2];
-	data[5][3] = HBM_channelA5[offsets[5]].data[3];
-	data[5][4] = HBM_channelA5[offsets[5]].data[4];
-	data[5][5] = HBM_channelA5[offsets[5]].data[5];
-	data[5][6] = HBM_channelA5[offsets[5]].data[6];
-	data[5][7] = HBM_channelA5[offsets[5]].data[7];
-	data[5][8] = HBM_channelA5[offsets[5]].data[8];
-	data[5][9] = HBM_channelA5[offsets[5]].data[9];
-	data[5][10] = HBM_channelA5[offsets[5]].data[10];
-	data[5][11] = HBM_channelA5[offsets[5]].data[11];
-	data[5][12] = HBM_channelA5[offsets[5]].data[12];
-	data[5][13] = HBM_channelA5[offsets[5]].data[13];
-	data[5][14] = HBM_channelA5[offsets[5]].data[14];
-	data[5][15] = HBM_channelA5[offsets[5]].data[15];
-	data[5][16] = HBM_channelB5[offsets[5]].data[0];
-	data[5][17] = HBM_channelB5[offsets[5]].data[1];
-	data[5][18] = HBM_channelB5[offsets[5]].data[2];
-	data[5][19] = HBM_channelB5[offsets[5]].data[3];
-	data[5][20] = HBM_channelB5[offsets[5]].data[4];
-	data[5][21] = HBM_channelB5[offsets[5]].data[5];
-	data[5][22] = HBM_channelB5[offsets[5]].data[6];
-	data[5][23] = HBM_channelB5[offsets[5]].data[7];
-	data[5][24] = HBM_channelB5[offsets[5]].data[8];
-	data[5][25] = HBM_channelB5[offsets[5]].data[9];
-	data[5][26] = HBM_channelB5[offsets[5]].data[10];
-	data[5][27] = HBM_channelB5[offsets[5]].data[11];
-	data[5][28] = HBM_channelB5[offsets[5]].data[12];
-	data[5][29] = HBM_channelB5[offsets[5]].data[13];
-	data[5][30] = HBM_channelB5[offsets[5]].data[14];
-	data[5][31] = HBM_channelB5[offsets[5]].data[15];
 	return;
 }
 
-void master_insertmany_Bvec(unsigned int offsets[NUM_VALID_PEs], bool ens[NUM_VALID_PEs], unsigned int data[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5){
+void master_insertmany_Bvec(unsigned int offsets[NUM_VALID_PEs], bool ens[NUM_VALID_PEs], unsigned int data[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0){
 	#pragma HLS INLINE 
 	
 	if(ens[0]==true){
@@ -1144,110 +814,10 @@ void master_insertmany_Bvec(unsigned int offsets[NUM_VALID_PEs], bool ens[NUM_VA
 		HBM_channelB0[offsets[0]].data[15] = data[0][31];
 	
 	}
-	
-	if(ens[1]==true){
-		HBM_channelB1[offsets[1]].data[0] = data[1][16];
-		HBM_channelB1[offsets[1]].data[1] = data[1][17];
-		HBM_channelB1[offsets[1]].data[2] = data[1][18];
-		HBM_channelB1[offsets[1]].data[3] = data[1][19];
-		HBM_channelB1[offsets[1]].data[4] = data[1][20];
-		HBM_channelB1[offsets[1]].data[5] = data[1][21];
-		HBM_channelB1[offsets[1]].data[6] = data[1][22];
-		HBM_channelB1[offsets[1]].data[7] = data[1][23];
-		HBM_channelB1[offsets[1]].data[8] = data[1][24];
-		HBM_channelB1[offsets[1]].data[9] = data[1][25];
-		HBM_channelB1[offsets[1]].data[10] = data[1][26];
-		HBM_channelB1[offsets[1]].data[11] = data[1][27];
-		HBM_channelB1[offsets[1]].data[12] = data[1][28];
-		HBM_channelB1[offsets[1]].data[13] = data[1][29];
-		HBM_channelB1[offsets[1]].data[14] = data[1][30];
-		HBM_channelB1[offsets[1]].data[15] = data[1][31];
-	
-	}
-	
-	if(ens[2]==true){
-		HBM_channelB2[offsets[2]].data[0] = data[2][16];
-		HBM_channelB2[offsets[2]].data[1] = data[2][17];
-		HBM_channelB2[offsets[2]].data[2] = data[2][18];
-		HBM_channelB2[offsets[2]].data[3] = data[2][19];
-		HBM_channelB2[offsets[2]].data[4] = data[2][20];
-		HBM_channelB2[offsets[2]].data[5] = data[2][21];
-		HBM_channelB2[offsets[2]].data[6] = data[2][22];
-		HBM_channelB2[offsets[2]].data[7] = data[2][23];
-		HBM_channelB2[offsets[2]].data[8] = data[2][24];
-		HBM_channelB2[offsets[2]].data[9] = data[2][25];
-		HBM_channelB2[offsets[2]].data[10] = data[2][26];
-		HBM_channelB2[offsets[2]].data[11] = data[2][27];
-		HBM_channelB2[offsets[2]].data[12] = data[2][28];
-		HBM_channelB2[offsets[2]].data[13] = data[2][29];
-		HBM_channelB2[offsets[2]].data[14] = data[2][30];
-		HBM_channelB2[offsets[2]].data[15] = data[2][31];
-	
-	}
-	
-	if(ens[3]==true){
-		HBM_channelB3[offsets[3]].data[0] = data[3][16];
-		HBM_channelB3[offsets[3]].data[1] = data[3][17];
-		HBM_channelB3[offsets[3]].data[2] = data[3][18];
-		HBM_channelB3[offsets[3]].data[3] = data[3][19];
-		HBM_channelB3[offsets[3]].data[4] = data[3][20];
-		HBM_channelB3[offsets[3]].data[5] = data[3][21];
-		HBM_channelB3[offsets[3]].data[6] = data[3][22];
-		HBM_channelB3[offsets[3]].data[7] = data[3][23];
-		HBM_channelB3[offsets[3]].data[8] = data[3][24];
-		HBM_channelB3[offsets[3]].data[9] = data[3][25];
-		HBM_channelB3[offsets[3]].data[10] = data[3][26];
-		HBM_channelB3[offsets[3]].data[11] = data[3][27];
-		HBM_channelB3[offsets[3]].data[12] = data[3][28];
-		HBM_channelB3[offsets[3]].data[13] = data[3][29];
-		HBM_channelB3[offsets[3]].data[14] = data[3][30];
-		HBM_channelB3[offsets[3]].data[15] = data[3][31];
-	
-	}
-	
-	if(ens[4]==true){
-		HBM_channelB4[offsets[4]].data[0] = data[4][16];
-		HBM_channelB4[offsets[4]].data[1] = data[4][17];
-		HBM_channelB4[offsets[4]].data[2] = data[4][18];
-		HBM_channelB4[offsets[4]].data[3] = data[4][19];
-		HBM_channelB4[offsets[4]].data[4] = data[4][20];
-		HBM_channelB4[offsets[4]].data[5] = data[4][21];
-		HBM_channelB4[offsets[4]].data[6] = data[4][22];
-		HBM_channelB4[offsets[4]].data[7] = data[4][23];
-		HBM_channelB4[offsets[4]].data[8] = data[4][24];
-		HBM_channelB4[offsets[4]].data[9] = data[4][25];
-		HBM_channelB4[offsets[4]].data[10] = data[4][26];
-		HBM_channelB4[offsets[4]].data[11] = data[4][27];
-		HBM_channelB4[offsets[4]].data[12] = data[4][28];
-		HBM_channelB4[offsets[4]].data[13] = data[4][29];
-		HBM_channelB4[offsets[4]].data[14] = data[4][30];
-		HBM_channelB4[offsets[4]].data[15] = data[4][31];
-	
-	}
-	
-	if(ens[5]==true){
-		HBM_channelB5[offsets[5]].data[0] = data[5][16];
-		HBM_channelB5[offsets[5]].data[1] = data[5][17];
-		HBM_channelB5[offsets[5]].data[2] = data[5][18];
-		HBM_channelB5[offsets[5]].data[3] = data[5][19];
-		HBM_channelB5[offsets[5]].data[4] = data[5][20];
-		HBM_channelB5[offsets[5]].data[5] = data[5][21];
-		HBM_channelB5[offsets[5]].data[6] = data[5][22];
-		HBM_channelB5[offsets[5]].data[7] = data[5][23];
-		HBM_channelB5[offsets[5]].data[8] = data[5][24];
-		HBM_channelB5[offsets[5]].data[9] = data[5][25];
-		HBM_channelB5[offsets[5]].data[10] = data[5][26];
-		HBM_channelB5[offsets[5]].data[11] = data[5][27];
-		HBM_channelB5[offsets[5]].data[12] = data[5][28];
-		HBM_channelB5[offsets[5]].data[13] = data[5][29];
-		HBM_channelB5[offsets[5]].data[14] = data[5][30];
-		HBM_channelB5[offsets[5]].data[15] = data[5][31];
-	
-	}
 	return;
 }
 #ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
-void master_insertmany_Cvec(unsigned int offsets[NUM_VALID_PEs], bool ens[NUM_VALID_PEs], unsigned int data[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5){
+void master_insertmany_Cvec(unsigned int offsets[NUM_VALID_PEs], bool ens[NUM_VALID_PEs], unsigned int data[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0){
 	#pragma HLS INLINE 
 	
 	if(ens[0]==true){
@@ -1269,110 +839,10 @@ void master_insertmany_Cvec(unsigned int offsets[NUM_VALID_PEs], bool ens[NUM_VA
 		HBM_channelC0[offsets[0]].data[15] = data[0][31];
 	
 	}
-	
-	if(ens[1]==true){
-		HBM_channelC1[offsets[1]].data[0] = data[1][16];
-		HBM_channelC1[offsets[1]].data[1] = data[1][17];
-		HBM_channelC1[offsets[1]].data[2] = data[1][18];
-		HBM_channelC1[offsets[1]].data[3] = data[1][19];
-		HBM_channelC1[offsets[1]].data[4] = data[1][20];
-		HBM_channelC1[offsets[1]].data[5] = data[1][21];
-		HBM_channelC1[offsets[1]].data[6] = data[1][22];
-		HBM_channelC1[offsets[1]].data[7] = data[1][23];
-		HBM_channelC1[offsets[1]].data[8] = data[1][24];
-		HBM_channelC1[offsets[1]].data[9] = data[1][25];
-		HBM_channelC1[offsets[1]].data[10] = data[1][26];
-		HBM_channelC1[offsets[1]].data[11] = data[1][27];
-		HBM_channelC1[offsets[1]].data[12] = data[1][28];
-		HBM_channelC1[offsets[1]].data[13] = data[1][29];
-		HBM_channelC1[offsets[1]].data[14] = data[1][30];
-		HBM_channelC1[offsets[1]].data[15] = data[1][31];
-	
-	}
-	
-	if(ens[2]==true){
-		HBM_channelC2[offsets[2]].data[0] = data[2][16];
-		HBM_channelC2[offsets[2]].data[1] = data[2][17];
-		HBM_channelC2[offsets[2]].data[2] = data[2][18];
-		HBM_channelC2[offsets[2]].data[3] = data[2][19];
-		HBM_channelC2[offsets[2]].data[4] = data[2][20];
-		HBM_channelC2[offsets[2]].data[5] = data[2][21];
-		HBM_channelC2[offsets[2]].data[6] = data[2][22];
-		HBM_channelC2[offsets[2]].data[7] = data[2][23];
-		HBM_channelC2[offsets[2]].data[8] = data[2][24];
-		HBM_channelC2[offsets[2]].data[9] = data[2][25];
-		HBM_channelC2[offsets[2]].data[10] = data[2][26];
-		HBM_channelC2[offsets[2]].data[11] = data[2][27];
-		HBM_channelC2[offsets[2]].data[12] = data[2][28];
-		HBM_channelC2[offsets[2]].data[13] = data[2][29];
-		HBM_channelC2[offsets[2]].data[14] = data[2][30];
-		HBM_channelC2[offsets[2]].data[15] = data[2][31];
-	
-	}
-	
-	if(ens[3]==true){
-		HBM_channelC3[offsets[3]].data[0] = data[3][16];
-		HBM_channelC3[offsets[3]].data[1] = data[3][17];
-		HBM_channelC3[offsets[3]].data[2] = data[3][18];
-		HBM_channelC3[offsets[3]].data[3] = data[3][19];
-		HBM_channelC3[offsets[3]].data[4] = data[3][20];
-		HBM_channelC3[offsets[3]].data[5] = data[3][21];
-		HBM_channelC3[offsets[3]].data[6] = data[3][22];
-		HBM_channelC3[offsets[3]].data[7] = data[3][23];
-		HBM_channelC3[offsets[3]].data[8] = data[3][24];
-		HBM_channelC3[offsets[3]].data[9] = data[3][25];
-		HBM_channelC3[offsets[3]].data[10] = data[3][26];
-		HBM_channelC3[offsets[3]].data[11] = data[3][27];
-		HBM_channelC3[offsets[3]].data[12] = data[3][28];
-		HBM_channelC3[offsets[3]].data[13] = data[3][29];
-		HBM_channelC3[offsets[3]].data[14] = data[3][30];
-		HBM_channelC3[offsets[3]].data[15] = data[3][31];
-	
-	}
-	
-	if(ens[4]==true){
-		HBM_channelC4[offsets[4]].data[0] = data[4][16];
-		HBM_channelC4[offsets[4]].data[1] = data[4][17];
-		HBM_channelC4[offsets[4]].data[2] = data[4][18];
-		HBM_channelC4[offsets[4]].data[3] = data[4][19];
-		HBM_channelC4[offsets[4]].data[4] = data[4][20];
-		HBM_channelC4[offsets[4]].data[5] = data[4][21];
-		HBM_channelC4[offsets[4]].data[6] = data[4][22];
-		HBM_channelC4[offsets[4]].data[7] = data[4][23];
-		HBM_channelC4[offsets[4]].data[8] = data[4][24];
-		HBM_channelC4[offsets[4]].data[9] = data[4][25];
-		HBM_channelC4[offsets[4]].data[10] = data[4][26];
-		HBM_channelC4[offsets[4]].data[11] = data[4][27];
-		HBM_channelC4[offsets[4]].data[12] = data[4][28];
-		HBM_channelC4[offsets[4]].data[13] = data[4][29];
-		HBM_channelC4[offsets[4]].data[14] = data[4][30];
-		HBM_channelC4[offsets[4]].data[15] = data[4][31];
-	
-	}
-	
-	if(ens[5]==true){
-		HBM_channelC5[offsets[5]].data[0] = data[5][16];
-		HBM_channelC5[offsets[5]].data[1] = data[5][17];
-		HBM_channelC5[offsets[5]].data[2] = data[5][18];
-		HBM_channelC5[offsets[5]].data[3] = data[5][19];
-		HBM_channelC5[offsets[5]].data[4] = data[5][20];
-		HBM_channelC5[offsets[5]].data[5] = data[5][21];
-		HBM_channelC5[offsets[5]].data[6] = data[5][22];
-		HBM_channelC5[offsets[5]].data[7] = data[5][23];
-		HBM_channelC5[offsets[5]].data[8] = data[5][24];
-		HBM_channelC5[offsets[5]].data[9] = data[5][25];
-		HBM_channelC5[offsets[5]].data[10] = data[5][26];
-		HBM_channelC5[offsets[5]].data[11] = data[5][27];
-		HBM_channelC5[offsets[5]].data[12] = data[5][28];
-		HBM_channelC5[offsets[5]].data[13] = data[5][29];
-		HBM_channelC5[offsets[5]].data[14] = data[5][30];
-		HBM_channelC5[offsets[5]].data[15] = data[5][31];
-	
-	}
 	return;
 }
 #endif 
-void master_retrievemany_Avec(unsigned int offsets[NUM_VALID_PEs], unsigned int data[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5){
+void master_retrievemany_Avec(unsigned int offsets[NUM_VALID_PEs], unsigned int data[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0){
 	#pragma HLS INLINE // FIXME_HARDWARE
 	data[0][0] = HBM_channelA0[offsets[0]].data[0];
 	data[0][1] = HBM_channelA0[offsets[0]].data[1];
@@ -1390,90 +860,10 @@ void master_retrievemany_Avec(unsigned int offsets[NUM_VALID_PEs], unsigned int 
 	data[0][13] = HBM_channelA0[offsets[0]].data[13];
 	data[0][14] = HBM_channelA0[offsets[0]].data[14];
 	data[0][15] = HBM_channelA0[offsets[0]].data[15];
-	data[1][0] = HBM_channelA1[offsets[1]].data[0];
-	data[1][1] = HBM_channelA1[offsets[1]].data[1];
-	data[1][2] = HBM_channelA1[offsets[1]].data[2];
-	data[1][3] = HBM_channelA1[offsets[1]].data[3];
-	data[1][4] = HBM_channelA1[offsets[1]].data[4];
-	data[1][5] = HBM_channelA1[offsets[1]].data[5];
-	data[1][6] = HBM_channelA1[offsets[1]].data[6];
-	data[1][7] = HBM_channelA1[offsets[1]].data[7];
-	data[1][8] = HBM_channelA1[offsets[1]].data[8];
-	data[1][9] = HBM_channelA1[offsets[1]].data[9];
-	data[1][10] = HBM_channelA1[offsets[1]].data[10];
-	data[1][11] = HBM_channelA1[offsets[1]].data[11];
-	data[1][12] = HBM_channelA1[offsets[1]].data[12];
-	data[1][13] = HBM_channelA1[offsets[1]].data[13];
-	data[1][14] = HBM_channelA1[offsets[1]].data[14];
-	data[1][15] = HBM_channelA1[offsets[1]].data[15];
-	data[2][0] = HBM_channelA2[offsets[2]].data[0];
-	data[2][1] = HBM_channelA2[offsets[2]].data[1];
-	data[2][2] = HBM_channelA2[offsets[2]].data[2];
-	data[2][3] = HBM_channelA2[offsets[2]].data[3];
-	data[2][4] = HBM_channelA2[offsets[2]].data[4];
-	data[2][5] = HBM_channelA2[offsets[2]].data[5];
-	data[2][6] = HBM_channelA2[offsets[2]].data[6];
-	data[2][7] = HBM_channelA2[offsets[2]].data[7];
-	data[2][8] = HBM_channelA2[offsets[2]].data[8];
-	data[2][9] = HBM_channelA2[offsets[2]].data[9];
-	data[2][10] = HBM_channelA2[offsets[2]].data[10];
-	data[2][11] = HBM_channelA2[offsets[2]].data[11];
-	data[2][12] = HBM_channelA2[offsets[2]].data[12];
-	data[2][13] = HBM_channelA2[offsets[2]].data[13];
-	data[2][14] = HBM_channelA2[offsets[2]].data[14];
-	data[2][15] = HBM_channelA2[offsets[2]].data[15];
-	data[3][0] = HBM_channelA3[offsets[3]].data[0];
-	data[3][1] = HBM_channelA3[offsets[3]].data[1];
-	data[3][2] = HBM_channelA3[offsets[3]].data[2];
-	data[3][3] = HBM_channelA3[offsets[3]].data[3];
-	data[3][4] = HBM_channelA3[offsets[3]].data[4];
-	data[3][5] = HBM_channelA3[offsets[3]].data[5];
-	data[3][6] = HBM_channelA3[offsets[3]].data[6];
-	data[3][7] = HBM_channelA3[offsets[3]].data[7];
-	data[3][8] = HBM_channelA3[offsets[3]].data[8];
-	data[3][9] = HBM_channelA3[offsets[3]].data[9];
-	data[3][10] = HBM_channelA3[offsets[3]].data[10];
-	data[3][11] = HBM_channelA3[offsets[3]].data[11];
-	data[3][12] = HBM_channelA3[offsets[3]].data[12];
-	data[3][13] = HBM_channelA3[offsets[3]].data[13];
-	data[3][14] = HBM_channelA3[offsets[3]].data[14];
-	data[3][15] = HBM_channelA3[offsets[3]].data[15];
-	data[4][0] = HBM_channelA4[offsets[4]].data[0];
-	data[4][1] = HBM_channelA4[offsets[4]].data[1];
-	data[4][2] = HBM_channelA4[offsets[4]].data[2];
-	data[4][3] = HBM_channelA4[offsets[4]].data[3];
-	data[4][4] = HBM_channelA4[offsets[4]].data[4];
-	data[4][5] = HBM_channelA4[offsets[4]].data[5];
-	data[4][6] = HBM_channelA4[offsets[4]].data[6];
-	data[4][7] = HBM_channelA4[offsets[4]].data[7];
-	data[4][8] = HBM_channelA4[offsets[4]].data[8];
-	data[4][9] = HBM_channelA4[offsets[4]].data[9];
-	data[4][10] = HBM_channelA4[offsets[4]].data[10];
-	data[4][11] = HBM_channelA4[offsets[4]].data[11];
-	data[4][12] = HBM_channelA4[offsets[4]].data[12];
-	data[4][13] = HBM_channelA4[offsets[4]].data[13];
-	data[4][14] = HBM_channelA4[offsets[4]].data[14];
-	data[4][15] = HBM_channelA4[offsets[4]].data[15];
-	data[5][0] = HBM_channelA5[offsets[5]].data[0];
-	data[5][1] = HBM_channelA5[offsets[5]].data[1];
-	data[5][2] = HBM_channelA5[offsets[5]].data[2];
-	data[5][3] = HBM_channelA5[offsets[5]].data[3];
-	data[5][4] = HBM_channelA5[offsets[5]].data[4];
-	data[5][5] = HBM_channelA5[offsets[5]].data[5];
-	data[5][6] = HBM_channelA5[offsets[5]].data[6];
-	data[5][7] = HBM_channelA5[offsets[5]].data[7];
-	data[5][8] = HBM_channelA5[offsets[5]].data[8];
-	data[5][9] = HBM_channelA5[offsets[5]].data[9];
-	data[5][10] = HBM_channelA5[offsets[5]].data[10];
-	data[5][11] = HBM_channelA5[offsets[5]].data[11];
-	data[5][12] = HBM_channelA5[offsets[5]].data[12];
-	data[5][13] = HBM_channelA5[offsets[5]].data[13];
-	data[5][14] = HBM_channelA5[offsets[5]].data[14];
-	data[5][15] = HBM_channelA5[offsets[5]].data[15];
 	
 	return;
 }
-void master_retrievemany_Bvec(unsigned int offsets[NUM_VALID_PEs], unsigned int data[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5){
+void master_retrievemany_Bvec(unsigned int offsets[NUM_VALID_PEs], unsigned int data[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0){
 	#pragma HLS INLINE // FIXME_HARDWARE
  /////////////////
 	data[0][16] = HBM_channelB0[offsets[0]].data[0];
@@ -1508,171 +898,6 @@ void master_retrievemany_Bvec(unsigned int offsets[NUM_VALID_PEs], unsigned int 
  /////////////////
 	data[0][31] = HBM_channelB0[offsets[0]].data[15];
 	
- /////////////////
-	data[1][16] = HBM_channelB1[offsets[1]].data[0];
- /////////////////
-	data[1][17] = HBM_channelB1[offsets[1]].data[1];
- /////////////////
-	data[1][18] = HBM_channelB1[offsets[1]].data[2];
- /////////////////
-	data[1][19] = HBM_channelB1[offsets[1]].data[3];
- /////////////////
-	data[1][20] = HBM_channelB1[offsets[1]].data[4];
- /////////////////
-	data[1][21] = HBM_channelB1[offsets[1]].data[5];
- /////////////////
-	data[1][22] = HBM_channelB1[offsets[1]].data[6];
- /////////////////
-	data[1][23] = HBM_channelB1[offsets[1]].data[7];
- /////////////////
-	data[1][24] = HBM_channelB1[offsets[1]].data[8];
- /////////////////
-	data[1][25] = HBM_channelB1[offsets[1]].data[9];
- /////////////////
-	data[1][26] = HBM_channelB1[offsets[1]].data[10];
- /////////////////
-	data[1][27] = HBM_channelB1[offsets[1]].data[11];
- /////////////////
-	data[1][28] = HBM_channelB1[offsets[1]].data[12];
- /////////////////
-	data[1][29] = HBM_channelB1[offsets[1]].data[13];
- /////////////////
-	data[1][30] = HBM_channelB1[offsets[1]].data[14];
- /////////////////
-	data[1][31] = HBM_channelB1[offsets[1]].data[15];
-	
- /////////////////
-	data[2][16] = HBM_channelB2[offsets[2]].data[0];
- /////////////////
-	data[2][17] = HBM_channelB2[offsets[2]].data[1];
- /////////////////
-	data[2][18] = HBM_channelB2[offsets[2]].data[2];
- /////////////////
-	data[2][19] = HBM_channelB2[offsets[2]].data[3];
- /////////////////
-	data[2][20] = HBM_channelB2[offsets[2]].data[4];
- /////////////////
-	data[2][21] = HBM_channelB2[offsets[2]].data[5];
- /////////////////
-	data[2][22] = HBM_channelB2[offsets[2]].data[6];
- /////////////////
-	data[2][23] = HBM_channelB2[offsets[2]].data[7];
- /////////////////
-	data[2][24] = HBM_channelB2[offsets[2]].data[8];
- /////////////////
-	data[2][25] = HBM_channelB2[offsets[2]].data[9];
- /////////////////
-	data[2][26] = HBM_channelB2[offsets[2]].data[10];
- /////////////////
-	data[2][27] = HBM_channelB2[offsets[2]].data[11];
- /////////////////
-	data[2][28] = HBM_channelB2[offsets[2]].data[12];
- /////////////////
-	data[2][29] = HBM_channelB2[offsets[2]].data[13];
- /////////////////
-	data[2][30] = HBM_channelB2[offsets[2]].data[14];
- /////////////////
-	data[2][31] = HBM_channelB2[offsets[2]].data[15];
-	
- /////////////////
-	data[3][16] = HBM_channelB3[offsets[3]].data[0];
- /////////////////
-	data[3][17] = HBM_channelB3[offsets[3]].data[1];
- /////////////////
-	data[3][18] = HBM_channelB3[offsets[3]].data[2];
- /////////////////
-	data[3][19] = HBM_channelB3[offsets[3]].data[3];
- /////////////////
-	data[3][20] = HBM_channelB3[offsets[3]].data[4];
- /////////////////
-	data[3][21] = HBM_channelB3[offsets[3]].data[5];
- /////////////////
-	data[3][22] = HBM_channelB3[offsets[3]].data[6];
- /////////////////
-	data[3][23] = HBM_channelB3[offsets[3]].data[7];
- /////////////////
-	data[3][24] = HBM_channelB3[offsets[3]].data[8];
- /////////////////
-	data[3][25] = HBM_channelB3[offsets[3]].data[9];
- /////////////////
-	data[3][26] = HBM_channelB3[offsets[3]].data[10];
- /////////////////
-	data[3][27] = HBM_channelB3[offsets[3]].data[11];
- /////////////////
-	data[3][28] = HBM_channelB3[offsets[3]].data[12];
- /////////////////
-	data[3][29] = HBM_channelB3[offsets[3]].data[13];
- /////////////////
-	data[3][30] = HBM_channelB3[offsets[3]].data[14];
- /////////////////
-	data[3][31] = HBM_channelB3[offsets[3]].data[15];
-	
- /////////////////
-	data[4][16] = HBM_channelB4[offsets[4]].data[0];
- /////////////////
-	data[4][17] = HBM_channelB4[offsets[4]].data[1];
- /////////////////
-	data[4][18] = HBM_channelB4[offsets[4]].data[2];
- /////////////////
-	data[4][19] = HBM_channelB4[offsets[4]].data[3];
- /////////////////
-	data[4][20] = HBM_channelB4[offsets[4]].data[4];
- /////////////////
-	data[4][21] = HBM_channelB4[offsets[4]].data[5];
- /////////////////
-	data[4][22] = HBM_channelB4[offsets[4]].data[6];
- /////////////////
-	data[4][23] = HBM_channelB4[offsets[4]].data[7];
- /////////////////
-	data[4][24] = HBM_channelB4[offsets[4]].data[8];
- /////////////////
-	data[4][25] = HBM_channelB4[offsets[4]].data[9];
- /////////////////
-	data[4][26] = HBM_channelB4[offsets[4]].data[10];
- /////////////////
-	data[4][27] = HBM_channelB4[offsets[4]].data[11];
- /////////////////
-	data[4][28] = HBM_channelB4[offsets[4]].data[12];
- /////////////////
-	data[4][29] = HBM_channelB4[offsets[4]].data[13];
- /////////////////
-	data[4][30] = HBM_channelB4[offsets[4]].data[14];
- /////////////////
-	data[4][31] = HBM_channelB4[offsets[4]].data[15];
-	
- /////////////////
-	data[5][16] = HBM_channelB5[offsets[5]].data[0];
- /////////////////
-	data[5][17] = HBM_channelB5[offsets[5]].data[1];
- /////////////////
-	data[5][18] = HBM_channelB5[offsets[5]].data[2];
- /////////////////
-	data[5][19] = HBM_channelB5[offsets[5]].data[3];
- /////////////////
-	data[5][20] = HBM_channelB5[offsets[5]].data[4];
- /////////////////
-	data[5][21] = HBM_channelB5[offsets[5]].data[5];
- /////////////////
-	data[5][22] = HBM_channelB5[offsets[5]].data[6];
- /////////////////
-	data[5][23] = HBM_channelB5[offsets[5]].data[7];
- /////////////////
-	data[5][24] = HBM_channelB5[offsets[5]].data[8];
- /////////////////
-	data[5][25] = HBM_channelB5[offsets[5]].data[9];
- /////////////////
-	data[5][26] = HBM_channelB5[offsets[5]].data[10];
- /////////////////
-	data[5][27] = HBM_channelB5[offsets[5]].data[11];
- /////////////////
-	data[5][28] = HBM_channelB5[offsets[5]].data[12];
- /////////////////
-	data[5][29] = HBM_channelB5[offsets[5]].data[13];
- /////////////////
-	data[5][30] = HBM_channelB5[offsets[5]].data[14];
- /////////////////
-	data[5][31] = HBM_channelB5[offsets[5]].data[15];
-	
 	
 	return;
 }
@@ -1684,11 +909,11 @@ unsigned int master_retrieve(unsigned int offset, unsigned int v, HBM_channelAXI
 	master_retrieve_vec(offset, datas, HBM_channelA, HBM_channelB, inst);
 	return datas[v];
 }
-void master_retrievemany(unsigned int offsets[NUM_VALID_PEs], unsigned int v, unsigned int data[NUM_VALID_PEs],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5){
+void master_retrievemany(unsigned int offsets[NUM_VALID_PEs], unsigned int v, unsigned int data[NUM_VALID_PEs],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0){
 	#pragma HLS INLINE // FIXME_HARDWARE
 	unsigned int datas[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable=datas complete dim=0
-	master_retrievemany_vec(offsets, datas,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);
+	master_retrievemany_vec(offsets, datas,  HBM_channelA0, HBM_channelB0);
 	for(unsigned int n=0; n<NUM_VALID_PEs; n++){
 		data[n] = datas[n][v];
 	}
@@ -1733,14 +958,9 @@ unsigned int dretrieve_vptrdram(unsigned int base_offset__, unsigned int index, 
 	#endif 
 	return master_retrieve(base_offset__ + (index / HBM_CHANNEL_PACK_SIZE), index % HBM_CHANNEL_PACK_SIZE, HBM_channelA, HBM_channelB, inst);
 }	
-void dretrievemany_vptrdram(unsigned int base_offset__, unsigned int offsets[NUM_VALID_PEs], unsigned int data[NUM_VALID_PEs],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5){
+void dretrievemany_vptrdram(unsigned int base_offset__, unsigned int offsets[NUM_VALID_PEs], unsigned int data[NUM_VALID_PEs],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0){
 	#pragma HLS INLINE // FIXME_HARDWARE
 	data[0] = dretrieve_vptrdram(base_offset__, offsets[0], HBM_channelA0, HBM_channelB0, 0);
-	data[1] = dretrieve_vptrdram(base_offset__, offsets[1], HBM_channelA1, HBM_channelB1, 1);
-	data[2] = dretrieve_vptrdram(base_offset__, offsets[2], HBM_channelA2, HBM_channelB2, 2);
-	data[3] = dretrieve_vptrdram(base_offset__, offsets[3], HBM_channelA3, HBM_channelB3, 3);
-	data[4] = dretrieve_vptrdram(base_offset__, offsets[4], HBM_channelA4, HBM_channelB4, 4);
-	data[5] = dretrieve_vptrdram(base_offset__, offsets[5], HBM_channelA5, HBM_channelB5, 5);
 	return;
 }
 
@@ -1758,7 +978,7 @@ map_t dretrieve_actpackvptrdram(unsigned int base_offset__, unsigned int p_u, un
 	map.size = master_retrieve(base_offset__ + i, j + 1, HBM_channelA, HBM_channelB, inst);
 	return map;
 }
-void dretrievemany_actpackvptrdram(unsigned int base_offset__, unsigned int p_u, unsigned int llp_set, map_t maps[NUM_VALID_PEs],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5){
+void dretrievemany_actpackvptrdram(unsigned int base_offset__, unsigned int p_u, unsigned int llp_set, map_t maps[NUM_VALID_PEs],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0){
 	#pragma HLS INLINE // FIXME_HARDWARE
 	unsigned int offset = ((p_u * MAX_NUM_LLPSETS) + llp_set) * 2; 
 	#ifdef _DEBUGMODE_CHECKS3
@@ -1777,12 +997,12 @@ void dretrievemany_actpackvptrdram(unsigned int base_offset__, unsigned int p_u,
 	#pragma HLS UNROLL
 		offsets_[n] = base_offset__ + i;
 	}
-	master_retrievemany(offsets_, j, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);
+	master_retrievemany(offsets_, j, data_,  HBM_channelA0, HBM_channelB0);
 	for(unsigned int n=0; n<NUM_VALID_PEs; n++){
 	#pragma HLS UNROLL
 		maps[n].offset = data_[n];
 	}
-	master_retrievemany(offsets_, j + 1, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);
+	master_retrievemany(offsets_, j + 1, data_,  HBM_channelA0, HBM_channelB0);
 	for(unsigned int n=0; n<NUM_VALID_PEs; n++){
 	#pragma HLS UNROLL
 		maps[n].size = data_[n];
@@ -1812,7 +1032,7 @@ edge3_vec_dt dretrieve_csredges(unsigned int base_offset__, unsigned int index, 
 }
 
 #ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
-void dinsertmany_actpackedges(unsigned int base_offset__, unsigned int offsets[NUM_VALID_PEs], unsigned int t, edge3_vec_dt edge3_vecs[NUM_VALID_PEs],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5){
+void dinsertmany_actpackedges(unsigned int base_offset__, unsigned int offsets[NUM_VALID_PEs], unsigned int t, edge3_vec_dt edge3_vecs[NUM_VALID_PEs],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0){
 	#pragma HLS INLINE 			
 	#ifdef _DEBUGMODE_CHECKS3
 	unsigned int wwsize = globalparams_debug[GLOBALPARAMSCODE__WWSIZE__ACTPACKEDGES];
@@ -1835,12 +1055,12 @@ void dinsertmany_actpackedges(unsigned int base_offset__, unsigned int offsets[N
 			data_[n][v] = (edge3_vecs[n].data[v].srcvid << MAXNUMBITS_ACTPACK_DESTVID) | act_pack_edges[i][t].data[v].dstvid;
 		}	
 	}
-	// master_insertmany_Cvec(offsets, ens_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);
-	master_insertmany_Bvec(offsets, ens_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5); // REMOVEME.
+	// master_insertmany_Cvec(offsets, ens_, data_,  HBM_channelA0, HBM_channelB0);
+	master_insertmany_Bvec(offsets, ens_, data_,  HBM_channelA0, HBM_channelB0); // REMOVEME.
 	return;
 }
 #endif 
-void dretrievemany_actpackedges(unsigned int base_offset__, unsigned int offsets[NUM_VALID_PEs], unsigned int t, edge3_vec_dt edge3_vecs[NUM_VALID_PEs],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5){
+void dretrievemany_actpackedges(unsigned int base_offset__, unsigned int offsets[NUM_VALID_PEs], unsigned int t, edge3_vec_dt edge3_vecs[NUM_VALID_PEs],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0){
 	#pragma HLS INLINE // FIXME_HARDWARE
 	#ifdef _DEBUGMODE_CHECKS3
 	unsigned int wwsize = globalparams_debug[GLOBALPARAMSCODE__WWSIZE__ACTPACKEDGES];
@@ -1856,7 +1076,7 @@ void dretrievemany_actpackedges(unsigned int base_offset__, unsigned int offsets
 		offsets_[n] = base_offset__ + offsets[n] + t;
 	}
 	
-	master_retrievemany_Avec(offsets_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);		
+	master_retrievemany_Avec(offsets_, data_,  HBM_channelA0, HBM_channelB0);		
 	for(unsigned int n=0; n<NUM_VALID_PEs; n++){
 	#pragma HLS UNROLL	
 		for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){	
@@ -1881,7 +1101,7 @@ unsigned int dretrieve_updatesptrs(unsigned int base_offset__, unsigned int inde
 	return master_retrieve(base_offset__ + index, 0, HBM_channelA, HBM_channelB, inst); // NEW
 }
 
-void dinsertmany_updatesdram(unsigned int offsets[NUM_VALID_PEs], keyvalue_t data[NUM_VALID_PEs][EDGE_PACK_SIZE], bool ens[NUM_VALID_PEs][EDGE_PACK_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5){
+void dinsertmany_updatesdram(unsigned int offsets[NUM_VALID_PEs], keyvalue_t data[NUM_VALID_PEs][EDGE_PACK_SIZE], bool ens[NUM_VALID_PEs][EDGE_PACK_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0){
 	#pragma HLS INLINE // FIXME_HARDWARE
 	#ifdef _DEBUGMODE_CHECKS3
 	unsigned int wwsize = globalparams_debug[GLOBALPARAMSCODE__WWSIZE__UPDATES];
@@ -1912,9 +1132,9 @@ void dinsertmany_updatesdram(unsigned int offsets[NUM_VALID_PEs], keyvalue_t dat
 			}
 		}
 	}
-	master_insertmany_Bvec(offsets, ens_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5); // CRITICAL FIXME. the issue.
+	master_insertmany_Bvec(offsets, ens_, data_,  HBM_channelA0, HBM_channelB0); // CRITICAL FIXME. the issue.
 }
-void dretrievemany_udatesdram(unsigned int offset__, unsigned int llp_set, unsigned int index, uint512_vec_dt data[NUM_VALID_PEs],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5, unsigned int updatesptrs[MAX_NUM_LLPSETS]){
+void dretrievemany_udatesdram(unsigned int offset__, unsigned int llp_set, unsigned int index, uint512_vec_dt data[NUM_VALID_PEs],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, unsigned int updatesptrs[MAX_NUM_LLPSETS]){
 	#pragma HLS INLINE // FIXME_HARDWARE
 	#ifdef _DEBUGMODE_CHECKS3
 	unsigned int wwsize = globalparams_debug[GLOBALPARAMSCODE__WWSIZE__UPDATES];
@@ -1930,7 +1150,7 @@ void dretrievemany_udatesdram(unsigned int offset__, unsigned int llp_set, unsig
 		offsets_[n] = offset__ + index;
 	}
 	
-	master_retrievemany_Bvec(offsets_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);
+	master_retrievemany_Bvec(offsets_, data_,  HBM_channelA0, HBM_channelB0);
 	for(unsigned int n=0; n<NUM_VALID_PEs; n++){
 	#pragma HLS UNROLL
 		for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
@@ -1945,7 +1165,7 @@ void dretrievemany_udatesdram(unsigned int offset__, unsigned int llp_set, unsig
 	return; 
 }
 
-void dinsertmany_vdatadram(unsigned int offset__, unsigned int offsets[NUM_VALID_PEs], unsigned int t, vprop_t datas[NUM_VALID_PEs][EDGE_PACK_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5){
+void dinsertmany_vdatadram(unsigned int offset__, unsigned int offsets[NUM_VALID_PEs], unsigned int t, vprop_t datas[NUM_VALID_PEs][EDGE_PACK_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0){
 	#pragma HLS INLINE // FIXME_HARDWARE
 	#ifdef _DEBUGMODE_CHECKS3
 	unsigned int wwsize = globalparams_debug[GLOBALPARAMSCODE__WWSIZE__VDATAS];
@@ -1974,10 +1194,10 @@ void dinsertmany_vdatadram(unsigned int offset__, unsigned int offsets[NUM_VALID
 			data_[n][2*v+1] = datas[n][v].mask;
 		}
 	}
-	master_insertmany_vec(offsets_, ens_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);
+	master_insertmany_vec(offsets_, ens_, data_,  HBM_channelA0, HBM_channelB0);
 	return;
 }
-void dretrievemany_vdatadram(unsigned int offset__, unsigned int offsets[NUM_VALID_PEs], unsigned int t, vprop_t datas[NUM_VALID_PEs][EDGE_PACK_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5){
+void dretrievemany_vdatadram(unsigned int offset__, unsigned int offsets[NUM_VALID_PEs], unsigned int t, vprop_t datas[NUM_VALID_PEs][EDGE_PACK_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0){
 	#pragma HLS INLINE // FIXME_HARDWARE
 	#ifdef _DEBUGMODE_CHECKS3
 	unsigned int wwsize = globalparams_debug[GLOBALPARAMSCODE__WWSIZE__VDATAS];
@@ -1992,7 +1212,7 @@ void dretrievemany_vdatadram(unsigned int offset__, unsigned int offsets[NUM_VAL
 	#pragma HLS UNROLL
 		offsets_[n] = offset__ + offsets[n] + t;
 	}
-	master_retrievemany_vec(offsets_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);
+	master_retrievemany_vec(offsets_, data_,  HBM_channelA0, HBM_channelB0);
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 	#pragma HLS UNROLL
 		for(unsigned int n=0; n<NUM_VALID_PEs; n++){
@@ -2003,7 +1223,7 @@ void dretrievemany_vdatadram(unsigned int offset__, unsigned int offsets[NUM_VAL
 	return;
 }
 
-void dretrievemany_cfrontierdram_tmp(unsigned int base_offset__, unsigned int offsets[NUM_VALID_PEs], unsigned int t, keyvalue_t datas[NUM_VALID_PEs][EDGE_PACK_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5){
+void dretrievemany_cfrontierdram_tmp(unsigned int base_offset__, unsigned int offsets[NUM_VALID_PEs], unsigned int t, keyvalue_t datas[NUM_VALID_PEs][EDGE_PACK_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0){
 	#pragma HLS INLINE // FIXME_HARDWARE
 	#ifdef _DEBUGMODE_CHECKS3
 	unsigned int wwsize = globalparams_debug[GLOBALPARAMSCODE__WWSIZE__CFRONTIERSTMP];
@@ -2018,7 +1238,7 @@ void dretrievemany_cfrontierdram_tmp(unsigned int base_offset__, unsigned int of
 	#pragma HLS UNROLL
 		offsets_[n] = base_offset__ + offsets[n] + t;
 	}
-	master_retrievemany_vec(offsets_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);
+	master_retrievemany_vec(offsets_, data_,  HBM_channelA0, HBM_channelB0);
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 	#pragma HLS UNROLL
 		for(unsigned int n=0; n<NUM_VALID_PEs; n++){
@@ -2030,7 +1250,7 @@ void dretrievemany_cfrontierdram_tmp(unsigned int base_offset__, unsigned int of
 	return; 
 }
 
-void dinsertmany_nfrontierdram(unsigned int offset__, unsigned int p_u, unsigned int offsets[NUM_VALID_PEs], unsigned int t, keyvalue_t datas[NUM_VALID_PEs][EDGE_PACK_SIZE], bool ens[NUM_VALID_PEs][EDGE_PACK_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_channelA1, HBM_channelAXI_t * HBM_channelB1, HBM_channelAXI_t * HBM_channelA2, HBM_channelAXI_t * HBM_channelB2, HBM_channelAXI_t * HBM_channelA3, HBM_channelAXI_t * HBM_channelB3, HBM_channelAXI_t * HBM_channelA4, HBM_channelAXI_t * HBM_channelB4, HBM_channelAXI_t * HBM_channelA5, HBM_channelAXI_t * HBM_channelB5){
+void dinsertmany_nfrontierdram(unsigned int offset__, unsigned int p_u, unsigned int offsets[NUM_VALID_PEs], unsigned int t, keyvalue_t datas[NUM_VALID_PEs][EDGE_PACK_SIZE], bool ens[NUM_VALID_PEs][EDGE_PACK_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0){
 	#pragma HLS INLINE // FIXME_HARDWARE
 	unsigned int data_[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=data_ complete dim=0
@@ -2059,7 +1279,7 @@ void dinsertmany_nfrontierdram(unsigned int offset__, unsigned int p_u, unsigned
 			}
 		}
 	}
-	master_insertmany_vec(offsets_, ens_, data_,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);
+	master_insertmany_vec(offsets_, ens_, data_,  HBM_channelA0, HBM_channelB0);
 }	
 
 //////////////////////////////////////////////////////////////////
@@ -2418,36 +1638,11 @@ MY_IFDEF_TOPLEVELFUNC(){
  
 #pragma HLS INTERFACE m_axi port = HBM_channelA0 offset = slave bundle = gmem0
 #pragma HLS INTERFACE m_axi port = HBM_channelB0 offset = slave bundle = gmem1
- 
-#pragma HLS INTERFACE m_axi port = HBM_channelA1 offset = slave bundle = gmem2
-#pragma HLS INTERFACE m_axi port = HBM_channelB1 offset = slave bundle = gmem3
- 
-#pragma HLS INTERFACE m_axi port = HBM_channelA2 offset = slave bundle = gmem4
-#pragma HLS INTERFACE m_axi port = HBM_channelB2 offset = slave bundle = gmem5
- 
-#pragma HLS INTERFACE m_axi port = HBM_channelA3 offset = slave bundle = gmem6
-#pragma HLS INTERFACE m_axi port = HBM_channelB3 offset = slave bundle = gmem7
- 
-#pragma HLS INTERFACE m_axi port = HBM_channelA4 offset = slave bundle = gmem8
-#pragma HLS INTERFACE m_axi port = HBM_channelB4 offset = slave bundle = gmem9
- 
-#pragma HLS INTERFACE m_axi port = HBM_channelA5 offset = slave bundle = gmem10
-#pragma HLS INTERFACE m_axi port = HBM_channelB5 offset = slave bundle = gmem11
-#pragma HLS INTERFACE m_axi port = HBM_centerA offset = slave bundle = gmem12
-#pragma HLS INTERFACE m_axi port = HBM_centerB offset = slave bundle = gmem13
+#pragma HLS INTERFACE m_axi port = HBM_centerA offset = slave bundle = gmem2
+#pragma HLS INTERFACE m_axi port = HBM_centerB offset = slave bundle = gmem3
 
 #pragma HLS INTERFACE s_axilite port = HBM_channelA0 bundle = control
 #pragma HLS INTERFACE s_axilite port = HBM_channelB0 bundle = control
-#pragma HLS INTERFACE s_axilite port = HBM_channelA1 bundle = control
-#pragma HLS INTERFACE s_axilite port = HBM_channelB1 bundle = control
-#pragma HLS INTERFACE s_axilite port = HBM_channelA2 bundle = control
-#pragma HLS INTERFACE s_axilite port = HBM_channelB2 bundle = control
-#pragma HLS INTERFACE s_axilite port = HBM_channelA3 bundle = control
-#pragma HLS INTERFACE s_axilite port = HBM_channelB3 bundle = control
-#pragma HLS INTERFACE s_axilite port = HBM_channelA4 bundle = control
-#pragma HLS INTERFACE s_axilite port = HBM_channelB4 bundle = control
-#pragma HLS INTERFACE s_axilite port = HBM_channelA5 bundle = control
-#pragma HLS INTERFACE s_axilite port = HBM_channelB5 bundle = control
 	
 #pragma HLS INTERFACE s_axilite port = HBM_centerA bundle = control
 #pragma HLS INTERFACE s_axilite port = HBM_centerB bundle = control
@@ -2798,8 +1993,8 @@ checkoutofbounds("acts_kernel::ERROR 12073::", cfrontier_dram___size[p_u], MAX_A
 unsigned int data[HBM_CHANNEL_PACK_SIZE];
 #pragma HLS ARRAY_PARTITION variable=data complete
 unsigned int offset_c = globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP];
-MY_LOOP179: for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t++){ 
-#pragma HLS PIPELINE II=1
+READ_FRONTIER_INFO_LOOP1: for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t++){ 
+#pragma HLS PIPELINE II=1	
 	data[0] = HBM_centerA[uoffset_vecsz + t].data[0];
 	data[1] = HBM_centerA[uoffset_vecsz + t].data[1];
 	data[2] = HBM_centerA[uoffset_vecsz + t].data[2];
@@ -2865,167 +2060,6 @@ MY_LOOP179: for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t++){
 	HBM_channelB0[offset_c + t].data[13] = data[29];
 	HBM_channelB0[offset_c + t].data[14] = data[30];
 	HBM_channelB0[offset_c + t].data[15] = data[31];
-	HBM_channelA1[offset_c + t].data[0] = data[0];
-	HBM_channelA1[offset_c + t].data[1] = data[1];
-	HBM_channelA1[offset_c + t].data[2] = data[2];
-	HBM_channelA1[offset_c + t].data[3] = data[3];
-	HBM_channelA1[offset_c + t].data[4] = data[4];
-	HBM_channelA1[offset_c + t].data[5] = data[5];
-	HBM_channelA1[offset_c + t].data[6] = data[6];
-	HBM_channelA1[offset_c + t].data[7] = data[7];
-	HBM_channelA1[offset_c + t].data[8] = data[8];
-	HBM_channelA1[offset_c + t].data[9] = data[9];
-	HBM_channelA1[offset_c + t].data[10] = data[10];
-	HBM_channelA1[offset_c + t].data[11] = data[11];
-	HBM_channelA1[offset_c + t].data[12] = data[12];
-	HBM_channelA1[offset_c + t].data[13] = data[13];
-	HBM_channelA1[offset_c + t].data[14] = data[14];
-	HBM_channelA1[offset_c + t].data[15] = data[15];
-	HBM_channelB1[offset_c + t].data[0] = data[16];
-	HBM_channelB1[offset_c + t].data[1] = data[17];
-	HBM_channelB1[offset_c + t].data[2] = data[18];
-	HBM_channelB1[offset_c + t].data[3] = data[19];
-	HBM_channelB1[offset_c + t].data[4] = data[20];
-	HBM_channelB1[offset_c + t].data[5] = data[21];
-	HBM_channelB1[offset_c + t].data[6] = data[22];
-	HBM_channelB1[offset_c + t].data[7] = data[23];
-	HBM_channelB1[offset_c + t].data[8] = data[24];
-	HBM_channelB1[offset_c + t].data[9] = data[25];
-	HBM_channelB1[offset_c + t].data[10] = data[26];
-	HBM_channelB1[offset_c + t].data[11] = data[27];
-	HBM_channelB1[offset_c + t].data[12] = data[28];
-	HBM_channelB1[offset_c + t].data[13] = data[29];
-	HBM_channelB1[offset_c + t].data[14] = data[30];
-	HBM_channelB1[offset_c + t].data[15] = data[31];
-	HBM_channelA2[offset_c + t].data[0] = data[0];
-	HBM_channelA2[offset_c + t].data[1] = data[1];
-	HBM_channelA2[offset_c + t].data[2] = data[2];
-	HBM_channelA2[offset_c + t].data[3] = data[3];
-	HBM_channelA2[offset_c + t].data[4] = data[4];
-	HBM_channelA2[offset_c + t].data[5] = data[5];
-	HBM_channelA2[offset_c + t].data[6] = data[6];
-	HBM_channelA2[offset_c + t].data[7] = data[7];
-	HBM_channelA2[offset_c + t].data[8] = data[8];
-	HBM_channelA2[offset_c + t].data[9] = data[9];
-	HBM_channelA2[offset_c + t].data[10] = data[10];
-	HBM_channelA2[offset_c + t].data[11] = data[11];
-	HBM_channelA2[offset_c + t].data[12] = data[12];
-	HBM_channelA2[offset_c + t].data[13] = data[13];
-	HBM_channelA2[offset_c + t].data[14] = data[14];
-	HBM_channelA2[offset_c + t].data[15] = data[15];
-	HBM_channelB2[offset_c + t].data[0] = data[16];
-	HBM_channelB2[offset_c + t].data[1] = data[17];
-	HBM_channelB2[offset_c + t].data[2] = data[18];
-	HBM_channelB2[offset_c + t].data[3] = data[19];
-	HBM_channelB2[offset_c + t].data[4] = data[20];
-	HBM_channelB2[offset_c + t].data[5] = data[21];
-	HBM_channelB2[offset_c + t].data[6] = data[22];
-	HBM_channelB2[offset_c + t].data[7] = data[23];
-	HBM_channelB2[offset_c + t].data[8] = data[24];
-	HBM_channelB2[offset_c + t].data[9] = data[25];
-	HBM_channelB2[offset_c + t].data[10] = data[26];
-	HBM_channelB2[offset_c + t].data[11] = data[27];
-	HBM_channelB2[offset_c + t].data[12] = data[28];
-	HBM_channelB2[offset_c + t].data[13] = data[29];
-	HBM_channelB2[offset_c + t].data[14] = data[30];
-	HBM_channelB2[offset_c + t].data[15] = data[31];
-	HBM_channelA3[offset_c + t].data[0] = data[0];
-	HBM_channelA3[offset_c + t].data[1] = data[1];
-	HBM_channelA3[offset_c + t].data[2] = data[2];
-	HBM_channelA3[offset_c + t].data[3] = data[3];
-	HBM_channelA3[offset_c + t].data[4] = data[4];
-	HBM_channelA3[offset_c + t].data[5] = data[5];
-	HBM_channelA3[offset_c + t].data[6] = data[6];
-	HBM_channelA3[offset_c + t].data[7] = data[7];
-	HBM_channelA3[offset_c + t].data[8] = data[8];
-	HBM_channelA3[offset_c + t].data[9] = data[9];
-	HBM_channelA3[offset_c + t].data[10] = data[10];
-	HBM_channelA3[offset_c + t].data[11] = data[11];
-	HBM_channelA3[offset_c + t].data[12] = data[12];
-	HBM_channelA3[offset_c + t].data[13] = data[13];
-	HBM_channelA3[offset_c + t].data[14] = data[14];
-	HBM_channelA3[offset_c + t].data[15] = data[15];
-	HBM_channelB3[offset_c + t].data[0] = data[16];
-	HBM_channelB3[offset_c + t].data[1] = data[17];
-	HBM_channelB3[offset_c + t].data[2] = data[18];
-	HBM_channelB3[offset_c + t].data[3] = data[19];
-	HBM_channelB3[offset_c + t].data[4] = data[20];
-	HBM_channelB3[offset_c + t].data[5] = data[21];
-	HBM_channelB3[offset_c + t].data[6] = data[22];
-	HBM_channelB3[offset_c + t].data[7] = data[23];
-	HBM_channelB3[offset_c + t].data[8] = data[24];
-	HBM_channelB3[offset_c + t].data[9] = data[25];
-	HBM_channelB3[offset_c + t].data[10] = data[26];
-	HBM_channelB3[offset_c + t].data[11] = data[27];
-	HBM_channelB3[offset_c + t].data[12] = data[28];
-	HBM_channelB3[offset_c + t].data[13] = data[29];
-	HBM_channelB3[offset_c + t].data[14] = data[30];
-	HBM_channelB3[offset_c + t].data[15] = data[31];
-	HBM_channelA4[offset_c + t].data[0] = data[0];
-	HBM_channelA4[offset_c + t].data[1] = data[1];
-	HBM_channelA4[offset_c + t].data[2] = data[2];
-	HBM_channelA4[offset_c + t].data[3] = data[3];
-	HBM_channelA4[offset_c + t].data[4] = data[4];
-	HBM_channelA4[offset_c + t].data[5] = data[5];
-	HBM_channelA4[offset_c + t].data[6] = data[6];
-	HBM_channelA4[offset_c + t].data[7] = data[7];
-	HBM_channelA4[offset_c + t].data[8] = data[8];
-	HBM_channelA4[offset_c + t].data[9] = data[9];
-	HBM_channelA4[offset_c + t].data[10] = data[10];
-	HBM_channelA4[offset_c + t].data[11] = data[11];
-	HBM_channelA4[offset_c + t].data[12] = data[12];
-	HBM_channelA4[offset_c + t].data[13] = data[13];
-	HBM_channelA4[offset_c + t].data[14] = data[14];
-	HBM_channelA4[offset_c + t].data[15] = data[15];
-	HBM_channelB4[offset_c + t].data[0] = data[16];
-	HBM_channelB4[offset_c + t].data[1] = data[17];
-	HBM_channelB4[offset_c + t].data[2] = data[18];
-	HBM_channelB4[offset_c + t].data[3] = data[19];
-	HBM_channelB4[offset_c + t].data[4] = data[20];
-	HBM_channelB4[offset_c + t].data[5] = data[21];
-	HBM_channelB4[offset_c + t].data[6] = data[22];
-	HBM_channelB4[offset_c + t].data[7] = data[23];
-	HBM_channelB4[offset_c + t].data[8] = data[24];
-	HBM_channelB4[offset_c + t].data[9] = data[25];
-	HBM_channelB4[offset_c + t].data[10] = data[26];
-	HBM_channelB4[offset_c + t].data[11] = data[27];
-	HBM_channelB4[offset_c + t].data[12] = data[28];
-	HBM_channelB4[offset_c + t].data[13] = data[29];
-	HBM_channelB4[offset_c + t].data[14] = data[30];
-	HBM_channelB4[offset_c + t].data[15] = data[31];
-	HBM_channelA5[offset_c + t].data[0] = data[0];
-	HBM_channelA5[offset_c + t].data[1] = data[1];
-	HBM_channelA5[offset_c + t].data[2] = data[2];
-	HBM_channelA5[offset_c + t].data[3] = data[3];
-	HBM_channelA5[offset_c + t].data[4] = data[4];
-	HBM_channelA5[offset_c + t].data[5] = data[5];
-	HBM_channelA5[offset_c + t].data[6] = data[6];
-	HBM_channelA5[offset_c + t].data[7] = data[7];
-	HBM_channelA5[offset_c + t].data[8] = data[8];
-	HBM_channelA5[offset_c + t].data[9] = data[9];
-	HBM_channelA5[offset_c + t].data[10] = data[10];
-	HBM_channelA5[offset_c + t].data[11] = data[11];
-	HBM_channelA5[offset_c + t].data[12] = data[12];
-	HBM_channelA5[offset_c + t].data[13] = data[13];
-	HBM_channelA5[offset_c + t].data[14] = data[14];
-	HBM_channelA5[offset_c + t].data[15] = data[15];
-	HBM_channelB5[offset_c + t].data[0] = data[16];
-	HBM_channelB5[offset_c + t].data[1] = data[17];
-	HBM_channelB5[offset_c + t].data[2] = data[18];
-	HBM_channelB5[offset_c + t].data[3] = data[19];
-	HBM_channelB5[offset_c + t].data[4] = data[20];
-	HBM_channelB5[offset_c + t].data[5] = data[21];
-	HBM_channelB5[offset_c + t].data[6] = data[22];
-	HBM_channelB5[offset_c + t].data[7] = data[23];
-	HBM_channelB5[offset_c + t].data[8] = data[24];
-	HBM_channelB5[offset_c + t].data[9] = data[25];
-	HBM_channelB5[offset_c + t].data[10] = data[26];
-	HBM_channelB5[offset_c + t].data[11] = data[27];
-	HBM_channelB5[offset_c + t].data[12] = data[28];
-	HBM_channelB5[offset_c + t].data[13] = data[29];
-	HBM_channelB5[offset_c + t].data[14] = data[30];
-	HBM_channelB5[offset_c + t].data[15] = data[31];
-	
 }
 
 // parallel-read and map active frontiers [done]
@@ -3033,7 +2067,7 @@ MY_LOOP173: for(unsigned int n=0; n<NUM_VALID_PEs; n++){ offsets[n] = 0; }
 unsigned int uoffset = p_u * MAX_UPARTITION_SIZE;
 MY_LOOP175_DEBUG: for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t++){ 
 #pragma HLS PIPELINE II=1
-	dretrievemany_cfrontierdram_tmp(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP], offsets, t, kvdatas,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);
+	dretrievemany_cfrontierdram_tmp(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP], offsets, t, kvdatas,  HBM_channelA0, HBM_channelB0);
 	insertvec_cfrontierbuffer_tmp(t, kvdatas[0], cfrontier_buffer_tmp); // NEW
 	if(sweep==1){  
 		MY_LOOP176: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
@@ -3148,14 +2182,14 @@ VC_READVPTRS_LOOP2: for(unsigned int t=0; t<max_limit; t++){ // FIXME_HARDWARE. 
 		#endif 
 		offsets[n] = hvid; 
 	}
-	dretrievemany_vptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS], offsets, begins_u32,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);
+	dretrievemany_vptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS], offsets, begins_u32,  HBM_channelA0, HBM_channelB0);
 	update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___VCPROCESSEDGES___, 1 + DRAM_ACCESS_LATENCY);
 	
 	VC_READVPTRS_LOOP2C: for(unsigned int n=0; n<NUM_VALID_PEs; n++){
 	#pragma HLS UNROLL
 		offsets[n] += 1; 
 	}
-	dretrievemany_vptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS], offsets, ends_u32,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);
+	dretrievemany_vptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS], offsets, ends_u32,  HBM_channelA0, HBM_channelB0);
 	update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___VCPROCESSEDGES___, 1 + DRAM_ACCESS_LATENCY);
 	
 	#ifdef ___FORCE_SUCCESS___
@@ -3215,16 +2249,6 @@ VC_READANDPROCESS_EDGES_LOOP1: for(unsigned int n=0; n<num_batches; n++){
 	VC_READ_EDGES_LOOP1: for(unsigned int k=0; k<batch_size; k++){ 
 	
 		load_edges(0, ((n * batch_size) + k), globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSREDGES], vptrbuffer___size[0], vptr_buffer[0], &edges_buffer___size[0], edges_buffer[0], HBM_channelA0, HBM_channelB0);
-	
-		load_edges(1, ((n * batch_size) + k), globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSREDGES], vptrbuffer___size[1], vptr_buffer[1], &edges_buffer___size[1], edges_buffer[1], HBM_channelA1, HBM_channelB1);
-	
-		load_edges(2, ((n * batch_size) + k), globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSREDGES], vptrbuffer___size[2], vptr_buffer[2], &edges_buffer___size[2], edges_buffer[2], HBM_channelA2, HBM_channelB2);
-	
-		load_edges(3, ((n * batch_size) + k), globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSREDGES], vptrbuffer___size[3], vptr_buffer[3], &edges_buffer___size[3], edges_buffer[3], HBM_channelA3, HBM_channelB3);
-	
-		load_edges(4, ((n * batch_size) + k), globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSREDGES], vptrbuffer___size[4], vptr_buffer[4], &edges_buffer___size[4], edges_buffer[4], HBM_channelA4, HBM_channelB4);
-	
-		load_edges(5, ((n * batch_size) + k), globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSREDGES], vptrbuffer___size[5], vptr_buffer[5], &edges_buffer___size[5], edges_buffer[5], HBM_channelA5, HBM_channelB5);
 	
 	}			
 
@@ -3339,7 +2363,7 @@ hybrid_map[GraphIter][p_u] = 1;
 EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_APPLYPARTITIONS; llp_set++){	
 	map_t maps[NUM_VALID_PEs];
 	#pragma HLS ARRAY_PARTITION variable=maps complete	
-	dretrievemany_actpackvptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS], p_u, llp_set, maps,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);
+	dretrievemany_actpackvptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS], p_u, llp_set, maps,  HBM_channelA0, HBM_channelB0);
 	unsigned int max_sz = 0; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ limits[n] = maps[n].size; } for(unsigned int n=0; n<NUM_VALID_PEs; n++){ if(max_sz < limits[n]){ max_sz = limits[n]; }}
 		
 	MY_LOOP1529: for(unsigned int n=0; n<NUM_VALID_PEs; n++){ counts[n] = 0; }
@@ -3353,7 +2377,7 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_APPLYPARTITION
 		EC_PROCESS_EDGES_MAINLOOP1D: for(unsigned int t_=0; t_<sz; t_++){ 
 		#pragma HLS PIPELINE II=1
 			unsigned int t = (it * BLOCKRAM_SIZE) + t_;
-			dretrievemany_actpackedges(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES], offsets, t, edge3_vecs,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);
+			dretrievemany_actpackedges(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES], offsets, t, edge3_vecs,  HBM_channelA0, HBM_channelB0);
 			
 			keyvalue_t update_in[NUM_VALID_PEs][EDGE_PACK_SIZE];
 			#pragma HLS ARRAY_PARTITION variable = update_in complete dim=0
@@ -3443,9 +2467,9 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_APPLYPARTITION
 			#pragma HLS UNROLL
 				offsets3[n] = offsets2[n] + actpackupdates_dram___size[n][llp_set] + counts[n];
 			}	
-			dinsertmany_updatesdram(offsets3, update_out, ens,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);	
+			dinsertmany_updatesdram(offsets3, update_out, ens,  HBM_channelA0, HBM_channelB0);	
 			#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
-			dinsertmany_actpackedges(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES], offsets, t, edge3_vecs,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);
+			dinsertmany_actpackedges(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES], offsets, t, edge3_vecs,  HBM_channelA0, HBM_channelB0);
 			#endif 
 			update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___ECPROCESSEDGES___, 1);
 		}
@@ -3543,7 +2567,7 @@ if(sweep==0){
 			#pragma HLS UNROLL
 				offsets3[n] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + offsets1[n] + t;
 			}
-			dinsertmany_updatesdram(offsets3, updates_vecs, ens,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, updatesptrs);
+			dinsertmany_updatesdram(offsets3, updates_vecs, ens,  HBM_channelA0, HBM_channelB0, updatesptrs);
 			SAVE_CSR_UPDATES_LOOP1G: for(unsigned int n=0; n<NUM_VALID_PEs; n++){ 
 			#pragma HLS UNROLL
 				if(t < max_limits[n]){ offsets2[n] += 1; }
@@ -3620,7 +2644,7 @@ if(stats_buffer___size[0][p_v] < threshold___activedstvids && enable___collectac
 		update_bramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___READ_DEST_PROPERTIES___, 1);
 		READ_DEST_PROPERTIES_LOOP1C: for(unsigned int t=0; t<ACTVUPDATESBLOCK_VECSIZE; t++){
 		#pragma HLS PIPELINE II=1
-			dretrievemany_vdatadram(voffset, offsets, t, datas,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);
+			dretrievemany_vdatadram(voffset, offsets, t, datas,  HBM_channelA0, HBM_channelB0);
 			for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
 			#pragma HLS UNROLL
 				if((k < statsbuffer_idbased___size[inst][p_v]) && (offsets[inst] + t < MAX_APPLYPARTITION_VECSIZE)){ 
@@ -3635,7 +2659,7 @@ if(stats_buffer___size[0][p_v] < threshold___activedstvids && enable___collectac
 } else {
 	READ_DEST_PROPERTIES_LOOP2B: for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE; t++){
 	#pragma HLS PIPELINE II=1
-		dretrievemany_vdatadram(voffset, offsets, t, datas,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);
+		dretrievemany_vdatadram(voffset, offsets, t, datas,  HBM_channelA0, HBM_channelB0);
 		READ_DEST_PROPERTIES_LOOP2C: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
 		#pragma HLS UNROLL
 			insertvec_vdatabuffer(t, datas[inst], vdata_buffer[inst]);
@@ -3663,7 +2687,7 @@ APPLY_UPDATES_LOOP1: for(unsigned int it=0; it<(max_limit + (BLOCKRAM_SIZE - 1))
 	#pragma HLS PIPELINE II=1
 		unsigned int t = (it * BLOCKRAM_SIZE) + t_;
 		
-		dretrievemany_udatesdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v], p_v, t, updates_vecs,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5, updatesptrs); // NEW
+		dretrievemany_udatesdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v], p_v, t, updates_vecs,  HBM_channelA0, HBM_channelB0, updatesptrs); // NEW
 		MY_LOOP1521: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
 		#pragma HLS UNROLL
 			if(t < limits[inst]){
@@ -3746,7 +2770,7 @@ COLLECT_AND_SAVE_FRONTIER_INFO_LOOP1: for(unsigned int p_actvv=0; p_actvv<NUM_AC
 		checkoutofbounds("acts_kernel::ERROR 772::", ((p_actvv * MAX_ACTVV_VECSIZE) + (au_p * ACTVUPDATESBLOCK_VECSIZE)), MAX_APPLYPARTITION_VECSIZE, p_actvv, au_p, MAX_ACTVV_VECSIZE);
 		checkoutofbounds("acts_kernel::ERROR 773::", offset_aup, BLOCKRAM_SIZE, p_actvv, au_p, MAX_ACTVV_VECSIZE);
 		#endif 
-		unsigned int mask = 1; if(enable___collectactivedstvids == true){ mask = statsbuffer_maskbased[0][p_v][offset_aup]+statsbuffer_maskbased[1][p_v][offset_aup]+statsbuffer_maskbased[2][p_v][offset_aup]+statsbuffer_maskbased[3][p_v][offset_aup]+statsbuffer_maskbased[4][p_v][offset_aup]+statsbuffer_maskbased[5][p_v][offset_aup]; } else { mask = 1; }
+		unsigned int mask = 1; if(enable___collectactivedstvids == true){ mask = statsbuffer_maskbased[0][p_v][offset_aup]; } else { mask = 1; }
 		if(mask > 0){ 	
 			COLLECT_FRONTIER_INFO_LOOP1B: for(unsigned int t=0; t<ACTVUPDATESBLOCK_VECSIZE; t++){
 			#pragma HLS PIPELINE II=1
@@ -3818,7 +2842,7 @@ COLLECT_AND_SAVE_FRONTIER_INFO_LOOP1: for(unsigned int p_actvv=0; p_actvv<NUM_AC
 		#pragma HLS UNROLL
 			offsets2[n] = offset + offsets[n] + t;
 		}
-		dinsertmany_nfrontierdram(offset, p_actvv_, offsets2, t, actvvs, ens,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);
+		dinsertmany_nfrontierdram(offset, p_actvv_, offsets2, t, actvvs, ens,  HBM_channelA0, HBM_channelB0);
 		MY_LOOP110: for(unsigned int n=0; n<NUM_VALID_PEs; n++){ 
 		#pragma HLS UNROLL
 			if(t < max_limits[n]){ temp_2_[n] += 1; }
@@ -3879,7 +2903,7 @@ if(stats_buffer___size[0][p_v] < threshold___activedstvids && enable___collectac
 			#pragma HLS UNROLL
 				offsets2[n] = voffset + offsets[n] + t;
 			}
-			dinsertmany_vdatadram(voffset, offsets2, t, datas,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);
+			dinsertmany_vdatadram(voffset, offsets2, t, datas,  HBM_channelA0, HBM_channelB0);
 			update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___SAVE_DEST_PROPERTIES___, 1);
 		}
 	}
@@ -3896,7 +2920,7 @@ if(stats_buffer___size[0][p_v] < threshold___activedstvids && enable___collectac
 		#pragma HLS UNROLL
 			offsets2[n] = voffset + offsets[n] + t; 
 		}
-		dinsertmany_vdatadram(voffset, offsets2, t, datas,  HBM_channelA0, HBM_channelB0, HBM_channelA1, HBM_channelB1, HBM_channelA2, HBM_channelB2, HBM_channelA3, HBM_channelB3, HBM_channelA4, HBM_channelB4, HBM_channelA5, HBM_channelB5);
+		dinsertmany_vdatadram(voffset, offsets2, t, datas,  HBM_channelA0, HBM_channelB0);
 		update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___SAVE_DEST_PROPERTIES___, 1);
 	}
 }
@@ -3917,11 +2941,6 @@ MY_LOOP311: for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){ upartition_ve
 MY_LOOP312: for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){ cfrontier_dram___size[p_u] = 0; } // reset
 EXCHANGE_FRONTIER_MODULE_LOOP: for(unsigned int p_v=0; p_v<__NUM_APPLYPARTITIONS; p_v++){
 	transport_frontier(0, p_v, globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS], cfrontier_dram___size, nfrontier_dram___size[0], upartition_vertices, HBM_channelA0, HBM_channelB0, HBM_centerA, HBM_centerB, &totalactvvs2);
-	transport_frontier(1, p_v, globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS], cfrontier_dram___size, nfrontier_dram___size[1], upartition_vertices, HBM_channelA1, HBM_channelB1, HBM_centerA, HBM_centerB, &totalactvvs2);
-	transport_frontier(2, p_v, globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS], cfrontier_dram___size, nfrontier_dram___size[2], upartition_vertices, HBM_channelA2, HBM_channelB2, HBM_centerA, HBM_centerB, &totalactvvs2);
-	transport_frontier(3, p_v, globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS], cfrontier_dram___size, nfrontier_dram___size[3], upartition_vertices, HBM_channelA3, HBM_channelB3, HBM_centerA, HBM_centerB, &totalactvvs2);
-	transport_frontier(4, p_v, globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS], cfrontier_dram___size, nfrontier_dram___size[4], upartition_vertices, HBM_channelA4, HBM_channelB4, HBM_centerA, HBM_centerB, &totalactvvs2);
-	transport_frontier(5, p_v, globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS], cfrontier_dram___size, nfrontier_dram___size[5], upartition_vertices, HBM_channelA5, HBM_channelB5, HBM_centerA, HBM_centerB, &totalactvvs2);
 }
 			
 		}

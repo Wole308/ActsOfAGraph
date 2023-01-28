@@ -72,6 +72,7 @@ universalparams_t app::get_universalparams(std::string algo, unsigned int numite
 	universalparams.NUM_EDGES = num_edges; 
 
 	universalparams.NUM_UPARTITIONS = (universalparams.NUM_VERTICES + (MAX_UPARTITION_SIZE - 1)) /  MAX_UPARTITION_SIZE;
+	if(universalparams.NUM_UPARTITIONS > MAX_NUM_UPARTITIONS){ universalparams.NUM_UPARTITIONS = MAX_NUM_UPARTITIONS; } // FIXME.
 	universalparams.NUM_APPLYPARTITIONS = ((universalparams.NUM_VERTICES / NUM_PEs) + (MAX_APPLYPARTITION_SIZE - 1)) /  MAX_APPLYPARTITION_SIZE; // NUM_PEs
 	
 	universalparams.NUM_PARTITIONS = 16;
@@ -227,6 +228,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	cout<<"app: HBM_CHANNEL_BYTESIZE: "<<HBM_CHANNEL_BYTESIZE<<endl;
 	cout<<"app: HBM_CHANNEL_SIZE: "<<HBM_CHANNEL_SIZE<<endl;
 	cout<<"app: UPDATES_BUFFER_PACK_SIZE: "<<UPDATES_BUFFER_PACK_SIZE<<endl;
+	cout<<"app: __NUM_UPARTITIONS: "<<__NUM_UPARTITIONS<<endl;
 	cout<<"app: __NUM_APPLYPARTITIONS: "<<__NUM_APPLYPARTITIONS<<endl;
 	cout<<"app: NUM_ACTVVPARTITIONS_PER_APPLYPARTITION: "<<NUM_ACTVVPARTITIONS_PER_APPLYPARTITION<<endl;
 	cout<<"app: MAX_ACTVV_VECSIZE: "<<MAX_ACTVV_VECSIZE<<endl;
@@ -291,9 +293,11 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	}
 	keyvalue_t maxs[MAX_NUM_LLPSETS]; for(unsigned int t=0; t<MAX_NUM_LLPSETS; t++){ maxs[t].key = 0; maxs[t].value = 0; }
 	for(unsigned int t=0; t<MAX_NUM_LLPSETS; t++){ for(unsigned int n=0; n<NUM_PEs; n++){ if(maxs[t].value < updateswwcount[n][t].value){ maxs[t].value = updateswwcount[n][t].value; }}}
+	#ifdef XXXXXX
 	for(unsigned int t=0; t<MAX_NUM_LLPSETS; t++){
 		cout<<"##### maxs["<<t<<"].key: "<<maxs[t].key<<", maxs["<<t<<"].value: "<<maxs[t].value<<endl; 
 	}
+	#endif 
 	for(unsigned int t=1; t<MAX_NUM_LLPSETS; t++){ maxs[t].key = maxs[t-1].key + maxs[t-1].value + 0; }
 	for(unsigned int i=0; i<NUM_PEs; i++){ 
 		unsigned int index = 0;
@@ -312,6 +316,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		globalparams[GLOBALPARAMSCODE__WWSIZE__UPDATESPTRS] = (size_u32 / HBM_CHANNEL_PACK_SIZE) + 16;
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSREDGES] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS] + globalparams[GLOBALPARAMSCODE__WWSIZE__UPDATESPTRS]; 
 	}
+	#ifdef TRAVERSAL_ALGORITHM_TYPE
 	for(unsigned int i=0; i<NUM_PEs; i++){ 
 		unsigned int index = 0;
 		unsigned int base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSREDGES];
@@ -324,6 +329,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 			}
 		}
 	}
+	#endif 
 	
 	// load act-pack edges 
 	for(unsigned int i=0; i<NUM_PEs; i++){ 
@@ -513,12 +519,25 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 			HBM_axicenter[1][t].data[v] = HBM_center[t].data[HBM_AXI_PACK_SIZE + v];
 		}
 	}
-	// exit(EXIT_SUCCESS); /////////////////////////////////////////////////////
+	// exit(EXIT_SUCCESS); 
+	
+	#ifdef HOST_PRINT_RESULTS
+	cout<<"---------------------------------------------- app:: before ---------------------------------------------- "<<endl;
+	unsigned int base_offset__ = globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES];
+	for(unsigned int i=0; i<1; i++){
+		for(unsigned int t=0; t<2; t++){ 
+			for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){ 
+				cout<<HBM_axichannel[1][i][base_offset__ + t].data[v]<<", ";	
+			}
+			cout<<endl;
+		}
+	}
+	#endif 
 	
 	// run acts
 	#ifdef FPGA_IMPL
 	host_fpga * fpgaobj = new host_fpga(universalparams);
-	fpgaobj->runapp(binaryFile, HBM_axichannel, HBM_axicenter, universalparams);
+	fpgaobj->runapp(binaryFile, HBM_axichannel, HBM_axicenter, globalparams, universalparams);
 	#else 
 	acts_kernel * acts = new acts_kernel(universalparams);
 	for(unsigned int batch=0; batch<1; batch++){
@@ -556,6 +575,21 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		,(HBM_channelAXI_t *)HBM_axicenter[0], (HBM_channelAXI_t *)HBM_axicenter[1]
 		,batch
 		);
+	}
+	#endif 
+	
+	#ifdef HOST_PRINT_RESULTS
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	cout<<"---------------------------------------------- app:: after ---------------------------------------------- "<<endl;
+	base_offset__ = globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES];
+	unsigned int base_offset__ = globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES];
+	for(unsigned int i=0; i<1; i++){
+		for(unsigned int t=0; t<2; t++){ 
+			for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){ 
+				cout<<HBM_axichannel[1][i][base_offset__ + t].data[v]<<", ";	
+			}
+			cout<<endl;
+		}
 	}
 	#endif 
 	return;

@@ -15,7 +15,7 @@ context['NUM_PEs'] = int(sys.argv[3])
 context['TESTKERNEL'] = sys.argv[4]
 
 context['FPGA_IMPL'] = 0
-context['NUM_VALID_PEs'] = 6 #1 #6* #12 #context['NUM_PEs'] # 4 NUM_VALID_PEs = 8 AXI interfaces
+context['NUM_VALID_PEs'] = 1 #1 #6* #12 #context['NUM_PEs'] # 4 NUM_VALID_PEs = 8 AXI interfaces
 context['NUM_AXI_CHANNELS_IN_PE'] = 4
 context['EDGE_PACK_SIZE_POW'] = 4 #1, 4*
 context['EDGE_PACK_SIZE'] = 2**context['EDGE_PACK_SIZE_POW']
