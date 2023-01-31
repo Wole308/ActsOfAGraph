@@ -318,7 +318,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 			// process-edges and partition-updates
 			#ifdef ___ENABLE___PROCESSEDGES___
 			if(___ENABLE___PROCESSEDGES___BOOL___ == 1){
-			PROCESS_EDGES_MODULE_LOOP1B: for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){
+			PROCESS_EDGES_MODULE_LOOP1B: for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){ // 1, __NUM_UPARTITIONS. REMOVEME.
 				MASK_CODE_PE = ((1 + GraphIter) * MAX_NUM_UPARTITIONS) + p_u;
 				bool ___use_vertex_centric___ = false; 
 				bool en = false;

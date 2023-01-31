@@ -23,8 +23,9 @@ unsigned int get_local_to_vpartition(unsigned int lvid){
 	return lvid % MAX_APPLYPARTITION_SIZE;
 }
 #ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
-unsigned int hash_edge(unsigned int srcvid, unsigned int dstvid){
-	return ((srcvid % EDGE_UPDATES_BUFFER_SIZE) + (dstvid % EDGE_UPDATES_BUFFER_SIZE)) / 2;
+unsigned int hash_edge(unsigned int srcvid, unsigned int dstvid, unsigned int index){
+	// return ((srcvid % EDGE_UPDATES_BUFFER_SIZE) + (dstvid % EDGE_UPDATES_BUFFER_SIZE)) / 2;
+	return index; // REMOVEME.
 }
 #endif 
 

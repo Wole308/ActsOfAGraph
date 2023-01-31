@@ -53,7 +53,7 @@ edge3_vec_dt rearrangeLayoutVB(unsigned int s, edge3_vec_dt edge_vec){
 	return edge_vec3;
 }
 
-void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedatabuffer, vector<edge3_vec_dt> (&act_pack_edges)[NUM_PEs], map_t * act_pack_map[NUM_PEs][MAX_NUM_UPARTITIONS]){
+void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedatabuffer, vector<edge3_vec_dt> (&act_pack_edges)[NUM_PEs], map_t * act_pack_map[NUM_PEs][MAX_NUM_UPARTITIONS], map_t * act_pack_map2[NUM_PEs][MAX_NUM_UPARTITIONS]){
 	unsigned int num_vPs = universalparams.NUM_UPARTITIONS;
 	unsigned int vsize_vP = MAX_UPARTITION_SIZE;
 	unsigned int num_LLPs = universalparams.NUM_APPLYPARTITIONS * universalparams.NUM_PARTITIONS; // EDGE_PACK_SIZE; // 
@@ -259,6 +259,8 @@ void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedat
 						
 						act_pack_edges[i].push_back(edge_vec3);
 						act_pack_map[i][v_p][llp_set].size += 1;
+						// act_pack_map2[i][v_p][(llp_set * MAX_NUM_LLPSETS) + llp_id].size += 1;
+						act_pack_map2[i][v_p][(llp_set * EDGE_PACK_SIZE) + llp_id].size += 1;
 						finest_granularity_size += 1;
 					}
 					// cout<<"--------------------- v_p: "<<v_p<<", llp_set: "<<llp_set<<", llp_id: "<<llp_id<<": "<<finest_granularity_size<<" ----------------------"<<endl;
@@ -283,6 +285,16 @@ void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedat
 		}
 	}
 	
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		unsigned int index = 0;
+		for(unsigned int v_p=0; v_p<num_vPs; v_p++){
+			for(unsigned int ll_p=0; ll_p<num_LLPset * EDGE_PACK_SIZE; ll_p++){ 
+				act_pack_map2[i][v_p][ll_p].offset = index;
+				index += act_pack_map2[i][v_p][ll_p].size;
+			}
+		}
+	}
+	
 	#ifdef _DEBUGMODE_KERNELPRINTS//4
 	// for(unsigned int i=0; i<NUM_PEs; i++){ cout<<"act-pack:: PE: "<<i<<": act_pack_edges["<<i<<"].size(): "<<act_pack_edges[i].size() * EDGE_PACK_SIZE<<""<<endl; }
 	for(unsigned int i=0; i<NUM_PEs; i++){ 
@@ -299,14 +311,6 @@ void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedat
 	for(unsigned int v_p=0; v_p<num_vPs; v_p++){ edgesin_srcvp[v_p].clear(); } 
 	for(unsigned int ll_p=0; ll_p<num_LLPs; ll_p++){ edgesin_srcvp_lldstvp[ll_p].clear(); } 
 	for(unsigned int ll_p=0; ll_p<num_LLPs; ll_p++){ for(unsigned int p=0; p<universalparams.NUM_PARTITIONS; p++){ edgesin_srcvp_lldstvp_srcv2p[ll_p][p].clear(); }} 
-	
-	// cout<<"################# act-pack: SEEN 7"<<endl;
-	
-	// for(unsigned int i=0; i<1; i++){ 
-		// for(unsigned int t=0; t<8; t++){ 
-			// for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ cout<<"~~~~ act_pack_edges["<<i<<"]["<<t<<"].data["<<v<<"].srcvid: "<<act_pack_edges[i][t].data[v].srcvid<<", act_pack_edges["<<i<<"]["<<t<<"].data["<<v<<"].dstvid: "<<act_pack_edges[i][t].data[v].dstvid<<endl; }
-		// }
-	// }
 	// exit(EXIT_SUCCESS);
 	return;
 }

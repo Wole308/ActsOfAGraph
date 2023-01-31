@@ -186,9 +186,40 @@ map_t dretrieve_actpackvptrdram(unsigned int base_offset__, unsigned int p_u, un
 	map.size = master_retrieve(base_offset__ + i, j + 1, HBM_channelA, HBM_channelB, inst);
 	return map;
 }
-void dretrievemany_actpackvptrdram(unsigned int base_offset__, unsigned int p_u, unsigned int llp_set, map_t maps[NUM_VALID_PEs], {% include 'parameters_allchannelsinslr.template' %}){
+void dretrievemany_actpackvptrdram___dmm(unsigned int base_offset__, unsigned int p_u, unsigned int llp_set, map_t maps[NUM_VALID_PEs], {% include 'parameters_allchannelsinslr.template' %}){
 	#pragma HLS INLINE // FIXME_HARDWARE
 	unsigned int offset = ((p_u * MAX_NUM_LLPSETS) + llp_set) * 2; 
+	#ifdef _DEBUGMODE_CHECKS3
+	unsigned int wwsize = globalparams_debug[GLOBALPARAMSCODE__WWSIZE__ACTPACKVPTRS];
+	checkoutofbounds("acts_kernel::ERROR 702::", offset / HBM_CHANNEL_PACK_SIZE, wwsize, NAp, NAp, NAp);
+	#endif 
+	
+	unsigned int i = offset / HBM_CHANNEL_PACK_SIZE;
+	unsigned int j = offset % HBM_CHANNEL_PACK_SIZE;
+	
+	unsigned int data_[NUM_VALID_PEs];
+	#pragma HLS ARRAY_PARTITION variable=data_ complete
+	unsigned int offsets_[NUM_VALID_PEs];
+	#pragma HLS ARRAY_PARTITION variable=offsets_ complete
+	for(unsigned int n=0; n<NUM_VALID_PEs; n++){
+	#pragma HLS UNROLL
+		offsets_[n] = base_offset__ + i;
+	}
+	master_retrievemany(offsets_, j, data_, {% include 'arguments_allchannelsinslr.template' %});
+	for(unsigned int n=0; n<NUM_VALID_PEs; n++){
+	#pragma HLS UNROLL
+		maps[n].offset = data_[n];
+	}
+	master_retrievemany(offsets_, j + 1, data_, {% include 'arguments_allchannelsinslr.template' %});
+	for(unsigned int n=0; n<NUM_VALID_PEs; n++){
+	#pragma HLS UNROLL
+		maps[n].size = data_[n];
+	}
+	return;
+}
+void dretrievemany_actpackvptrdram(unsigned int base_offset__, unsigned int offset__, map_t maps[NUM_VALID_PEs], {% include 'parameters_allchannelsinslr.template' %}){
+	#pragma HLS INLINE // FIXME_HARDWARE
+	unsigned int offset = offset__ * 2; 
 	#ifdef _DEBUGMODE_CHECKS3
 	unsigned int wwsize = globalparams_debug[GLOBALPARAMSCODE__WWSIZE__ACTPACKVPTRS];
 	checkoutofbounds("acts_kernel::ERROR 702::", offset / HBM_CHANNEL_PACK_SIZE, wwsize, NAp, NAp, NAp);

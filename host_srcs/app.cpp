@@ -164,11 +164,11 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	// create act-pack format
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ vptr_actpack[i][p_u] = new map_t[MAX_NUM_LLPSETS]; }}
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ for(unsigned int t=0; t<MAX_NUM_LLPSETS; t++){ vptr_actpack[i][p_u][t].offset = 0; vptr_actpack[i][p_u][t].size = 0; }}}
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ vptr2_actpack[i][p_u] = new map_t[MAX_NUM_LLPSETS * EDGE_PACK_SIZE]; }}
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ for(unsigned int t=0; t<MAX_NUM_LLPSETS * EDGE_PACK_SIZE; t++){ vptr2_actpack[i][p_u][t].offset = 0; vptr2_actpack[i][p_u][t].size = 0; }}}
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ vptr2_actpack[i][p_u] = new map_t[MAX_NUM_LLPS]; }}
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ for(unsigned int t=0; t<MAX_NUM_LLPS; t++){ vptr2_actpack[i][p_u][t].offset = 0; vptr2_actpack[i][p_u][t].size = 0; }}}
 	
 	act_pack * pack = new act_pack(universalparams);
-	pack->pack(vertexptrbuffer, edgedatabuffer, act_pack_edges, vptr_actpack); // CRITICAL REMOVEME.
+	pack->pack(vertexptrbuffer, edgedatabuffer, act_pack_edges, vptr_actpack, vptr2_actpack); // CRITICAL REMOVEME.
 
 	// create csr format
 	unsigned int * degrees[NUM_PEs]; for(unsigned int i=0; i<NUM_PEs; i++){ degrees[i] = new unsigned int[(universalparams.NUM_VERTICES / NUM_PEs) + 64]; }
@@ -221,7 +221,9 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	unsigned int vdatasz_u32 = __NUM_APPLYPARTITIONS * MAX_APPLYPARTITION_VECSIZE * EDGE_PACK_SIZE * 2;
 	unsigned int cfrontiersz_u32 = 1 * MAX_APPLYPARTITION_VECSIZE * EDGE_PACK_SIZE * 2;
 	unsigned int nfrontiersz_u32 = (__NUM_APPLYPARTITIONS * MAX_ACTVV_VECSIZE * NUM_ACTVVPARTITIONS_PER_APPLYPARTITION * EDGE_PACK_SIZE) * 2;
+	#ifdef _DEBUGMODE_HOSTPRINTS
 	cout<<"--_________________________--------------------- nfrontiersz_u32: "<<nfrontiersz_u32<<", vdatasz_u32: "<<vdatasz_u32<<", globalparams[GLOBALPARAMSCODE__WWSIZE__NFRONTIERS] = "<<((nfrontiersz_u32 / (HBM_CHANNEL_PACK_SIZE / 2)) + 16)<<" "<<endl;
+	#endif 
 	
 	#ifdef _DEBUGMODE_HOSTPRINTS4
 	cout<<"app: EDGE_PACK_SIZE: "<<EDGE_PACK_SIZE<<endl;
@@ -250,13 +252,14 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	for(unsigned int i=0; i<NUM_PEs; i++){ globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS] = 512; } 
 	unsigned int size_u32 = 0;
 	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
-	for(unsigned int i=0; i<NUM_PEs; i++){ 
+	for(unsigned int i=0; i<1; i++){ // NUM_PEs
 		unsigned int index = 0;
 		unsigned int base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS];
 		for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ 
-			for(unsigned int t=0; t<MAX_NUM_LLPSETS; t++){
-				HBM_channel[i][base_offset + (index / HBM_CHANNEL_PACK_SIZE)].data[index % HBM_CHANNEL_PACK_SIZE] = vptr_actpack[i][p_u][t].offset; 
-				HBM_channel[i][base_offset + ((index + 1) / HBM_CHANNEL_PACK_SIZE)].data[(index + 1) % HBM_CHANNEL_PACK_SIZE] = vptr_actpack[i][p_u][t].size; 
+			for(unsigned int t=0; t<MAX_NUM_LLPS; t++){ // MAX_NUM_LLPS, MAX_NUM_LLPSETS
+				HBM_channel[i][base_offset + (index / HBM_CHANNEL_PACK_SIZE)].data[index % HBM_CHANNEL_PACK_SIZE] = vptr2_actpack[i][p_u][t].offset; 
+				HBM_channel[i][base_offset + ((index + 1) / HBM_CHANNEL_PACK_SIZE)].data[(index + 1) % HBM_CHANNEL_PACK_SIZE] = vptr2_actpack[i][p_u][t].size; 
+				// if(p_u < __NUM_UPARTITIONS && t<16){ cout<<"~~~app:: p_u: "<<p_u<<": vptr2_actpack["<<t<<"].offset: "<<vptr2_actpack[i][p_u][t].offset<<", vptr2_actpack["<<t<<"].size: "<<vptr2_actpack[i][p_u][t].size<<endl; }
 				index += 2;
 				if(i==0){ size_u32 += 2; }
 			}
@@ -311,7 +314,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		unsigned int index = 0;
 		unsigned int base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2];
 		for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ 
-			for(unsigned int t=0; t<MAX_NUM_LLPSETS * EDGE_PACK_SIZE; t++){
+			for(unsigned int t=0; t<MAX_NUM_LLPS; t++){
 				HBM_channel[i][base_offset + (index / HBM_CHANNEL_PACK_SIZE)].data[index % HBM_CHANNEL_PACK_SIZE] = vptr2_actpack[i][p_u][t].offset; 
 				HBM_channel[i][base_offset + ((index + 1) / HBM_CHANNEL_PACK_SIZE)].data[(index + 1) % HBM_CHANNEL_PACK_SIZE] = vptr2_actpack[i][p_u][t].size; 
 				index += 2;
@@ -683,7 +686,6 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	#endif 
 	
 	#ifdef HOST_PRINT_RESULTS
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	cout<<"---------------------------------------------- app:: after ---------------------------------------------- "<<endl;
 	base_offset__ = globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES];
 	for(unsigned int i=0; i<1; i++){
