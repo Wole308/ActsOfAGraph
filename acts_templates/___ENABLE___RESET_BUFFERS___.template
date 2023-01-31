@@ -22,15 +22,16 @@ MY_LOOP168: for(unsigned int j=0; j<NUM_VALID_PEs; j++){
 	update_bramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___READ_FRONTIER_PROPERTIES___, 1);
 }
 
-#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
+/* #ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
 MY_LOOP180: for(unsigned int t=0; t<EDGE_UPDATES_BUFFER_SIZE; t++){ 
 #pragma HLS PIPELINE II=1
 	MY_LOOP181: for(unsigned int i=0; i<NUM_VALID_PEs; i++){ 
 	#pragma HLS UNROLL
 		MY_LOOP182: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 		#pragma HLS UNROLL
-			edgeupdates_buffer[i][v][t] = INVALIDDATA; 
+			edgeupdates_buffer[i][v][t].srcvid = INVALIDDATA; 
+			edgeupdates_buffer[i][v][t].dstvid = INVALIDDATA; 
 		}
 	}			
 }	
-#endif 
+#endif  */

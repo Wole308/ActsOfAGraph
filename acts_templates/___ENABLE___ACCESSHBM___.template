@@ -78,15 +78,14 @@ void master_insertmany_Bvec(unsigned int offsets[NUM_VALID_PEs], bool ens[NUM_VA
 	return;
 }
 #ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
-void master_insertmany_Cvec(unsigned int offsets[NUM_VALID_PEs], bool ens[NUM_VALID_PEs], unsigned int data[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE], {% include 'parameters_allchannelsinslr.template' %}){
+void master_insertmany_Cvec(unsigned int offsets[NUM_VALID_PEs], unsigned int data[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE], {% include 'parameters_allchannelsinslr.template' %}){
 	#pragma HLS INLINE 
 	{%for n in context['NUM_VALID_PEs_seq']%}	
-	if(ens[{{n}}]==true){
 		{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
-		HBM_channelC{{n}}[offsets[{{n}}]].data[{{v}}] = data[{{n}}][{{context['HBM_AXI_PACK_SIZE'] + v}}];
+		HBM_channelA{{n}}[offsets[{{n}}]].data[{{v}}] = data[{{n}}][{{context['HBM_AXI_PACK_SIZE'] + v}}];	// FIXME
+		// HBM_channelC{{n}}[offsets[{{n}}]].data[{{v}}] = data[{{n}}][{{context['HBM_AXI_PACK_SIZE'] + v}}];	
 		{%endfor%}	
-	}
-	{%endfor%}
+	{%endfor%}	
 	return;
 }
 #endif 
@@ -261,16 +260,15 @@ void dinsertmany_actpackedges(unsigned int base_offset__, unsigned int offsets[N
 	#pragma HLS UNROLL	
 		for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){	
 		#pragma HLS UNROLL	
-			data_[n][v] = (edge3_vecs[n].data[v].srcvid << MAXNUMBITS_ACTPACK_DESTVID) | act_pack_edges[i][t].data[v].dstvid;
+			data_[n][v] = (edge3_vecs[n].data[v].srcvid << MAXNUMBITS2_ACTPACK_DESTVID) | edge3_vecs[n].data[v].dstvid;
 		}	
 	}
-	// master_insertmany_Cvec(offsets, ens_, data_, {% include 'arguments_allchannelsinslr.template' %});
-	master_insertmany_Bvec(offsets, ens_, data_, {% include 'arguments_allchannelsinslr.template' %}); // REMOVEME.
+	master_insertmany_Cvec(offsets, data_, {% include 'arguments_allchannelsinslr.template' %});
 	return;
 }
 #endif 
 void dretrievemany_actpackedges(unsigned int base_offset__, unsigned int offsets[NUM_VALID_PEs], unsigned int t, edge3_vec_dt edge3_vecs[NUM_VALID_PEs], {% include 'parameters_allchannelsinslr.template' %}){
-	#pragma HLS INLINE // FIXME_HARDWARE
+	#pragma HLS INLINE 
 	#ifdef _DEBUGMODE_CHECKS3
 	unsigned int wwsize = globalparams_debug[GLOBALPARAMSCODE__WWSIZE__ACTPACKEDGES];
 	checkoutofbounds("acts_kernel::ERROR 704f::", offsets[0] + t, wwsize, NAp, NAp, NAp);
@@ -290,11 +288,11 @@ void dretrievemany_actpackedges(unsigned int base_offset__, unsigned int offsets
 	#pragma HLS UNROLL	
 		for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){	
 		#pragma HLS UNROLL	
-			edge3_vecs[n].data[v].srcvid = (data_[n][v] >> MAXNUMBITS_ACTPACK_DESTVID) & MAXLOCALVALUE_ACTPACK_SRCVID;		
-			edge3_vecs[n].data[v].dstvid = data_[n][v] & MAXLOCALVALUE_ACTPACK_DESTVID;		
-			edge3_vecs[n].data[v].weight = 1;
+			edge3_vecs[n].data[v].srcvid = (data_[n][v] >> MAXNUMBITS2_ACTPACK_DESTVID) & MAXLOCALVALUE2_ACTPACK_SRCVID;		
+			edge3_vecs[n].data[v].dstvid = data_[n][v] & MAXLOCALVALUE2_ACTPACK_DESTVID;		
+			edge3_vecs[n].data[v].weight = (data_[n][v] >> (MAXNUMBITS2_ACTPACK_DESTVID + MAXNUMBITS2_ACTPACK_SRCVID)) & MAXLOCALVALUE2_ACTPACK_EDGEID;
 			edge3_vecs[n].data[v].valid = NAp;
-			if(edge3_vecs[n].data[v].srcvid == INVALIDDATA_SRCVID){ edge3_vecs[n].data[v].srcvid = INVALIDDATA; }//////////////////////////////// CRITICAL
+			if(edge3_vecs[n].data[v].srcvid == INVALIDDATA_SRCVID){ edge3_vecs[n].data[v].srcvid = INVALIDDATA; } //////////////////////////////// CRITICAL
 			if(edge3_vecs[n].data[v].dstvid == INVALIDDATA_DESTVID){ edge3_vecs[n].data[v].dstvid = INVALIDDATA; }
 		}	
 	}
@@ -335,7 +333,7 @@ void dinsertmany_updatesdram(unsigned int offsets[NUM_VALID_PEs], keyvalue_t dat
 		for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 		#pragma HLS UNROLL
 			if(ens[n][v] == true){
-				data_[n][EDGE_PACK_SIZE + v] = ((data[n][v].value & MAXLOCALVALUE_ACTPACK_SRCVID) << MAXNUMBITS_ACTPACK_DESTVID) | (data[n][v].key & MAXLOCALVALUE_ACTPACK_DESTVID);
+				data_[n][EDGE_PACK_SIZE + v] = ((data[n][v].value & MAXLOCALVALUE2_ACTPACK_SRCVID) << MAXNUMBITS2_ACTPACK_DESTVID) | (data[n][v].key & MAXLOCALVALUE2_ACTPACK_DESTVID);
 			} else {
 				data_[n][EDGE_PACK_SIZE + v] = INVALIDDATA;
 			}
@@ -344,7 +342,7 @@ void dinsertmany_updatesdram(unsigned int offsets[NUM_VALID_PEs], keyvalue_t dat
 	master_insertmany_Bvec(offsets, ens_, data_, {% include 'arguments_allchannelsinslr.template' %}); // CRITICAL FIXME. the issue.
 }
 void dretrievemany_udatesdram(unsigned int offset__, unsigned int llp_set, unsigned int index, uint512_vec_dt data[NUM_VALID_PEs], {% include 'parameters_allchannelsinslr.template' %}, unsigned int updatesptrs[MAX_NUM_LLPSETS]){
-	#pragma HLS INLINE // FIXME_HARDWARE
+	#pragma HLS INLINE 
 	#ifdef _DEBUGMODE_CHECKS3
 	unsigned int wwsize = globalparams_debug[GLOBALPARAMSCODE__WWSIZE__UPDATES];
 	checkoutofbounds("acts_kernel::ERROR 710a::", updatesptrs[llp_set] + index, updatesptrs[llp_set + 1], NAp, NAp, NAp);
@@ -364,10 +362,10 @@ void dretrievemany_udatesdram(unsigned int offset__, unsigned int llp_set, unsig
 	#pragma HLS UNROLL
 		for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 		#pragma HLS UNROLL
-			data[n].data[v].key = data_[n][EDGE_PACK_SIZE + v] & MAXLOCALVALUE_ACTPACK_DESTVID;		
-			data[n].data[v].value = (data_[n][EDGE_PACK_SIZE + v] >> MAXNUMBITS_ACTPACK_DESTVID) & MAXLOCALVALUE_ACTPACK_SRCVID;	
+			data[n].data[v].key = data_[n][EDGE_PACK_SIZE + v] & MAXLOCALVALUE2_ACTPACK_DESTVID;		
+			data[n].data[v].value = (data_[n][EDGE_PACK_SIZE + v] >> MAXNUMBITS2_ACTPACK_DESTVID) & MAXLOCALVALUE2_ACTPACK_SRCVID;	
 
-			if(data[n].data[v].key == INVALIDDATA_DESTVID){ data[n].data[v].key = INVALIDDATA; }//////////////////////////////// CRITICAL
+			if(data[n].data[v].key == INVALIDDATA_DESTVID){ data[n].data[v].key = INVALIDDATA; }  
 			if(data[n].data[v].value == INVALIDDATA_SRCVID){ data[n].data[v].value = INVALIDDATA; }			
 		}
 	}

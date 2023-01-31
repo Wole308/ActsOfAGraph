@@ -181,5 +181,5 @@ edge3_vec_dt edge3_vecs[NUM_VALID_PEs];
 map_t maps[NUM_VALID_PEs];
 #pragma HLS ARRAY_PARTITION variable=maps complete	
 #ifdef FPGA_IMPL
-unsigned int _NUMCLOCKCYCLES_[2][16]; 
+unsigned int _NUMCLOCKCYCLES_[2][32]; 
 #endif 

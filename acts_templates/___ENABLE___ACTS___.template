@@ -1,5 +1,3 @@
-// #define ___ENABLE___DYNAMICGRAPHANALYTICS___
-
 #define ___ENABLE___RESETBUFFERSATSTART___ 
 #define ___ENABLE___CLEAR_COUNTERS___
 #define ___ENABLE___PROCESSEDGES___ 
@@ -18,18 +16,20 @@
 #define ___ENABLE___REPORT_STATISTICS___
 
 #define ___CODE___RESETBUFFERSATSTART___ 0
-#define ___CODE___PROCESSEDGES___ 1
-#define ___CODE___READ_FRONTIER_PROPERTIES___ 2
-#define ___CODE___VCPROCESSEDGES___ 3
-#define ___CODE___ECPROCESSEDGES___ 4
-#define ___CODE___SAVEVCUPDATES___ 5
-#define ___CODE___COLLECTACTIVEDSTVIDS___ 6
-#define ___CODE___APPLYUPDATESMODULE___ 7
-	#define ___CODE___READ_DEST_PROPERTIES___ 8
-	#define ___CODE___APPLYUPDATES___ 9
-	#define ___CODE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES___ 10
-	#define ___CODE___SAVE_DEST_PROPERTIES___ 11
-#define ___CODE___EXCHANGEFRONTIERINFOS___ 12
+#define ___CODE___NUMBER_OF_EDGEUPDATES_LOADED___ 1
+#define ___CODE___PROCESSEDGES___ 2
+#define ___CODE___READ_FRONTIER_PROPERTIES___ 3
+#define ___CODE___VCPROCESSEDGES___ 4
+#define ___CODE___ECPROCESSEDGES___ 5
+#define ___CODE___SAVEVCUPDATES___ 6
+#define ___CODE___COLLECTACTIVEDSTVIDS___ 7
+#define ___CODE___APPLYUPDATESMODULE___ 8
+	#define ___CODE___READ_DEST_PROPERTIES___ 9
+	#define ___CODE___APPLYUPDATES___ 10
+	#define ___CODE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES___ 11
+	#define ___CODE___SAVE_DEST_PROPERTIES___ 12
+#define ___CODE___EXCHANGEFRONTIERINFOS___ 13
+#define ___CODE___NUMBER_OF_EDGEUPDATES_APPLIED___ 14
 
 #define MAXVALID_APPLYPARTITION_VECSIZE (MAX_APPLYPARTITION_VECSIZE >> POW_VALID_VDATA)
 
@@ -43,7 +43,7 @@
 #define MY_IFDEF_UPDATESTMPBUFFER() keyvalue_t updates_buffer2[UPDATES_BUFFER_PACK_SIZE][UPDATES_BUFFER_SIZE]	
 #define MY_IFDEF_VPTRBUFFER() vtr_t vptr_buffer[VPTR_BUFFER_SIZE]
 #define MY_IFDEF_EDGESBUFFER() edge3_type edges_buffer[EDGE_PACK_SIZE][EDGE_BUFFER_SIZE]
-#define MY_IFDEF_EDGESUPDATEBUFFER() edge_update_type edgeupdates_buffer[EDGE_PACK_SIZE][EDGE_UPDATES_BUFFER_SIZE]
+#define MY_IFDEF_EDGEUPDATESBUFFER() edge_update_type edgeupdates_buffer[EDGE_PACK_SIZE][EDGE_UPDATES_BUFFER_SIZE]
 #define MY_IFDEF_VDATABUFFER() vprop_t vdata_buffer[EDGE_PACK_SIZE][MAXVALID_APPLYPARTITION_VECSIZE]
 #define MY_IFDEF_TOPLEVELFUNC() void top_function({% include 'parameters_allchannelsinslr.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, unsigned int batch)
 #else
@@ -56,7 +56,7 @@
 #define MY_IFDEF_UPDATESTMPBUFFER() keyvalue_t * updates_buffer2[UPDATES_BUFFER_PACK_SIZE]
 #define MY_IFDEF_VPTRBUFFER() vtr_t * vptr_buffer
 #define MY_IFDEF_EDGESBUFFER() edge3_type * edges_buffer[EDGE_PACK_SIZE]
-#define MY_IFDEF_EDGESUPDATEBUFFER() edge_update_type * edgeupdates_buffer[EDGE_PACK_SIZE]
+#define MY_IFDEF_EDGEUPDATESBUFFER() edge_update_type * edgeupdates_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_VDATABUFFER() vprop_t * vdata_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_TOPLEVELFUNC() void acts_kernel::top_function({% include 'parameters_allchannelsinslr.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, unsigned int batch)
 #endif
@@ -66,7 +66,7 @@
 
 #ifndef FPGA_IMPL
 unsigned int * globalparams_debug;
-unsigned int _NUMCLOCKCYCLES_[2][16]; 
+unsigned int _NUMCLOCKCYCLES_[2][32]; 
 #endif 
 
 #ifndef FPGA_IMPL
@@ -210,7 +210,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 	unsigned int max_limit = 0, max_limit2 = 0; 
 	unsigned int CONST1 = NUM_PEs * EDGE_PACK_SIZE; 
 	unsigned int CONST2 = MAX_ACTVV_VECSIZE * NUM_PEs * EDGE_PACK_SIZE;
-	for(unsigned int k=0; k<2; k++){ for(unsigned int t=0; t<16; t++){ _NUMCLOCKCYCLES_[k][t] = 0; } }
+	for(unsigned int k=0; k<2; k++){ for(unsigned int t=0; t<32; t++){ _NUMCLOCKCYCLES_[k][t] = 0; } }
 	unsigned int total_cycles = 0;
 	
 	// load global parameters	
@@ -298,7 +298,12 @@ MY_IFDEF_TOPLEVELFUNC(){
 	}
 	
 	// run acts 
-	RUN_ACTS_LOOP: for(unsigned int GraphIter=0; GraphIter<globalparams[GLOBALPARAMSCODE__PARAM__NUM_ITERATIONS]; GraphIter++){
+	RUN_ACTS_LOOP1: for(unsigned int run=0; run<globalparams[GLOBALPARAMSCODE__PARAM__NUM_RUNS]; run++){
+	RUN_ACTS_LOOP1B: for(unsigned int GraphIter=0; GraphIter<globalparams[GLOBALPARAMSCODE__PARAM__NUM_ITERATIONS]; GraphIter++){
+		#ifdef _DEBUGMODE_KERNELPRINTS4 
+		cout<<"### processing [run "<<run<<", graph iteration "<<GraphIter<<"]..."<<endl; 
+		#endif 
+				
 		unsigned int MASK_CODE = 1 + GraphIter;
 		unsigned int MASK_CODE_PE = 1 + GraphIter;
 		unsigned int MASK_CODE_AU = 4094 + 1 + GraphIter;
@@ -320,7 +325,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 				if((upartition_vertices[p_u].count < threshold___activefrontiers && enable___vertexcentric == true) && (all_vertices_active_in_all_iterations == false)){ ___use_vertex_centric___ = true; } else { ___use_vertex_centric___ = false; }
 				
 				#ifdef _DEBUGMODE_KERNELPRINTS4 
-				if(all_vertices_active_in_all_iterations == true && sweep == 0){ cout<<"### processing edges in upartition "<<p_u<<"..."<<endl; }
+				if(all_vertices_active_in_all_iterations == true && sweep == 1){ cout<<"### processing edges in upartition "<<p_u<<"..."<<endl; }
 				#endif 
 			
 				// read & map frontier properties 
@@ -459,13 +464,15 @@ MY_IFDEF_TOPLEVELFUNC(){
 		if(totalactvvs2 == 0 || GraphIter >= MAXNUMGRAPHITERATIONS){ maxGraphIter = GraphIter; break; }
 		for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){ nfrontier_dram___size[inst][p_u] = 0; }}
 	} // NUM_ITs
+	}
 
 	#ifdef _DEBUGMODE_CHECKS3
 	float time_lapse = (total_cycles * _NUMNANOSECONDS_PER_CLOCKCYCLE_) / 1000000;
-	float million_edges_per_sec = ((globalparams[GLOBALPARAMSCODE__PARAM__NUM_EDGES] / 1000000) / time_lapse) * 1000;
+	float million_edges_per_sec = (((globalparams[GLOBALPARAMSCODE__PARAM__NUM_EDGES] * globalparams[GLOBALPARAMSCODE__PARAM__NUM_RUNS]) / 1000000) / time_lapse) * 1000;
 	float billion_edges_per_sec = million_edges_per_sec / 1000;
 	cout<<"acts_kernel SUMMARY:: total number of active vertices processed / HBM CHANNEL: "<<total_num_actvvs<<endl;
-	cout<<"acts_kernel SUMMARY:: total number of edges processed: "<<globalparams[GLOBALPARAMSCODE__PARAM__NUM_EDGES]<<endl;
+	cout<<"acts_kernel SUMMARY:: total number of edges processed per run: "<<globalparams[GLOBALPARAMSCODE__PARAM__NUM_EDGES]<<endl;
+	cout<<"acts_kernel SUMMARY:: total number of runs: "<<globalparams[GLOBALPARAMSCODE__PARAM__NUM_RUNS]<<endl;
 	cout<<"acts_kernel SUMMARY:: number of DRAM clock cycles seen: "<<total_cycles<<" ("<<(total_cycles * _NUMNANOSECONDS_PER_CLOCKCYCLE_) / 1000000<<" milliseconds)"<<endl;
 	cout<< TIMINGRESULTSCOLOR << ">>> acts_kernel SUMMARY:: TIME ELAPSE: "<<time_lapse<<" ms. THROUGHPUT: "<<million_edges_per_sec<<" MTEPS; THROUGHPUT: "<<billion_edges_per_sec<<" BTEPS"<< RESET << endl;
 	#endif

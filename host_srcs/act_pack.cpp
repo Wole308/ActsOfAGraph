@@ -18,8 +18,6 @@ unsigned int get_local2(unsigned int vid){
 	unsigned int x = vid % (FOLD_SIZE * EDGE_PACK_SIZE);
 	unsigned int lvid = (y * (FOLD_SIZE * EDGE_PACK_SIZE)) + x;
 	return lvid;
-	// return (vid - get_H2(vid)) / NUM_PEs;
-	// return utilityobj->get_local(vid);
 }
 unsigned int get_global2(unsigned int lvid, unsigned int H){
 	unsigned int W = (FOLD_SIZE * EDGE_PACK_SIZE) * NUM_PEs;
@@ -172,14 +170,13 @@ void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedat
 				}
 			}
 			
-			// #ifdef rrrrrrrrrrrrrrrrRRRR
-			
 			// witihin a LLP, re-arrange by srcvids
 			if(debug){ cout<<"STAGE 4: preparing edges and loading into dram..."<<endl; }
 			unsigned int depths[EDGE_PACK_SIZE];
 			for(unsigned int llp_set=0; llp_set<num_LLPset; llp_set++){ // ll_p set 
 				unsigned int offset_llpset = llp_set * EDGE_PACK_SIZE; 
 				
+				// unsigned int finest_granularity_size = 0;
 				for(unsigned int llp_id=0; llp_id<EDGE_PACK_SIZE; llp_id++){		
 					if(false){ cout<<"act_pack:: [llp_set: "<<llp_set<<", llp_id: "<<llp_id<<", ~: "<<(llp_set * EDGE_PACK_SIZE * vsize_LLP) + (llp_id * vsize_LLP)<<"]"<<endl; }
 				
@@ -193,13 +190,12 @@ void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedat
 						else if(edgesin_srcvp_lldstvp_srcv2p[offset_llpset + v][depths[v]].size() == 0){ if(false){ cout<<"!!!!!!!!!!!!!!!!! act_pack:: EMPTY PARTITION SEEN @ p: "<<offset_llpset + v<<", v: "<<v<<", llp_set: "<<llp_set<<", llp_id: "<<llp_id<<", max_kvs: "<<max_kvs<<endl; }}
 					}
 				
-					// #ifdef rrrrrrrrrrrrrrrrRRRR
+					unsigned int finest_granularity_size = 0;
 					for(unsigned int t=0; t<max_kvs; t++){
 						edge3_vec_dt edge_vec;
 						for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 							utilityobj->checkoutofbounds("loadedges::ERROR 5934a. ", offset_llpset + v, num_LLPs, NAp, NAp, NAp);	
 							utilityobj->checkoutofbounds("loadedges::ERROR 5934b. ", depths[v], MAX_NUM_PARTITIONS, NAp, NAp, NAp);
-							// vector<edge3_type> edgesin_srcvp_lldstvp_srcv2p[num_LLPs][MAX_NUM_PARTITIONS]; 
 							if(t < edgesin_srcvp_lldstvp_srcv2p[offset_llpset + v][depths[v]].size()){ 
 								edge_vec.data[v] = edgesin_srcvp_lldstvp_srcv2p[offset_llpset + v][depths[v]][t]; 
 								edge_vec.data[v].valid = 1; 
@@ -211,7 +207,6 @@ void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedat
 							} 
 						}
 						
-						// #ifdef rrrrrrrrrrrrrrrrRRRR
 						#ifdef _DEBUGMODE_HOSTCHECKS3
 						for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 							if(edge_vec.data[v].dstvid != INVALIDDATA){ 
@@ -262,34 +257,14 @@ void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedat
 						}
 						#endif
 						
-						// encode rotateby information in header
-						unsigned int _sample_key = INVALIDDATA; unsigned int _sample_u = 0; for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ if(edge_vec3.data[v].valid == 1){ _sample_key = edge_vec3.data[v].dstvid % EDGE_PACK_SIZE; _sample_u = v; }} 
-						unsigned int _rotate_forward = 1; unsigned int _rotateby = 0; if(_sample_key > _sample_u){ _rotateby = _sample_key - _sample_u; _rotate_forward = 0; } else { _rotateby = _sample_u - _sample_key; _rotate_forward = 1; }
-						utilityobj->checkoutofbounds("loadedges::ERROR 59. _rotateby::", _rotateby, EDGE_PACK_SIZE, _sample_key, _sample_u, NAp);	
-						if(edge_vec3.data[0].valid == 0){
-							edge_vec3.data[0].srcvid = INVALIDDATA;
-							edge_vec3.data[0].dstvid = _sample_key + (EDGE_PACK_SIZE - _sample_u);
-						}
-						
-						// #ifdef rrrrrrrrrrrrrrrrRRRR
-						for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-							if(edge_vec3.data[v].srcvid != INVALIDDATA){ edge_vec3.data[v].srcvid = get_local_to_upartitionn(edge_vec3.data[v].srcvid) / EDGE_PACK_SIZE; }
-							if(edge_vec3.data[v].valid == 1){
-								edge_vec3.data[v].dstvid = (get_local2(edge_vec3.data[v].dstvid) % MAX_UPARTITION_SIZE);
-							}
-						}
-						
-						// #ifdef rrrrrrrrrrrrrrrrRRRR
 						act_pack_edges[i].push_back(edge_vec3);
 						act_pack_map[i][v_p][llp_set].size += 1;
-						// #endif 
+						finest_granularity_size += 1;
 					}
-					// #endif 
+					// cout<<"--------------------- v_p: "<<v_p<<", llp_set: "<<llp_set<<", llp_id: "<<llp_id<<": "<<finest_granularity_size<<" ----------------------"<<endl;
 				} // iteration end: llp_id:EDGE_PACK_SIZE
+				// cout<<"--------------------- v_p: "<<v_p<<", llp_set: "<<llp_set<<", llp_id: "<<llp_id<<": "<<finest_granularity_size<<" ----------------------"<<endl;
 			} // iteration end: llp_set:num_LLPset
-		
-			// #endif 
-		
 		} // iteration end: v_p:num_vPs 
 		cout<<"act-pack:: PE: "<<i<<": act_pack_edges["<<i<<"].size(): "<<act_pack_edges[i].size() * EDGE_PACK_SIZE<<""<<endl;
 	} // iteration end: i(NUM_PEs) end here

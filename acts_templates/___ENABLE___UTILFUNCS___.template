@@ -44,12 +44,12 @@ unsigned int min_(unsigned int val1, unsigned int val2){
 	if(val1 < val2){ return val1; }
 	else { return val2; }
 }
-void update_dramnumclockcycles(unsigned int _NUMCLOCKCYCLES_[2][16], unsigned int x, unsigned int clock_cycles){
+void update_dramnumclockcycles(unsigned int _NUMCLOCKCYCLES_[2][32], unsigned int x, unsigned int clock_cycles){
 	#ifdef _DEBUGMODE_CHECKS3
 	_NUMCLOCKCYCLES_[0][x] += clock_cycles;
 	#endif
 }
-void update_bramnumclockcycles(unsigned int _NUMCLOCKCYCLES_[2][16], unsigned int x, unsigned int clock_cycles){
+void update_bramnumclockcycles(unsigned int _NUMCLOCKCYCLES_[2][32], unsigned int x, unsigned int clock_cycles){
 	#ifdef _DEBUGMODE_CHECKS3
 	_NUMCLOCKCYCLES_[0][x] += clock_cycles;
 	// _NUMCLOCKCYCLES_[1][x] += clock_cycles;
