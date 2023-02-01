@@ -27,6 +27,9 @@ edge3_type edges_buffer[NUM_VALID_PEs][EDGE_PACK_SIZE][EDGE_BUFFER_SIZE];
 edge_update_type edgeupdates_buffer[NUM_VALID_PEs][EDGE_PACK_SIZE][EDGE_UPDATES_BUFFER_SIZE];	
 #pragma HLS ARRAY_PARTITION variable=edgeupdates_buffer complete dim=1	
 #pragma HLS ARRAY_PARTITION variable=edgeupdates_buffer complete dim=2	
+edge_update_type edgeupdates_outbuffer[NUM_VALID_PEs][EDGE_PACK_SIZE][EDGE_UPDATES_BUFFER_SIZE];	
+#pragma HLS ARRAY_PARTITION variable=edgeupdates_outbuffer complete dim=1	
+#pragma HLS ARRAY_PARTITION variable=edgeupdates_outbuffer complete dim=2	
 #endif 
 keyvalue_t updates_buffer2[NUM_VALID_PEs][UPDATES_BUFFER_PACK_SIZE][UPDATES_BUFFER_SIZE];		
 #pragma HLS ARRAY_PARTITION variable=updates_buffer2 complete dim=1
@@ -47,6 +50,7 @@ vtr_t * vptr_buffer[NUM_VALID_PEs];
 edge3_type * edges_buffer[NUM_VALID_PEs][EDGE_PACK_SIZE];
 #ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
 edge_update_type * edgeupdates_buffer[NUM_VALID_PEs][EDGE_PACK_SIZE];
+edge_update_type * edgeupdates_outbuffer[NUM_VALID_PEs][EDGE_PACK_SIZE];
 #endif 
 keyvalue_t * updates_buffer2[NUM_VALID_PEs][UPDATES_BUFFER_PACK_SIZE]; 
 vprop_t * vdata_buffer[NUM_VALID_PEs][EDGE_PACK_SIZE];
@@ -60,6 +64,7 @@ for(unsigned int i=0; i<NUM_VALID_PEs; i++){ vptr_buffer[i] = new vtr_t[VPTR_BUF
 for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ edges_buffer[i][v] = new edge3_type[EDGE_BUFFER_SIZE]; }}
 #ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
 for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ edgeupdates_buffer[i][v] = new edge_update_type[EDGE_UPDATES_BUFFER_SIZE]; }}
+for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ edgeupdates_outbuffer[i][v] = new edge_update_type[EDGE_UPDATES_BUFFER_SIZE]; }}
 #endif 
 for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<UPDATES_BUFFER_PACK_SIZE; v++){ updates_buffer2[i][v] = new keyvalue_t[UPDATES_BUFFER_SIZE]; }}
 for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ vdata_buffer[i][v] = new vprop_t[MAX_APPLYPARTITION_VECSIZE]; }}
@@ -172,6 +177,8 @@ unsigned int stats_count[NUM_VALID_PEs];
 #pragma HLS ARRAY_PARTITION variable=stats_count complete
 unsigned int stats_counts[NUM_VALID_PEs][EDGE_PACK_SIZE];
 #pragma HLS ARRAY_PARTITION variable=stats_counts complete dim=0
+unsigned int edge_counts[NUM_VALID_PEs][EDGE_PACK_SIZE];
+#pragma HLS ARRAY_PARTITION variable=edge_counts complete dim=0
 unsigned int cummtv2[NUM_VALID_PEs]; 
 #pragma HLS ARRAY_PARTITION variable = cummtv2 complete
 unsigned int masks[NUM_VALID_PEs][EDGE_PACK_SIZE];

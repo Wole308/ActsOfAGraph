@@ -15,6 +15,7 @@ cout<<"acts_kernel SUMMARY:: number of DRAM clock cycles seen @ ___CODE___EXCHAN
 
 cout<<"acts_kernel SUMMARY:: number of DRAM clock cycles seen @ ___CODE___NUMBER_OF_EDGEUPDATES_LOADED___: "<<_NUMCLOCKCYCLES_[0][___CODE___NUMBER_OF_EDGEUPDATES_LOADED___]<<endl; // " (# edges per hbm channel: "<<_NUMCLOCKCYCLES_[0][___CODE___NUMBER_OF_EDGEUPDATES_LOADED___] * EDGE_PACK_SIZE<<")"<<endl;
 cout<<"acts_kernel SUMMARY:: number of DRAM clock cycles seen @ ___CODE___NUMBER_OF_EDGEUPDATES_APPLIED___: "<<_NUMCLOCKCYCLES_[0][___CODE___NUMBER_OF_EDGEUPDATES_APPLIED___]<<endl;
+cout<<"acts_kernel SUMMARY:: number of DRAM clock cycles seen @ ___CODE___NUMBER_OF_NEW_EDGEUPDATES_ADDED___: "<<_NUMCLOCKCYCLES_[0][___CODE___NUMBER_OF_NEW_EDGEUPDATES_ADDED___]<<endl;
 
 cout<<"acts_kernel SUMMARY:: number of edges processed: "<<(_NUMCLOCKCYCLES_[0][___CODE___ECPROCESSEDGES___] * EDGE_PACK_SIZE) / (1+1)<<endl;
 cout<<"acts_kernel SUMMARY:: number of vertex updates applied: "<<(_NUMCLOCKCYCLES_[0][___CODE___APPLYUPDATES___] * EDGE_PACK_SIZE) / (1+4)<<endl;

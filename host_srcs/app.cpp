@@ -191,7 +191,9 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	}
 	
 	edge3_type first_edge = csr_pack_edges[0][0];
+	#ifdef _DEBUGMODE_HOSTPRINTS
 	cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ first_edge.srcvid: "<<first_edge.srcvid<<", first_edge.dstvid: "<<first_edge.dstvid<<endl;
+	#endif 
 	#ifdef ___FORCE_SUCCESS_SINGLE_CHANNEL___
 	rootvid = first_edge.srcvid;
 	universalparams.ROOTVID = first_edge.srcvid;
@@ -204,7 +206,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		if(max_degree < degrees[i][vid / NUM_PEs]){ max_degree = degrees[i][vid / NUM_PEs]; }
 		v_ptr[i][vid / NUM_PEs] = index; index += degrees[i][vid / NUM_PEs]; ind += 1; }}}			
 	for(unsigned int i=0; i<NUM_PEs; i++){ cout<<"csr-pack:: PE: 21: act_pack_edges["<<i<<"].size(): "<<csr_pack_edges[i].size()<<endl; }
-	cout<<"csr-pack:: max_degree______________________________________________________: "<<max_degree<<endl;
+	cout<<"app::csr-pack:: max_degree: "<<max_degree<<endl;
 	unsigned int max = 0; for(unsigned int i=0; i<NUM_PEs; i++){ if(max < act_pack_edges[i].size()){ max = act_pack_edges[i].size(); }} 
 	for(unsigned int i=0; i<NUM_PEs; i++){ act_pack_edges_arr[i] = new edge3_vec_dt[max]; }
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<max; t++){ act_pack_edges_arr[i][t] =  act_pack_edges[i][t]; }}
@@ -362,7 +364,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		}
 	}
 	unsigned int max_num_updates = maxs[MAX_NUM_LLPSETS-1].key;
-	if(true){ cout<<"-------------------------- app: max_num_updates: "<<max_num_updates<<endl; }
+	if(true){ cout<<"app: max_num_updates: "<<max_num_updates<<endl; }
 	
 	// load edge updates (actpack format)
 	for(unsigned int i=0; i<NUM_PEs; i++){ 

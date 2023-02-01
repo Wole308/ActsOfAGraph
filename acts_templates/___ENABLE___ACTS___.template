@@ -16,20 +16,22 @@
 #define ___ENABLE___REPORT_STATISTICS___
 
 #define ___CODE___RESETBUFFERSATSTART___ 0
-#define ___CODE___NUMBER_OF_EDGEUPDATES_LOADED___ 1
-#define ___CODE___PROCESSEDGES___ 2
-#define ___CODE___READ_FRONTIER_PROPERTIES___ 3
-#define ___CODE___VCPROCESSEDGES___ 4
-#define ___CODE___ECPROCESSEDGES___ 5
-#define ___CODE___SAVEVCUPDATES___ 6
-#define ___CODE___COLLECTACTIVEDSTVIDS___ 7
-#define ___CODE___APPLYUPDATESMODULE___ 8
-	#define ___CODE___READ_DEST_PROPERTIES___ 9
-	#define ___CODE___APPLYUPDATES___ 10
-	#define ___CODE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES___ 11
-	#define ___CODE___SAVE_DEST_PROPERTIES___ 12
-#define ___CODE___EXCHANGEFRONTIERINFOS___ 13
+// #define ___CODE___NUMBER_OF_EDGEUPDATES_LOADED___ 1
+#define ___CODE___PROCESSEDGES___ 1
+#define ___CODE___READ_FRONTIER_PROPERTIES___ 2
+#define ___CODE___VCPROCESSEDGES___ 3
+#define ___CODE___ECPROCESSEDGES___ 4
+#define ___CODE___SAVEVCUPDATES___ 5
+#define ___CODE___COLLECTACTIVEDSTVIDS___ 6
+#define ___CODE___APPLYUPDATESMODULE___ 7
+	#define ___CODE___READ_DEST_PROPERTIES___ 8
+	#define ___CODE___APPLYUPDATES___ 9
+	#define ___CODE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES___ 10
+	#define ___CODE___SAVE_DEST_PROPERTIES___ 11
+#define ___CODE___EXCHANGEFRONTIERINFOS___ 12
+#define ___CODE___NUMBER_OF_EDGEUPDATES_LOADED___ 13
 #define ___CODE___NUMBER_OF_EDGEUPDATES_APPLIED___ 14
+#define ___CODE___NUMBER_OF_NEW_EDGEUPDATES_ADDED___ 15
 
 #define MAXVALID_APPLYPARTITION_VECSIZE (MAX_APPLYPARTITION_VECSIZE >> POW_VALID_VDATA)
 
@@ -140,7 +142,6 @@ void transport_frontier(unsigned int inst, unsigned int p_v, unsigned int baseof
 		unsigned int st = cfrontier_dram___size[p_actvv_];
 		TRANSPORT_FRONTIER_PROPERTIES_LOOP1B: for(unsigned int t=0; t<nfrontier_dram___size[p_actvv_]; t++){
 		#pragma HLS PIPELINE II=1
-			// #ifdef FPGA_IMPL		
 			{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 			data[{{v}}] = HBM_channelA[offset_n + t].data[{{v}}];
 			{%endfor%}
@@ -164,7 +165,6 @@ void transport_frontier(unsigned int inst, unsigned int p_v, unsigned int baseof
 			#ifndef FPGA_IMPL
 			update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___EXCHANGEFRONTIERINFOS___, 1);
 			#endif 
-				
 		}
 		upartition_vertices[p_actvv_].count += nfrontier_dram___size[p_actvv_]; 
 		cfrontier_dram___size[p_actvv_] += nfrontier_dram___size[p_actvv_];
