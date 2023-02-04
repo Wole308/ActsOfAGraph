@@ -1,0 +1,145 @@
+#ifndef HW
+hybrid_map[GraphIter][p_u] = 1;
+#endif 
+
+EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_APPLYPARTITIONS; llp_set++){	// 1 __NUM_APPLYPARTITIONS REMOVEME
+	EC_PROCESS_EDGES_LOOP1B: for(unsigned int llp_id=0; llp_id<num_edgeblocks_per_upartition; llp_id++){ // 1 num_its REMOVEME
+		unsigned int edge_block = (llp_set * num_edgeblocks_per_upartition) + llp_id;
+		#ifdef _DEBUGMODE_KERNELPRINTS//4
+		cout<<"------------------- process edges: ["<<p_u<<", "<<llp_set<<", "<<llp_id<<"] -------------------"<<endl; 
+		#endif 
+
+		// prepare maps, offsets, variables 
+		max_sz = 0; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ limits[n] = edge_maps[n][edge_block].size; } for(unsigned int n=0; n<NUM_VALID_PEs; n++){ if(max_sz < limits[n]){ max_sz = limits[n]; }}			
+		for(unsigned int n=0; n<NUM_VALID_PEs; n++){ offsets[n] = edge_maps[n][edge_block].offset; }		
+		
+		MY_LOOP1529: for(unsigned int n=0; n<NUM_VALID_PEs; n++){ counts[n] = 0; }
+		MY_LOOP1519: for(unsigned int n=0; n<NUM_VALID_PEs; n++){ offsets2[n] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[llp_set]; }
+			
+		// process edges
+		EC_PROCESS_EDGES_MAINLOOP1D: for(unsigned int t=0; t<max_sz; t++){ 
+		#pragma HLS PIPELINE II=1
+			dretrievemany_actpackedges(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES], offsets, t, edge3_vecs, {% include 'arguments_allchannelsinslr.template' %});
+			
+			keyvalue_t update_in[NUM_VALID_PEs][EDGE_PACK_SIZE];
+			#pragma HLS ARRAY_PARTITION variable = update_in complete dim=0
+			keyvalue_t update_out[NUM_VALID_PEs][EDGE_PACK_SIZE];
+			#pragma HLS ARRAY_PARTITION variable = update_out complete dim=0
+			
+			EC_PROCESS_EDGES_LOOP1F: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
+			#pragma HLS UNROLL
+				bool en = true; if(t >= limits[inst]){ en = false; } else { en = true; } 
+				edge3_vec_dt edge_vec = edge3_vecs[inst];
+				unsigned int rotateby = edge_vec.data[0].weight; 
+				#ifdef _DEBUGMODE_CHECKS3
+				checkoutofbounds("acts_kernel::ERROR 213::", rotateby, EDGE_PACK_SIZE, NAp, NAp, NAp);
+				#endif
+				
+				#ifdef _DEBUGMODE_KERNELPRINTS//4
+				for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+					if(inst==0 && t<4 && edge3_vecs[inst].data[v].weight>1){ cout<<"[newly updated edge: edge["<<inst<<"]["<<t<<"]["<<v<<"]: srcvid: "<<edge3_vecs[inst].data[v].srcvid<<", dstvid: "<<edge3_vecs[inst].data[v].dstvid<<", weight: "<<edge3_vecs[inst].data[v].weight<<"]"<<endl; }
+				}
+				#endif 
+				#ifdef _DEBUGMODE_CHECKS3
+				for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+					edge3_type edge = edge_vec.data[v];
+					if(edge.srcvid != INVALIDDATA){
+						checkoutofbounds("acts_kernel::ERROR 1213a::", edge.srcvid, MAX_UPARTITION_VECSIZE, NAp, NAp, NAp);
+						checkoutofbounds("acts_kernel::ERROR 1213b::", edge.dstvid, MAX_UPARTITION_VECSIZE, NAp, NAp, NAp);
+					}
+				}
+				#endif
+				
+				// read source properties and process edge to form vertex-updates 
+				MY_LOOP16214: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+				#pragma HLS UNROLL
+					edge3_type edge = edge_vec.data[v];
+					unsigned int srcvid_lpv = edge.srcvid; 
+					vprop_t uprop; if(edge.srcvid != INVALIDDATA && edge.srcvid < MAX_UPARTITION_VECSIZE){ uprop = retrieve_vdatabuffer(v, srcvid_lpv, vdata_buffer[inst]); }
+					if(edge.srcvid != INVALIDDATA && edge.srcvid < MAX_UPARTITION_VECSIZE && (uprop.mask == MASK_CODE_PE || all_vertices_active_in_all_iterations == true)){
+						unsigned int res = process_funcG(uprop.prop, 1, globalparams[GLOBALPARAMSCODE__PARAM__ALGORITHM]);
+						update_in[inst][v].key = edge.dstvid; update_in[inst][v].value = res;
+						#ifdef _DEBUGMODE_CHECKS3
+						checkoutofbounds("acts_kernel::ERROR 1213c::", edge.srcvid, MAX_UPARTITION_VECSIZE, NAp, NAp, NAp);
+						checkoutofbounds("acts_kernel::ERROR 1213d::", edge.dstvid, MAX_UPARTITION_VECSIZE, NAp, NAp, NAp);
+						#endif
+						#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+						std::cout<<"EC - PROCESS EDGE SEEN @: inst: ["<<inst<<"], [srcvid_lpv: "<<srcvid_lpv<<", dstvid: "<<edge.dstvid % MAX_APPLYPARTITION_SIZE<<"], [edge.srcvid: "<<edge.srcvid<<", dstvid: "<<edge.dstvid<<"]"<<std::endl; 
+						#endif 
+					} else {
+						update_in[inst][v].key = INVALIDDATA; update_in[inst][v].value = INVALIDDATA;
+					}
+				}
+				
+				// circular shift >>>
+				rearrangeLayoutVx16B(rotateby, update_in[inst], update_out[inst]); 
+				#ifdef _DEBUGMODE_CHECKS3___XXX
+				if(en == true){ check_if_contiguous(update_out[inst], update_in[inst], update_in[inst], rotateby, 0, rotateby); }
+				#endif		
+				
+				// collect stats 
+				bool isvalid = true;
+				if({%for v in context['EDGE_PACK_SIZE_seq']%}{%if(v>0)%}&&{%endif%} update_out[inst][{{v}}].key==INVALIDDATA{%endfor%}){ isvalid = false; }
+				if(en == true && isvalid == true){
+					MY_LOOP16234: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+					#pragma HLS UNROLL
+						if(update_out[inst][v].key != INVALIDDATA){
+							#ifndef FPGA_IMPL
+							if(update_out[inst][v].key != INVALIDDATA){ checkoutofbounds("acts_kernel::ERROR 623::", ((update_out[inst][v].key / EDGE_PACK_SIZE) >> ACTVUPDATESBLOCK_VECSIZE_POW), BLOCKRAM_SIZE, update_out[inst][v].key, (update_out[inst][v].key / EDGE_PACK_SIZE), (MAX_APPLYPARTITION_VECSIZE / BLOCKRAM_SIZE)); }				
+							#endif
+							unsigned int dstvid_lpv = update_out[inst][v].key / EDGE_PACK_SIZE;
+							if(update_out[inst][v].key != INVALIDDATA){ insert_statstmpbuffer((dstvid_lpv >> ACTVUPDATESBLOCK_VECSIZE_POW), v, 1, statsbuffer_maskbased_tmp[inst]); }
+						}
+					}
+				}
+				
+				if(en == true && (isvalid == true || all_vertices_active_in_all_iterations == true)){	
+					counts[inst] += 1;
+					ens[inst][0] = true;									
+				} else {
+					ens[inst][0] = false;
+				}
+			}
+			
+			for(unsigned int n=0; n<NUM_VALID_PEs; n++){ 
+			#pragma HLS UNROLL
+				offsets3[n] = offsets2[n] + actpackupdates_dram___size[n][llp_set] + counts[n];
+			}	
+			dinsertmany_updatesdram(offsets3, update_out, ens, {% include 'arguments_allchannelsinslr.template' %});	
+			update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___ECPROCESSEDGES___, 1);
+		}
+		
+		// update variables 
+		MY_LOOP161: for(unsigned int n=0; n<NUM_VALID_PEs; n++){ 
+		#pragma HLS UNROLL
+			actpackupdates_dram___size[n][llp_set] += counts[n];
+		}
+		
+		// gather stats
+		unsigned int data[EDGE_PACK_SIZE];
+		if(all_vertices_active_in_all_iterations == false){
+			EC_PROCESS_EDGES_LOOP1I: for(unsigned int t=0; t<BLOCKRAM_SIZE; t++){
+			#pragma HLS PIPELINE II=1
+				for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
+				#pragma HLS UNROLL
+					retrievevec_statstmpbuffer(t, data, statsbuffer_maskbased_tmp[inst]); 
+					#ifndef FPGA_IMPL
+					checkoutofbounds("acts_kernel::ERROR 023::", t, BLOCKRAM_SIZE, NAp, NAp, NAp);
+					#endif
+					if( {%for v in context['EDGE_PACK_SIZE_seq']%}{%if(v>0)%}||{%endif%} data[{{v}}]==1{%endfor%} )
+					{ 
+						insert_statsbuffer(t, llp_set, 1, statsbuffer_maskbased[inst]); 
+						vpartition_vertices[inst][llp_set].count = 1;
+					}
+				}
+				update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___ECPROCESSEDGES___, 1);
+			}
+		}
+		// exit(EXIT_SUCCESS);
+	}
+	// exit(EXIT_SUCCESS); 
+}
+// exit(EXIT_SUCCESS); 
+
+
+						

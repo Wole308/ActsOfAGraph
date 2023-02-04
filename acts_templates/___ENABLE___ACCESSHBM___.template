@@ -302,7 +302,7 @@ void dretrievemany_actpackedges(unsigned int base_offset__, unsigned int offsets
 	#pragma HLS INLINE 
 	#ifdef _DEBUGMODE_CHECKS3
 	unsigned int wwsize = globalparams_debug[GLOBALPARAMSCODE__WWSIZE__ACTPACKEDGES];
-	checkoutofbounds("acts_kernel::ERROR 704f::", offsets[0] + t, wwsize, NAp, NAp, NAp);
+	checkoutofbounds("acts_kernel::ERROR 704ft::", offsets[0] + t, wwsize, NAp, NAp, NAp);
 	#endif 
 	
 	unsigned int data_[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE];

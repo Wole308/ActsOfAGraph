@@ -11,6 +11,8 @@
 #include <iostream>
 {%endif%} 
 
+// #define ___ENABLE___DYNAMICGRAPHANALYTICS___
+
 #define ___FORCE_SUCCESS___
 #define POW_VALID_VDATA 1
 #define ___FORCE_SUCCESS_SINGLE_CHANNEL___
@@ -34,8 +36,6 @@
 // #define RANKING_ALGORITHM_TYPE
 // #define TRAVERSAL_ALGORITHM_TYPE
 // #define ALL_ALGORITHM_TYPES
-
-#define ___ENABLE___DYNAMICGRAPHANALYTICS___
 
 #if defined(BFS_ALGORITHM) || defined(SSSP_ALGORITHM)
 #define CONFIG_ALGORITHMTYPE_RANDOMACTIVEVERTICES // { utility.cpp }

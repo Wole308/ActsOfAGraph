@@ -107,10 +107,13 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	HBM_channelAXISW_t * HBM_axicenter[2]; 
 	unsigned int globalparams[1024];
 	vector<edge3_type> csr_pack_edges[NUM_PEs]; 
-	map_t * vptr_actpack[NUM_PEs][MAX_NUM_UPARTITIONS];
-	map_t * vptr2_actpack[NUM_PEs][MAX_NUM_UPARTITIONS];
 	vector<edge3_vec_dt> act_pack_edges[NUM_PEs];
-	edge3_vec_dt * act_pack_edges_arr[NUM_PEs];
+	map_t * act_pack_map[NUM_PEs][MAX_NUM_UPARTITIONS];
+	map_t * act_pack_map2[NUM_PEs][MAX_NUM_UPARTITIONS];
+	vector<edge3_vec_dt> act_pack_edgeupdates[NUM_PEs];
+	map_t * act_pack_edgeupdates_map[NUM_PEs][MAX_NUM_UPARTITIONS];
+	
+	// edge3_vec_dt * act_pack_edges_arr[NUM_PEs];
 	
 	// allocate HBM memory
 	cout<<"app: initializing HBM_centers..."<<endl;
@@ -160,15 +163,17 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	unsigned int __NUM_UPARTITIONS = (universalparams.NUM_VERTICES + (MAX_UPARTITION_SIZE - 1)) /  MAX_UPARTITION_SIZE;
 	unsigned int __NUM_APPLYPARTITIONS = ((universalparams.NUM_VERTICES / NUM_PEs) + (MAX_APPLYPARTITION_SIZE - 1)) /  MAX_APPLYPARTITION_SIZE; // NUM_PEs
 	
-	#ifdef BUILD_GRAPH_FOR_DEVICE
 	// create act-pack format
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ vptr_actpack[i][p_u] = new map_t[MAX_NUM_LLPSETS]; }}
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ for(unsigned int t=0; t<MAX_NUM_LLPSETS; t++){ vptr_actpack[i][p_u][t].offset = 0; vptr_actpack[i][p_u][t].size = 0; }}}
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ vptr2_actpack[i][p_u] = new map_t[MAX_NUM_LLPS]; }}
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ for(unsigned int t=0; t<MAX_NUM_LLPS; t++){ vptr2_actpack[i][p_u][t].offset = 0; vptr2_actpack[i][p_u][t].size = 0; }}}
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ act_pack_map[i][p_u] = new map_t[MAX_NUM_LLPSETS]; }}
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ for(unsigned int t=0; t<MAX_NUM_LLPSETS; t++){ act_pack_map[i][p_u][t].offset = 0; act_pack_map[i][p_u][t].size = 0; }}}
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ act_pack_map2[i][p_u] = new map_t[MAX_NUM_LLPS]; }}
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ for(unsigned int t=0; t<MAX_NUM_LLPS; t++){ act_pack_map2[i][p_u][t].offset = 0; act_pack_map2[i][p_u][t].size = 0; }}}
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ act_pack_edgeupdates_map[i][p_u] = new map_t[MAX_NUM_LLPS]; }}
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ for(unsigned int t=0; t<MAX_NUM_LLPS; t++){ act_pack_edgeupdates_map[i][p_u][t].offset = 0; act_pack_edgeupdates_map[i][p_u][t].size = 0; }}}
 	
 	act_pack * pack = new act_pack(universalparams);
-	pack->pack(vertexptrbuffer, edgedatabuffer, act_pack_edges, vptr_actpack, vptr2_actpack); // CRITICAL REMOVEME.
+	pack->pack(vertexptrbuffer, edgedatabuffer, act_pack_edges, act_pack_map, act_pack_map2, act_pack_edgeupdates, act_pack_edgeupdates_map); // CRITICAL REMOVEME.
+	for(unsigned int i=0; i<NUM_PEs; i++){ cout<<"act-pack-edgeupdates:: PE: "<<i<<": act_pack_edgeupdates["<<i<<"].size(): "<<act_pack_edgeupdates[i].size() * EDGE_PACK_SIZE<<""<<endl; }
 
 	// create csr format
 	unsigned int * degrees[NUM_PEs]; for(unsigned int i=0; i<NUM_PEs; i++){ degrees[i] = new unsigned int[(universalparams.NUM_VERTICES / NUM_PEs) + 64]; }
@@ -207,19 +212,14 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		v_ptr[i][vid / NUM_PEs] = index; index += degrees[i][vid / NUM_PEs]; ind += 1; }}}			
 	for(unsigned int i=0; i<NUM_PEs; i++){ cout<<"csr-pack:: PE: 21: act_pack_edges["<<i<<"].size(): "<<csr_pack_edges[i].size()<<endl; }
 	cout<<"app::csr-pack:: max_degree: "<<max_degree<<endl;
-	unsigned int max = 0; for(unsigned int i=0; i<NUM_PEs; i++){ if(max < act_pack_edges[i].size()){ max = act_pack_edges[i].size(); }} 
-	for(unsigned int i=0; i<NUM_PEs; i++){ act_pack_edges_arr[i] = new edge3_vec_dt[max]; }
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<max; t++){ act_pack_edges_arr[i][t] =  act_pack_edges[i][t]; }}
 
 	// load globalparams: {vptrs, edges, updatesptrs, updates, vertexprops, frontiers}
 	cout<<"app: loading global addresses: {vptrs, edges, updates, vertexprops, frontiers}..."<<endl;
 	unsigned int numcsredges = 0; for(unsigned int i=0; i<NUM_PEs; i++){ if(numcsredges < csr_pack_edges[i].size()){ numcsredges = csr_pack_edges[i].size(); }} 
 	unsigned int numww_csredges = (numcsredges / EDGE_PACK_SIZE) + 16;
 	unsigned int numww_actpackedges = 0; for(unsigned int i=0; i<NUM_PEs; i++){ if(numww_actpackedges < act_pack_edges[i].size()){ numww_actpackedges = act_pack_edges[i].size(); }} 
+	unsigned int numww_actpackedgeupdates = 0; for(unsigned int i=0; i<NUM_PEs; i++){ if(numww_actpackedgeupdates < act_pack_edgeupdates[i].size()){ numww_actpackedgeupdates = act_pack_edgeupdates[i].size(); }} 
 	unsigned int csrvptrsz_u32 = ((universalparams.NUM_VERTICES / NUM_PEs) + 64); 
-	unsigned int actpackvptrsz_u32 = (MAX_NUM_UPARTITIONS * MAX_NUM_LLPSETS); 
-	unsigned int csredgessz_u32 = numcsredges * 2; 
-	unsigned int actpackedgessz_u32 = numww_actpackedges * EDGE_PACK_SIZE * 2;
 	unsigned int vdatasz_u32 = __NUM_APPLYPARTITIONS * MAX_APPLYPARTITION_VECSIZE * EDGE_PACK_SIZE * 2;
 	unsigned int cfrontiersz_u32 = 1 * MAX_APPLYPARTITION_VECSIZE * EDGE_PACK_SIZE * 2;
 	unsigned int nfrontiersz_u32 = (__NUM_APPLYPARTITIONS * MAX_ACTVV_VECSIZE * NUM_ACTVVPARTITIONS_PER_APPLYPARTITION * EDGE_PACK_SIZE) * 2;
@@ -254,14 +254,13 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	for(unsigned int i=0; i<NUM_PEs; i++){ globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS] = 512; } 
 	unsigned int size_u32 = 0;
 	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
-	for(unsigned int i=0; i<1; i++){ // NUM_PEs
+	for(unsigned int i=0; i<NUM_PEs; i++){ // NUM_PEs
 		unsigned int index = 0;
 		unsigned int base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS];
 		for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ 
-			for(unsigned int t=0; t<MAX_NUM_LLPS; t++){ // MAX_NUM_LLPS, MAX_NUM_LLPSETS
-				HBM_channel[i][base_offset + (index / HBM_CHANNEL_PACK_SIZE)].data[index % HBM_CHANNEL_PACK_SIZE] = vptr2_actpack[i][p_u][t].offset; 
-				HBM_channel[i][base_offset + ((index + 1) / HBM_CHANNEL_PACK_SIZE)].data[(index + 1) % HBM_CHANNEL_PACK_SIZE] = vptr2_actpack[i][p_u][t].size; 
-				// if(p_u < __NUM_UPARTITIONS && t<16){ cout<<"~~~app:: p_u: "<<p_u<<": vptr2_actpack["<<t<<"].offset: "<<vptr2_actpack[i][p_u][t].offset<<", vptr2_actpack["<<t<<"].size: "<<vptr2_actpack[i][p_u][t].size<<endl; }
+			for(unsigned int t=0; t<MAX_NUM_LLPS; t++){ 
+				HBM_channel[i][base_offset + (index / HBM_CHANNEL_PACK_SIZE)].data[index % HBM_CHANNEL_PACK_SIZE] = act_pack_edgeupdates_map[i][p_u][t].offset; 
+				HBM_channel[i][base_offset + ((index + 1) / HBM_CHANNEL_PACK_SIZE)].data[(index + 1) % HBM_CHANNEL_PACK_SIZE] = act_pack_edgeupdates_map[i][p_u][t].size; 
 				index += 2;
 				if(i==0){ size_u32 += 2; }
 			}
@@ -297,8 +296,8 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		unsigned int base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS];
 		for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ 
 			for(unsigned int t=0; t<MAX_NUM_LLPSETS; t++){
-				HBM_channel[i][base_offset + (index / HBM_CHANNEL_PACK_SIZE)].data[index % HBM_CHANNEL_PACK_SIZE] = vptr_actpack[i][p_u][t].offset; 
-				HBM_channel[i][base_offset + ((index + 1) / HBM_CHANNEL_PACK_SIZE)].data[(index + 1) % HBM_CHANNEL_PACK_SIZE] = vptr_actpack[i][p_u][t].size; 
+				HBM_channel[i][base_offset + (index / HBM_CHANNEL_PACK_SIZE)].data[index % HBM_CHANNEL_PACK_SIZE] = act_pack_map[i][p_u][t].offset; 
+				HBM_channel[i][base_offset + ((index + 1) / HBM_CHANNEL_PACK_SIZE)].data[(index + 1) % HBM_CHANNEL_PACK_SIZE] = act_pack_map[i][p_u][t].size; 
 				index += 2;
 				if(i==0){ size_u32 += 2; }
 			}
@@ -317,8 +316,8 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		unsigned int base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2];
 		for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ 
 			for(unsigned int t=0; t<MAX_NUM_LLPS; t++){
-				HBM_channel[i][base_offset + (index / HBM_CHANNEL_PACK_SIZE)].data[index % HBM_CHANNEL_PACK_SIZE] = vptr2_actpack[i][p_u][t].offset; 
-				HBM_channel[i][base_offset + ((index + 1) / HBM_CHANNEL_PACK_SIZE)].data[(index + 1) % HBM_CHANNEL_PACK_SIZE] = vptr2_actpack[i][p_u][t].size; 
+				HBM_channel[i][base_offset + (index / HBM_CHANNEL_PACK_SIZE)].data[index % HBM_CHANNEL_PACK_SIZE] = act_pack_map2[i][p_u][t].offset; 
+				HBM_channel[i][base_offset + ((index + 1) / HBM_CHANNEL_PACK_SIZE)].data[(index + 1) % HBM_CHANNEL_PACK_SIZE] = act_pack_map2[i][p_u][t].size; 
 				index += 2;
 				if(i==0){ size_u32 += 2; }
 			}
@@ -336,10 +335,9 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<MAX_NUM_LLPSETS; t++){ updateswwcount[i][t].value = 0; updateswwcount[i][t].key = 0; }}
 	for(unsigned int i=0; i<NUM_PEs; i++){ 
 		unsigned int index = 0;
-		// unsigned int base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS];
 		for(unsigned int t=0; t<MAX_NUM_LLPSETS; t++){
 			for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ 
-				updateswwcount[i][t].value += vptr_actpack[i][p_u][t].size;
+				updateswwcount[i][t].value += act_pack_map[i][p_u][t].size;
 			}
 		}
 	}
@@ -375,22 +373,22 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
 	for(unsigned int i=0; i<NUM_PEs; i++){
 		unsigned int base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES];
-		for(unsigned int t=0; t<numww_actpackedges; t++){ 	
+		for(unsigned int t=0; t<numww_actpackedgeupdates; t++){ 	
 			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-				unsigned int isvalid = act_pack_edges[i][t].data[v].valid;
+				unsigned int isvalid = act_pack_edgeupdates[i][t].data[v].valid;
 
 				unsigned int _sample_key = INVALIDDATA; unsigned int _sample_u = 0; 
-				for(unsigned int v1=0; v1<EDGE_PACK_SIZE; v1++){ if(act_pack_edges[i][t].data[v1].valid == 1){ _sample_key = act_pack_edges[i][t].data[v1].dstvid % EDGE_PACK_SIZE; _sample_u = v1; }} 
+				for(unsigned int v1=0; v1<EDGE_PACK_SIZE; v1++){ if(act_pack_edgeupdates[i][t].data[v1].valid == 1){ _sample_key = act_pack_edgeupdates[i][t].data[v1].dstvid % EDGE_PACK_SIZE; _sample_u = v1; }} 
 				unsigned int _rotateby = 0; if(_sample_key > _sample_u){ _rotateby = _sample_key - _sample_u; } else { _rotateby = _sample_u - _sample_key; }
 				unsigned int sourceid = 0; unsigned int destid = 0; unsigned int weight = 0;
 				
 				if(isvalid==1){
-					sourceid = act_pack_edges[i][t].data[v].srcvid % MAX_UPARTITION_VECSIZE;
-					destid = get_local3(act_pack_edges[i][t].data[v].dstvid) % MAX_UPARTITION_VECSIZE;
+					sourceid = act_pack_edgeupdates[i][t].data[v].srcvid % MAX_UPARTITION_VECSIZE;
+					destid = get_local3(act_pack_edgeupdates[i][t].data[v].dstvid) % MAX_UPARTITION_VECSIZE;
 					weight = 3;
 				} else {
 					sourceid = INVALIDDATA;
-					destid = get_local3(act_pack_edges[i][t].data[v].dstvid) % MAX_UPARTITION_VECSIZE;
+					destid = get_local3(act_pack_edgeupdates[i][t].data[v].dstvid) % MAX_UPARTITION_VECSIZE;
 					weight = 3;
 				}
 				if(v==0){ weight = _rotateby; }
@@ -406,7 +404,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		globalparams[GLOBALPARAMSCODE__WWSIZE__EDGEUPDATES] = (size_u32 / HBM_CHANNEL_PACK_SIZE) + 16;
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSREDGES] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES] + globalparams[GLOBALPARAMSCODE__WWSIZE__EDGEUPDATES]; 
 	}
-	size_u32 = 0; ///////////////////////// FIXME?
+	size_u32 = 0; 
 	#ifdef TRAVERSAL_ALGORITHM_TYPE
 	for(unsigned int i=0; i<NUM_PEs; i++){ 
 		unsigned int index = 0;
@@ -495,7 +493,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	globalparams[GLOBALPARAMSCODE__PARAM__NUM_VERTICES] = universalparams.NUM_VERTICES;
 	globalparams[GLOBALPARAMSCODE__PARAM__NUM_EDGES] = universalparams.NUM_EDGES;
 
-	// globalparams
+	// load globalparams
 	for(unsigned int i=0; i<NUM_PEs; i++){ 
 		HBM_channel[i][GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS].data[0] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS];
 		HBM_channel[i][GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS].data[0] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS];
@@ -590,8 +588,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__PARAM__NUM_VERTICES: "<<globalparams[GLOBALPARAMSCODE__PARAM__NUM_VERTICES]<<endl;
 	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__PARAM__NUM_EDGES: "<<globalparams[GLOBALPARAMSCODE__PARAM__NUM_EDGES]<<endl;
 	// exit(EXIT_SUCCESS);
-	#endif 
-	
+
 	// clear 
 	for(unsigned int i=0; i<NUM_PEs; i++){ csr_pack_edges[i].clear(); act_pack_edges[i].clear(); } // clear 
 

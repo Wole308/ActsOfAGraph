@@ -67,7 +67,7 @@ for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_S
 for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ edgeupdates_outbuffer[i][v] = new edge_update_type[EDGE_UPDATES_BUFFER_SIZE]; }}
 #endif 
 for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<UPDATES_BUFFER_PACK_SIZE; v++){ updates_buffer2[i][v] = new keyvalue_t[UPDATES_BUFFER_SIZE]; }}
-for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ vdata_buffer[i][v] = new vprop_t[MAX_APPLYPARTITION_VECSIZE]; }}
+for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ vdata_buffer[i][v] = new vprop_t[MAXVALID_APPLYPARTITION_VECSIZE]; }}
 #endif 
 
 #ifdef FPGA_IMPL	
@@ -187,6 +187,22 @@ edge3_vec_dt edge3_vecs[NUM_VALID_PEs];
 #pragma HLS ARRAY_PARTITION variable=edge3_vecs complete
 map_t maps[NUM_VALID_PEs];
 #pragma HLS ARRAY_PARTITION variable=maps complete	
+unsigned int offsets3[NUM_VALID_PEs]; 
+#pragma HLS ARRAY_PARTITION variable = offsets3 complete
+map_t edgeupdate_maps[NUM_VALID_PEs][BLOCKRAM_SIZE];
+#pragma HLS ARRAY_PARTITION variable=edgeupdate_maps 	
+map_t edgeupdate_map[NUM_VALID_PEs];
+#pragma HLS ARRAY_PARTITION variable=edgeupdate_map complete
+map_t edge_map[NUM_VALID_PEs];
+#pragma HLS ARRAY_PARTITION variable=edge_map complete
+map_t edge_maps[NUM_VALID_PEs][BLOCKRAM_SIZE];
+#pragma HLS ARRAY_PARTITION variable=edge_maps	
+unsigned int offsets_eu[NUM_VALID_PEs];
+#pragma HLS ARRAY_PARTITION variable = offsets_eu complete
+unsigned int limits_eu[NUM_VALID_PEs];
+#pragma HLS ARRAY_PARTITION variable = limits_eu complete
+unsigned int max_sz = 0; 
+
 #ifdef FPGA_IMPL
 unsigned int _NUMCLOCKCYCLES_[2][32]; 
 #endif 

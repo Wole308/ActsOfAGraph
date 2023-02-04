@@ -297,6 +297,12 @@ MY_IFDEF_TOPLEVELFUNC(){
 		___ENABLE___COLLECTACTIVEDSTVIDS___BOOL___ = 0;
 	}
 	
+	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
+	unsigned int num_edgeblocks_per_upartition = EDGE_PACK_SIZE;	
+	#else 
+	unsigned int num_edgeblocks_per_upartition = 1;	
+	#endif 
+	
 	// run acts 
 	RUN_ACTS_LOOP1: for(unsigned int run=0; run<globalparams[GLOBALPARAMSCODE__PARAM__NUM_RUNS]; run++){
 	RUN_ACTS_LOOP1B: for(unsigned int GraphIter=0; GraphIter<globalparams[GLOBALPARAMSCODE__PARAM__NUM_ITERATIONS]; GraphIter++){
@@ -349,9 +355,28 @@ MY_IFDEF_TOPLEVELFUNC(){
 						}
 						#endif 
 					} else if (sweep == 1  && ___use_vertex_centric___ == false) { // edge-centric [done]
+						// load edge maps
+						for(unsigned int edge_block=0; edge_block<__NUM_APPLYPARTITIONS * num_edgeblocks_per_upartition; edge_block++){ 
+							#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___							
+							dretrievemany_actpackvptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2], ((p_u * MAX_NUM_LLPS) + edge_block), edge_map, {% include 'arguments_allchannelsinslr.template' %});
+							#else 
+							dretrievemany_actpackvptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS], ((p_u * MAX_NUM_LLPSETS) + edge_block), edge_map, {% include 'arguments_allchannelsinslr.template' %});
+							#endif 
+							for(unsigned int n=0; n<NUM_VALID_PEs; n++){
+							#pragma HLS UNROLL
+								edge_maps[n][edge_block] = edge_map[n];
+							}
+						}
+						
+						#ifdef ___ENABLE___ECPROCESSEDGES___II1___
+						#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
+						{% include '___ENABLE___ECUPDATEEDGES___.template' %}	
+						#endif
+						#endif 
+					
 						#ifdef ___ENABLE___ECPROCESSEDGES___II1___
 						if(___ENABLE___ECPROCESSEDGES___BOOL___ == 1){
-						{% include '___ENABLE___ECPROCESSEDGES___II1___.template' %}	
+						{% include '___ENABLE___ECPROCESSEDGES___.template' %}	
 						}
 						#endif
 					} else {
@@ -414,7 +439,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 				// apply updates [done]
 				#ifdef ___ENABLE___APPLYUPDATES___II1___ 
 				if(___ENABLE___APPLYUPDATES___BOOL___ == 1){
-				{% include '___ENABLE___APPLYUPDATES___II3___.template' %}	 
+				{% include '___ENABLE___APPLYUPDATES___.template' %}	 
 				}
 				#endif 
 				

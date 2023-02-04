@@ -54,6 +54,7 @@ public:
 	acts_kernel(universalparams_t universalparams);
 	~acts_kernel();
 	
+	void next_function({% include 'parameters_allchannelsinslr.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, unsigned int batch);
 	void top_function({% include 'parameters_allchannelsinslr.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, unsigned int batch);
 
 private:
