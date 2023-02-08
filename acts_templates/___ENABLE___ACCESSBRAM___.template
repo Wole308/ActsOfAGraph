@@ -58,7 +58,7 @@ void retrieveandresetvec_vdatabuffer(unsigned int index, vprop_t data[EDGE_PACK_
 		checkoutofbounds("acts_kernel::ERROR 105::", index, MAX_UPARTITION_VECSIZE, NAp, NAp, NAp);
 		#endif 
 		data[v].prop = vdata_buffer[v][index >> POW_VALID_VDATA].prop; 
-		data[v].mask = INVALIDMASK;  
+		data[v].degree = INVALIDMASK;  
 	}
 }
 

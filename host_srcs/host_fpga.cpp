@@ -250,11 +250,12 @@ long double host_fpga::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * 
     // SET OF ELEMENTS WILL BE WRITTEN INTO THE BUFFER.
     vector<cl::Event> kernel_events(2);
     vector<cl::Event> read_events(2);
-	cl::Buffer buffer_hbm0[2], buffer_hbm1[2], buffer_hbm2[2], buffer_hbm3[2], buffer_hbm4[2], buffer_hbm5[2], buffer_hbm6[2], buffer_hbm7[2], buffer_hbm8[2], buffer_hbm9[2], buffer_hbm10[2], buffer_hbm11[2], buffer_hbm12[2], buffer_hbm13[2];
+	cl::Buffer buffer_hbm0[2], buffer_hbm1[2], buffer_hbm2[2], buffer_hbm3[2], buffer_hbm4[2], buffer_hbm5[2], buffer_hbm6[2], buffer_hbm7[2], buffer_hbm8[2], buffer_hbm9[2], buffer_hbm10[2], buffer_hbm11[2], buffer_hbm12[2], buffer_hbm13[2],
+		buffer_hbm14[2], buffer_hbm15[2], buffer_hbm16[2], buffer_hbm17[2], buffer_hbm18[2], buffer_hbm19[2], buffer_hbm20[2], buffer_hbm21[2], buffer_hbm22[2], buffer_hbm23[2], buffer_hbm24[2], buffer_hbm25[2];
 	
-	cl_mem_ext_ptr_t inBufExt0, inBufExt1, inBufExt2, inBufExt3, inBufExt4, inBufExt5, inBufExt6, inBufExt7, inBufExt8, inBufExt9, inBufExt10, inBufExt11, inBufExt12, inBufExt13;
+	cl_mem_ext_ptr_t inBufExt0, inBufExt1, inBufExt2, inBufExt3, inBufExt4, inBufExt5, inBufExt6, inBufExt7, inBufExt8, inBufExt9, inBufExt10, inBufExt11, inBufExt12, inBufExt13,
+		inBufExt14, inBufExt15, inBufExt16, inBufExt17, inBufExt18, inBufExt19, inBufExt20, inBufExt21, inBufExt22, inBufExt23, inBufExt24, inBufExt25;
 
-	#if NUM_VALID_PEs==1
 	inBufExt0.obj = HHX[0].data();
     inBufExt0.param = 0;
     inBufExt0.flags = pc[0];
@@ -263,22 +264,7 @@ long double host_fpga::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * 
     inBufExt1.param = 0;
     inBufExt1.flags = pc[1];
 
-    inBufExt2.obj = HHX[2].data();
-    inBufExt2.param = 0;
-    inBufExt2.flags = pc[2];
-	
-	inBufExt3.obj = HHX[3].data();
-    inBufExt3.param = 0;
-    inBufExt3.flags = pc[3];
-	#else 
-    inBufExt0.obj = HHX[0].data();
-    inBufExt0.param = 0;
-    inBufExt0.flags = pc[0];
-	
-	inBufExt1.obj = HHX[1].data();
-    inBufExt1.param = 0;
-    inBufExt1.flags = pc[1];
-
+	// #if NUM_VALID_HBM_CHANNELS>1
     inBufExt2.obj = HHX[2].data();
     inBufExt2.param = 0;
     inBufExt2.flags = pc[2];
@@ -319,16 +305,86 @@ long double host_fpga::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * 
     inBufExt11.param = 0;
     inBufExt11.flags = pc[11];
 	
-	inBufExt12.obj = HHC[0].data();
+	// #if NUM_VALID_HBM_CHANNELS>6
+	inBufExt12.obj = HHX[12].data();
     inBufExt12.param = 0;
     inBufExt12.flags = pc[12];
 	
-	inBufExt13.obj = HHC[1].data();
+	inBufExt13.obj = HHX[13].data();
     inBufExt13.param = 0;
     inBufExt13.flags = pc[13];
-	#endif 
 	
-	#ifdef HOST_PRINT_RESULTS
+	inBufExt14.obj = HHX[14].data();
+    inBufExt14.param = 0;
+    inBufExt14.flags = pc[14];
+	
+	inBufExt15.obj = HHX[15].data();
+    inBufExt15.param = 0;
+    inBufExt15.flags = pc[15];
+	
+	inBufExt16.obj = HHX[16].data();
+    inBufExt16.param = 0;
+    inBufExt16.flags = pc[16];
+	
+	inBufExt17.obj = HHX[17].data();
+    inBufExt17.param = 0;
+    inBufExt17.flags = pc[17];
+	
+	inBufExt18.obj = HHX[18].data();
+    inBufExt18.param = 0;
+    inBufExt18.flags = pc[18];
+	
+	inBufExt19.obj = HHX[19].data();
+    inBufExt19.param = 0;
+    inBufExt19.flags = pc[19];
+	
+	inBufExt20.obj = HHX[20].data();
+    inBufExt20.param = 0;
+    inBufExt20.flags = pc[20];
+	
+	inBufExt21.obj = HHX[21].data();
+    inBufExt21.param = 0;
+    inBufExt21.flags = pc[21];
+	
+	inBufExt22.obj = HHX[22].data();
+    inBufExt22.param = 0;
+    inBufExt22.flags = pc[22];
+	
+	inBufExt23.obj = HHX[23].data();
+    inBufExt23.param = 0;
+    inBufExt23.flags = pc[23];
+	// #endif 
+	// #endif 
+	
+	// #if NUM_VALID_HBM_CHANNELS==1
+	// inBufExt2.obj = HHC[0].data();
+    // inBufExt2.param = 0;
+    // inBufExt2.flags = pc[2];
+	
+	// inBufExt3.obj = HHC[1].data();
+    // inBufExt3.param = 0;
+    // inBufExt3.flags = pc[3];
+	// #endif 
+	// #if NUM_VALID_HBM_CHANNELS==6
+	// inBufExt12.obj = HHC[0].data();
+    // inBufExt12.param = 0;
+    // inBufExt12.flags = pc[12];
+	
+	// inBufExt13.obj = HHC[1].data();
+    // inBufExt13.param = 0;
+    // inBufExt13.flags = pc[13];
+	// #endif 
+	// #if NUM_VALID_HBM_CHANNELS==12
+	inBufExt24.obj = HHC[0].data();
+    inBufExt24.param = 0;
+    inBufExt24.flags = pc[24];
+	
+	inBufExt25.obj = HHC[1].data();
+    inBufExt25.param = 0;
+    inBufExt25.flags = pc[25];
+	// #endif 
+	
+	#ifdef HOST_PRINT_RESULTS_XXXX
 	cout<<"---------------------------------------------- host_fpga:: before ---------------------------------------------- "<<endl;
 	unsigned int base_offsetttt__ = globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] * HBM_AXI_PACK_SIZE;
 	for(unsigned int i=0; i<1; i++){
@@ -354,7 +410,6 @@ long double host_fpga::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * 
         // Buffers are allocated using CL_MEM_USE_HOST_PTR for efficient memory and
         // Device-to-host communication
         std::cout << "Creating Buffers..." << std::endl;	
-		#if NUM_VALID_PEs==1
 		OCL_CHECK(err, buffer_hbm0[flag] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
                                             bytes_per_iteration, &inBufExt0, &err));
 		OCL_CHECK(err, buffer_hbm1[flag] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
@@ -363,15 +418,7 @@ long double host_fpga::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * 
                                             bytes_per_iteration, &inBufExt2, &err));	
 		OCL_CHECK(err, buffer_hbm3[flag] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
                                             bytes_per_iteration, &inBufExt3, &err));	
-		#else 
-		OCL_CHECK(err, buffer_hbm0[flag] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
-                                            bytes_per_iteration, &inBufExt0, &err));
-		OCL_CHECK(err, buffer_hbm1[flag] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
-                                            bytes_per_iteration, &inBufExt1, &err));			
-		OCL_CHECK(err, buffer_hbm2[flag] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
-                                            bytes_per_iteration, &inBufExt2, &err));	
-		OCL_CHECK(err, buffer_hbm3[flag] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
-                                            bytes_per_iteration, &inBufExt3, &err));	
+		// #if NUM_VALID_HBM_CHANNELS>1	
 		OCL_CHECK(err, buffer_hbm4[flag] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
                                             bytes_per_iteration, &inBufExt4, &err));	
 		OCL_CHECK(err, buffer_hbm5[flag] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
@@ -391,20 +438,40 @@ long double host_fpga::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * 
 		OCL_CHECK(err, buffer_hbm12[flag] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
                                             bytes_per_iteration, &inBufExt12, &err));	
 		OCL_CHECK(err, buffer_hbm13[flag] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
-                                            bytes_per_iteration, &inBufExt13, &err));	
-		#endif 
+                                            bytes_per_iteration, &inBufExt13, &err));
+		// #if NUM_VALID_HBM_CHANNELS>6
+		OCL_CHECK(err, buffer_hbm14[flag] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+                                            bytes_per_iteration, &inBufExt14, &err));
+		OCL_CHECK(err, buffer_hbm15[flag] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+                                            bytes_per_iteration, &inBufExt15, &err));
+		OCL_CHECK(err, buffer_hbm16[flag] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+                                            bytes_per_iteration, &inBufExt16, &err));
+		OCL_CHECK(err, buffer_hbm17[flag] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+                                            bytes_per_iteration, &inBufExt17, &err));
+		OCL_CHECK(err, buffer_hbm18[flag] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+                                            bytes_per_iteration, &inBufExt18, &err));
+		OCL_CHECK(err, buffer_hbm19[flag] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+                                            bytes_per_iteration, &inBufExt19, &err));
+		OCL_CHECK(err, buffer_hbm20[flag] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+                                            bytes_per_iteration, &inBufExt20, &err));
+		OCL_CHECK(err, buffer_hbm21[flag] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+                                            bytes_per_iteration, &inBufExt21, &err));
+		OCL_CHECK(err, buffer_hbm22[flag] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+                                            bytes_per_iteration, &inBufExt22, &err));
+		OCL_CHECK(err, buffer_hbm23[flag] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+                                            bytes_per_iteration, &inBufExt23, &err));
+		OCL_CHECK(err, buffer_hbm24[flag] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+                                            bytes_per_iteration, &inBufExt24, &err));
+		OCL_CHECK(err, buffer_hbm25[flag] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+                                            bytes_per_iteration, &inBufExt25, &err));
+		// #endif 
+		// #endif 
 											
         vector<cl::Event> write_event(1);
 
-		#if NUM_VALID_PEs==1
 		OCL_CHECK(err, err = krnl_vadd.setArg(0, buffer_hbm0[flag]));
 		OCL_CHECK(err, err = krnl_vadd.setArg(1, buffer_hbm1[flag]));
-		OCL_CHECK(err, err = krnl_vadd.setArg(2, buffer_hbm2[flag]));
-		OCL_CHECK(err, err = krnl_vadd.setArg(3, buffer_hbm3[flag]));
-        OCL_CHECK(err, err = krnl_vadd.setArg(4, int(batch)));
-		#else 
-		OCL_CHECK(err, err = krnl_vadd.setArg(0, buffer_hbm0[flag]));
-		OCL_CHECK(err, err = krnl_vadd.setArg(1, buffer_hbm1[flag]));
+		#if NUM_VALID_HBM_CHANNELS>1
 		OCL_CHECK(err, err = krnl_vadd.setArg(2, buffer_hbm2[flag]));
 		OCL_CHECK(err, err = krnl_vadd.setArg(3, buffer_hbm3[flag]));
 		OCL_CHECK(err, err = krnl_vadd.setArg(4, buffer_hbm4[flag]));
@@ -415,9 +482,36 @@ long double host_fpga::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * 
 		OCL_CHECK(err, err = krnl_vadd.setArg(9, buffer_hbm9[flag]));
 		OCL_CHECK(err, err = krnl_vadd.setArg(10, buffer_hbm10[flag]));
 		OCL_CHECK(err, err = krnl_vadd.setArg(11, buffer_hbm11[flag]));
+		#if NUM_VALID_HBM_CHANNELS>6
 		OCL_CHECK(err, err = krnl_vadd.setArg(12, buffer_hbm12[flag]));
 		OCL_CHECK(err, err = krnl_vadd.setArg(13, buffer_hbm13[flag]));
-        OCL_CHECK(err, err = krnl_vadd.setArg(14, int(batch)));
+		OCL_CHECK(err, err = krnl_vadd.setArg(14, buffer_hbm14[flag]));
+		OCL_CHECK(err, err = krnl_vadd.setArg(15, buffer_hbm15[flag]));
+		OCL_CHECK(err, err = krnl_vadd.setArg(16, buffer_hbm16[flag]));
+		OCL_CHECK(err, err = krnl_vadd.setArg(17, buffer_hbm17[flag]));
+		OCL_CHECK(err, err = krnl_vadd.setArg(18, buffer_hbm18[flag]));
+		OCL_CHECK(err, err = krnl_vadd.setArg(19, buffer_hbm19[flag]));
+		OCL_CHECK(err, err = krnl_vadd.setArg(20, buffer_hbm20[flag]));
+		OCL_CHECK(err, err = krnl_vadd.setArg(21, buffer_hbm21[flag]));
+		OCL_CHECK(err, err = krnl_vadd.setArg(22, buffer_hbm22[flag]));
+		OCL_CHECK(err, err = krnl_vadd.setArg(23, buffer_hbm23[flag]));
+		#endif 
+		#endif 
+		
+		#if NUM_VALID_HBM_CHANNELS==1
+		OCL_CHECK(err, err = krnl_vadd.setArg(2, buffer_hbm24[flag]));
+		OCL_CHECK(err, err = krnl_vadd.setArg(3, buffer_hbm25[flag]));
+		OCL_CHECK(err, err = krnl_vadd.setArg(4, int(batch)));
+		#endif
+		#if NUM_VALID_HBM_CHANNELS==6
+		OCL_CHECK(err, err = krnl_vadd.setArg(12, buffer_hbm24[flag]));
+		OCL_CHECK(err, err = krnl_vadd.setArg(13, buffer_hbm25[flag]));
+		OCL_CHECK(err, err = krnl_vadd.setArg(14, int(batch)));
+		#endif
+		#if NUM_VALID_HBM_CHANNELS==12	
+		OCL_CHECK(err, err = krnl_vadd.setArg(24, buffer_hbm24[flag]));
+		OCL_CHECK(err, err = krnl_vadd.setArg(25, buffer_hbm25[flag]));
+		OCL_CHECK(err, err = krnl_vadd.setArg(26, int(batch)));
 		#endif 
 
         // Copy input data to device global memory
@@ -425,11 +519,16 @@ long double host_fpga::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * 
         // Because we are passing the write_event, it returns an event object
         // that identifies this particular command and can be used to query
         // or queue a wait for this particular command to complete.
-		#if NUM_VALID_PEs==1
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_hbm0[flag], buffer_hbm1[flag], buffer_hbm2[flag], buffer_hbm3[flag]}, 0 /*0 means from host*/,
+		#if NUM_VALID_HBM_CHANNELS==1
+		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_hbm0[flag], buffer_hbm1[flag], buffer_hbm24[flag], buffer_hbm25[flag]}, 0 /*0 means from host*/,
                                                         nullptr, &write_event[0]));
-		#else 
-        OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_hbm0[flag], buffer_hbm1[flag], buffer_hbm2[flag], buffer_hbm3[flag], buffer_hbm4[flag], buffer_hbm5[flag], buffer_hbm6[flag], buffer_hbm7[flag], buffer_hbm8[flag], buffer_hbm9[flag], buffer_hbm10[flag], buffer_hbm11[flag], buffer_hbm12[flag], buffer_hbm13[flag]}, 0 /*0 means from host*/,
+		#endif 
+		#if NUM_VALID_HBM_CHANNELS==6
+        OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_hbm0[flag], buffer_hbm1[flag], buffer_hbm2[flag], buffer_hbm3[flag], buffer_hbm4[flag], buffer_hbm5[flag], buffer_hbm6[flag], buffer_hbm7[flag], buffer_hbm8[flag], buffer_hbm9[flag], buffer_hbm10[flag], buffer_hbm11[flag], buffer_hbm24[flag], buffer_hbm25[flag]}, 0 /*0 means from host*/,
+                                                        nullptr, &write_event[0]));
+		#endif 
+		#if NUM_VALID_HBM_CHANNELS==12
+		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_hbm0[flag], buffer_hbm1[flag], buffer_hbm2[flag], buffer_hbm3[flag], buffer_hbm4[flag], buffer_hbm5[flag], buffer_hbm6[flag], buffer_hbm7[flag], buffer_hbm8[flag], buffer_hbm9[flag], buffer_hbm10[flag], buffer_hbm11[flag], buffer_hbm12[flag], buffer_hbm13[flag], buffer_hbm14[flag], buffer_hbm15[flag], buffer_hbm16[flag], buffer_hbm17[flag], buffer_hbm18[flag], buffer_hbm19[flag], buffer_hbm20[flag], buffer_hbm21[flag], buffer_hbm22[flag], buffer_hbm23[flag], buffer_hbm24[flag], buffer_hbm25[flag]}, 0 /*0 means from host*/,				
                                                         nullptr, &write_event[0]));
 		#endif 
         set_callback(write_event[0], "ooo_queue");
@@ -458,11 +557,16 @@ long double host_fpga::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * 
         // This operation only needs to wait for the kernel call. This call will
         // potentially overlap the next kernel call as well as the next read
         // operations	
-		#if NUM_VALID_PEs==1
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_hbm0[flag], buffer_hbm1[flag], buffer_hbm2[flag], buffer_hbm3[flag]}, CL_MIGRATE_MEM_OBJECT_HOST, &eventList,				
+		#if NUM_VALID_HBM_CHANNELS==1
+		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_hbm0[flag], buffer_hbm1[flag], buffer_hbm24[flag], buffer_hbm25[flag]}, CL_MIGRATE_MEM_OBJECT_HOST, &eventList,				
                                                         &read_events[flag]));
-		#else 
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_hbm0[flag], buffer_hbm1[flag], buffer_hbm2[flag], buffer_hbm3[flag], buffer_hbm4[flag], buffer_hbm5[flag], buffer_hbm6[flag], buffer_hbm7[flag], buffer_hbm8[flag], buffer_hbm9[flag], buffer_hbm10[flag], buffer_hbm11[flag], buffer_hbm12[flag], buffer_hbm13[flag]}, CL_MIGRATE_MEM_OBJECT_HOST, &eventList,				
+		#endif 
+		#if NUM_VALID_HBM_CHANNELS==6
+		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_hbm0[flag], buffer_hbm1[flag], buffer_hbm2[flag], buffer_hbm3[flag], buffer_hbm4[flag], buffer_hbm5[flag], buffer_hbm6[flag], buffer_hbm7[flag], buffer_hbm8[flag], buffer_hbm9[flag], buffer_hbm10[flag], buffer_hbm11[flag], buffer_hbm24[flag], buffer_hbm25[flag]}, CL_MIGRATE_MEM_OBJECT_HOST, &eventList,				
+                                                        &read_events[flag]));
+		#endif 
+		#if NUM_VALID_HBM_CHANNELS==12
+		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_hbm0[flag], buffer_hbm1[flag], buffer_hbm2[flag], buffer_hbm3[flag], buffer_hbm4[flag], buffer_hbm5[flag], buffer_hbm6[flag], buffer_hbm7[flag], buffer_hbm8[flag], buffer_hbm9[flag], buffer_hbm10[flag], buffer_hbm11[flag], buffer_hbm12[flag], buffer_hbm13[flag], buffer_hbm14[flag], buffer_hbm15[flag], buffer_hbm16[flag], buffer_hbm17[flag], buffer_hbm18[flag], buffer_hbm19[flag], buffer_hbm20[flag], buffer_hbm21[flag], buffer_hbm22[flag], buffer_hbm23[flag], buffer_hbm24[flag], buffer_hbm25[flag]}, CL_MIGRATE_MEM_OBJECT_HOST, &eventList,				
                                                         &read_events[flag]));
 		#endif 
         set_callback(read_events[flag], "ooo_queue");
@@ -489,7 +593,7 @@ long double host_fpga::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * 
         }
     }
 	
-	#ifdef HOST_PRINT_RESULTS
+	#ifdef HOST_PRINT_RESULTS_XXXX
 	cout<<"---------------------------------------------- host_fpga:: after ---------------------------------------------- "<<endl;
 	for(unsigned int i=0; i<1; i++){
 		for(unsigned int t=0; t<4; t++){ 

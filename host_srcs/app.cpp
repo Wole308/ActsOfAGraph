@@ -447,6 +447,9 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 				}
 				if(v==0){ weight = _rotateby; }
 				HBM_channel[i][base_offset + t].data[v] = ((weight & MAXLOCALVALUE2_ACTPACK_EDGEID) << (MAXNUMBITS2_ACTPACK_DESTVID + MAXNUMBITS2_ACTPACK_SRCVID)) | ((sourceid & MAXLOCALVALUE2_ACTPACK_SRCVID) << MAXNUMBITS2_ACTPACK_DESTVID) | (destid & MAXLOCALVALUE2_ACTPACK_DESTVID);		
+				///////////////////////// FIXME?
+				HBM_channel[i][base_offset + t].data[HBM_AXI_PACK_SIZE + v] = ((weight & MAXLOCALVALUE2_ACTPACK_EDGEID) << (MAXNUMBITS2_ACTPACK_DESTVID + MAXNUMBITS2_ACTPACK_SRCVID)) | ((sourceid & MAXLOCALVALUE2_ACTPACK_SRCVID) << MAXNUMBITS2_ACTPACK_DESTVID) | (destid & MAXLOCALVALUE2_ACTPACK_DESTVID);		
+				/////////////////////////
 				if(i==0){ size_u32 += 2; }
 			}
 		}
@@ -538,7 +541,8 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___PROCESSEDGES].data[0] = 1;
 		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___READ_FRONTIER_PROPERTIES].data[0] = 1;
 		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___VCPROCESSEDGES].data[0] = 1; 
-		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___ECPROCESSEDGES].data[0] = 1; 
+		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___ECUPDATEEDGES].data[0] = 1; 
+		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___ECPROCESSEDGES].data[0] = 1; // FIXME
 		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___SAVEVCUPDATES].data[0] = 1; // FIXME? CAUSE OF HANGING?
 		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___COLLECTACTIVEDSTVIDS].data[0] = 1;
 		
@@ -627,7 +631,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	}
 	// exit(EXIT_SUCCESS); 
 	
-	#ifdef HOST_PRINT_RESULTS
+	#ifdef HOST_PRINT_RESULTS_XXXX
 	cout<<"---------------------------------------------- app:: before ---------------------------------------------- "<<endl;
 	unsigned int base_offset__ = globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES];
 	for(unsigned int i=0; i<1; i++){
@@ -649,32 +653,21 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	for(unsigned int batch=0; batch<1; batch++){
 	acts->top_function(
 		(HBM_channelAXI_t *)HBM_axichannel[0][0], (HBM_channelAXI_t *)HBM_axichannel[1][0]
-		#if NUM_VALID_PEs>1
+		#if NUM_VALID_HBM_CHANNELS>1
 		,(HBM_channelAXI_t *)HBM_axichannel[0][1], (HBM_channelAXI_t *)HBM_axichannel[1][1] 
 		,(HBM_channelAXI_t *)HBM_axichannel[0][2], (HBM_channelAXI_t *)HBM_axichannel[1][2] 
 		,(HBM_channelAXI_t *)HBM_axichannel[0][3], (HBM_channelAXI_t *)HBM_axichannel[1][3] 
 		,(HBM_channelAXI_t *)HBM_axichannel[0][4], (HBM_channelAXI_t *)HBM_axichannel[1][4] 
 		,(HBM_channelAXI_t *)HBM_axichannel[0][5], (HBM_channelAXI_t *)HBM_axichannel[1][5] 
-		#if NUM_VALID_PEs>6
+		#if NUM_VALID_HBM_CHANNELS>6
 		,(HBM_channelAXI_t *)HBM_axichannel[0][6], (HBM_channelAXI_t *)HBM_axichannel[1][6] 
 		,(HBM_channelAXI_t *)HBM_axichannel[0][7], (HBM_channelAXI_t *)HBM_axichannel[1][7] 
 		,(HBM_channelAXI_t *)HBM_axichannel[0][8], (HBM_channelAXI_t *)HBM_axichannel[1][8] 
 		,(HBM_channelAXI_t *)HBM_axichannel[0][9], (HBM_channelAXI_t *)HBM_axichannel[1][9] 
 		,(HBM_channelAXI_t *)HBM_axichannel[0][10], (HBM_channelAXI_t *)HBM_axichannel[1][10] 
 		,(HBM_channelAXI_t *)HBM_axichannel[0][11], (HBM_channelAXI_t *)HBM_axichannel[1][11]
-		#if NUM_VALID_PEs>12
-		,HBM_axichannel[0][12], HBM_axichannel[1][12] 
-		,HBM_axichannel[0][13], HBM_axichannel[1][13] 
-		,HBM_axichannel[0][14], HBM_axichannel[1][14] 
-		,HBM_axichannel[0][15], HBM_axichannel[1][15]
-		,HBM_axichannel[0][16], HBM_axichannel[1][16]
-		,HBM_axichannel[0][17], HBM_axichannel[1][17]
-		,HBM_axichannel[0][18], HBM_axichannel[1][18] 
-		,HBM_axichannel[0][19], HBM_axichannel[1][19] 
-		,HBM_axichannel[0][20], HBM_axichannel[1][20] 
-		,HBM_axichannel[0][21], HBM_axichannel[1][21] 
-		,HBM_axichannel[0][22], HBM_axichannel[1][22] 
-		,HBM_axichannel[0][23], HBM_axichannel[1][23]
+		#if NUM_VALID_HBM_CHANNELS>12
+		,(HBM_channelAXI_t *)HBM_axichannel[0][12], (HBM_channelAXI_t *)HBM_axichannel[1][12]
 		#endif 
 		#endif 
 		#endif
@@ -684,7 +677,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	}
 	#endif 
 	
-	#ifdef HOST_PRINT_RESULTS
+	#ifdef HOST_PRINT_RESULTS_XXXX
 	cout<<"---------------------------------------------- app:: after ---------------------------------------------- "<<endl;
 	base_offset__ = globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES];
 	for(unsigned int i=0; i<1; i++){

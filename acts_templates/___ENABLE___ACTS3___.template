@@ -47,8 +47,8 @@
 #define MY_IFDEF_EDGESBUFFER() edge3_type edges_buffer[EDGE_PACK_SIZE][EDGE_BUFFER_SIZE]
 #define MY_IFDEF_EDGEUPDATESBUFFER() edge_update_type edgeupdates_buffer[EDGE_PACK_SIZE][EDGE_UPDATES_BUFFER_SIZE]
 #define MY_IFDEF_VDATABUFFER() vprop_t vdata_buffer[EDGE_PACK_SIZE][MAXVALID_APPLYPARTITION_VECSIZE]
-#define MY_IFDEF_NEXTLEVELFUNC() void next_function({% include 'parameters_allchannelsinslr.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, unsigned int batch)
-#define MY_IFDEF_TOPLEVELFUNC() void top_function({% include 'parameters_allchannelsinslr.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, unsigned int batch)
+#define MY_IFDEF_NEXTLEVELFUNC() void next_function({% include '___HBM___PARAMS___.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, unsigned int batch)
+#define MY_IFDEF_TOPLEVELFUNC() void top_function({% include '___HBM___PARAMS___.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, unsigned int batch)
 #else
 #define MY_IFDEF_NFRONTIER() keyvalue_t * nfrontier_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_CFRONTIER_TMP() keyvalue_t * cfrontier_buffer_tmp[EDGE_PACK_SIZE]
@@ -61,8 +61,8 @@
 #define MY_IFDEF_EDGESBUFFER() edge3_type * edges_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_EDGEUPDATESBUFFER() edge_update_type * edgeupdates_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_VDATABUFFER() vprop_t * vdata_buffer[EDGE_PACK_SIZE]
-#define MY_IFDEF_NEXTLEVELFUNC() void acts_kernel::next_function({% include 'parameters_allchannelsinslr.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, unsigned int batch)
-#define MY_IFDEF_TOPLEVELFUNC() void acts_kernel::top_function({% include 'parameters_allchannelsinslr.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, unsigned int batch)
+#define MY_IFDEF_NEXTLEVELFUNC() void acts_kernel::next_function({% include '___HBM___PARAMS___.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, unsigned int batch)
+#define MY_IFDEF_TOPLEVELFUNC() void acts_kernel::top_function({% include '___HBM___PARAMS___.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, unsigned int batch)
 #endif
 
 #define APPLY_CMD 2
@@ -342,9 +342,9 @@ MY_IFDEF_NEXTLEVELFUNC(){
 						// load edge maps
 						for(unsigned int edge_block=0; edge_block<__NUM_APPLYPARTITIONS * num_edgeblocks_per_upartition; edge_block++){ 
 							#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___							
-							dretrievemany_actpackvptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2], ((p_u * MAX_NUM_LLPS) + edge_block), edge_map, {% include 'arguments_allchannelsinslr.template' %});
+							dretrievemany_actpackvptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2], ((p_u * MAX_NUM_LLPS) + edge_block), edge_map, {% include '___HBM___ARGS___.template' %});
 							#else 
-							dretrievemany_actpackvptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS], ((p_u * MAX_NUM_LLPSETS) + edge_block), edge_map, {% include 'arguments_allchannelsinslr.template' %});
+							dretrievemany_actpackvptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS], ((p_u * MAX_NUM_LLPSETS) + edge_block), edge_map, {% include '___HBM___ARGS___.template' %});
 							#endif 
 							for(unsigned int n=0; n<NUM_VALID_PEs; n++){
 							#pragma HLS UNROLL
@@ -489,7 +489,7 @@ MY_IFDEF_NEXTLEVELFUNC(){
 }
 
 #define TEST_ME
-#define TEST_VECSIZE 512
+#define TEST_VECSIZE 8192 //512
 
 #ifndef TEST_ME
 extern "C" {	
@@ -511,7 +511,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 #pragma HLS INTERFACE s_axilite port = batch
 #pragma HLS INTERFACE s_axilite port = return
 
-	next_function({% include 'arguments_allchannelsinslr.template' %}, HBM_centerA, HBM_centerB, batch);
+	next_function({% include '___HBM___ARGS___.template' %}, HBM_centerA, HBM_centerB, batch);
 		
 	return;
 }
@@ -542,12 +542,12 @@ MY_IFDEF_TOPLEVELFUNC(){
 	{%for i in context['NUM_VALID_PEs_seq']%}
 	HBM_channelAXI_t dram_bufferA{{i}}[TEST_VECSIZE];
 	HBM_channelAXI_t dram_bufferB{{i}}[TEST_VECSIZE];
-	// #pragma HLS resource variable=dram_bufferA{{i}} core=XPM_MEMORY uram 
-	#pragma HLS ARRAY_PARTITION variable=dram_bufferA{{i}} //complete dim=1
+	#pragma HLS resource variable=dram_bufferA{{i}} core=XPM_MEMORY uram 
+	// #pragma HLS ARRAY_PARTITION variable=dram_bufferA{{i}} //complete dim=1
 	// #pragma HLS ARRAY_PARTITION variable=dram_bufferA{{i}} complete dim=2 
 	// #pragma HLS aggregate variable=dram_bufferA{{i}} 
 	// #pragma HLS resource variable=dram_bufferB{{i}} core=XPM_MEMORY uram 
-	#pragma HLS ARRAY_PARTITION variable=dram_bufferB{{i}} //complete dim=1
+	// #pragma HLS ARRAY_PARTITION variable=dram_bufferB{{i}} //complete dim=1
 	// #pragma HLS ARRAY_PARTITION variable=dram_bufferB{{i}} complete dim=2 
 	// #pragma HLS aggregate variable=dram_bufferB{{i}} 
 	{%endfor%}
@@ -563,12 +563,12 @@ MY_IFDEF_TOPLEVELFUNC(){
 	#ifdef FPGA_IMPL
 	HBM_channelAXI_t dram_centerbufferA[TEST_VECSIZE];
 	HBM_channelAXI_t dram_centerbufferB[TEST_VECSIZE];
-	// #pragma HLS resource variable=dram_centerbufferA core=XPM_MEMORY uram 
-	#pragma HLS ARRAY_PARTITION variable=dram_centerbufferA //complete dim=1
+	#pragma HLS resource variable=dram_centerbufferA core=XPM_MEMORY uram 
+	// #pragma HLS ARRAY_PARTITION variable=dram_centerbufferA //complete dim=1
 	// #pragma HLS ARRAY_PARTITION variable=dram_centerbufferA complete dim=2 
 	// #pragma HLS aggregate variable=dram_centerbufferA 
 	// #pragma HLS resource variable=dram_centerbufferB core=XPM_MEMORY uram 
-	#pragma HLS ARRAY_PARTITION variable=dram_centerbufferB //complete dim=1
+	// #pragma HLS ARRAY_PARTITION variable=dram_centerbufferB //complete dim=1
 	// #pragma HLS ARRAY_PARTITION variable=dram_centerbufferB complete dim=2 
 	// #pragma HLS aggregate variable=dram_centerbufferB 
 	#else 
@@ -583,9 +583,9 @@ MY_IFDEF_TOPLEVELFUNC(){
 	for(unsigned int i=0; i<batch; i++){
 		unsigned int offset_n = i * batch;
 		
-		BASELOAD_LOOP1: for(unsigned int t=0; t<TEST_VECSIZE; t++){
-		#pragma HLS PIPELINE II=1
-			{%for i in context['NUM_VALID_PEs_seq']%}
+		BASELOAD_LOOP1: for(unsigned int t=0; t<TEST_VECSIZE; t++){	
+		// #pragma HLS PIPELINE II=1	
+			{%for i in context['NUM_VALID_PEs_seq']%}	
 			{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 			dram_bufferA{{i}}[t].data[{{v}}] = HBM_channelA{{i}}[offset_n + t].data[{{v}}];
 			{%endfor%}
@@ -604,11 +604,11 @@ MY_IFDEF_TOPLEVELFUNC(){
 			{%endfor%}
 		}
 		
-		// next_function({%for i in context['NUM_VALID_PEs_seq']%}{%if(i>0)%},{%endif%} dram_bufferA{{i}}, dram_bufferB{{i}}{%endfor%}, dram_centerbufferA, dram_centerbufferB, batch);
+		next_function({%for i in context['NUM_VALID_PEs_seq']%}{%if(i>0)%},{%endif%} dram_bufferA{{i}}, dram_bufferB{{i}}{%endfor%}, dram_centerbufferA, dram_centerbufferB, batch);
 			
-		BASECOMMIT_LOOP1: for(unsigned int t=0; t<TEST_VECSIZE; t++){
-		#pragma HLS PIPELINE II=1
-			{%for i in context['NUM_VALID_PEs_seq']%}
+		BASECOMMIT_LOOP1: for(unsigned int t=0; t<TEST_VECSIZE; t++){	
+		// #pragma HLS PIPELINE II=1	
+			{%for i in context['NUM_VALID_PEs_seq']%}	
 			{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 			HBM_channelA{{i}}[offset_n + t].data[{{v}}] = dram_bufferA{{i}}[t].data[{{v}}];
 			{%endfor%}

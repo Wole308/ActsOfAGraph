@@ -46,14 +46,14 @@ VC_READVPTRS_LOOP2: for(unsigned int t=0; t<max_limit; t++){ // FIXME_HARDWARE. 
 		#endif 
 		offsets[n] = hvid; 
 	}
-	dretrievemany_vptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS], offsets, begins_u32, {% include 'arguments_allchannelsinslr.template' %});
+	dretrievemany_vptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS], offsets, begins_u32, {% include '___HBM___ARGS___.template' %});
 	update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___VCPROCESSEDGES___, 1 + DRAM_ACCESS_LATENCY);
 	
 	VC_READVPTRS_LOOP2C: for(unsigned int n=0; n<NUM_VALID_PEs; n++){
 	#pragma HLS UNROLL
 		offsets[n] += 1; 
 	}
-	dretrievemany_vptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS], offsets, ends_u32, {% include 'arguments_allchannelsinslr.template' %});
+	dretrievemany_vptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS], offsets, ends_u32, {% include '___HBM___ARGS___.template' %});
 	update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___VCPROCESSEDGES___, 1 + DRAM_ACCESS_LATENCY);
 	
 	#ifdef ___FORCE_SUCCESS___

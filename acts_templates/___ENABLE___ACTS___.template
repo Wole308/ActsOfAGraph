@@ -47,7 +47,7 @@
 #define MY_IFDEF_EDGESBUFFER() edge3_type edges_buffer[EDGE_PACK_SIZE][EDGE_BUFFER_SIZE]
 #define MY_IFDEF_EDGEUPDATESBUFFER() edge_update_type edgeupdates_buffer[EDGE_PACK_SIZE][EDGE_UPDATES_BUFFER_SIZE]
 #define MY_IFDEF_VDATABUFFER() vprop_t vdata_buffer[EDGE_PACK_SIZE][MAXVALID_APPLYPARTITION_VECSIZE]
-#define MY_IFDEF_TOPLEVELFUNC() void top_function({% include 'parameters_allchannelsinslr.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, unsigned int batch)
+#define MY_IFDEF_TOPLEVELFUNC() void top_function({% include '___HBM___PARAMS___.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, unsigned int batch)
 #else
 #define MY_IFDEF_NFRONTIER() keyvalue_t * nfrontier_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_CFRONTIER_TMP() keyvalue_t * cfrontier_buffer_tmp[EDGE_PACK_SIZE]
@@ -60,7 +60,7 @@
 #define MY_IFDEF_EDGESBUFFER() edge3_type * edges_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_EDGEUPDATESBUFFER() edge_update_type * edgeupdates_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_VDATABUFFER() vprop_t * vdata_buffer[EDGE_PACK_SIZE]
-#define MY_IFDEF_TOPLEVELFUNC() void acts_kernel::top_function({% include 'parameters_allchannelsinslr.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, unsigned int batch)
+#define MY_IFDEF_TOPLEVELFUNC() void acts_kernel::top_function({% include '___HBM___PARAMS___.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, unsigned int batch)
 #endif
 
 #define APPLY_CMD 2
@@ -175,14 +175,14 @@ void transport_frontier(unsigned int inst, unsigned int p_v, unsigned int baseof
 //////////////////////////////////////////////////////////////////
 extern "C" {	
 MY_IFDEF_TOPLEVELFUNC(){		
-{%for i in context['NUM_VALID_PEs_seq']%}
+{%for i in context['NUM_VALID_HBM_CHANNELS_seq']%}
 #pragma HLS INTERFACE m_axi port = HBM_channelA{{i}} offset = slave bundle = gmem{{2*i}}
 #pragma HLS INTERFACE m_axi port = HBM_channelB{{i}} offset = slave bundle = gmem{{2*i+1}}
 {%endfor%}
-#pragma HLS INTERFACE m_axi port = HBM_centerA offset = slave bundle = gmem{{2*context['NUM_VALID_PEs']}}
-#pragma HLS INTERFACE m_axi port = HBM_centerB offset = slave bundle = gmem{{2*context['NUM_VALID_PEs']+1}}
+#pragma HLS INTERFACE m_axi port = HBM_centerA offset = slave bundle = gmem{{2*context['NUM_VALID_HBM_CHANNELS']}}
+#pragma HLS INTERFACE m_axi port = HBM_centerB offset = slave bundle = gmem{{2*context['NUM_VALID_HBM_CHANNELS']+1}}
 
-{%for i in context['NUM_VALID_PEs_seq']%}
+{%for i in context['NUM_VALID_HBM_CHANNELS_seq']%}
 #pragma HLS INTERFACE s_axilite port = HBM_channelA{{i}}
 #pragma HLS INTERFACE s_axilite port = HBM_channelB{{i}}
 {%endfor%}	
@@ -228,6 +228,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 	int ___ENABLE___PROCESSEDGES___BOOL___ = globalparams[GLOBALPARAMSCODE___ENABLE___PROCESSEDGES];
 		int ___ENABLE___READ_FRONTIER_PROPERTIES___BOOL___ = globalparams[GLOBALPARAMSCODE___ENABLE___READ_FRONTIER_PROPERTIES];
 		int ___ENABLE___VCPROCESSEDGES___BOOL___ = globalparams[GLOBALPARAMSCODE___ENABLE___VCPROCESSEDGES]; 
+		int ___ENABLE___ECUPDATEEDGES___BOOL___ = globalparams[GLOBALPARAMSCODE___ENABLE___ECUPDATEEDGES]; 
 		int ___ENABLE___ECPROCESSEDGES___BOOL___ = globalparams[GLOBALPARAMSCODE___ENABLE___ECPROCESSEDGES]; 
 	int ___ENABLE___SAVEVCUPDATES___BOOL___ = globalparams[GLOBALPARAMSCODE___ENABLE___SAVEVCUPDATES]; 
 	int ___ENABLE___COLLECTACTIVEDSTVIDS___BOOL___ = globalparams[GLOBALPARAMSCODE___ENABLE___COLLECTACTIVEDSTVIDS];
@@ -267,7 +268,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 	#endif 
 	
 	// reset ubuffer 
-	vprop_t prop; prop.prop = 0; prop.mask = INVALIDMASK; 
+	vprop_t prop; prop.prop = 0; prop.degree = INVALIDMASK; 
 	MY_LOOP195: for(unsigned int t=0; t<MAX_UPARTITION_VECSIZE; t++){ 
 	#pragma HLS PIPELINE II=1
 		MY_LOOP194: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
@@ -281,7 +282,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 	}
 	
 	// load updates ptrs
-	MY_LOOP193: for(unsigned int t=0; t<MAX_NUM_LLPSETS; t++){
+	MY_LOOP193: for(unsigned int t=0; t<MAX_NUM_LLPSETS; t++){	
 	#pragma HLS PIPELINE II=1
 		updatesptrs[t] = dretrieve_updatesptrs(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS], t, HBM_channelA0, HBM_channelB0, 0);
 		#ifdef _DEBUGMODE_KERNELPRINTS//4
@@ -303,6 +304,12 @@ MY_IFDEF_TOPLEVELFUNC(){
 	unsigned int num_edgeblocks_per_upartition = 1;	
 	#endif 
 	
+	// prepare edge updates 
+	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___	
+	{% include '___ENABLE___PREPARE_EDGEUPDATES___.template' %}	
+	#endif	
+	// exit(EXIT_SUCCESS);
+	
 	// run acts 
 	RUN_ACTS_LOOP1: for(unsigned int run=0; run<globalparams[GLOBALPARAMSCODE__PARAM__NUM_RUNS]; run++){
 	RUN_ACTS_LOOP1B: for(unsigned int GraphIter=0; GraphIter<globalparams[GLOBALPARAMSCODE__PARAM__NUM_ITERATIONS]; GraphIter++){
@@ -318,10 +325,30 @@ MY_IFDEF_TOPLEVELFUNC(){
 		#ifdef ___ENABLE___CLEAR_COUNTERS___
 		{% include '___ENABLE___CLEAR_COUNTERS___.template' %}	
 		#endif 
+		
+		// insert/delete/update edges
+		#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
+		if(___ENABLE___ECUPDATEEDGES___BOOL___ == 1){
+		PROCESS_EDGEUPDATES_MODULE_LOOP1B: for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){ // 1, __NUM_UPARTITIONS. REMOVEME.
+			#ifdef _DEBUGMODE_KERNELPRINTS4 
+			if(all_vertices_active_in_all_iterations == true){ cout<<"### inserting/deleting/updating edges in upartition "<<p_u<<": [PEs "; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<n<<", "; } cout<<"]"<<endl; }
+			#endif 
 			
+			for(unsigned int edge_block=0; edge_block<__NUM_APPLYPARTITIONS * num_edgeblocks_per_upartition; edge_block++){ 
+				dretrievemany_actpackvptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2], ((p_u * MAX_NUM_LLPS) + edge_block), edge_map, {% include '___HBM___ARGS___.template' %});
+				for(unsigned int n=0; n<NUM_VALID_PEs; n++){
+				#pragma HLS UNROLL
+					edge_maps[n][edge_block] = edge_map[n];
+				}
+			}
+			
+			{% include '___ENABLE___ECUPDATEEDGES___.template' %}	
+		}
+		}
+		#endif
+		
 		// process-edges and partition-updates
 		PROCESS_EDGES_MODULE_LOOP1: for(unsigned int sweep=0; sweep<2; sweep++){
-			// process-edges and partition-updates
 			#ifdef ___ENABLE___PROCESSEDGES___
 			if(___ENABLE___PROCESSEDGES___BOOL___ == 1){
 			PROCESS_EDGES_MODULE_LOOP1B: for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){ // 1, __NUM_UPARTITIONS. REMOVEME.
@@ -331,9 +358,9 @@ MY_IFDEF_TOPLEVELFUNC(){
 				if((upartition_vertices[p_u].count < threshold___activefrontiers && enable___vertexcentric == true) && (all_vertices_active_in_all_iterations == false)){ ___use_vertex_centric___ = true; } else { ___use_vertex_centric___ = false; }
 				
 				#ifdef _DEBUGMODE_KERNELPRINTS4 
-				if(all_vertices_active_in_all_iterations == true && sweep == 1){ cout<<"### processing edges in upartition "<<p_u<<"..."<<endl; }
+				if(all_vertices_active_in_all_iterations == true && sweep == 1){ cout<<"### processing edges in upartition "<<p_u<<": [PEs "; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<n<<", "; } cout<<"]"<<endl; }
 				#endif 
-			
+				
 				// read & map frontier properties 
 				#ifdef ___ENABLE___READ_FRONTIER_PROPERTIES___
 				if(___ENABLE___READ_FRONTIER_PROPERTIES___BOOL___ == 1){ 
@@ -358,9 +385,9 @@ MY_IFDEF_TOPLEVELFUNC(){
 						// load edge maps
 						for(unsigned int edge_block=0; edge_block<__NUM_APPLYPARTITIONS * num_edgeblocks_per_upartition; edge_block++){ 
 							#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___							
-							dretrievemany_actpackvptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2], ((p_u * MAX_NUM_LLPS) + edge_block), edge_map, {% include 'arguments_allchannelsinslr.template' %});
+							dretrievemany_actpackvptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2], ((p_u * MAX_NUM_LLPS) + edge_block), edge_map, {% include '___HBM___ARGS___.template' %});
 							#else 
-							dretrievemany_actpackvptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS], ((p_u * MAX_NUM_LLPSETS) + edge_block), edge_map, {% include 'arguments_allchannelsinslr.template' %});
+							dretrievemany_actpackvptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS], ((p_u * MAX_NUM_LLPSETS) + edge_block), edge_map, {% include '___HBM___ARGS___.template' %});
 							#endif 
 							for(unsigned int n=0; n<NUM_VALID_PEs; n++){
 							#pragma HLS UNROLL
@@ -369,17 +396,11 @@ MY_IFDEF_TOPLEVELFUNC(){
 						}
 						
 						#ifdef ___ENABLE___ECPROCESSEDGES___II1___
-						#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
-						{% include '___ENABLE___ECUPDATEEDGES___.template' %}	
-						#endif
-						#endif 
-					
-						#ifdef ___ENABLE___ECPROCESSEDGES___II1___
 						if(___ENABLE___ECPROCESSEDGES___BOOL___ == 1){
 						{% include '___ENABLE___ECPROCESSEDGES___.template' %}	
 						}
-						#endif
-					} else {
+						#endif		
+					} else { 
 						// do nothing
 					}
 				}

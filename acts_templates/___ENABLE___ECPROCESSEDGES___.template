@@ -2,8 +2,8 @@
 hybrid_map[GraphIter][p_u] = 1;
 #endif 
 
-EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_APPLYPARTITIONS; llp_set++){	// 1 __NUM_APPLYPARTITIONS REMOVEME
-	EC_PROCESS_EDGES_LOOP1B: for(unsigned int llp_id=0; llp_id<num_edgeblocks_per_upartition; llp_id++){ // 1 num_its REMOVEME
+EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_APPLYPARTITIONS; llp_set++){	
+	EC_PROCESS_EDGES_LOOP1B: for(unsigned int llp_id=0; llp_id<num_edgeblocks_per_upartition; llp_id++){ 
 		unsigned int edge_block = (llp_set * num_edgeblocks_per_upartition) + llp_id;
 		#ifdef _DEBUGMODE_KERNELPRINTS//4
 		cout<<"------------------- process edges: ["<<p_u<<", "<<llp_set<<", "<<llp_id<<"] -------------------"<<endl; 
@@ -19,7 +19,7 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_APPLYPARTITION
 		// process edges
 		EC_PROCESS_EDGES_MAINLOOP1D: for(unsigned int t=0; t<max_sz; t++){ 
 		#pragma HLS PIPELINE II=1
-			dretrievemany_actpackedges(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES], offsets, t, edge3_vecs, {% include 'arguments_allchannelsinslr.template' %});
+			dretrievemanyfromA_actpackedges(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES], offsets, t, edge3_vecs, {% include '___HBM___ARGS___.template' %});
 			
 			keyvalue_t update_in[NUM_VALID_PEs][EDGE_PACK_SIZE];
 			#pragma HLS ARRAY_PARTITION variable = update_in complete dim=0
@@ -56,8 +56,8 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_APPLYPARTITION
 					edge3_type edge = edge_vec.data[v];
 					unsigned int srcvid_lpv = edge.srcvid; 
 					vprop_t uprop; if(edge.srcvid != INVALIDDATA && edge.srcvid < MAX_UPARTITION_VECSIZE){ uprop = retrieve_vdatabuffer(v, srcvid_lpv, vdata_buffer[inst]); }
-					if(edge.srcvid != INVALIDDATA && edge.srcvid < MAX_UPARTITION_VECSIZE && (uprop.mask == MASK_CODE_PE || all_vertices_active_in_all_iterations == true)){
-						unsigned int res = process_funcG(uprop.prop, 1, globalparams[GLOBALPARAMSCODE__PARAM__ALGORITHM]);
+					if(edge.srcvid != INVALIDDATA && edge.srcvid < MAX_UPARTITION_VECSIZE && (uprop.degree == MASK_CODE_PE || all_vertices_active_in_all_iterations == true)){
+						unsigned int res = process_funcG(uprop, 1, globalparams[GLOBALPARAMSCODE__PARAM__ALGORITHM]);
 						update_in[inst][v].key = edge.dstvid; update_in[inst][v].value = res;
 						#ifdef _DEBUGMODE_CHECKS3
 						checkoutofbounds("acts_kernel::ERROR 1213c::", edge.srcvid, MAX_UPARTITION_VECSIZE, NAp, NAp, NAp);
@@ -105,7 +105,7 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_APPLYPARTITION
 			#pragma HLS UNROLL
 				offsets3[n] = offsets2[n] + actpackupdates_dram___size[n][llp_set] + counts[n];
 			}	
-			dinsertmany_updatesdram(offsets3, update_out, ens, {% include 'arguments_allchannelsinslr.template' %});	
+			dinsertmany_updatesdram(offsets3, update_out, ens, {% include '___HBM___ARGS___.template' %});	
 			update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___ECPROCESSEDGES___, 1);
 		}
 		

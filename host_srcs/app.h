@@ -26,7 +26,7 @@
 #include "algorithm.h"
 // #include "app_hw.h"
 #include "host_fpga.h"
-#include "../acts_templates/acts_async_kernel.h"	
+#include "../acts_templates/acts_kernel.h"	
 #include "../include/common.h"
 
 class app {

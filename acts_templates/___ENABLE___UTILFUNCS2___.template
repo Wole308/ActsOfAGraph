@@ -58,34 +58,49 @@ void update_bramnumclockcycles(unsigned int _NUMCLOCKCYCLES_[2][32], unsigned in
 }
 
 /////////////////////////////////////////
-
 value_t process_func_pr(vprop_t uprop, value_t edgew){
 	#pragma HLS INLINE 
 	value_t res = uprop.prop; 
 	return res;
 }
-value_t reduce_func_pr(vprop_t vprop, value_t res){
+value_t reduce_func_pr(value_t vtemp, vprop_t vprop, value_t res){
 	#pragma HLS INLINE 
 	float alpha = 0.5;
-	return (alpha + ((1 - alpha) * (vprop.prop + res))) / vprop.degree;
+	return (alpha + ((1 - alpha) * vtemp)) / vprop.degree;
 }
 
-value_t process_func_spmv(vprop_t uprop, value_t edgew){ // see graphlily slides
+value_t process_func_cf(value_t udata, value_t edgew){
 	#pragma HLS INLINE 
-	return uprop.prop * edgew;
+	value_t res = udata;
+	return res;
 }
-value_t reduce_func_spmv(vprop_t vprop, value_t res){
+value_t reduce_func_cf(value_t vtemp, value_t vdata, value_t res){
 	#pragma HLS INLINE 
-	return vprop.prop + res;
+	unsigned int lamda = 1; unsigned int ew=1;
+	value_t temp = vtemp + ((ew - vtemp*res)*res - lamda*vtemp);
+	return temp;
 }
 
-value_t process_func_hits(vprop_t uprop, value_t edgew){
+value_t process_func_hits(value_t udata, value_t edgew){
 	#pragma HLS INLINE 
-	return uprop.prop;
+	value_t res = udata;
+	return res;
 }
-value_t reduce_func_hits(vprop_t vprop, value_t res){
+value_t reduce_func_hits(value_t vtemp, value_t vdata, value_t res){
 	#pragma HLS INLINE 
-	return vprop.prop + res;
+	value_t temp = vtemp + res;
+	return temp;
+}
+
+value_t process_func_bfs(value_t udata, value_t edgew){
+	#pragma HLS INLINE 
+	value_t res = NAp;
+	return res;
+}
+value_t reduce_func_bfs(value_t vtemp, value_t vdata, value_t res, unsigned int GraphIter){
+	#pragma HLS INLINE 
+	value_t temp; if(vtemp < GraphIter){ return vtemp; } else { return GraphIter; }
+	return temp;
 }
 
 value_t process_func_sssp(value_t udata, value_t edgew){
@@ -98,7 +113,17 @@ value_t reduce_func_sssp(value_t vtemp, value_t vdata, value_t res){
 	if(res < vtemp){ return res; } else { return vtemp; }
 }
 
-value_t process_funcG(vprop_t uprop, value_t edgew, unsigned int algo){
+value_t process_func_cc(value_t udata, value_t edgew){
+	#pragma HLS INLINE 
+	value_t res = udata; // udata + edgew;
+	return res;
+}
+value_t reduce_func_cc(value_t vtemp, value_t vdata, value_t res){
+	#pragma HLS INLINE 
+	if(res < vtemp){ return res; } else { return vtemp; }
+}
+
+value_t process_funcG(value_t udata, value_t edgew, unsigned int algo){
 	#pragma HLS INLINE 
 	// if(globalparams[GLOBALPARAMSCODE__PARAM__ALGORITHM] == PAGERANK){ return process_func_pr(udata, edgew); }
 	// else if(globalparams[GLOBALPARAMSCODE__PARAM__ALGORITHM] == CF){ return process_func_cf(udata, edgew); }
@@ -106,19 +131,11 @@ value_t process_funcG(vprop_t uprop, value_t edgew, unsigned int algo){
 	// else if(globalparams[GLOBALPARAMSCODE__PARAM__ALGORITHM] == BFS){ return process_func_bfs(udata, edgew); }
 	// else if(globalparams[GLOBALPARAMSCODE__PARAM__ALGORITHM] == SSSP){ return process_func_sssp(udata, edgew); }
 	// else if(globalparams[GLOBALPARAMSCODE__PARAM__ALGORITHM] == CC){ return process_func_cc(udata, edgew); }
-
-	#ifdef BAKE_PAGERANK_ALGORITHM_FUNCS
-	return process_func_pr(uprop, edgew);	
-	#endif 
-	#ifdef BAKE_SPMV_ALGORITHM_FUNCS
-	return process_func_spmv(uprop, edgew);
-	#endif 
-	#ifdef BAKE_HITS_ALGORITHM_FUNCS
-	return process_func_hits(uprop, edgew);
-	#endif 
-	// return reduce_func_sssp(udata, edgew);
+	// return process_func_bfs(udata, edgew);
+	return process_func_sssp(udata, edgew);
+	// return process_func_cc(udata, edgew);
 }
-value_t reduce_funcG(vprop_t vprop, value_t res, unsigned int algo){
+value_t reduce_funcG(value_t vtemp, value_t vdata, value_t res, unsigned int algo){
 	#pragma HLS INLINE 
 	// if(globalparams[GLOBALPARAMSCODE__PARAM__ALGORITHM] == PAGERANK){ return reduce_func_pr(udata, edgew); }
 	// else if(globalparams[GLOBALPARAMSCODE__PARAM__ALGORITHM] == CF){ return reduce_func_cf(udata, edgew); }
@@ -126,49 +143,43 @@ value_t reduce_funcG(vprop_t vprop, value_t res, unsigned int algo){
 	// else if(globalparams[GLOBALPARAMSCODE__PARAM__ALGORITHM] == BFS){ return reduce_func_bfs(udata, edgew); }
 	// else if(globalparams[GLOBALPARAMSCODE__PARAM__ALGORITHM] == SSSP){ return reduce_func_sssp(udata, edgew); }
 	// else if(globalparams[GLOBALPARAMSCODE__PARAM__ALGORITHM] == CC){ return reduce_func_cc(udata, edgew); }
-	
-	#ifdef BAKE_PAGERANK_ALGORITHM_FUNCS
-	return reduce_func_pr(vprop, res);	
-	#endif 
-	#ifdef BAKE_SPMV_ALGORITHM_FUNCS
-	return reduce_func_spmv(vprop, res);
-	#endif 
-	#ifdef BAKE_HITS_ALGORITHM_FUNCS	
-	return reduce_func_hits(vprop, res);	
-	#endif 
-	// return reduce_func_sssp(vprop, res);
+	// return reduce_func_bfs(vtemp, vdata, res);
+	return reduce_func_sssp(vtemp, vdata, res);
+	// return reduce_func_cc(vtemp, vdata, res);
 }
 
-#ifdef ___NOT_YET_IMPLEMENTED___
-value_t process_func(vprop_t uprop, value_t edgew, unsigned int algo){
+value_t process_func(value_t udata, value_t edgew, unsigned int GraphAlgo){
 	#pragma HLS INLINE 
 	if(GraphAlgo == PAGERANK){
-		return process_func_pr(vprop, edgew);
-	} else if(GraphAlgo == SPMV){
-		return process_func_spmv(vprop, edgew);
+		return process_func_pr(udata, edgew);
+	} else if(GraphAlgo == CF){
+		return process_func_cf(udata, edgew);
 	} else if(GraphAlgo == HITS){
-		return process_func_hits(vprop, edgew);
+		return process_func_hits(udata, edgew);
 	} else if(GraphAlgo == SSSP){
-		return process_func_sssp(vprop, edgew);
+		return process_func_sssp(udata, edgew);
+	} else if(GraphAlgo == BFS){
+		return process_func_bfs(udata, edgew);
 	} else {
-		return process_func_pr(vprop, edgew);
+		return process_func_pr(udata, edgew);
 	}
 }
-value_t reduce_func(vprop_t vprop, value_t res, unsigned int algo){
+value_t reduce_func(value_t vtemp, value_t vdata, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
 	#pragma HLS INLINE 
 	if(GraphAlgo == PAGERANK){ 
-		return reduce_func_pr(vprop, res);
-	} else if(GraphAlgo == SPMV){
-		return reduce_func_spmv(vprop, res);
+		return reduce_func_pr(vtemp, vdata, res);
+	} else if(GraphAlgo == CF){
+		return reduce_func_cf(vtemp, vdata, res);
 	} else if(GraphAlgo == HITS){
-		return reduce_func_hits(vprop, res);
+		return reduce_func_hits(vtemp, vdata, res);
 	} else if(GraphAlgo == SSSP){
-		return reduce_func_sssp(vprop, res);
+		return reduce_func_sssp(vtemp, vdata, res);
+	} else if(GraphAlgo == BFS){
+		return reduce_func_bfs(vtemp, vdata, res, GraphIter);
 	} else {
-		return reduce_func_pr(vprop, res);
+		return reduce_func_pr(vtemp, vdata, res);
 	}
-}	
-#endif 
+}
 
 /////////////////////////////////////////
 #ifndef FPGA_IMPL

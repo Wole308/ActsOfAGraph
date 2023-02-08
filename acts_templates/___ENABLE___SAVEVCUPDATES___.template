@@ -50,7 +50,7 @@ if(sweep==0){
 			#pragma HLS UNROLL
 				offsets3[n] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + updatesptrs[p_v] + offsets1[n] + t;
 			}
-			dinsertmany_updatesdram(offsets3, updates_vecs, ens, {% include 'arguments_allchannelsinslr.template' %}, updatesptrs);
+			dinsertmany_updatesdram(offsets3, updates_vecs, ens, {% include '___HBM___ARGS___.template' %}, updatesptrs);
 			SAVE_CSR_UPDATES_LOOP1G: for(unsigned int n=0; n<NUM_VALID_PEs; n++){ 
 			#pragma HLS UNROLL
 				if(t < max_limits[n]){ offsets2[n] += 1; }

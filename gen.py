@@ -15,7 +15,7 @@ context['NUM_PEs'] = int(sys.argv[3])
 context['TESTKERNEL'] = sys.argv[4]
 
 context['FPGA_IMPL'] = 0
-context['NUM_VALID_PEs'] = 1 #1 #6* #12 #context['NUM_PEs'] # 4 NUM_VALID_PEs = 8 AXI interfaces
+context['NUM_VALID_PEs'] = 6 #1 #6* #12 #context['NUM_PEs'] # 4 NUM_VALID_PEs = 8 AXI interfaces
 context['NUM_AXI_CHANNELS_IN_PE'] = 4
 context['EDGE_PACK_SIZE_POW'] = 4 #1, 4*
 context['EDGE_PACK_SIZE'] = 2**context['EDGE_PACK_SIZE_POW']
@@ -37,8 +37,8 @@ relref=""
 o_path0=relref+"include/common.h"
 o_path1=relref+"acts_templates/acts_kernel.cpp"
 o_path2=relref+"acts_templates/acts_kernel.h"
-o_path3=relref+"acts_templates/acts_async_kernel.cpp"
-o_path4=relref+"acts_templates/acts_async_kernel.h"
+o_path3=relref+"acts_templates/acts_kernel.cpp"
+o_path4=relref+"acts_templates/acts_kernel.h"
 o_path5=relref+"include/common.h"
 o_path6=relref+"include/common.h"
 o_path7=relref+"include/common.h"
@@ -114,8 +114,8 @@ env10.globals.update(zip=zip)
 template0 = env0.get_template('common_h.template')
 template1 = env1.get_template('acts_kernel.template')
 template2 = env2.get_template('acts_kernel_h.template')
-template3 = env3.get_template('acts_async_kernel.template')
-template4 = env4.get_template('acts_async_kernel_h.template')
+template3 = env3.get_template('acts_kernel.template')
+template4 = env4.get_template('acts_kernel_h.template')
 template5 = env5.get_template('common_h.template')
 template6 = env6.get_template('common_h.template')
 template7 = env7.get_template('common_h.template')
