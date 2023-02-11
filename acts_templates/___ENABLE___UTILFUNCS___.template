@@ -67,7 +67,7 @@ value_t process_func_pr(vprop_t uprop, value_t edgew){
 value_t reduce_func_pr(vprop_t vprop, value_t res){
 	#pragma HLS INLINE 
 	float alpha = 0.5;
-	return (alpha + ((1 - alpha) * (vprop.prop + res))) / vprop.degree;
+	return (alpha + ((1 - alpha) * (vprop.prop + res))) / (vprop.degree + 1);
 }
 
 value_t process_func_spmv(vprop_t uprop, value_t edgew){ // see graphlily slides

@@ -1,7 +1,7 @@
 #define ___ENABLE___RESETBUFFERSATSTART___ 
 #define ___ENABLE___CLEAR_COUNTERS___
 #define ___ENABLE___PROCESSEDGES___ 
-#define ___ENABLE___READ_FRONTIER_PROPERTIES___
+// #define ___ENABLE___READ_FRONTIER_PROPERTIES___ ///////////////////////
 #define ___ENABLE___RESET_BUFFERS___
 // #define ___ENABLE___VCPROCESSEDGES___ 
 #define ___ENABLE___ECPROCESSEDGES___II1___ 
@@ -9,10 +9,10 @@
 // // // // // // // // // // // // // // // // // // #define ___ENABLE___COLLECTACTIVEDSTVIDS___ 
 #define ___ENABLE___APPLYUPDATESMODULE___ 
 	#define ___ENABLE___READ_DEST_PROPERTIES___ 
-	#define ___ENABLE___APPLYUPDATES___II1___
-	#define ___ENABLE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES___ 
+	// #define ___ENABLE___APPLYUPDATES___II1___
+	// #define ___ENABLE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES___ //////////////////////
 	#define ___ENABLE___SAVE_DEST_PROPERTIES___ 
-#define ___ENABLE___EXCHANGEFRONTIERINFOS___ 
+// #define ___ENABLE___EXCHANGEFRONTIERINFOS___  ///////////////////////
 #define ___ENABLE___REPORT_STATISTICS___
 
 #define ___CODE___RESETBUFFERSATSTART___ 0
@@ -251,7 +251,7 @@ MY_IFDEF_NEXTLEVELFUNC(){
 	#endif 
 	
 	// reset ubuffer 
-	vprop_t prop; prop.prop = 0; prop.mask = INVALIDMASK; 
+	vprop_t prop; prop.prop = 0; prop.degree = INVALIDMASK; 
 	MY_LOOP195: for(unsigned int t=0; t<MAX_UPARTITION_VECSIZE; t++){ 
 	#pragma HLS PIPELINE II=1
 		MY_LOOP194: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
@@ -297,6 +297,8 @@ MY_IFDEF_NEXTLEVELFUNC(){
 		unsigned int MASK_CODE = 1 + GraphIter;
 		unsigned int MASK_CODE_PE = 1 + GraphIter;
 		unsigned int MASK_CODE_AU = 4094 + 1 + GraphIter;
+		
+		unsigned int __NUM_ACTIVE_UPARTITIONS = __NUM_UPARTITIONS; unsigned int __NUM_ACTIVE_LLPSETS = __NUM_APPLYPARTITIONS; unsigned int __PERCENTAGE_ACTIVE_EDGES = 100;
 		
 		// clear counters [done]
 		#ifdef ___ENABLE___CLEAR_COUNTERS___
@@ -489,7 +491,7 @@ MY_IFDEF_NEXTLEVELFUNC(){
 }
 
 #define TEST_ME
-#define TEST_VECSIZE 8192 //512
+#define TEST_VECSIZE 512 // 8192 //512
 
 #ifndef TEST_ME
 extern "C" {	
@@ -542,7 +544,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 	{%for i in context['NUM_VALID_PEs_seq']%}
 	HBM_channelAXI_t dram_bufferA{{i}}[TEST_VECSIZE];
 	HBM_channelAXI_t dram_bufferB{{i}}[TEST_VECSIZE];
-	#pragma HLS resource variable=dram_bufferA{{i}} core=XPM_MEMORY uram 
+	// #pragma HLS resource variable=dram_bufferA{{i}} core=XPM_MEMORY uram 
 	// #pragma HLS ARRAY_PARTITION variable=dram_bufferA{{i}} //complete dim=1
 	// #pragma HLS ARRAY_PARTITION variable=dram_bufferA{{i}} complete dim=2 
 	// #pragma HLS aggregate variable=dram_bufferA{{i}} 
@@ -563,7 +565,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 	#ifdef FPGA_IMPL
 	HBM_channelAXI_t dram_centerbufferA[TEST_VECSIZE];
 	HBM_channelAXI_t dram_centerbufferB[TEST_VECSIZE];
-	#pragma HLS resource variable=dram_centerbufferA core=XPM_MEMORY uram 
+	// #pragma HLS resource variable=dram_centerbufferA core=XPM_MEMORY uram 
 	// #pragma HLS ARRAY_PARTITION variable=dram_centerbufferA //complete dim=1
 	// #pragma HLS ARRAY_PARTITION variable=dram_centerbufferA complete dim=2 
 	// #pragma HLS aggregate variable=dram_centerbufferA 
