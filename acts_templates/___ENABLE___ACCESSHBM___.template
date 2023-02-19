@@ -114,13 +114,37 @@ unsigned int master_retrieve(unsigned int offset, unsigned int v, HBM_channelAXI
 	return datas[v];
 }
 void master_retrievemany(unsigned int offsets[NUM_VALID_PEs], unsigned int v, unsigned int data[NUM_VALID_PEs], {% include '___HBM___PARAMS___.template' %}){
-	#pragma HLS INLINE // FIXME_HARDWARE
+	#pragma HLS INLINE 
 	unsigned int datas[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable=datas complete dim=0
 	master_retrievemany_vec(offsets, datas, {% include '___HBM___ARGS___.template' %});
 	for(unsigned int n=0; n<NUM_VALID_PEs; n++){
 		data[n] = datas[n][v];
 	}
+}
+
+void load_edgemap_vec(unsigned int index, unsigned int base_offset, map_t edge_map[NUM_VALID_PEs], {% include '___HBM___PARAMS___.template' %}){
+#pragma HLS INLINE
+	index = index * 2; // '*2' because data is dual: i.e., offset and size
+	{%for n in context['NUM_VALID_PEs_seq']%}
+	edge_map[{{n}}].offset = HBM_channelA{{n}}[base_offset + (index / HBM_AXI_PACK_SIZE)].data[(index % HBM_AXI_PACK_SIZE)];
+	{%endfor%}
+	{%for n in context['NUM_VALID_PEs_seq']%}
+	edge_map[{{n}}].size = HBM_channelA{{n}}[base_offset + ((index + 1) / HBM_AXI_PACK_SIZE)].data[((index + 1) % HBM_AXI_PACK_SIZE)];
+	{%endfor%}	
+	return;
+}
+
+void save_edgemap_vec(unsigned int index, unsigned int base_offset, map_t edge_map[NUM_VALID_PEs], {% include '___HBM___PARAMS___.template' %}){
+#pragma HLS INLINE
+	index = index * 2; // '*2' because data is dual: i.e., offset and size
+	{%for n in context['NUM_VALID_PEs_seq']%}
+	HBM_channelA{{n}}[base_offset + (index / HBM_AXI_PACK_SIZE)].data[(index % HBM_AXI_PACK_SIZE)] = edge_map[{{n}}].offset;
+	{%endfor%}
+	{%for n in context['NUM_VALID_PEs_seq']%}
+	HBM_channelA{{n}}[base_offset + ((index + 1) / HBM_AXI_PACK_SIZE)].data[((index + 1) % HBM_AXI_PACK_SIZE)] = edge_map[{{n}}].size;
+	{%endfor%}	
+	return;
 }
 
 //////////////////////////////////////////////////////////////////
@@ -219,8 +243,8 @@ void dretrievemany_actpackvptrdram(unsigned int base_offset__, unsigned int offs
 void dretrievemany_rawedges(unsigned int offset__, unsigned int offsets[NUM_VALID_PEs], unsigned int t, edge3_vec_dt edge3_vecs[NUM_VALID_PEs], {% include '___HBM___PARAMS___.template' %}){
 	#pragma HLS INLINE 
 	#ifdef _DEBUGMODE_CHECKS3
-	unsigned int wwsize = globalparams_debug[GLOBALPARAMSCODE__WWSIZE__VDATAS];
-	checkoutofbounds("acts_kernel::ERROR 712::", offsets[0], wwsize, NAp, NAp, NAp);
+	unsigned int wwsize = globalparams_debug[GLOBALPARAMSCODE__WWSIZE__RAWEDGEUPDATES];
+	checkoutofbounds("acts_kernel::ERROR 7123::", offsets[0], wwsize, NAp, NAp, NAp);
 	#endif 
 	
 	unsigned int data_[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE]; // NEW

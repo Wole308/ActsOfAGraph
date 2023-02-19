@@ -34,17 +34,15 @@ MY_LOOP175_DEBUG: for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t++){
 #pragma HLS PIPELINE II=1
 	dretrievemany_cfrontierdram_tmp(globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP], offsets, t, kvdatas, {% include '___HBM___ARGS___.template' %});
 	insertvec_cfrontierbuffer_tmp(t, kvdatas[0], cfrontier_buffer_tmp); // NEW
-	if(sweep==1){  
-		MY_LOOP176: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
+	MY_LOOP176: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
+	#pragma HLS UNROLL
+		MY_LOOP177: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 		#pragma HLS UNROLL
-			MY_LOOP177: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-			#pragma HLS UNROLL
-				unsigned int srcvid_lpv__ = (kvdatas[inst][v].key - uoffset) >> EDGE_PACK_SIZE_POW;
-				if(kvdatas[inst][v].key != INVALIDDATA && srcvid_lpv__ < MAX_UPARTITION_VECSIZE){
-					unsigned int srcvid_lpv = srcvid_lpv__; 
-					vprop_t tmp; tmp.prop = kvdatas[inst][v].value; tmp.degree = MASK_CODE_PE;
-					insert_vdatabuffer(v, srcvid_lpv, tmp, vdata_buffer[inst]); 
-				}
+			unsigned int srcvid_lpv__ = (kvdatas[inst][v].key - uoffset) >> EDGE_PACK_SIZE_POW;
+			if(kvdatas[inst][v].key != INVALIDDATA && srcvid_lpv__ < MAX_UPARTITION_VECSIZE){
+				unsigned int srcvid_lpv = srcvid_lpv__; 
+				vprop_t tmp; tmp.prop = kvdatas[inst][v].value; tmp.degree = MASK_CODE_PE;
+				insert_vdatabuffer(v, srcvid_lpv, tmp, vdata_buffer[inst]); 
 			}
 		}
 	}

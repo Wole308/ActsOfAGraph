@@ -15,9 +15,9 @@ context['NUM_PEs'] = int(sys.argv[3])
 context['TESTKERNEL'] = sys.argv[4]
 
 context['FPGA_IMPL'] = 0
-context['NUM_VALID_PEs'] = 6 #1 #6* #12 #context['NUM_PEs'] # 4 NUM_VALID_PEs = 8 AXI interfaces
-context['NUM_AXI_CHANNELS_IN_PE'] = 4
-context['EDGE_PACK_SIZE_POW'] = 4 #1, 4*
+context['NUM_VALID_PEs'] = 1 #1 #6* #12 #context['NUM_PEs'] # 4 NUM_VALID_PEs = 8 AXI interfaces
+context['NUM_VALID_HBM_CHANNELS'] = context['NUM_PEs'] #6, context['NUM_PEs']*
+context['EDGE_PACK_SIZE_POW'] = 4 
 context['EDGE_PACK_SIZE'] = 2**context['EDGE_PACK_SIZE_POW']
 context['HBM_AXI_PACK_SIZE'] = context['EDGE_PACK_SIZE'] 
 
@@ -25,7 +25,7 @@ print ('Generating sources... ')
 print ('XWARE: ' + str(context['XWARE']))
 print ('NUM_PEs: ' + str(context['NUM_PEs']))
 print ('NUM_VALID_PEs: ' + str(context['NUM_VALID_PEs']))
-print ('NUM_AXI_CHANNELS_IN_PE: ' + str(context['NUM_AXI_CHANNELS_IN_PE']))
+print ('NUM_VALID_HBM_CHANNELS: ' + str(context['NUM_VALID_HBM_CHANNELS']))
 print ('EDGE_PACK_SIZE: ' + str(context['EDGE_PACK_SIZE']))
 print ('HBM_AXI_PACK_SIZE: ' + str(context['HBM_AXI_PACK_SIZE']))
 
@@ -78,6 +78,10 @@ for i in range (0,1):
 context['NUM_VALID_PEs_seq'] = []
 for i in range (0,(context['NUM_VALID_PEs'])):
 		context['NUM_VALID_PEs_seq'].append(i)
+        
+context['NUM_VALID_HBM_CHANNELS_seq'] = []
+for i in range (0,(context['NUM_VALID_HBM_CHANNELS'])):
+		context['NUM_VALID_HBM_CHANNELS_seq'].append(i)
         
 context['HBM_AXI_PACK_SIZE_seq'] = []
 for i in range (0,(context['HBM_AXI_PACK_SIZE'])):

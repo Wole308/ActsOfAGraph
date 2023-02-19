@@ -3,14 +3,14 @@
 void insert_edgeupdatesbuffer(unsigned int v, unsigned int index, edge_update_type data, MY_IFDEF_EDGEUPDATESBUFFER()){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS3
-	checkoutofbounds("acts_kernel::ERROR 992::", index, EDGE_UPDATES_BUFFER_SIZE, NAp, NAp, NAp);
+	checkoutofbounds("acts_kernel::ERROR 992::", index, EDGE_UPDATES_DRAMBUFFER_SIZE, NAp, NAp, NAp);
 	#endif 
 	edgeupdates_buffer[v][index] = data;
 }
 edge_update_type retrieve_edgeupdatesbuffer(unsigned int v, unsigned int index, MY_IFDEF_EDGEUPDATESBUFFER()){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS3
-	checkoutofbounds("acts_kernel::ERROR 993::", index, EDGE_UPDATES_BUFFER_SIZE, NAp, NAp, NAp);
+	checkoutofbounds("acts_kernel::ERROR 993::", index, EDGE_UPDATES_DRAMBUFFER_SIZE, NAp, NAp, NAp);
 	#endif 
 	return edgeupdates_buffer[v][index];
 }

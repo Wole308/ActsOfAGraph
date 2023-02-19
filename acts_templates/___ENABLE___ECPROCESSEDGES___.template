@@ -10,7 +10,7 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_ACTIVE_LLPSETS
 		#endif 
 
 		for(unsigned int n=0; n<NUM_VALID_PEs; n++){ edge_maps[n][edge_block].size = ((__PERCENTAGE_ACTIVE_EDGES * edge_maps[n][edge_block].size) + (100-1)) / 100; } // FIXME.
-		#ifndef FPGA_IMPL
+		#ifdef _DEBUGMODE_KERNELPRINTS//4
 		for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<" ----- EC_PROCESS_EDGES_LOOP1 [after]: edge_maps["<<n<<"]["<<edge_block<<"].size: "<<edge_maps[n][edge_block].size<<endl; }
 		#endif 
 		
@@ -87,33 +87,6 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_ACTIVE_LLPSETS
 				vpartition_vertices[inst][llp_set].count += 1;
 				counts[inst] += 1;
 				ens[inst][0] = true;	
-				
-				// for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ cout<<"~~~ : update_out["<<inst<<"]["<<v<<"].key: "<<update_out[inst][v].key<<", update_out["<<inst<<"]["<<v<<"].value: "<<update_out[inst][v].value<<" ---"<<endl; }
-				
-				// collect stats 
-				#ifdef _______NOT__IMPLEMENTED_______
-				bool isvalid = true;
-				if({%for v in context['EDGE_PACK_SIZE_seq']%}{%if(v>0)%}&&{%endif%} update_out[inst][{{v}}].key==INVALIDDATA{%endfor%}){ isvalid = false; }
-				if(en == true && isvalid == true){
-					MY_LOOP16234: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-					#pragma HLS UNROLL
-						if(update_out[inst][v].key != INVALIDDATA){
-							#ifndef FPGA_IMPL
-							if(update_out[inst][v].key != INVALIDDATA){ checkoutofbounds("acts_kernel::ERROR 623::", ((update_out[inst][v].key / EDGE_PACK_SIZE) >> ACTVUPDATESBLOCK_VECSIZE_POW), BLOCKRAM_SIZE, update_out[inst][v].key, (update_out[inst][v].key / EDGE_PACK_SIZE), (MAX_APPLYPARTITION_VECSIZE / BLOCKRAM_SIZE)); }				
-							#endif
-							unsigned int dstvid_lpv = update_out[inst][v].key / EDGE_PACK_SIZE;
-							if(update_out[inst][v].key != INVALIDDATA){ insert_statstmpbuffer((dstvid_lpv >> ACTVUPDATESBLOCK_VECSIZE_POW), v, 1, statsbuffer_maskbased_tmp[inst]); }
-						}
-					}
-				}
-				
-				if(en == true && (isvalid == true || all_vertices_active_in_all_iterations == true)){	
-					counts[inst] += 1;
-					ens[inst][0] = true;									
-				} else {
-					ens[inst][0] = false;
-				}
-				#endif 
 			}
 			
 			for(unsigned int n=0; n<NUM_VALID_PEs; n++){ 
@@ -129,29 +102,6 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_ACTIVE_LLPSETS
 		#pragma HLS UNROLL
 			actpackupdates_dram___size[n][llp_set] += counts[n];
 		}
-		
-		// gather stats
-		#ifdef _______NOT__IMPLEMENTED_______
-		unsigned int data[EDGE_PACK_SIZE];
-		if(all_vertices_active_in_all_iterations == false){
-			EC_PROCESS_EDGES_LOOP1I: for(unsigned int t=0; t<BLOCKRAM_SIZE; t++){
-			#pragma HLS PIPELINE II=1
-				for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
-				#pragma HLS UNROLL
-					retrievevec_statstmpbuffer(t, data, statsbuffer_maskbased_tmp[inst]); 
-					#ifndef FPGA_IMPL
-					checkoutofbounds("acts_kernel::ERROR 023::", t, BLOCKRAM_SIZE, NAp, NAp, NAp);
-					#endif
-					if( {%for v in context['EDGE_PACK_SIZE_seq']%}{%if(v>0)%}||{%endif%} data[{{v}}]==1{%endfor%} )
-					{ 
-						insert_statsbuffer(t, llp_set, 1, statsbuffer_maskbased[inst]); 
-						vpartition_vertices[inst][llp_set].count = 1;
-					}
-				}
-				update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___ECPROCESSEDGES___, 1);
-			}
-		}
-		#endif 
 		// exit(EXIT_SUCCESS);
 	}
 	// exit(EXIT_SUCCESS); 
