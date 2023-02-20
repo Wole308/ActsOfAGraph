@@ -29,6 +29,23 @@ unsigned int hash_edge(unsigned int srcvid, unsigned int dstvid, unsigned int in
 }
 
 void {{context['classname__acts']}}rearrangeLayoutVx16B(unsigned int s, keyvalue_t in[EDGE_PACK_SIZE], keyvalue_t out[EDGE_PACK_SIZE]){
+	#ifndef FPGA_IMPL
+	// checkoutofbounds("acts_kernel::rearrangeLayoutVx16B::ERROR 2925::", s, EDGE_PACK_SIZE, NAp, NAp, NAp);
+	#endif 
+	{%for v in context['EDGE_PACK_SIZE_seq']%}
+	{%if(v>0)%}else{%endif%} {%if(v<context['EDGE_PACK_SIZE']-1)%}if(s=={{v}}){%endif%}{ 
+		{%for v2 in context['EDGE_PACK_SIZE_seq']%}
+		out[{{    (v+v2) %  (context['EDGE_PACK_SIZE'])  }}] = in[{{v2}}]; 
+		{%endfor%}
+	}
+	{%endfor%}
+	return;
+}
+
+void {{context['classname__acts']}}rearrangeLayoutVx16(unsigned int s, edge2_type in[EDGE_PACK_SIZE], edge2_type out[EDGE_PACK_SIZE]){
+	#ifndef FPGA_IMPL
+	// checkoutofbounds("acts_kernel::rearrangeLayoutVx16::ERROR 2125::", s, EDGE_PACK_SIZE, NAp, NAp, NAp);
+	#endif 
 	{%for v in context['EDGE_PACK_SIZE_seq']%}
 	{%if(v>0)%}else{%endif%} {%if(v<context['EDGE_PACK_SIZE']-1)%}if(s=={{v}}){%endif%}{ 
 		{%for v2 in context['EDGE_PACK_SIZE_seq']%}

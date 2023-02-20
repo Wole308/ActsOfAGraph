@@ -347,6 +347,110 @@ void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedat
 	return;
 }
 
+void act_pack::load_edgeupdates(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedatabuffer, vector<edge3_type> (&final_edge_updates)[NUM_PEs][MAX_NUM_UPARTITIONS][MAX_NUM_LLPSETS]){			
+	unsigned int num_vPs = universalparams.NUM_UPARTITIONS;
+	unsigned int vsize_vP = MAX_UPARTITION_SIZE;
+	unsigned int num_LLPs = universalparams.NUM_APPLYPARTITIONS * universalparams.NUM_PARTITIONS; // EDGE_PACK_SIZE; // 
+	unsigned int vsize_LLP = MAX_APPLYPARTITION_SIZE / EDGE_PACK_SIZE; 
+	unsigned int num_LLPset = (num_LLPs + (universalparams.NUM_PARTITIONS - 1)) / universalparams.NUM_PARTITIONS;
+	cout<<"=== load_edgeupdates: num_vPs: "<<num_vPs<<" ==="<<endl;
+	cout<<"=== load_edgeupdates: vsize_vP: "<<vsize_vP<<" ==="<<endl;
+	cout<<"=== load_edgeupdates: num_LLPs: "<<num_LLPs<<" ==="<<endl;
+	cout<<"=== load_edgeupdates: vsize_LLP: "<<vsize_LLP<<" ==="<<endl;
+	cout<<"=== load_edgeupdates: num_LLPset: "<<num_LLPset<<" ==="<<endl;
+	
+	cout<<"=== load_edgeupdates: EDGE_PACK_SIZE: "<<EDGE_PACK_SIZE<<" ==="<<endl;
+	cout<<"=== load_edgeupdates: HBM_CHANNEL_PACK_SIZE: "<<HBM_CHANNEL_PACK_SIZE<<" ==="<<endl;
+	cout<<"=== load_edgeupdates: HBM_AXI_PACK_SIZE: "<<HBM_AXI_PACK_SIZE<<" ==="<<endl;
+	cout<<"=== load_edgeupdates: HBM_AXI_PACK_BITSIZE: "<<HBM_AXI_PACK_BITSIZE<<" ==="<<endl;
+	cout<<"=== load_edgeupdates: HBM_CHANNEL_BYTESIZE: "<<HBM_CHANNEL_BYTESIZE<<" ==="<<endl;
+	cout<<"=== load_edgeupdates: MAX_APPLYPARTITION_VECSIZE: "<<MAX_APPLYPARTITION_VECSIZE<<" ==="<<endl;
+	cout<<"=== load_edgeupdates: MAX_APPLYPARTITION_SIZE: "<<MAX_APPLYPARTITION_SIZE<<" ==="<<endl;
+	cout<<"=== load_edgeupdates: MAX_UPARTITION_VECSIZE: "<<MAX_UPARTITION_VECSIZE<<" ==="<<endl;
+	cout<<"=== load_edgeupdates: MAX_UPARTITION_SIZE: "<<MAX_UPARTITION_SIZE<<" ==="<<endl;
+	cout<<"=== load_edgeupdates: HBM_CHANNEL_BYTESIZE: "<<HBM_CHANNEL_BYTESIZE<<" ==="<<endl;
+	cout<<"=== load_edgeupdates: HBM_CHANNEL_SIZE: "<<HBM_CHANNEL_SIZE<<" ==="<<endl;
+	cout<<"=== load_edgeupdates: MAX_NUM_LLPSETS: "<<MAX_NUM_LLPSETS<<" ==="<<endl;
+	cout<<"=== load_edgeupdates: UPDATES_BUFFER_PACK_SIZE: "<<UPDATES_BUFFER_PACK_SIZE<<" ==="<<endl;
+	
+	bool debug = false; // true;// false;
+
+	vector<edge3_type> edges_in_channel[NUM_PEs];
+	vector<edge3_type> edgesin_srcvp[MAX_NUM_UPARTITIONS];
+	
+	unsigned int edge_index = 0;
+	for(unsigned int vid=0; vid<universalparams.NUM_VERTICES-1; vid++){
+		edge_t vptr_begin = vertexptrbuffer[vid];
+		edge_t vptr_end = vertexptrbuffer[vid+1];
+		edge_t edges_size = vptr_end - vptr_begin;
+		if(vptr_end < vptr_begin){ continue; }
+		
+		for(unsigned int i=0; i<edges_size; i++){
+			edge3_type this_edge = edgedatabuffer[vptr_begin + i];
+			edge3_type edge; edge.srcvid = this_edge.srcvid; edge.dstvid = this_edge.dstvid; edge.valid = 1;
+			if(edge.srcvid >= universalparams.NUM_VERTICES || edge.dstvid >= universalparams.NUM_VERTICES){ continue; } 
+			
+			unsigned int H = get_H2(edge.dstvid);
+			utilityobj->checkoutofbounds("loadedges::ERROR 223::", H, NUM_PEs, edge.srcvid, edge.dstvid, vsize_vP);
+			
+			edges_in_channel[H].push_back(edge);
+		}
+	}
+	#ifdef _DEBUGMODE_KERNELPRINTS4
+	for(unsigned int i=0; i<NUM_PEs; i++){ cout<<"dist edges:: PE: "<<i<<": edges_in_channel["<<i<<"].size(): "<<edges_in_channel[i].size()<<""<<endl; }
+	#endif 
+	
+	#ifdef _DEBUGMODE_HOSTPRINTS4
+	cout<<"load_edgeupdates: loading edges [STAGE 2]: preparing edges..."<<endl;
+	#endif 
+	for(unsigned int i=0; i<NUM_PEs; i++){ // NUM_PEs
+		if(utilityobj->channel_is_active(i) == false){ continue; }
+		#ifdef _DEBUGMODE_HOSTPRINTS3
+		cout<<"act_pack:: [PE: "<<i<<"]"<<endl;
+		#endif 
+		for(unsigned int v_p=0; v_p<num_vPs; v_p++){ edgesin_srcvp[v_p].clear(); } // clear 
+		
+		// within a HBM channel, partition into v-partitions 
+		if(debug){ cout<<"STAGE 1: within a HBM channel, partition into v-partitions "<<endl; }
+		for(unsigned int t=0; t<edges_in_channel[i].size(); t++){
+			edge3_type edge = edges_in_channel[i][t];
+			
+			if(edge.srcvid >= 60000000){ edge.srcvid = 60000000; } 
+			if(edge.dstvid >= 60000000){ edge.dstvid = 60000000; } 
+			
+			unsigned int vP = (edge.srcvid / vsize_vP);
+			if(vP >= num_vPs){ vP = num_vPs-1; } 
+	
+			#ifdef _DEBUGMODE_HOSTCHECKS3
+			utilityobj->checkoutofbounds("act_pack::ERROR 22::", vP, num_vPs, edge.srcvid, edge.srcvid, vsize_vP);
+			#endif 
+			edgesin_srcvp[vP].push_back(edge);
+		}
+		
+		for(unsigned int v_p=0; v_p<num_vPs; v_p++){ // num_vPs
+			// within a v-partition, partition into last-level-partition sets (LLP sets) 
+			if(debug){ cout<<"load_edgeupdates: STAGE 2: [i: "<<i<<", v-partition "<<v_p<<"] => partition into last-level-partitions (LLPsets)"<<endl; } 
+			for(unsigned int t=0; t<edgesin_srcvp[v_p].size(); t++){
+				edge3_type edge = edgesin_srcvp[v_p][t];
+				unsigned int local_dstvid = get_local2(edge.dstvid);
+				unsigned int llp_set = local_dstvid / MAX_APPLYPARTITION_SIZE;
+				final_edge_updates[i][v_p][llp_set].push_back(edge);
+			}
+			if(false){ cout<<"act_pack[STAGE 2 check]:: {srcvid, dstvid}"<<endl; }
+		} // iteration end: v_p:num_vPs 
+		
+		#ifdef _DEBUGMODE_KERNELPRINTS//4
+		for(unsigned int v_p=0; v_p<num_vPs; v_p++){
+			for(unsigned int llp_set=0; llp_set<num_LLPset; llp_set++){
+				if(i==0){ cout<<">>> final_edge_updates["<<i<<"]["<<v_p<<"]["<<llp_set<<"].size(): "<<final_edge_updates[i][v_p][llp_set].size()<<""<<endl; }
+			}
+		}
+		#endif 
+	} // iteration end: i(NUM_PEs) end here
+	// exit(EXIT_SUCCESS);
+	return;
+}
+
 
 
 

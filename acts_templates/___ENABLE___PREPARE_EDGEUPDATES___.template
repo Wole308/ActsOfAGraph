@@ -1,160 +1,162 @@
-// #define ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ
-#define TTTTTTTTTTTTTTT
-
-
 map_t count[NUM_VALID_PEs][EDGE_PACK_SIZE][EDGE_PACK_SIZE]; 
 #pragma HLS ARRAY_PARTITION variable=count complete dim=1
 #pragma HLS ARRAY_PARTITION variable=count complete dim=2
-edge3_vec_dt edge_update_vecs[NUM_VALID_PEs];
+edge_update_vec_dt edge_update_vecs[NUM_VALID_PEs];
+unsigned int rawedges_maps[NUM_VALID_PEs];
+bool reorder_by_src = true; // true; false
+unsigned int base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES];
 
-for(unsigned int p_u=0; p_u<globalparams[GLOBALPARAMSCODE__PARAM__NUM_UPARTITIONS]; p_u++){ // globalparams[GLOBALPARAMSCODE__PARAM__NUM_UPARTITIONS]
-	for(unsigned int llp_set=0; llp_set<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]; llp_set++){ // globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]
-		#ifdef _DEBUGMODE_KERNELPRINTS4
-		cout<<">>> acts_kernel:: p_u: "<<p_u<<", llp_set: "<<llp_set<<endl; 
-		#endif 
-		
-		// reset
-		LOOP1734: for(unsigned int t=0; t<EDGE_PACK_SIZE; t++){ 
-			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
-			#pragma HLS UNROLL
-				for(unsigned int n=0; n<NUM_VALID_PEs; n++){
-				#pragma HLS UNROLL
-					count[n][v][t].offset = 0;
-					count[n][v][t].size = 0;
-				}
-			}
-		}
-
-		unsigned int offset_eu = (p_u * globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS] * EDGE_UPDATES_DRAMBUFFER_SIZE) + (llp_set * EDGE_UPDATES_DRAMBUFFER_SIZE);
-		LOOP1354: for(unsigned int n=0; n<NUM_VALID_PEs; n++){ 
-		#pragma HLS UNROLL
-			offsets_eu[n] = offset_eu; 
-		}	
-
-		LOAD_EDGEMAPS_LOOP1: for(unsigned int llp_id=0; llp_id<NUM_LLP_PER_LLPSET; llp_id++){	
-			map_t edge_map_vec[NUM_VALID_PEs];
-			load_edgemap_vec((p_u * MAX_NUM_LLP_PER_UPARTITION) + (llp_set * NUM_LLP_PER_LLPSET) + llp_id, globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS], edge_map_vec, {% include '___HBM___ARGS___.template' %});
-			for(unsigned int n=0; n<NUM_VALID_PEs; n++){
-			#pragma HLS UNROLL
-				edgeupdate_maps[n][llp_id] = edge_map_vec[n];
-			}
-		}	
-
-		#ifdef ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ
-		PREPARE_EDGEUPDATES_LOOP1: for(unsigned int t=0; t<EDGE_UPDATES_DRAMBUFFER_SIZE; t++){ // EDGE_UPDATES_DRAMBUFFER_SIZE, 1024
-		#pragma HLS PIPELINE II=1
-			dretrievemany_rawedges(globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES], offsets_eu, t, edge_update_vecs, {% include '___HBM___ARGS___.template' %});
-			for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
-			#pragma HLS UNROLL
-				for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-				#pragma HLS UNROLL
-					unsigned int p = edge_update_vecs[inst].data[v].dstvid % EDGE_PACK_SIZE;
-					count[inst][v][p].size += 1;
-				}
-			}
-		}
-		#endif 
-		
-		///////////////////////////////////////////////////////////////////////////
-		#ifdef TTTTTTTTTTTTTTT
-		PREPARE_EDGEUPDATES_LOOP1: for(unsigned int t=0; t<EDGE_UPDATES_DRAMBUFFER_SIZE; t++){ // EDGE_UPDATES_DRAMBUFFER_SIZE, 1024
-		#pragma HLS PIPELINE II=1
-			dretrievemany_rawedges(globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES], offsets_eu, t, edge_update_vecs, {% include '___HBM___ARGS___.template' %});
-			for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
-			#pragma HLS UNROLL
-				for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-				#pragma HLS UNROLL
-					unsigned int p = edge_update_vecs[inst].data[v].srcvid % EDGE_PACK_SIZE;
-					count[inst][v][p].size += 1;
-				}
-			}
-		}
-		#endif 
-		///////////////////////////////////////////////////////////////////////////
-
-		LOOP1334: for(unsigned int p=1; p<EDGE_PACK_SIZE; p++){ 
-			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
-			#pragma HLS UNROLL
-				for(unsigned int n=0; n<NUM_VALID_PEs; n++){
-				#pragma HLS UNROLL
-					count[n][v][p].offset = count[n][v][p-1].offset + count[n][v][p-1].size;
-					#ifdef _DEBUGMODE_KERNELPRINTS4
-					if(n==0){ cout<<"--- count["<<n<<"]["<<v<<"]["<<p<<"].offset: "<<count[n][v][p].offset<<", count["<<n<<"]["<<v<<"]["<<p<<"].size: "<<count[n][v][p].size<<endl; }
-					#endif 
-					#ifdef _DEBUGMODE_CHECKS3
-					if(count[0][v][p-1].offset + count[0][v][p-1].size > EDGE_UPDATES_DRAMBUFFER_SIZE){ cout<<"--- ALERT: count[0]["<<v<<"]["<<p-1<<"].offset ("<<count[0][v][p-1].offset<<") + count[0]["<<v<<"]["<<p-1<<"].size ("<<count[0][v][p-1].size<<") (:"<<count[0][v][p-1].offset + count[0][v][p-1].size<<":) >= EDGE_UPDATES_DRAMBUFFER_SIZE. EXITING..."<<endl; exit(EXIT_FAILURE); }
-					#endif 
-				}	
-			}	
-		}		
-		LOOP1234: for(unsigned int p=0; p<EDGE_PACK_SIZE; p++){ 
-			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
-			#pragma HLS UNROLL
-				for(unsigned int n=0; n<NUM_VALID_PEs; n++){
-				#pragma HLS UNROLL
-					count[n][v][p].size = 0;
-				}
-			}
-		}	
-
-		#ifdef ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ
-		PREPARE_EDGEUPDATES_LOOP2: for(unsigned int t=0; t<EDGE_UPDATES_DRAMBUFFER_SIZE; t++){ // EDGE_UPDATES_DRAMBUFFER_SIZE, 1024
-		#pragma HLS PIPELINE II=1
-			dretrievemany_rawedges(globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES], offsets_eu, t, edge_update_vecs, {% include '___HBM___ARGS___.template' %});
-			for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
-			#pragma HLS UNROLL
-				for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-				#pragma HLS UNROLL
-					unsigned int p = edge_update_vecs[inst].data[v].dstvid % EDGE_PACK_SIZE;
-					insert_edgeupdatesbuffer(v, count[inst][v][p].offset + count[inst][v][p].size, edge_update_vecs[inst].data[v], edgeupdates_buffer[inst]); 
-					count[inst][v][p].size += 1;
-					
-					#ifdef _DEBUGMODE_KERNELPRINTS//4	
-					if(inst==0 && t<8 && v==0){ cout<<"[finalized edge update: p: "<<p<<", srcvid: "<<edge_update_vecs[inst].data[v].srcvid<<", dstvid: "<<edge_update_vecs[inst].data[v].dstvid<<", new weight: "<<edge_update_vecs[inst].data[v].weight<<"]"<<endl; }						
-					#endif 
-				}
-			}
-		}
-		#endif 
-		
-		///////////////////////////////////////////////////////////////////////////
-		#ifdef TTTTTTTTTTTTTTT
-		PREPARE_EDGEUPDATES_LOOP2: for(unsigned int t=0; t<EDGE_UPDATES_DRAMBUFFER_SIZE; t++){ // EDGE_UPDATES_DRAMBUFFER_SIZE, 1024
-		#pragma HLS PIPELINE II=1
-			dretrievemany_rawedges(globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES], offsets_eu, t, edge_update_vecs, {% include '___HBM___ARGS___.template' %});
-			for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
-			#pragma HLS UNROLL
-				for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-				#pragma HLS UNROLL
-					unsigned int p = edge_update_vecs[inst].data[v].srcvid % EDGE_PACK_SIZE;
-					insert_edgeupdatesbuffer(v, count[inst][v][p].offset + count[inst][v][p].size, edge_update_vecs[inst].data[v], edgeupdates_buffer[inst]); 
-					count[inst][v][p].size += 1;
-					
-					#ifdef _DEBUGMODE_KERNELPRINTS//4	
-					if(inst==0 && t<8 && v==0){ cout<<"[finalized edge update: p: "<<p<<", srcvid: "<<edge_update_vecs[inst].data[v].srcvid<<", dstvid: "<<edge_update_vecs[inst].data[v].dstvid<<", new weight: "<<edge_update_vecs[inst].data[v].weight<<"]"<<endl; }						
-					#endif 
-				}
-			}
-		}
-		#endif 
-		///////////////////////////////////////////////////////////////////////////
-
-		{%for i in context['NUM_VALID_PEs_seq']%}
-		save_edgeupdates({{i}}, p_u, count[{{i}}], edgeupdates_buffer[{{i}}], edgeupdate_maps[{{i}}], HBM_channelA{{i}}, globalparams);
-		{%endfor%}
-
-		SAVE_EDGEMAPS_LOOP1: for(unsigned int llp_id=0; llp_id<NUM_LLP_PER_LLPSET; llp_id++){	
-			map_t edge_map_vec[NUM_VALID_PEs];
-			for(unsigned int n=0; n<NUM_VALID_PEs; n++){
-			#pragma HLS UNROLL
-				edge_map_vec[n] = edgeupdate_maps[n][llp_id];
-			}
-			save_edgemap_vec((p_u * MAX_NUM_LLP_PER_UPARTITION) + (llp_set * NUM_LLP_PER_LLPSET) + llp_id, globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS], edge_map_vec, {% include '___HBM___ARGS___.template' %});
+for(unsigned int c=0; c<1; c++){ 
+	if(c==0){ 
+		reorder_by_src = true; 
+		base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES];
+	} else { 
+		reorder_by_src = false; 
+		base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__PARTIALLYPROCESSEDEDGEUPDATES];
+	}
+	for(unsigned int p_u=0; p_u<globalparams[GLOBALPARAMSCODE__PARAM__NUM_UPARTITIONS]; p_u++){ // globalparams[GLOBALPARAMSCODE__PARAM__NUM_UPARTITIONS]
+		for(unsigned int llp_set=0; llp_set<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]; llp_set++){ // globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]
+			unsigned int index = (p_u * MAX_NUM_UPARTITIONS) + llp_set;
+			{%for n in context['NUM_VALID_PEs_seq']%}
+			rawedges_maps[{{n}}] = HBM_channelA{{n}}[globalparams[GLOBALPARAMSCODE__BASEOFFSET__UNPROCESSEDEDGEUPDATESPTRS] + (index / HBM_AXI_PACK_SIZE)].data[(index % HBM_AXI_PACK_SIZE)];
+			cout<<"------------------------- $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ rawedges_maps[{{n}}]: "<<rawedges_maps[{{n}}]<<endl;
+			{%endfor%}
+			// exit(EXIT_SUCCESS);
+			//////////////////////////////////////////////////////////////////////////////////////////////////
+			
+			unsigned int work_size;	if(reorder_by_src == true){ work_size = rawedges_maps[0]; } else { work_size = rawedges_maps[0]; }
 			#ifdef _DEBUGMODE_KERNELPRINTS4
-			for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<"[after] edgeupdate_maps[n]["<<llp_id<<"]: offset: "<<edgeupdate_maps[n][llp_id].offset<<", size: "<<edgeupdate_maps[n][llp_id].size<<""<<endl; }
+			cout<<">>> acts_kernel::prepare-edge-updates:: p_u: "<<p_u<<", llp_set: "<<llp_set<<", work_size: "<<work_size<<endl; 
 			#endif 
+			
+			// reset
+			LOOP1734: for(unsigned int t=0; t<EDGE_PACK_SIZE; t++){ 
+				for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
+				#pragma HLS UNROLL
+					for(unsigned int n=0; n<NUM_VALID_PEs; n++){
+					#pragma HLS UNROLL
+						count[n][v][t].offset = 0;
+						count[n][v][t].size = 0;
+					}
+				}
+			}
+
+			unsigned int offset_eu = (p_u * globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS] * EDGE_UPDATES_DRAMBUFFER_SIZE) + (llp_set * EDGE_UPDATES_DRAMBUFFER_SIZE);
+			LOOP1354: for(unsigned int n=0; n<NUM_VALID_PEs; n++){ 
+			#pragma HLS UNROLL
+				offsets_eu[n] = offset_eu; 
+			}	
+
+			LOAD_EDGEMAPS_LOOP1: for(unsigned int llp_id=0; llp_id<NUM_LLP_PER_LLPSET; llp_id++){	
+				map_t edge_map_vec[NUM_VALID_PEs];
+				load_edgemap_vec((p_u * MAX_NUM_LLP_PER_UPARTITION) + (llp_set * NUM_LLP_PER_LLPSET) + llp_id, globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS], edge_map_vec, {% include '___HBM___ARGS___.template' %});
+				for(unsigned int n=0; n<NUM_VALID_PEs; n++){
+				#pragma HLS UNROLL
+					edgeupdate_maps[n][llp_id] = edge_map_vec[n];
+				}
+			}	
+
+			PREPARE_EDGEUPDATES_LOOP1: for(unsigned int t=0; t<work_size; t++){ // EDGE_UPDATES_DRAMBUFFER_SIZE, 1024, work_size
+			#pragma HLS PIPELINE II=1
+				dretrievemany_rawedges(base_offset, offsets_eu, t, edge_update_vecs, {% include '___HBM___ARGS___.template' %});
+				for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
+				#pragma HLS UNROLL
+					for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+					#pragma HLS UNROLL
+						unsigned int data = 0; if(reorder_by_src == true){ data = edge_update_vecs[inst].data[v].srcvid; } else { data = edge_update_vecs[inst].data[v].dstvid; }
+						unsigned int p = data % EDGE_PACK_SIZE;
+						// if(data == INVALIDDATA){ p = data % EDGE_PACK_SIZE; } else { p = 0; }
+						#ifndef FPGA_IMPL
+						checkoutofbounds("acts_kernel::ERROR 2215::", p, EDGE_PACK_SIZE, NAp, NAp, NAp);
+						#endif 
+						count[inst][v][p].size += 1;
+					}
+				}
+			}
+			
+			LOOP1334: for(unsigned int p=1; p<EDGE_PACK_SIZE; p++){ 
+				for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
+				#pragma HLS UNROLL
+					for(unsigned int n=0; n<NUM_VALID_PEs; n++){
+					#pragma HLS UNROLL
+						count[n][v][p].offset = count[n][v][p-1].offset + count[n][v][p-1].size;					
+						#ifdef _DEBUGMODE_CHECKS3
+						if(count[0][v][p-1].offset + count[0][v][p-1].size > EDGE_UPDATES_DRAMBUFFER_SIZE){ cout<<"--- ALERT: count[0]["<<v<<"]["<<p-1<<"].offset ("<<count[0][v][p-1].offset<<") + count[0]["<<v<<"]["<<p-1<<"].size ("<<count[0][v][p-1].size<<") (:"<<count[0][v][p-1].offset + count[0][v][p-1].size<<":) >= EDGE_UPDATES_DRAMBUFFER_SIZE. EXITING..."<<endl; exit(EXIT_FAILURE); }
+						#endif 
+						#ifdef _DEBUGMODE_KERNELPRINTS4
+						if(n==0){ cout<<"--- count["<<n<<"]["<<v<<"]["<<p<<"].offset: "<<count[n][v][p].offset<<", count["<<n<<"]["<<v<<"]["<<p<<"].size: "<<count[n][v][p].size<<endl; }
+						#endif 
+					}	
+				}	
+			}		
+			LOOP1234: for(unsigned int p=0; p<EDGE_PACK_SIZE; p++){ 
+				for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
+				#pragma HLS UNROLL
+					for(unsigned int n=0; n<NUM_VALID_PEs; n++){
+					#pragma HLS UNROLL
+						count[n][v][p].size = 0;
+					}
+				}
+			}	
+
+			PREPARE_EDGEUPDATES_LOOP2: for(unsigned int t=0; t<work_size; t++){ // EDGE_UPDATES_DRAMBUFFER_SIZE, 1024, work_size
+			#pragma HLS PIPELINE II=1
+				dretrievemany_rawedges(base_offset, offsets_eu, t, edge_update_vecs, {% include '___HBM___ARGS___.template' %});
+				for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
+				#pragma HLS UNROLL
+					for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+					#pragma HLS UNROLL
+						// unsigned int p = 0; 
+						// if(reorder_by_src == true){ p = edge_update_vecs[inst].data[v].srcvid % EDGE_PACK_SIZE; } else { p = edge_update_vecs[inst].data[v].dstvid % EDGE_PACK_SIZE; }
+						
+						
+						unsigned int data = 0; if(reorder_by_src == true){ data = edge_update_vecs[inst].data[v].srcvid; } else { data = edge_update_vecs[inst].data[v].dstvid; }
+						unsigned int p = data % EDGE_PACK_SIZE;
+						
+						
+						#ifndef FPGA_IMPL
+						checkoutofbounds("acts_kernel::ERROR 2215::", p, EDGE_PACK_SIZE, NAp, NAp, NAp);
+						#endif 
+						insert_edgeupdatesbuffer(v, count[inst][v][p].offset + count[inst][v][p].size, edge_update_vecs[inst].data[v], edgeupdates_buffer[inst]); 
+						count[inst][v][p].size += 1;
+						
+						#ifdef _DEBUGMODE_KERNELPRINTS//4	
+						if(inst==0 && t<8 && v==0){ cout<<"[finalized edge update: p: "<<p<<", srcvid: "<<edge_update_vecs[inst].data[v].srcvid<<", dstvid: "<<edge_update_vecs[inst].data[v].dstvid<<", new weight: "<<edge_update_vecs[inst].data[v].weight<<"]"<<endl; }						
+						#endif 
+					}
+				}
+			}
+			
+			// map_t partiallyprocessed_edgeupdate_maps[NUM_VALID_PEs][EDGEMAPS_BUFFER_SIZE];
+			// #pragma HLS ARRAY_PARTITION variable=edgeupdate_maps 	
+			// unsigned int baseoffset = 0;
+			// if(reorder_by_src == true){ baseoffset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__PARTIALLYPROCESSEDEDGEUPDATES]; } else { baseoffset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES]; }
+			
+			if(reorder_by_src == true){ 
+				{%for i in context['NUM_VALID_PEs_seq']%}	
+				save_partiallyprocessed_edgeupdates(globalparams[GLOBALPARAMSCODE__BASEOFFSET__PARTIALLYPROCESSEDEDGEUPDATES], count[{{i}}], edgeupdates_buffer[{{i}}], HBM_channelA{{i}}, globalparams);	
+				{%endfor%}	
+			} else {
+				{%for i in context['NUM_VALID_PEs_seq']%}	
+				save_edgeupdates(globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES], count[{{i}}], edgeupdates_buffer[{{i}}], edgeupdate_maps[{{i}}], HBM_channelA{{i}}, globalparams);	
+				{%endfor%}	
+			}
+
+			if(reorder_by_src == false){ 
+				SAVE_EDGEMAPS_LOOP1: for(unsigned int llp_id=0; llp_id<NUM_LLP_PER_LLPSET; llp_id++){	
+					map_t edge_map_vec[NUM_VALID_PEs];
+					for(unsigned int n=0; n<NUM_VALID_PEs; n++){
+					#pragma HLS UNROLL
+						edge_map_vec[n] = edgeupdate_maps[n][llp_id];
+					}
+					save_edgemap_vec((p_u * MAX_NUM_LLP_PER_UPARTITION) + (llp_set * NUM_LLP_PER_LLPSET) + llp_id, globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS], edge_map_vec, {% include '___HBM___ARGS___.template' %});
+					#ifdef _DEBUGMODE_KERNELPRINTS4
+					for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<"[after] edgeupdate_maps[n]["<<llp_id<<"]: offset: "<<edgeupdate_maps[n][llp_id].offset<<", size: "<<edgeupdate_maps[n][llp_id].size<<""<<endl; }
+					#endif 
+				}
+			}
+			exit(EXIT_SUCCESS); ///////////////////
 		}
-		exit(EXIT_SUCCESS); ///////////////////
 	}
 }
 
