@@ -250,8 +250,6 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	for(unsigned int t=0; t<1024; t++){ globalparams[t] = 0; }
 	
 	// load unprocessed edge-update vptrs  
-	// vector<edge3_type> final_edge_updates[MAX_NUM_UPARTITIONS][MAX_NUM_LLPSETS];
-	// pack->load_edgeupdates(vertexptrbuffer, edgedatabuffer, final_edge_updates);
 	for(unsigned int i=0; i<NUM_PEs; i++){ globalparams[GLOBALPARAMSCODE__BASEOFFSET__UNPROCESSEDEDGEUPDATESPTRS] = 512; } 
 	unsigned int size_u32 = 0;	
 	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___PROCESSRAWEDGEUPDATES___
@@ -262,17 +260,12 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		unsigned int base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__UNPROCESSEDEDGEUPDATESPTRS];
 		for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ 
 			for(unsigned int llp_set=0; llp_set<MAX_NUM_LLPSETS; llp_set++){
-				
-				
 				unsigned int min = 0xFFFFFFF; for(unsigned int n=0; n<NUM_PEs; n++){ if(min > final_edge_updates[i][p_u][llp_set].size()){ min = final_edge_updates[i][p_u][llp_set].size(); } }
-				unsigned int permissible_load_wwsz = 0; if(min < EDGE_UPDATES_DRAMBUFFER_SIZE * EDGE_PACK_SIZE){ permissible_load_wwsz = min / EDGE_PACK_SIZE; } else { permissible_load_wwsz = EDGE_UPDATES_DRAMBUFFER_SIZE; }
-				
-				// unsigned int permissible_load_wwsz = 0; if(final_edge_updates[i][p_u][llp_set].size() < EDGE_UPDATES_DRAMBUFFER_SIZE * EDGE_PACK_SIZE){ permissible_load_wwsz = final_edge_updates[i][p_u][llp_set].size() / EDGE_PACK_SIZE; } else { permissible_load_wwsz = EDGE_UPDATES_DRAMBUFFER_SIZE; }
-				
-				
-				
+				// unsigned int permissible_load_wwsz = 0; if(min < EDGE_UPDATES_DRAMBUFFER_SIZE * EDGE_PACK_SIZE){ permissible_load_wwsz = min / EDGE_PACK_SIZE; } else { permissible_load_wwsz = EDGE_UPDATES_DRAMBUFFER_SIZE; }
+				unsigned int permissible_load_wwsz = 0; if(min < 7200 * EDGE_PACK_SIZE){ permissible_load_wwsz = min / EDGE_PACK_SIZE; } else { permissible_load_wwsz = 7200; }
+
 				HBM_channel[i][base_offset + (index / HBM_AXI_PACK_SIZE)].data[index % HBM_AXI_PACK_SIZE] = permissible_load_wwsz; 
-				if(i==0 && p_u < universalparams.NUM_UPARTITIONS && llp_set < universalparams.NUM_APPLYPARTITIONS){ cout<<"----------------------- final_edge_updates["<<i<<"]["<<p_u<<"]["<<llp_set<<"].size(): "<<final_edge_updates[i][p_u][llp_set].size()<<"[~"<<permissible_load_wwsz*EDGE_PACK_SIZE<<"] ------------------------------"<<endl; }
+				if(false && i==0 && p_u < universalparams.NUM_UPARTITIONS && llp_set < universalparams.NUM_APPLYPARTITIONS){ cout<<"----------------------- final_edge_updates["<<i<<"]["<<p_u<<"]["<<llp_set<<"].size(): "<<final_edge_updates[i][p_u][llp_set].size()<<"[~"<<permissible_load_wwsz*EDGE_PACK_SIZE<<"] ------------------------------"<<endl; }
 				index += 1;
 				if(i==0){ size_u32 += 1; }
 			}
@@ -408,7 +401,6 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS] + globalparams[GLOBALPARAMSCODE__WWSIZE__UPDATESPTRS]; 
 	}
 	size_u32 = 0; 
-	// #ifdef RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR
 	for(unsigned int i=0; i<NUM_PEs; i++){
 		for(unsigned int p_u=0; p_u<universalparams.NUM_UPARTITIONS; p_u++){
 			for(unsigned int llp_set=0; llp_set<universalparams.NUM_APPLYPARTITIONS; llp_set++){
@@ -418,11 +410,6 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 				for(unsigned int t=0; t<permissible_load_wwsz; t++){ 
 					for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){	
 						unsigned int offset = (p_u * universalparams.NUM_APPLYPARTITIONS * EDGE_UPDATES_DRAMBUFFER_SIZE) + (llp_set * EDGE_UPDATES_DRAMBUFFER_SIZE);				
-						
-						// HBM_channel[i][base_offset + offset + t].data[2 * v] = 777; // v,777; // rand() % (MAX_APPLYPARTITION_VECSIZE * EDGE_PACK_SIZE); // 222;	
-						// HBM_channel[i][base_offset + offset + t].data[2 * v] = rand() % (MAX_APPLYPARTITION_VECSIZE * EDGE_PACK_SIZE); ////////////////////////////////////////
-						// HBM_channel[i][base_offset + offset + t].data[2 * v + 1] = rand() % (MAX_APPLYPARTITION_VECSIZE * EDGE_PACK_SIZE); // 333;	
-						
 						HBM_channel[i][base_offset + offset + t].data[2 * v] = final_edge_updates[i][p_u][llp_set][index].srcvid % MAX_APPLYPARTITION_SIZE; 
 						HBM_channel[i][base_offset + offset + t].data[2 * v + 1] = final_edge_updates[i][p_u][llp_set][index].dstvid % MAX_APPLYPARTITION_SIZE; 
 						index += 1;
@@ -433,57 +420,13 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		}
 	}
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ for(unsigned int llp_set=0; llp_set<MAX_NUM_LLPSETS; llp_set++){ final_edge_updates[i][p_u][llp_set].clear(); }}}
-	// #endif 
-	
-	
-	/* /////////////////////////////////////////////////////////////////////////////////////////////
-	#ifdef TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-	vector<edge3_type> final_edge_updates[MAX_NUM_UPARTITIONS][MAX_NUM_LLPSETS];
-	pack->load_edgeupdates(vertexptrbuffer, edgedatabuffer, final_edge_updates);
-	for(unsigned int i=0; i<1; i++){
-		for(unsigned int p_u=0; p_u<universalparams.NUM_UPARTITIONS; p_u++){
-			for(unsigned int llp_set=0; llp_set<universalparams.NUM_APPLYPARTITIONS; llp_set++){
-				unsigned int base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES];
-				for(unsigned int t=0; t<EDGE_UPDATES_DRAMBUFFER_SIZE; t++){ 
-					for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){	
-						unsigned int offset = (p_u * universalparams.NUM_APPLYPARTITIONS * EDGE_UPDATES_DRAMBUFFER_SIZE) + (llp_set * EDGE_UPDATES_DRAMBUFFER_SIZE);				
-						HBM_channel[i][base_offset + offset + t].data[2 * v] = final_edge_updates[p_u][llp_set][t].srcvid % MAX_APPLYPARTITION_SIZE; 
-						HBM_channel[i][base_offset + offset + t].data[2 * v + 1] = final_edge_updates[p_u][llp_set][t],dstvid % MAX_APPLYPARTITION_SIZE; 
-						if(i==0){ size_u32 += 2; }
-					}
-				}
-			}
-		}
-	}
-	
-	
-	// load unprocessed edge-update vptrs  
-	for(unsigned int i=0; i<NUM_PEs; i++){ 
-		globalparams[GLOBALPARAMSCODE__WWSIZE__CSRVPTRS] = (size_u32 / HBM_AXI_PACK_SIZE) + 16;
-		globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSRVPTRS] + globalparams[GLOBALPARAMSCODE__WWSIZE__CSRVPTRS]; 
-	}
-	size_u32 = 0;
-	for(unsigned int i=0; i<NUM_PEs; i++){ 
-		unsigned int index = 0;
-		unsigned int base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__UNPROCESSEDEDGEUPDATESPTRS];
-		for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ 
-			for(unsigned int t=0; t<MAX_NUM_LLPSETS; t++){
-				HBM_channel[i][base_offset + (index / HBM_AXI_PACK_SIZE)].data[index % HBM_AXI_PACK_SIZE] = final_edge_updates[p_u][llp_set].size(); 
-				index += 1;
-				if(i==0){ size_u32 += 2; }
-			}
-		}
-	}	
-	#endif 
-	/////////////////////////////////////////////////////////////////////////////////////////////
-	// exit(EXIT_SUCCESS); */
 	
 	// load partial-processed edge updates
 	for(unsigned int i=0; i<NUM_PEs; i++){ 
 		globalparams[GLOBALPARAMSCODE__WWSIZE__RAWEDGEUPDATES] = (size_u32 / HBM_CHANNEL_PACK_SIZE) + 16;
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__PARTIALLYPROCESSEDEDGEUPDATES] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES] + globalparams[GLOBALPARAMSCODE__WWSIZE__RAWEDGEUPDATES]; 
 	}
-	size_u32 = EDGE_UPDATES_DRAMBUFFER_SIZE * HBM_CHANNEL_PACK_SIZE; 
+	size_u32 = EDGE_UPDATES_DRAMBUFFER_SIZE * 4 * HBM_CHANNEL_PACK_SIZE; // '4' is padding
 	
 	// load edge updates (actpack format)
 	for(unsigned int i=0; i<NUM_PEs; i++){ 

@@ -261,8 +261,6 @@ void dretrievemany_rawedges(unsigned int offset__, unsigned int offsets[NUM_VALI
 		for(unsigned int n=0; n<NUM_VALID_PEs; n++){
 			edge3_vecs[n].data[v].srcvid = data_[n][2*v];
 			edge3_vecs[n].data[v].dstvid = data_[n][2*v+1];
-			// edge3_vecs[n].data[v].weight = 1;
-			// edge3_vecs[n].data[v].valid = 1;
 		}
 	}
 	return;
