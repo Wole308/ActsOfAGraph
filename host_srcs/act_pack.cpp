@@ -259,29 +259,13 @@ void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedat
 							}
 						}
 						#endif
-						
-						// load to act_pack buffer
-						/* #ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
-						if(t%2==0){
-							act_pack_edgeudates[i].push_back(edge_vec3);
-							act_pack_edgeudates_map[i][v_p][(llp_set * EDGE_PACK_SIZE) + llp_id].size += 1;
-						} else {
-							act_pack_edges[i].push_back(edge_vec3);
-							act_pack_map[i][v_p][llp_set].size += 1;
-							act_pack_map2[i][v_p][(llp_set * EDGE_PACK_SIZE) + llp_id].size += 1;
-						}
-						#else
-						act_pack_edges[i].push_back(edge_vec3);
-						act_pack_map[i][v_p][llp_set].size += 1;
-						act_pack_map2[i][v_p][(llp_set * EDGE_PACK_SIZE) + llp_id].size += 1;	
-						#endif  */
-						
+
 						// load to act_pack buffer
 						act_pack_edges[i].push_back(edge_vec3);
 						act_pack_map[i][v_p][llp_set].size += 1;
 						act_pack_map2[i][v_p][(llp_set * EDGE_PACK_SIZE) + llp_id].size += 1;
 						// load to edge updates buffer (act-pack format)
-						act_pack_edgeudates[i].push_back(edge_vec3);
+						// act_pack_edgeudates[i].push_back(edge_vec3); // 
 						act_pack_edgeudates_map[i][v_p][(llp_set * EDGE_PACK_SIZE) + llp_id].size += 1;
 						
 						finest_granularity_size += 1;

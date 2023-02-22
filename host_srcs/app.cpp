@@ -249,7 +249,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	// unsigned int globalparams[1024];
 	for(unsigned int t=0; t<1024; t++){ globalparams[t] = 0; }
 	
-	// load unprocessed edge-update vptrs  
+	// load raw edge-update vptrs  
 	for(unsigned int i=0; i<NUM_PEs; i++){ globalparams[GLOBALPARAMSCODE__BASEOFFSET__UNPROCESSEDEDGEUPDATESPTRS] = 512; } 
 	unsigned int size_u32 = 0;	
 	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___PROCESSRAWEDGEUPDATES___
@@ -261,11 +261,10 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ 
 			for(unsigned int llp_set=0; llp_set<MAX_NUM_LLPSETS; llp_set++){
 				unsigned int min = 0xFFFFFFF; for(unsigned int n=0; n<NUM_PEs; n++){ if(min > final_edge_updates[i][p_u][llp_set].size()){ min = final_edge_updates[i][p_u][llp_set].size(); } }
-				// unsigned int permissible_load_wwsz = 0; if(min < EDGE_UPDATES_DRAMBUFFER_SIZE * EDGE_PACK_SIZE){ permissible_load_wwsz = min / EDGE_PACK_SIZE; } else { permissible_load_wwsz = EDGE_UPDATES_DRAMBUFFER_SIZE; }
-				unsigned int permissible_load_wwsz = 0; if(min < 7200 * EDGE_PACK_SIZE){ permissible_load_wwsz = min / EDGE_PACK_SIZE; } else { permissible_load_wwsz = 7200; }
+				unsigned int permissible_load_wwsz = 0; if(min < EDGE_UPDATES_WORKBUFFER_SIZE * EDGE_PACK_SIZE){ permissible_load_wwsz = min / EDGE_PACK_SIZE; } else { permissible_load_wwsz = EDGE_UPDATES_WORKBUFFER_SIZE; }
 
 				HBM_channel[i][base_offset + (index / HBM_AXI_PACK_SIZE)].data[index % HBM_AXI_PACK_SIZE] = permissible_load_wwsz; 
-				if(false && i==0 && p_u < universalparams.NUM_UPARTITIONS && llp_set < universalparams.NUM_APPLYPARTITIONS){ cout<<"----------------------- final_edge_updates["<<i<<"]["<<p_u<<"]["<<llp_set<<"].size(): "<<final_edge_updates[i][p_u][llp_set].size()<<"[~"<<permissible_load_wwsz*EDGE_PACK_SIZE<<"] ------------------------------"<<endl; }
+				if(true && i==0 && p_u < universalparams.NUM_UPARTITIONS && llp_set < universalparams.NUM_APPLYPARTITIONS){ cout<<"final_edge_updates["<<i<<"]["<<p_u<<"]["<<llp_set<<"].size(): "<<final_edge_updates[i][p_u][llp_set].size()<<"[=>"<<permissible_load_wwsz*EDGE_PACK_SIZE<<"]"<<endl; }
 				index += 1;
 				if(i==0){ size_u32 += 1; }
 			}
@@ -355,7 +354,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	}
 	#endif 
 	
-	// load updatesptrs
+	// load vertex-updates ptrs
 	for(unsigned int i=0; i<NUM_PEs; i++){ 
 		// globalparams[GLOBALPARAMSCODE__WWSIZE__ACTPACKVPTRS2] = (size_u32 / HBM_CHANNEL_PACK_SIZE) + 16;
 		globalparams[GLOBALPARAMSCODE__WWSIZE__ACTPACKVPTRS2] = (size_u32 / HBM_AXI_PACK_SIZE) + 16; // NB: not 'HBM_CHANNEL_PACK_SIZE' because only half of dual-HBM channel is used.
@@ -407,14 +406,17 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 				unsigned int base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES];
 				unsigned int permissible_load_wwsz = 0; if(final_edge_updates[i][p_u][llp_set].size() < EDGE_UPDATES_DRAMBUFFER_SIZE * EDGE_PACK_SIZE){ permissible_load_wwsz = final_edge_updates[i][p_u][llp_set].size() / EDGE_PACK_SIZE; } else { permissible_load_wwsz = EDGE_UPDATES_DRAMBUFFER_SIZE; }
 				unsigned int index = 0;
-				for(unsigned int t=0; t<permissible_load_wwsz; t++){ 
+				
+				for(unsigned int t=0; t<EDGE_UPDATES_DRAMBUFFER_SIZE; t++){ 
+					if(t < permissible_load_wwsz){
 					for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){	
 						unsigned int offset = (p_u * universalparams.NUM_APPLYPARTITIONS * EDGE_UPDATES_DRAMBUFFER_SIZE) + (llp_set * EDGE_UPDATES_DRAMBUFFER_SIZE);				
-						HBM_channel[i][base_offset + offset + t].data[2 * v] = final_edge_updates[i][p_u][llp_set][index].srcvid % MAX_APPLYPARTITION_SIZE; 
-						HBM_channel[i][base_offset + offset + t].data[2 * v + 1] = final_edge_updates[i][p_u][llp_set][index].dstvid % MAX_APPLYPARTITION_SIZE; 
+						HBM_channel[i][base_offset + offset + t].data[2 * v] = final_edge_updates[i][p_u][llp_set][index].srcvid;// % MAX_APPLYPARTITION_SIZE; 
+						HBM_channel[i][base_offset + offset + t].data[2 * v + 1] = final_edge_updates[i][p_u][llp_set][index].dstvid;// % MAX_APPLYPARTITION_SIZE; 
 						index += 1;
-						if(i==0){ size_u32 += 2; }
 					}
+					}
+					if(i==0){ size_u32 += EDGE_PACK_SIZE * 2; }
 				}
 			}
 		}
@@ -430,33 +432,52 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	
 	// load edge updates (actpack format)
 	for(unsigned int i=0; i<NUM_PEs; i++){ 
-		globalparams[GLOBALPARAMSCODE__WWSIZE__RAWEDGEUPDATES] = (size_u32 / HBM_CHANNEL_PACK_SIZE) + 16;
-		globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES] + globalparams[GLOBALPARAMSCODE__WWSIZE__RAWEDGEUPDATES]; 
+		globalparams[GLOBALPARAMSCODE__WWSIZE__PARTIALLYPROCESSEDEDGEUPDATES] = (size_u32 / HBM_CHANNEL_PACK_SIZE) + 16;
+		globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__PARTIALLYPROCESSEDEDGEUPDATES] + globalparams[GLOBALPARAMSCODE__WWSIZE__PARTIALLYPROCESSEDEDGEUPDATES]; 
 	}
 	size_u32 = 0; 
+	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___XXXXXXX
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		unsigned int base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES];
+		for(unsigned int t=0; t<numww_actpackedgeupdates; t++){ 	
+			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+				// unsigned int isvalid = act_pack_edgeupdates[i][t].data[v].valid;
+
+				// unsigned int _sample_key = INVALIDDATA; unsigned int _sample_u = 0; 
+				// for(unsigned int v1=0; v1<EDGE_PACK_SIZE; v1++){ if(act_pack_edgeupdates[i][t].data[v1].valid == 1){ _sample_key = act_pack_edgeupdates[i][t].data[v1].dstvid % EDGE_PACK_SIZE; _sample_u = v1; }} 
+				// unsigned int _rotateby = 0; if(_sample_key > _sample_u){ _rotateby = _sample_key - _sample_u; } else { _rotateby = _sample_u - _sample_key; }
+				// unsigned int sourceid = 0; unsigned int destid = 0; unsigned int weight = 0;
+				
+				
+				HBM_channel[i][base_offset + t].data[2 * v] = act_pack_edgeupdates[i][t].data[v].srcvid;
+				HBM_channel[i][base_offset + t].data[2 * v + 1] = act_pack_edgeupdates[i][t].data[v].dstvid;	
+				if(i==0){ size_u32 += 2; }
+				
+				// if(isvalid==1){
+					// sourceid = act_pack_edgeupdates[i][t].data[v].srcvid % MAX_UPARTITION_VECSIZE;
+					// destid = get_local3(act_pack_edgeupdates[i][t].data[v].dstvid) % MAX_UPARTITION_VECSIZE;
+					// weight = 3;
+				// } else {
+					// sourceid = INVALIDDATA;
+					// destid = get_local3(act_pack_edgeupdates[i][t].data[v].dstvid) % MAX_UPARTITION_VECSIZE;
+					// weight = 3;
+				// }
+				// if(v==0){ weight = _rotateby; }
+				// HBM_channel[i][base_offset + t].data[v] = ((weight & MAXLOCALVALUE2_ACTPACK_EDGEID) << (MAXNUMBITS2_ACTPACK_DESTVID + MAXNUMBITS2_ACTPACK_SRCVID)) | ((sourceid & MAXLOCALVALUE2_ACTPACK_SRCVID) << MAXNUMBITS2_ACTPACK_DESTVID) | (destid & MAXLOCALVALUE2_ACTPACK_DESTVID);		
+				// if(i==0){ size_u32 += 2; }
+			}
+		}
+	}
+	#endif 
 	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
 	for(unsigned int i=0; i<NUM_PEs; i++){
 		unsigned int base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES];
 		for(unsigned int t=0; t<numww_actpackedgeupdates; t++){ 	
 			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-				unsigned int isvalid = act_pack_edgeupdates[i][t].data[v].valid;
-
-				unsigned int _sample_key = INVALIDDATA; unsigned int _sample_u = 0; 
-				for(unsigned int v1=0; v1<EDGE_PACK_SIZE; v1++){ if(act_pack_edgeupdates[i][t].data[v1].valid == 1){ _sample_key = act_pack_edgeupdates[i][t].data[v1].dstvid % EDGE_PACK_SIZE; _sample_u = v1; }} 
-				unsigned int _rotateby = 0; if(_sample_key > _sample_u){ _rotateby = _sample_key - _sample_u; } else { _rotateby = _sample_u - _sample_key; }
-				unsigned int sourceid = 0; unsigned int destid = 0; unsigned int weight = 0;
-				
-				if(isvalid==1){
-					sourceid = act_pack_edgeupdates[i][t].data[v].srcvid % MAX_UPARTITION_VECSIZE;
-					destid = get_local3(act_pack_edgeupdates[i][t].data[v].dstvid) % MAX_UPARTITION_VECSIZE;
-					weight = 3;
-				} else {
-					sourceid = INVALIDDATA;
-					destid = get_local3(act_pack_edgeupdates[i][t].data[v].dstvid) % MAX_UPARTITION_VECSIZE;
-					weight = 3;
+				if(false){
+				HBM_channel[i][base_offset + t].data[2 * v] = act_pack_edges[i][t].data[v].srcvid;
+				HBM_channel[i][base_offset + t].data[2 * v + 1] = act_pack_edges[i][t].data[v].dstvid;	
 				}
-				if(v==0){ weight = _rotateby; }
-				HBM_channel[i][base_offset + t].data[v] = ((weight & MAXLOCALVALUE2_ACTPACK_EDGEID) << (MAXNUMBITS2_ACTPACK_DESTVID + MAXNUMBITS2_ACTPACK_SRCVID)) | ((sourceid & MAXLOCALVALUE2_ACTPACK_SRCVID) << MAXNUMBITS2_ACTPACK_DESTVID) | (destid & MAXLOCALVALUE2_ACTPACK_DESTVID);		
 				if(i==0){ size_u32 += 2; }
 			}
 		}
@@ -519,16 +540,16 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		}
 	}
 	
-	// load updates (NAp)
+	// load vertex updates (NAp)
 	for(unsigned int i=0; i<NUM_PEs; i++){ 
 		globalparams[GLOBALPARAMSCODE__WWSIZE__ACTPACKEDGES] = (size_u32 / HBM_CHANNEL_PACK_SIZE) + 16;
-		globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES] + 0; // act-pack edges occupy 1/2 of hbmchannel
+		globalparams[GLOBALPARAMSCODE__BASEOFFSET__VERTEXUPDATES] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES] + 0; // act-pack edges occupy 1/2 of hbmchannel
 	}
 	
 	// load vertex properties
 	for(unsigned int i=0; i<NUM_PEs; i++){
-		globalparams[GLOBALPARAMSCODE__WWSIZE__UPDATES] = max_num_updates + 16;
-		globalparams[GLOBALPARAMSCODE__BASEOFFSET__VDATAS] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES] + globalparams[GLOBALPARAMSCODE__WWSIZE__UPDATES]; 
+		globalparams[GLOBALPARAMSCODE__WWSIZE__VERTEXUPDATES] = max_num_updates + 16;
+		globalparams[GLOBALPARAMSCODE__BASEOFFSET__VDATAS] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__VERTEXUPDATES] + globalparams[GLOBALPARAMSCODE__WWSIZE__VERTEXUPDATES]; 
 	}
 	size_u32 = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){
@@ -573,7 +594,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		HBM_channel[i][GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES].data[0] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES];
 		HBM_channel[i][GLOBALPARAMSCODE__BASEOFFSET__CSREDGES].data[0] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSREDGES];
 		HBM_channel[i][GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES].data[0] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES];
-		HBM_channel[i][GLOBALPARAMSCODE__BASEOFFSET__UPDATES].data[0] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES];
+		HBM_channel[i][GLOBALPARAMSCODE__BASEOFFSET__VERTEXUPDATES].data[0] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__VERTEXUPDATES];
 		HBM_channel[i][GLOBALPARAMSCODE__BASEOFFSET__VDATAS].data[0] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__VDATAS];
 		HBM_channel[i][GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP].data[0] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP];
 		HBM_channel[i][GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS].data[0] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS];
@@ -589,7 +610,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		HBM_channel[i][GLOBALPARAMSCODE__WWSIZE__EDGEUPDATES].data[0] = globalparams[GLOBALPARAMSCODE__WWSIZE__EDGEUPDATES];
 		HBM_channel[i][GLOBALPARAMSCODE__WWSIZE__CSREDGES].data[0] = globalparams[GLOBALPARAMSCODE__WWSIZE__CSREDGES];
 		HBM_channel[i][GLOBALPARAMSCODE__WWSIZE__ACTPACKEDGES].data[0] = globalparams[GLOBALPARAMSCODE__WWSIZE__ACTPACKEDGES];
-		HBM_channel[i][GLOBALPARAMSCODE__WWSIZE__UPDATES].data[0] = globalparams[GLOBALPARAMSCODE__WWSIZE__UPDATES];
+		HBM_channel[i][GLOBALPARAMSCODE__WWSIZE__VERTEXUPDATES].data[0] = globalparams[GLOBALPARAMSCODE__WWSIZE__VERTEXUPDATES];
 		HBM_channel[i][GLOBALPARAMSCODE__WWSIZE__VDATAS].data[0] = globalparams[GLOBALPARAMSCODE__WWSIZE__VDATAS];
 		HBM_channel[i][GLOBALPARAMSCODE__WWSIZE__CFRONTIERSTMP].data[0] = globalparams[GLOBALPARAMSCODE__WWSIZE__CFRONTIERSTMP];
 		HBM_channel[i][GLOBALPARAMSCODE__WWSIZE__NFRONTIERS].data[0] = globalparams[GLOBALPARAMSCODE__WWSIZE__NFRONTIERS];
@@ -643,7 +664,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__WWSIZE__EDGEUPDATES: "<<globalparams[GLOBALPARAMSCODE__WWSIZE__EDGEUPDATES]<<endl;
 	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__WWSIZE__CSREDGES: "<<globalparams[GLOBALPARAMSCODE__WWSIZE__CSREDGES]<<endl;
 	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__WWSIZE__ACTPACKEDGES: "<<globalparams[GLOBALPARAMSCODE__WWSIZE__ACTPACKEDGES]<<endl;
-	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__WWSIZE__UPDATES: "<<globalparams[GLOBALPARAMSCODE__WWSIZE__UPDATES]<<endl;
+	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__WWSIZE__VERTEXUPDATES: "<<globalparams[GLOBALPARAMSCODE__WWSIZE__VERTEXUPDATES]<<endl;
 	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__WWSIZE__VDATAS: "<<globalparams[GLOBALPARAMSCODE__WWSIZE__VDATAS]<<endl;
 	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__WWSIZE__CFRONTIERSTMP: "<<globalparams[GLOBALPARAMSCODE__WWSIZE__CFRONTIERSTMP]<<endl;
 	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__WWSIZE__NFRONTIERS: "<<globalparams[GLOBALPARAMSCODE__WWSIZE__NFRONTIERS]<<endl;
@@ -658,7 +679,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES: "<<globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES]<<endl;
 	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__BASEOFFSET__CSREDGES: "<<globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSREDGES]<<endl;
 	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES: "<<globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES]<<endl;
-	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__BASEOFFSET__UPDATES: "<<globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES]<<endl;
+	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__BASEOFFSET__VERTEXUPDATES: "<<globalparams[GLOBALPARAMSCODE__BASEOFFSET__VERTEXUPDATES]<<endl;
 	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__BASEOFFSET__VDATAS: "<<globalparams[GLOBALPARAMSCODE__BASEOFFSET__VDATAS]<<endl;
 	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP: "<<globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP]<<endl;
 	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS: "<<globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS]<<endl;
@@ -709,7 +730,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	
 	#ifdef HOST_PRINT_RESULTS_XXXX
 	cout<<"---------------------------------------------- app:: before ---------------------------------------------- "<<endl;
-	unsigned int base_offset__ = globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES];
+	unsigned int base_offset__ = globalparams[GLOBALPARAMSCODE__BASEOFFSET__VERTEXUPDATES];
 	for(unsigned int i=0; i<1; i++){
 		for(unsigned int t=0; t<2; t++){ 
 			for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){ 
@@ -755,7 +776,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	
 	#ifdef HOST_PRINT_RESULTS_XXXX
 	cout<<"---------------------------------------------- app:: after ---------------------------------------------- "<<endl;
-	base_offset__ = globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATES];
+	base_offset__ = globalparams[GLOBALPARAMSCODE__BASEOFFSET__VERTEXUPDATES];
 	for(unsigned int i=0; i<1; i++){
 		for(unsigned int t=0; t<2; t++){ 
 			for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){ 
