@@ -267,36 +267,7 @@ void dretrievemany_rawedges(unsigned int offset__, unsigned int offsets[NUM_VALI
 }
 
 void dretrievemany_edgeupdates(unsigned int base_offset__, unsigned int offsets[NUM_VALID_PEs], unsigned int t, edge_update_vec_dt edge_update_vecs[NUM_VALID_PEs], {% include '___HBM___PARAMS___.template' %}){
-	
 	return dretrievemany_rawedges(base_offset__, offsets, t, edge_update_vecs, {% include '___HBM___ARGS___.template' %});
-	
-	
-	/* #pragma HLS INLINE 
-	#ifdef _DEBUGMODE_CHECKS3
-	unsigned int wwsize = globalparams_debug[GLOBALPARAMSCODE__WWSIZE__ACTPACKEDGES];
-	checkoutofbounds("acts_kernel::ERROR 704ft::", offsets[0] + t, wwsize, NAp, NAp, NAp);
-	#endif 
-	
-	unsigned int data_[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE];
-	#pragma HLS ARRAY_PARTITION variable=data_ complete
-	unsigned int offsets_[NUM_VALID_PEs];
-	#pragma HLS ARRAY_PARTITION variable=offsets_ complete
-	for(unsigned int n=0; n<NUM_VALID_PEs; n++){
-	#pragma HLS UNROLL
-		offsets_[n] = base_offset__ + offsets[n] + t;
-	}
-	
-	master_retrievemany_Avec(offsets_, data_, {% include '___HBM___ARGS___.template' %});		
-
-	for(unsigned int n=0; n<NUM_VALID_PEs; n++){
-	#pragma HLS UNROLL	
-		for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){	
-		#pragma HLS UNROLL	
-			edge_update_vecs[n].data[v].srcvid = (data_[n][v] >> MAXNUMBITS2_ACTPACK_DESTVID) & MAXLOCALVALUE2_ACTPACK_SRCVID;		
-			edge_update_vecs[n].data[v].dstvid = data_[n][v] & MAXLOCALVALUE2_ACTPACK_DESTVID;	
-		}	
-	} */
-	return;
 }
 
 edge3_vec_dt dretrieve_csredges(unsigned int base_offset__, unsigned int index, HBM_channelAXI_t * HBM_channelA, HBM_channelAXI_t * HBM_channelB, unsigned int inst){

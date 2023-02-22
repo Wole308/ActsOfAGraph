@@ -45,7 +45,7 @@
 #define MY_IFDEF_EDGESBUFFER() edge3_type edges_buffer[EDGE_PACK_SIZE][EDGE_BUFFER_SIZE]
 #define MY_IFDEF_EDGEUPDATESBUFFER() edge_update_type edgeupdates_buffer[EDGE_PACK_SIZE][EDGE_UPDATES_DRAMBUFFER_SIZE]
 #define MY_IFDEF_VDATABUFFER() vprop_t vdata_buffer[EDGE_PACK_SIZE][MAXVALID_APPLYPARTITION_VECSIZE]
-#define MY_IFDEF_TOPLEVELFUNC() void top_function({% include '___HBM___PARAMS___.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, unsigned int batch)
+#define MY_IFDEF_TOPLEVELFUNC() void top_function({% include '___HBM___PARAMS___.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, action_t action)
 #else
 #define MY_IFDEF_NFRONTIER() keyvalue_t * nfrontier_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_CFRONTIER_TMP() keyvalue_t * cfrontier_buffer_tmp[EDGE_PACK_SIZE]
@@ -58,7 +58,7 @@
 #define MY_IFDEF_EDGESBUFFER() edge3_type * edges_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_EDGEUPDATESBUFFER() edge_update_type * edgeupdates_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_VDATABUFFER() vprop_t * vdata_buffer[EDGE_PACK_SIZE]
-#define MY_IFDEF_TOPLEVELFUNC() void acts_kernel::top_function({% include '___HBM___PARAMS___.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, unsigned int batch)
+#define MY_IFDEF_TOPLEVELFUNC() void acts_kernel::top_function({% include '___HBM___PARAMS___.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, action_t action)
 #endif
 
 #define APPLY_CMD 2
@@ -106,6 +106,13 @@ unsigned int save_partiallyprepared_edgeupdates(unsigned int base_offset, map_t 
 				if(t < count[v][p_[v]].size){ edge_update_in[v] = retrieve_edgeupdatesbuffer(v, offset_p[v] + t, edgeupdates_buffer); } // count[v][llp_id].offset
 				else { edge_update_in[v].srcvid = p_[v]; edge_update_in[v].dstvid = INVALIDDATA; }				
 			}
+			
+			#ifdef _DEBUGMODE_CHECKS3
+			for(unsigned int v=0; v<EDGE_PACK_SIZE/2; v++){	
+				if(edge_update_in[v].srcvid != INVALIDDATA){ checkoutofbounds("save_partiallyprepared_edgeupdates::ERROR 82813::", edge_update_in[v].srcvid, MAX_UPARTITION_SIZE, t, v, NAp); }
+				if(edge_update_in[v].dstvid != INVALIDDATA){ checkoutofbounds("save_partiallyprepared_edgeupdates::ERROR 82823::", edge_update_in[v].dstvid, MAX_UPARTITION_SIZE, t, v, NAp); }
+			}
+			#endif
 			
 			#ifdef _DEBUGMODE_KERNELPRINTS//4
 			if(t==0){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ cout<<"save_partiallyprepared_edgeupdates (before-cyclic-rotate): llp_id: "<<llp_id<<", t:"<<t<<", edge_update_in["<<v<<"].srcvid: "<<edge_update_in[v].srcvid<<" ("<<edge_update_in[v].srcvid % EDGE_PACK_SIZE<<"), edge_update_in["<<v<<"].dstvid: "<<edge_update_in[v].dstvid<<" ("<<edge_update_in[v].dstvid % EDGE_PACK_SIZE<<")"<<endl; }}
@@ -158,6 +165,13 @@ void save_fullyprepared_edgeupdates(unsigned int base_offset, map_t count[EDGE_P
 				if(t==0){ cout<<"save_fullyprepared_edgeupdates: llp_id: "<<llp_id<<", t:"<<t<<", edge_update["<<v<<"].srcvid: "<<edge_update[v].srcvid<<" ("<<edge_update[v].srcvid % EDGE_PACK_SIZE<<"), edge_update["<<v<<"].dstvid: "<<edge_update[v].dstvid<<" ("<<edge_update[v].dstvid % EDGE_PACK_SIZE<<")"<<endl; }
 				#endif 
 			}
+			
+			#ifdef _DEBUGMODE_CHECKS3
+			for(unsigned int v=0; v<EDGE_PACK_SIZE/2; v++){	
+				if(edge_update[v].srcvid != INVALIDDATA){ checkoutofbounds("save_fullyprepared_edgeupdates::ERROR 82813::", edge_update[v].srcvid, MAX_UPARTITION_SIZE, t, v, NAp); }
+				if(edge_update[v].dstvid != INVALIDDATA){ checkoutofbounds("save_fullyprepared_edgeupdates::ERROR 82823::", edge_update[v].dstvid, MAX_UPARTITION_SIZE, t, v, NAp); }
+			}
+			#endif
 			
 			for(unsigned int v=0; v<EDGE_PACK_SIZE/2; v++){				
 			#pragma HLS UNROLL
@@ -293,12 +307,12 @@ MY_IFDEF_TOPLEVELFUNC(){
 	
 	unsigned int threshold___activedstvids = globalparams[GLOBALPARAMSCODE__PARAM__THRESHOLD__ACTIVEDSTVID];
 	unsigned int async_batch = globalparams[GLOBALPARAMSCODE__ASYNC__BATCH]; 
-	unsigned int _ASYNC_BATCH_SIZE_ = globalparams[GLOBALPARAMSCODE__ASYNC__BATCHSIZE];
-	if(batch > 0){
-		___ENABLE___PROCESSEDGES___BOOL___ = 0;
-		___ENABLE___SAVEVCUPDATES___BOOL___ = 0;
-		___ENABLE___COLLECTACTIVEDSTVIDS___BOOL___ = 0;
-	}
+	unsigned int _ASYNC_BATCH_SIZE_ = globalparams[GLOBALPARAMSCODE__ASYNC__BATCHSIZE];	
+	// if(batch > 0){
+		// ___ENABLE___PROCESSEDGES___BOOL___ = 0;
+		// ___ENABLE___SAVEVCUPDATES___BOOL___ = 0;
+		// ___ENABLE___COLLECTACTIVEDSTVIDS___BOOL___ = 0;
+	// }	
 	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
 	unsigned int num_edgeblocks_per_upartition = EDGE_PACK_SIZE;	
 	#else 
@@ -359,21 +373,23 @@ MY_IFDEF_TOPLEVELFUNC(){
 	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___PROCESSRAWEDGEUPDATES___ 
 	{% include '___ENABLE___PREPARE_EDGEUPDATES___.template' %}	
 	#endif	
-	exit(EXIT_SUCCESS);
+	// exit(EXIT_SUCCESS);
 	
 	// run acts 
 	RUN_ACTS_LOOP1: for(unsigned int run=0; run<globalparams[GLOBALPARAMSCODE__PARAM__NUM_RUNS]; run++){
 	RUN_ACTS_LOOP1B: for(unsigned int GraphIter=0; GraphIter<globalparams[GLOBALPARAMSCODE__PARAM__NUM_ITERATIONS]; GraphIter++){
+		action_t this_action = action;
 		#ifdef _DEBUGMODE_KERNELPRINTS4 
 		cout<<"### processing [run "<<run<<", graph iteration "<<GraphIter<<"]..."<<endl; 
+		cout<<"### processing action [module "<<action.module<<", p_u "<<action.p_u<<", llp_set "<<action.llp_set<<", llp_id "<<action.llp_id<<", p_v "<<action.p_v<<", p_transport "<<action.p_transport<<"]..."<<endl; 
 		#endif 
-				
+			
 		unsigned int MASK_CODE = 1 + GraphIter;
 		unsigned int MASK_CODE_PE = 1 + GraphIter;
 		unsigned int MASK_CODE_AU = 4094 + 1 + GraphIter;
 		
 		// capture sparsity distribution for sssp, bfs
-		{% include '___ENABLE___CAPTURE___.template' %}	
+		{% include '___ENABLE___CAPTUREACTVVS___.template' %}	
 		
 		// clear counters
 		#ifdef ___ENABLE___CLEAR_COUNTERS___
@@ -450,12 +466,13 @@ MY_IFDEF_TOPLEVELFUNC(){
 		frontier_t actvv[EDGE_PACK_SIZE]; 
 		MY_LOOP311: for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){ upartition_vertices[p_u].count = 0; }
 		MY_LOOP312: for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){ cfrontier_dram___size[p_u] = 0; } // reset
-		unsigned int start_partition = batch * _ASYNC_BATCH_SIZE_;
-		unsigned int stop_partition = (batch + 1) * _ASYNC_BATCH_SIZE_; 
-		if(stop_partition > __NUM_APPLYPARTITIONS * 2){ stop_partition = (__NUM_APPLYPARTITIONS * 2) - ((batch + 1) * _ASYNC_BATCH_SIZE_); }
+		// unsigned int start_partition = batch * _ASYNC_BATCH_SIZE_;
+		// unsigned int stop_partition = (batch + 1) * _ASYNC_BATCH_SIZE_; 
+		// if(stop_partition > __NUM_APPLYPARTITIONS * 2){ stop_partition = (__NUM_APPLYPARTITIONS * 2) - ((batch + 1) * _ASYNC_BATCH_SIZE_); }
 		
 		// apply updates 
-		APPLY_UPDATES_MODULE_LOOP: for(unsigned int p_v=start_partition; p_v<stop_partition; p_v++){
+		APPLY_UPDATES_MODULE_LOOP: for(unsigned int p_v=0; p_v<__NUM_APPLYPARTITIONS; p_v++){
+		// APPLY_UPDATES_MODULE_LOOP: for(unsigned int p_v=start_partition; p_v<stop_partition; p_v++)
 			#ifndef FPGA_IMPL
 			checkoutofbounds("acts_kernel::ERROR 862::", p_v, __NUM_APPLYPARTITIONS, p_v, __NUM_APPLYPARTITIONS, NAp);
 			#endif 
@@ -499,7 +516,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 		} 
 		
 		// transport dest to center and ddr (for export to remote fpga)
-		GATHER_FRONTIERS_MODULE_LOOP: for(unsigned int p_v=start_partition; p_v<stop_partition; p_v++){		
+		GATHER_FRONTIERS_MODULE_LOOP: for(unsigned int p_v=0; p_v<__NUM_APPLYPARTITIONS; p_v++){		
 			#ifdef ___ENABLE___EXCHANGEFRONTIERINFOS___
 			if(___ENABLE___EXCHANGEFRONTIERINFOS___BOOL___ == 1){
 				{% include '___ENABLE___GATHERFRONTIERINFOS___.template' %}	
@@ -514,19 +531,6 @@ MY_IFDEF_TOPLEVELFUNC(){
 		#endif 
 		
 		{% include '___ENABLE___FINISH___.template' %}	
-			
-		/* #ifndef HW // _DEBUGMODE_KERNELPRINTS4
-		for(unsigned int t=0; t<__NUM_UPARTITIONS; t++){ if(hybrid_map[GraphIter][t] == 0){ std::cout<<"V, "; } else if(hybrid_map[GraphIter][t] == 1){ std::cout<<"E, "; } else { std::cout<<"-, "; }} std::cout<<std::endl;
-		std::cout<<""<<std::endl;
-		std::cout<< TIMINGRESULTSCOLOR <<"### GAS iteration: "<<GraphIter + 1<<" ["<<totalactvvs2<<" active vertices]"<< RESET << std::endl; 
-		for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){ if(upartition_vertices[p_u].count > 0){ std::cout<<"1, "; } else { std::cout<<"0, "; }} std::cout<<std::endl;
-		if(totalactvvs2 == 0 || GraphIter >= MAXNUMGRAPHITERATIONS){ std::cout<<"no more active vertices to process. breaking out... "<<std::endl; }
-		#endif 
-		total_num_actvvs += totalactvvs2;
-		if(totalactvvs2 == 0 || GraphIter >= MAXNUMGRAPHITERATIONS){ maxGraphIter = GraphIter; break; }
-		for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){ nfrontier_dram___size[inst][p_u] = 0; }} */
-		
-		
 	} // NUM_ITs
 	}
 
