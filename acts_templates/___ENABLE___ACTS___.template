@@ -45,7 +45,7 @@
 #define MY_IFDEF_EDGESBUFFER() edge3_type edges_buffer[EDGE_PACK_SIZE][EDGE_BUFFER_SIZE]
 #define MY_IFDEF_EDGEUPDATESBUFFER() edge_update_type edgeupdates_buffer[EDGE_PACK_SIZE][EDGE_UPDATES_DRAMBUFFER_SIZE]
 #define MY_IFDEF_VDATABUFFER() vprop_t vdata_buffer[EDGE_PACK_SIZE][MAXVALID_APPLYPARTITION_VECSIZE]
-#define MY_IFDEF_TOPLEVELFUNC() void top_function({% include '___HBM___PARAMS___.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, action_t action)
+#define MY_IFDEF_TOPLEVELFUNC() void top_function({% include '___HBM___PARAMS___.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, unsigned int module, unsigned int start_pu, unsigned int size_pu, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_tpid, unsigned int size_tpid)
 #else
 #define MY_IFDEF_NFRONTIER() keyvalue_t * nfrontier_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_CFRONTIER_TMP() keyvalue_t * cfrontier_buffer_tmp[EDGE_PACK_SIZE]
@@ -58,7 +58,7 @@
 #define MY_IFDEF_EDGESBUFFER() edge3_type * edges_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_EDGEUPDATESBUFFER() edge_update_type * edgeupdates_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_VDATABUFFER() vprop_t * vdata_buffer[EDGE_PACK_SIZE]
-#define MY_IFDEF_TOPLEVELFUNC() void acts_kernel::top_function({% include '___HBM___PARAMS___.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, action_t action)
+#define MY_IFDEF_TOPLEVELFUNC() void acts_kernel::top_function({% include '___HBM___PARAMS___.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, unsigned int module, unsigned int start_pu, unsigned int size_pu, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_tpid, unsigned int size_tpid)
 #endif
 
 #define APPLY_CMD 2
@@ -85,6 +85,7 @@ acts_kernel::~acts_kernel(){}
 {% include '___ENABLE___ACCESSBRAM___.template' %}	
 
 //////////////////////////////////////////////////////////////////
+#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
 unsigned int save_partiallyprepared_edgeupdates(unsigned int base_offset, map_t count[EDGE_PACK_SIZE][EDGE_PACK_SIZE], edge_update_type * edgeupdates_buffer[EDGE_PACK_SIZE], HBM_channelAXI_t * HBM_channelA, HBM_channelAXI_t * HBM_channelB, unsigned int globalparams[GLOBALBUFFER_SIZE]){		
 	edge_update_type edge_update_in[EDGE_PACK_SIZE];	
 	edge_update_type edge_update_out[EDGE_PACK_SIZE];
@@ -141,7 +142,9 @@ unsigned int save_partiallyprepared_edgeupdates(unsigned int base_offset, map_t 
 	#endif 
 	return index;
 }
+#endif 
 
+#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
 void save_fullyprepared_edgeupdates(unsigned int base_offset, map_t count[EDGE_PACK_SIZE][EDGE_PACK_SIZE], edge_update_type * edgeupdates_buffer[EDGE_PACK_SIZE], map_t * edgeupdate_maps, HBM_channelAXI_t * HBM_channelA, HBM_channelAXI_t * HBM_channelB, unsigned int globalparams[GLOBALBUFFER_SIZE]){		
 	unsigned int offset_p[EDGE_PACK_SIZE];
 	unsigned int p_[EDGE_PACK_SIZE];
@@ -187,6 +190,7 @@ void save_fullyprepared_edgeupdates(unsigned int base_offset, map_t count[EDGE_P
 		edgeupdate_maps[llp_id].size += max;	
 	}	
 }
+#endif 
 
 void transport_frontier(unsigned int inst, unsigned int p_v, unsigned int baseoffset_nfdram, unsigned int * cfrontier_dram___size, unsigned int * nfrontier_dram___size, offset_t * upartition_vertices, HBM_channelAXI_t * HBM_channelA, HBM_channelAXI_t * HBM_channelB, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, unsigned int * totalactvvs2){
 	frontier_t actvv[EDGE_PACK_SIZE];
@@ -263,11 +267,24 @@ MY_IFDEF_TOPLEVELFUNC(){
 	#endif 
 	
 	// declaration of BRAM variables
-	{% include '___ENABLE___DECLARATIONS___.template' %}		
+	{% include '___ENABLE___DECLARATIONS___.template' %}	
+	
+	action_t action;
+	action.module = module; 
+	action.start_pu = start_pu; 
+	action.size_pu = size_pu; 
+	action.start_pv = start_pv;
+	action.size_pv = size_pv; 
+	action.start_llpset = start_llpset; 
+	action.size_llpset = size_llpset; 
+	action.start_llpid = start_llpid; 
+	action.size_llpid = size_llpid; 
+	action.start_tpid = start_tpid; 
+	action.size_tpid = size_tpid;
 	
 	unsigned int maxGraphIter = 0;
 	unsigned int total_num_actvvs = 0; 
-	bool enable___vertexcentric = true;
+	// bool enable___vertexcentric = true;
 	#ifdef ___ENABLE___COLLECTACTIVEDSTVIDS___
 	bool enable___collectactivedstvids = true;
 	#else 
@@ -373,10 +390,9 @@ MY_IFDEF_TOPLEVELFUNC(){
 	// run acts 
 	RUN_ACTS_LOOP1: for(unsigned int run=0; run<globalparams[GLOBALPARAMSCODE__PARAM__NUM_RUNS]; run++){
 	RUN_ACTS_LOOP1B: for(unsigned int GraphIter=0; GraphIter<globalparams[GLOBALPARAMSCODE__PARAM__NUM_ITERATIONS]; GraphIter++){
-		action_t this_action = action;
 		#ifdef _DEBUGMODE_KERNELPRINTS4 
 		cout<<"### processing [run "<<run<<", graph iteration "<<GraphIter<<"]..."<<endl; 
-		cout<<"### processing action [module "<<action.module<<", p_u "<<action.p_u<<", llp_set "<<action.llp_set<<", llp_id "<<action.llp_id<<", p_v "<<action.p_v<<", p_transport "<<action.p_transport<<"]..."<<endl; 
+		cout<<"### processing action [module "<<action.module<<", start_pu "<<action.start_pu<<", size_pu "<<action.size_pu<<", start_pv "<<action.start_pv<<", size_pv "<<action.size_pv<<", start_llpset "<<action.start_llpset<<", size_llpset "<<action.size_llpset<<", start_llpid "<<action.start_llpid<<", size_llpid "<<action.size_llpid<<"]"<<endl;
 		#endif 
 			
 		unsigned int MASK_CODE = 1 + GraphIter;
@@ -401,8 +417,8 @@ MY_IFDEF_TOPLEVELFUNC(){
 		
 		// process-edges and partition-updates
 		#ifdef ___ENABLE___PROCESSEDGES___
-		if(___ENABLE___PROCESSEDGES___BOOL___ == 1){
-		PROCESS_EDGES_MODULE_LOOP1B: for(unsigned int p_u=0; p_u<__NUM_ACTIVE_UPARTITIONS; p_u++){ 
+		if(action.module == PROCESS_EDGES_MODULE || action.module == ALL_MODULES){
+		PROCESS_EDGES_MODULE_LOOP1B: for(unsigned int p_u=action.start_pu; p_u<action.start_pu + action.size_pu; p_u++){ 
 			MASK_CODE_PE = ((1 + GraphIter) * MAX_NUM_UPARTITIONS) + p_u;
 			#ifdef _DEBUGMODE_KERNELPRINTS//4 
 			cout<<"### processing edges in upartition "<<p_u<<": [PEs "; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<n<<", "; } cout<<"]"<<endl; 
@@ -437,26 +453,27 @@ MY_IFDEF_TOPLEVELFUNC(){
 		}
 		#endif 
 		
-		// apply updates
 		unsigned int totalactvvs2 = 0; 
-		#ifdef ___ENABLE___APPLYUPDATESMODULE___
-		if(___ENABLE___APPLYUPDATESMODULE___BOOL___ == 1){
 		frontier_t actvv[EDGE_PACK_SIZE]; 
 		MY_LOOP311: for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){ upartition_vertices[p_u].count = 0; }
 		MY_LOOP312: for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){ cfrontier_dram___size[p_u] = 0; } // reset
 
 		// apply updates 
-		APPLY_UPDATES_MODULE_LOOP: for(unsigned int p_v=0; p_v<__NUM_APPLYPARTITIONS; p_v++){
+		#ifdef ___ENABLE___APPLYUPDATESMODULE___
+		if(action.module == APPLY_UPDATES_MODULE || action.module == ALL_MODULES){
+		APPLY_UPDATES_MODULE_LOOP: for(unsigned int p_v=action.start_pv; p_v<action.start_pv + action.size_pv; p_v++){
 			#ifndef FPGA_IMPL
 			checkoutofbounds("acts_kernel::ERROR 862::", p_v, __NUM_APPLYPARTITIONS, p_v, __NUM_APPLYPARTITIONS, NAp);
 			#endif 
 			bool en = true; if(enable___collectactivedstvids == true){ if(vpartition_vertices[0][p_v].count > 0){ en=true; } else { en=false; }} else { en = true; }
 			unsigned int voffset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__VDATAS] + (p_v * MAX_APPLYPARTITION_VECSIZE);
-			cout<<"------------------------- APPLY_UPDATES_MODULE_LOOP: vpartition_vertices[0]["<<p_v<<"].count: "<<vpartition_vertices[0][p_v].count<<" --------------------------------------"<<endl;
+			#ifdef _DEBUGMODE_KERNELPRINTS
+			cout<<"APPLY_UPDATES_MODULE_LOOP: vpartition_vertices[0]["<<p_v<<"].count: "<<vpartition_vertices[0][p_v].count<<" "<<endl;
+			#endif 
 			
-			if(vpartition_vertices[0][p_v].count > 0){ 
+			if(vpartition_vertices[0][p_v].count > 0 || all_vertices_active_in_all_iterations == true){ 
 				#ifdef _DEBUGMODE_KERNELPRINTS4
-				if(en == true){ cout<<"###>>> applying updates in vpartition "<<p_v<<"..."<<endl; }
+				if(en == true){ cout<<"### applying updates in vpartition "<<p_v<<"..."<<endl; }
 				#endif
 			
 				// read destination properties
@@ -488,14 +505,16 @@ MY_IFDEF_TOPLEVELFUNC(){
 				#endif 
 			}
 		} 
+		}
+		#endif 
 		
 		// transport dest to center and ddr (for export to remote fpga)
-		GATHER_FRONTIERS_MODULE_LOOP: for(unsigned int p_v=0; p_v<__NUM_APPLYPARTITIONS; p_v++){		
-			#ifdef ___ENABLE___EXCHANGEFRONTIERINFOS___
+		#ifdef ___ENABLE___EXCHANGEFRONTIERINFOS___
+		if(action.module == MIGRATE_DSTPROPERTIES_MODULE || action.module == ALL_MODULES){
+		GATHER_FRONTIERS_MODULE_LOOP: for(unsigned int p_v=action.start_pv; p_v<action.start_pv + action.size_pv; p_v++){		
 			if(___ENABLE___EXCHANGEFRONTIERINFOS___BOOL___ == 1){
 				{% include '___ENABLE___GATHERFRONTIERINFOS___.template' %}	
 			}
-			#endif 
 		}
 		}
 		#endif

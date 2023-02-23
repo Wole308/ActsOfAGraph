@@ -251,19 +251,6 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	
 	// load actions 
 	for(unsigned int i=0; i<NUM_PEs; i++){ globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTIONS] = 512; } 
-	action_t action;
-	action.module = ALL_MODULES;
-	action.p_u = ALL_P_Us;
-    action.llp_set = ALL_LLP_SETs;
-	action.llp_id = ALL_LLP_IDs;
-	action.p_v = ALL_P_Vs;
-	action.p_transport = ALL_P_TRANSPORTs;
-	// HBM_channel[0][GLOBALPARAMSCODE__BASEOFFSET__ACTIONS + 0].data[0] = ALL_MODULES;
-	// HBM_channel[0][GLOBALPARAMSCODE__BASEOFFSET__ACTIONS + 1].data[0] = ALL_P_Us;
-	// HBM_channel[0][GLOBALPARAMSCODE__BASEOFFSET__ACTIONS + 2].data[0] = ALL_LLP_SETs;
-	// HBM_channel[0][GLOBALPARAMSCODE__BASEOFFSET__ACTIONS + 3].data[0] = ALL_LLP_IDs;
-	// HBM_channel[0][GLOBALPARAMSCODE__BASEOFFSET__ACTIONS + 4].data[0] = ALL_P_Vs;
-	// HBM_channel[0][GLOBALPARAMSCODE__BASEOFFSET__ACTIONS + 5].data[0] = ALL_P_TRANSPORTs;
 	unsigned int size_u32 = 16 * EDGE_PACK_SIZE;	
 	
 	// load raw edge-update vptrs  
@@ -274,8 +261,8 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATESPTRS] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTIONS] + globalparams[GLOBALPARAMSCODE__WWSIZE__ACTIONS]; 
 	}
 	size_u32 = 0;
-	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
 	vector<edge3_type> final_edge_updates[NUM_PEs][MAX_NUM_UPARTITIONS][MAX_NUM_LLPSETS];
+	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
 	pack->load_edgeupdates(vertexptrbuffer, edgedatabuffer, final_edge_updates);
 	for(unsigned int i=0; i<NUM_PEs; i++){ 
 		unsigned int index = 0;
@@ -421,6 +408,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS] + globalparams[GLOBALPARAMSCODE__WWSIZE__UPDATESPTRS]; 
 	}
 	size_u32 = 0; 
+	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___ 
 	for(unsigned int i=0; i<NUM_PEs; i++){
 		for(unsigned int p_u=0; p_u<universalparams.NUM_UPARTITIONS; p_u++){
 			for(unsigned int llp_set=0; llp_set<universalparams.NUM_APPLYPARTITIONS; llp_set++){
@@ -442,6 +430,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 			}
 		}
 	}
+	#endif 
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ for(unsigned int llp_set=0; llp_set<MAX_NUM_LLPSETS; llp_set++){ final_edge_updates[i][p_u][llp_set].clear(); }}}
 	
 	// load partial-processed edge updates
@@ -457,39 +446,6 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__PARTIALLYPROCESSEDEDGEUPDATES] + globalparams[GLOBALPARAMSCODE__WWSIZE__PARTIALLYPROCESSEDEDGEUPDATES]; 
 	}
 	size_u32 = 0; 
-	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___XXXXXXX
-	for(unsigned int i=0; i<NUM_PEs; i++){
-		unsigned int base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES];
-		for(unsigned int t=0; t<numww_actpackedgeupdates; t++){ 	
-			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-				// unsigned int isvalid = act_pack_edgeupdates[i][t].data[v].valid;
-
-				// unsigned int _sample_key = INVALIDDATA; unsigned int _sample_u = 0; 
-				// for(unsigned int v1=0; v1<EDGE_PACK_SIZE; v1++){ if(act_pack_edgeupdates[i][t].data[v1].valid == 1){ _sample_key = act_pack_edgeupdates[i][t].data[v1].dstvid % EDGE_PACK_SIZE; _sample_u = v1; }} 
-				// unsigned int _rotateby = 0; if(_sample_key > _sample_u){ _rotateby = _sample_key - _sample_u; } else { _rotateby = _sample_u - _sample_key; }
-				// unsigned int sourceid = 0; unsigned int destid = 0; unsigned int weight = 0;
-				
-				
-				HBM_channel[i][base_offset + t].data[2 * v] = act_pack_edgeupdates[i][t].data[v].srcvid;
-				HBM_channel[i][base_offset + t].data[2 * v + 1] = act_pack_edgeupdates[i][t].data[v].dstvid;	
-				if(i==0){ size_u32 += 2; }
-				
-				// if(isvalid==1){
-					// sourceid = act_pack_edgeupdates[i][t].data[v].srcvid % MAX_UPARTITION_VECSIZE;
-					// destid = get_local3(act_pack_edgeupdates[i][t].data[v].dstvid) % MAX_UPARTITION_VECSIZE;
-					// weight = 3;
-				// } else {
-					// sourceid = INVALIDDATA;
-					// destid = get_local3(act_pack_edgeupdates[i][t].data[v].dstvid) % MAX_UPARTITION_VECSIZE;
-					// weight = 3;
-				// }
-				// if(v==0){ weight = _rotateby; }
-				// HBM_channel[i][base_offset + t].data[v] = ((weight & MAXLOCALVALUE2_ACTPACK_EDGEID) << (MAXNUMBITS2_ACTPACK_DESTVID + MAXNUMBITS2_ACTPACK_SRCVID)) | ((sourceid & MAXLOCALVALUE2_ACTPACK_SRCVID) << MAXNUMBITS2_ACTPACK_DESTVID) | (destid & MAXLOCALVALUE2_ACTPACK_DESTVID);		
-				// if(i==0){ size_u32 += 2; }
-			}
-		}
-	}
-	#endif 
 	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
 	for(unsigned int i=0; i<NUM_PEs; i++){
 		unsigned int base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES];
@@ -767,6 +723,19 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	#endif 
 	
 	// run acts
+	action_t action;
+	action.module = ALL_MODULES;
+	action.start_pu = 0; 
+	action.size_pu = universalparams.NUM_UPARTITIONS; 
+	action.start_pv = 0;
+	action.size_pv = universalparams.NUM_APPLYPARTITIONS; 
+	action.start_llpset = 0; 
+	action.size_llpset = universalparams.NUM_APPLYPARTITIONS; 
+	action.start_llpid = 0; 
+	action.size_llpid = EDGE_PACK_SIZE; 
+	action.start_tpid = 0; 
+	action.size_tpid = NUM_VALID_PEs;
+
 	#ifdef FPGA_IMPL
 	host_fpga * fpgaobj = new host_fpga(universalparams);
 	fpgaobj->runapp(binaryFile, HBM_axichannel, HBM_axicenter, globalparams, universalparams);
@@ -794,10 +763,13 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		#endif 
 		#endif
 		,(HBM_channelAXI_t *)HBM_axicenter[0], (HBM_channelAXI_t *)HBM_axicenter[1]
-		,action
+		,action.module ,action.start_pu ,action.size_pu ,action.start_pv ,action.size_pv ,action.start_llpset ,action.size_llpset ,action.start_llpid ,action.size_llpid ,action.start_tpid ,action.size_tpid
 		);
 	}
 	#endif 
+	
+	// ALL_MODULES, START_PU, ALL_LLP_SETs, ALL_LLP_IDs, START_PV, ALL_P_TRANSPORTs
+	// unsigned int module, unsigned int p_u, unsigned int llp_set, unsigned int llp_id, unsigned int p_v, unsigned int p_transport
 	
 	#ifdef HOST_PRINT_RESULTS_XXXX
 	cout<<"---------------------------------------------- app:: after ---------------------------------------------- "<<endl;
