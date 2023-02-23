@@ -308,11 +308,6 @@ MY_IFDEF_TOPLEVELFUNC(){
 	unsigned int threshold___activedstvids = globalparams[GLOBALPARAMSCODE__PARAM__THRESHOLD__ACTIVEDSTVID];
 	unsigned int async_batch = globalparams[GLOBALPARAMSCODE__ASYNC__BATCH]; 
 	unsigned int _ASYNC_BATCH_SIZE_ = globalparams[GLOBALPARAMSCODE__ASYNC__BATCHSIZE];	
-	// if(batch > 0){
-		// ___ENABLE___PROCESSEDGES___BOOL___ = 0;
-		// ___ENABLE___SAVEVCUPDATES___BOOL___ = 0;
-		// ___ENABLE___COLLECTACTIVEDSTVIDS___BOOL___ = 0;
-	// }	
 	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
 	unsigned int num_edgeblocks_per_upartition = EDGE_PACK_SIZE;	
 	#else 
@@ -370,7 +365,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 	}
 	
 	// prepare edge updates 	
-	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___PROCESSRAWEDGEUPDATES___ 
+	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___ 
 	{% include '___ENABLE___PREPARE_EDGEUPDATES___.template' %}	
 	#endif	
 	// exit(EXIT_SUCCESS);
@@ -402,14 +397,14 @@ MY_IFDEF_TOPLEVELFUNC(){
 			{% include '___ENABLE___PROCESS_EDGEUPDATES___.template' %}	
 		}
 		#endif
-		exit(EXIT_SUCCESS);
+		// exit(EXIT_SUCCESS);
 		
 		// process-edges and partition-updates
 		#ifdef ___ENABLE___PROCESSEDGES___
 		if(___ENABLE___PROCESSEDGES___BOOL___ == 1){
 		PROCESS_EDGES_MODULE_LOOP1B: for(unsigned int p_u=0; p_u<__NUM_ACTIVE_UPARTITIONS; p_u++){ 
 			MASK_CODE_PE = ((1 + GraphIter) * MAX_NUM_UPARTITIONS) + p_u;
-			#ifdef _DEBUGMODE_KERNELPRINTS4 
+			#ifdef _DEBUGMODE_KERNELPRINTS//4 
 			cout<<"### processing edges in upartition "<<p_u<<": [PEs "; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<n<<", "; } cout<<"]"<<endl; 
 			#endif 
 			
@@ -426,28 +421,11 @@ MY_IFDEF_TOPLEVELFUNC(){
 			#endif 
 	
 			// process-edges and partition-updates
-			for(unsigned int edge_block=0; edge_block<__NUM_APPLYPARTITIONS * num_edgeblocks_per_upartition; edge_block++){ 
-				#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___							
-				map_t edge_map_vec[NUM_VALID_PEs];
-				load_edgemap_vec((p_u * MAX_NUM_LLP_PER_UPARTITION) + edge_block, globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS], edge_map_vec, {% include '___HBM___ARGS___.template' %});
-				for(unsigned int n=0; n<NUM_VALID_PEs; n++){
-				#pragma HLS UNROLL
-					edge_map[n] = edge_map_vec[n];
-				}
-				#else 
-				dretrievemany_actpackvptrdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS], ((p_u * MAX_NUM_LLPSETS) + edge_block), edge_map, {% include '___HBM___ARGS___.template' %});
-				#endif 
-				for(unsigned int n=0; n<NUM_VALID_PEs; n++){
-				#pragma HLS UNROLL
-					edge_maps[n][edge_block] = edge_map[n];
-				}
-			
-				#ifdef ___ENABLE___ECPROCESSEDGES___II1___
-				if(___ENABLE___ECPROCESSEDGES___BOOL___ == 1){
-					{% include '___ENABLE___PROCESS_EDGES___.template' %}	
-				}
-				#endif
+			#ifdef ___ENABLE___ECPROCESSEDGES___II1___
+			if(___ENABLE___ECPROCESSEDGES___BOOL___ == 1){
+				{% include '___ENABLE___PROCESS_EDGES___.template' %}	
 			}
+			#endif
 		}
 		}
 		#endif 
@@ -466,13 +444,9 @@ MY_IFDEF_TOPLEVELFUNC(){
 		frontier_t actvv[EDGE_PACK_SIZE]; 
 		MY_LOOP311: for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){ upartition_vertices[p_u].count = 0; }
 		MY_LOOP312: for(unsigned int p_u=0; p_u<__NUM_UPARTITIONS; p_u++){ cfrontier_dram___size[p_u] = 0; } // reset
-		// unsigned int start_partition = batch * _ASYNC_BATCH_SIZE_;
-		// unsigned int stop_partition = (batch + 1) * _ASYNC_BATCH_SIZE_; 
-		// if(stop_partition > __NUM_APPLYPARTITIONS * 2){ stop_partition = (__NUM_APPLYPARTITIONS * 2) - ((batch + 1) * _ASYNC_BATCH_SIZE_); }
-		
+
 		// apply updates 
 		APPLY_UPDATES_MODULE_LOOP: for(unsigned int p_v=0; p_v<__NUM_APPLYPARTITIONS; p_v++){
-		// APPLY_UPDATES_MODULE_LOOP: for(unsigned int p_v=start_partition; p_v<stop_partition; p_v++)
 			#ifndef FPGA_IMPL
 			checkoutofbounds("acts_kernel::ERROR 862::", p_v, __NUM_APPLYPARTITIONS, p_v, __NUM_APPLYPARTITIONS, NAp);
 			#endif 

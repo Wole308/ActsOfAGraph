@@ -55,7 +55,7 @@ edge3_vec_dt rearrangeLayoutVB(unsigned int s, edge3_vec_dt edge_vec){
 
 void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedatabuffer, 
 		vector<edge3_vec_dt> (&act_pack_edges)[NUM_PEs], map_t * act_pack_map[NUM_PEs][MAX_NUM_UPARTITIONS], map_t * act_pack_map2[NUM_PEs][MAX_NUM_UPARTITIONS],
-		vector<edge3_vec_dt> (&act_pack_edgeudates)[NUM_PEs], map_t * act_pack_edgeudates_map[NUM_PEs][MAX_NUM_UPARTITIONS]
+		vector<edge3_vec_dt> (&act_pack_edgeupdates)[NUM_PEs], map_t * act_pack_edgeudates_map[NUM_PEs][MAX_NUM_UPARTITIONS]
 		){			
 	unsigned int num_vPs = universalparams.NUM_UPARTITIONS;
 	unsigned int vsize_vP = MAX_UPARTITION_SIZE;
@@ -265,7 +265,7 @@ void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedat
 						act_pack_map[i][v_p][llp_set].size += 1;
 						act_pack_map2[i][v_p][(llp_set * EDGE_PACK_SIZE) + llp_id].size += 1;
 						// load to edge updates buffer (act-pack format)
-						// act_pack_edgeudates[i].push_back(edge_vec3); // 
+						// act_pack_edgeupdates[i].push_back(edge_vec3); // 
 						act_pack_edgeudates_map[i][v_p][(llp_set * EDGE_PACK_SIZE) + llp_id].size += 1;
 						
 						finest_granularity_size += 1;
