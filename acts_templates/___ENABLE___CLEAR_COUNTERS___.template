@@ -1,14 +1,27 @@
-// clear counters [done]
-CLEAR_COUNTERS_LOOP1: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
-#pragma HLS UNROLL
-	CLEAR_COUNTERS_LOOP1B: for(unsigned int p_v=0; p_v<__NUM_APPLYPARTITIONS; p_v++){ 
+// clear counters
+CLEAR_COUNTERS_LOOP1: for(unsigned int p_v=0; p_v<__NUM_APPLYPARTITIONS; p_v++){ 
+#pragma HLS PIPELINE II=1
+	for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
+	#pragma HLS UNROLL
 		actpackupdates_dram___size[inst][p_v] = 0;
 		stats_buffer___size[inst][p_v] = 0; statsbuffer_idbased___size[inst][p_v] = 0;
 		vpartition_vertices[inst][p_v].offset = 0; vpartition_vertices[inst][p_v].size = 0; vpartition_vertices[inst][p_v].count = 0;
-		MY_LOOP191: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ updates_buffer___size[inst][v][p_v] = 0; }
-	}	
-	CLEAR_COUNTERS_LOOP1C: for(unsigned int p_v=0; p_v<__NUM_APPLYPARTITIONS; p_v++){ 
-	#pragma HLS UNROLL
-		MY_LOOP192: for(unsigned int t=0; t<BLOCKRAM_SIZE; t++){ insert_statsbuffer(t, p_v, 0, statsbuffer_maskbased[inst]); }
+		for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
+		#pragma HLS UNROLL
+			updates_buffer___size[inst][v][p_v] = 0; 
+		}
+	}
+}	
+
+#ifdef ___ENABLE___COLLECTACTIVEDSTVIDS___
+for(unsigned int t=0; t<BLOCKRAM_SIZE; t++){ 
+#pragma HLS PIPELINE II=1
+	for(unsigned int p_v=0; p_v<__NUM_APPLYPARTITIONS; p_v++){ 
+		#pragma HLS UNROLL
+		for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
+			#pragma HLS UNROLL
+			insert_statsbuffer(t, p_v, 0, statsbuffer_maskbased[inst]); 
+		}
 	}
 }
+#endif 

@@ -6,13 +6,11 @@ if(enable___collectactivedstvids == true){
 			PREPARE_ACTIVE_DESTIDSTATS_LOOP1E: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
 			#pragma HLS UNROLL
 				if(retrieve_statsbuffer(t, p_v, statsbuffer_maskbased[inst]) == 1){ 
-					// if(p_v < __NUM_APPLYPARTITIONS){ // CRITICAL NEWCHANGE
-						#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-						std::cout<<"VC - PREPARE ACTIVE DESTIDS SEEN @: [inst: "<<inst<<"], [p_v: "<<p_v<<", t: "<<t<<"]"<<std::endl;
-						#endif
-						insert_stats2buffer(statsbuffer_idbased___size[inst][p_v], p_v, t, statsbuffer_idbased[inst]); 
-						statsbuffer_idbased___size[inst][p_v] += 1;
-					// }
+					#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+					std::cout<<"VC - PREPARE ACTIVE DESTIDS SEEN @: [inst: "<<inst<<"], [p_v: "<<p_v<<", t: "<<t<<"]"<<std::endl;
+					#endif
+					insert_stats2buffer(statsbuffer_idbased___size[inst][p_v], p_v, t, statsbuffer_idbased[inst]); 
+					statsbuffer_idbased___size[inst][p_v] += 1;
 				}
 			}
 		}

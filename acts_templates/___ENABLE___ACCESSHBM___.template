@@ -134,7 +134,6 @@ void load_edgemap_vec(unsigned int index, unsigned int base_offset, map_t edge_m
 	{%endfor%}	
 	return;
 }
-
 void save_edgemap_vec(unsigned int index, unsigned int base_offset, map_t edge_map[NUM_VALID_PEs], {% include '___HBM___PARAMS___.template' %}){
 #pragma HLS INLINE
 	index = index * 2; // '*2' because data is dual: i.e., offset and size
@@ -144,6 +143,20 @@ void save_edgemap_vec(unsigned int index, unsigned int base_offset, map_t edge_m
 	{%for n in context['NUM_VALID_PEs_seq']%}
 	HBM_channelA{{n}}[base_offset + ((index + 1) / HBM_AXI_PACK_SIZE)].data[((index + 1) % HBM_AXI_PACK_SIZE)] = edge_map[{{n}}].size;
 	{%endfor%}	
+	return;
+}
+
+map_t load_vupdate_map(unsigned int offset, unsigned int index, {% include '___HBM___PARAMS___.template' %}){
+#pragma HLS INLINE
+	map_t data;
+	data.offset = HBM_channelA0[offset + index].data[0];
+	data.size = HBM_channelA0[offset + index].data[1];
+	return data; // HBM_channelA0[offset + index].data[0];
+}
+void save_vupdate_map(unsigned int offset, unsigned int index, map_t data, {% include '___HBM___PARAMS___.template' %}){
+#pragma HLS INLINE
+	HBM_channelA0[offset + index].data[0] = data.offset;
+	HBM_channelA0[offset + index].data[1] = data.size;
 	return;
 }
 
@@ -422,15 +435,6 @@ void dretrievemanyfromB_actpackedges(unsigned int base_offset__, unsigned int of
 	return;
 }
 
-unsigned int dretrieve_updatesptrs(unsigned int base_offset__, unsigned int index, HBM_channelAXI_t * HBM_channelA, HBM_channelAXI_t * HBM_channelB, unsigned int inst){
-	#pragma HLS INLINE // FIXME_HARDWARE
-	#ifdef _DEBUGMODE_CHECKS3
-	unsigned int wwsize = globalparams_debug[GLOBALPARAMSCODE__WWSIZE__CSRVPTRS];
-	checkoutofbounds("acts_kernel::ERROR 701::", (index / HBM_CHANNEL_PACK_SIZE), wwsize, inst, NAp, NAp);
-	#endif 
-	return master_retrieve(base_offset__ + index, 0, HBM_channelA, HBM_channelB, inst); // NEW
-}
-
 void dinsertmany_updatesdram(unsigned int offsets[NUM_VALID_PEs], keyvalue_t data[NUM_VALID_PEs][EDGE_PACK_SIZE], bool ens[NUM_VALID_PEs][EDGE_PACK_SIZE], {% include '___HBM___PARAMS___.template' %}){
 	#pragma HLS INLINE // FIXME_HARDWARE
 	#ifdef _DEBUGMODE_CHECKS3
@@ -464,11 +468,11 @@ void dinsertmany_updatesdram(unsigned int offsets[NUM_VALID_PEs], keyvalue_t dat
 	}
 	master_insertmany_Bvec(offsets, ens_, data_, {% include '___HBM___ARGS___.template' %}); // CRITICAL FIXME. the issue.
 }
-void dretrievemany_udatesdram(unsigned int offset__, unsigned int llp_set, unsigned int index, uint512_vec_dt data[NUM_VALID_PEs], {% include '___HBM___PARAMS___.template' %}, unsigned int updatesptrs[MAX_NUM_LLPSETS]){
+void dretrievemany_udatesdram(unsigned int offset__, unsigned int llp_set, unsigned int index, uint512_vec_dt data[NUM_VALID_PEs], {% include '___HBM___PARAMS___.template' %}, map_t updatesptrs[MAX_NUM_LLPSETS]){
 	#pragma HLS INLINE 
 	#ifdef _DEBUGMODE_CHECKS3
 	unsigned int wwsize = globalparams_debug[GLOBALPARAMSCODE__WWSIZE__VERTEXUPDATES];
-	checkoutofbounds("acts_kernel::ERROR 710a::", updatesptrs[llp_set] + index, updatesptrs[llp_set + 1], NAp, NAp, NAp);
+	checkoutofbounds("acts_kernel::ERROR 710a::", updatesptrs[llp_set].offset + index, updatesptrs[llp_set + 1].offset, llp_set, NAp, NAp);
 	#endif 
 
 	unsigned int data_[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE]; 

@@ -253,9 +253,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	for(unsigned int i=0; i<NUM_PEs; i++){ globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTIONS] = 512; } 
 	unsigned int size_u32 = 16 * EDGE_PACK_SIZE;	
 	
-	// load raw edge-update vptrs  
-	// for(unsigned int i=0; i<NUM_PEs; i++){ globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATESPTRS] = 512; } 
-	// unsigned int size_u32 = 0;	
+	// load raw edge-update vptrs 
 	for(unsigned int i=0; i<NUM_PEs; i++){  
 		globalparams[GLOBALPARAMSCODE__WWSIZE__ACTIONS] = (size_u32 / HBM_AXI_PACK_SIZE) + 16;  // NB: not 'HBM_CHANNEL_PACK_SIZE' because only half of dual-HBM channel is used.
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATESPTRS] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTIONS] + globalparams[GLOBALPARAMSCODE__WWSIZE__ACTIONS]; 
@@ -396,7 +394,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		for(unsigned int t=0; t<MAX_NUM_LLPSETS; t++){
 			if(false){ if(i==0){ cout<<"maxs["<<t<<"].key: "<<maxs[t].key<<", maxs["<<t<<"].value: "<<maxs[t].value<<endl; }}
 			HBM_channel[i][base_offset + t].data[0] = maxs[t].key;
-			if(i==0){ size_u32 += HBM_CHANNEL_PACK_SIZE; }
+			if(i==0){ size_u32 += HBM_AXI_PACK_SIZE; }
 		}
 	}
 	unsigned int max_num_updates = maxs[MAX_NUM_LLPSETS-1].key;
@@ -404,7 +402,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	
 	// load raw edge updates
 	for(unsigned int i=0; i<NUM_PEs; i++){ 
-		globalparams[GLOBALPARAMSCODE__WWSIZE__UPDATESPTRS] = (size_u32 / HBM_CHANNEL_PACK_SIZE) + 16;
+		globalparams[GLOBALPARAMSCODE__WWSIZE__UPDATESPTRS] = (size_u32 / HBM_AXI_PACK_SIZE) + 16; // NB: not 'HBM_CHANNEL_PACK_SIZE' because only half of dual-HBM channel is used.
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS] + globalparams[GLOBALPARAMSCODE__WWSIZE__UPDATESPTRS]; 
 	}
 	size_u32 = 0; 
@@ -608,6 +606,8 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		HBM_channel[i][GLOBALPARAMSCODE__PARAM__NUM_RUNS].data[0] = 1; // 
 
 		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___RESETBUFFERSATSTART].data[0] = 1;
+		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___PREPAREEDGEUPDATES].data[0] = 0;
+		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___PROCESSEDGEUPDATES].data[0] = 0;
 		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___PROCESSEDGES].data[0] = 1;
 		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___READ_FRONTIER_PROPERTIES].data[0] = 1;
 		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___VCPROCESSEDGES].data[0] = 1; 
@@ -615,9 +615,6 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___ECPROCESSEDGES].data[0] = 1; // FIXME
 		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___SAVEVCUPDATES].data[0] = 1; // FIXME? CAUSE OF HANGING?
 		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___COLLECTACTIVEDSTVIDS].data[0] = 1;
-		
-		//////////////////////////////////////////////////////////////////////////////////////////////
-
 		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___APPLYUPDATESMODULE].data[0] = 1; 
 		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___READ_DEST_PROPERTIES].data[0] = 1;
 		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___APPLYUPDATES].data[0] = 1; ////////////////////
@@ -632,6 +629,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		HBM_channel[i][GLOBALPARAMSCODE__ASYNC__BATCHSIZE].data[0] = universalparams.NUM_APPLYPARTITIONS;
 	}
 	
+	#ifdef _DEBUGMODE_HOSTPRINTS4
 	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__WWSIZE__ACTIONS: "<<globalparams[GLOBALPARAMSCODE__WWSIZE__ACTIONS]<<endl;
 	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__WWSIZE__RAWEDGEUPDATESPTRS: "<<globalparams[GLOBALPARAMSCODE__WWSIZE__RAWEDGEUPDATESPTRS]<<endl;
 	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__WWSIZE__EDGEUPDATESPTRS: "<<globalparams[GLOBALPARAMSCODE__WWSIZE__EDGEUPDATESPTRS]<<endl;
@@ -669,6 +667,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	utilityobj->checkoutofbounds("app::ERROR 2234::", lastww_addr, ((1 << 28) / 4 / HBM_AXI_PACK_SIZE), __NUM_APPLYPARTITIONS, MAX_APPLYPARTITION_VECSIZE, NAp);
 	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__PARAM__NUM_VERTICES: "<<globalparams[GLOBALPARAMSCODE__PARAM__NUM_VERTICES]<<endl;
 	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__PARAM__NUM_EDGES: "<<globalparams[GLOBALPARAMSCODE__PARAM__NUM_EDGES]<<endl;
+	#endif 
 	// exit(EXIT_SUCCESS);
 
 	// clear 
@@ -723,25 +722,25 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	#endif 
 	
 	// run acts
+	#ifdef TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
 	action_t action;
 	action.module = ALL_MODULES;
 	action.start_pu = 0; 
-	action.size_pu = universalparams.NUM_UPARTITIONS; 
+	action.size_pu = 6;//universalparams.NUM_UPARTITIONS; 
 	action.start_pv = 0;
 	action.size_pv = universalparams.NUM_APPLYPARTITIONS; 
 	action.start_llpset = 0; 
 	action.size_llpset = universalparams.NUM_APPLYPARTITIONS; 
 	action.start_llpid = 0; 
 	action.size_llpid = EDGE_PACK_SIZE; 
-	action.start_tpid = 0; 
-	action.size_tpid = NUM_VALID_PEs;
-
+	action.start_gv = 0; 
+	action.size_gv = NUM_VALID_PEs;
 	#ifdef FPGA_IMPL
 	host_fpga * fpgaobj = new host_fpga(universalparams);
 	fpgaobj->runapp(binaryFile, HBM_axichannel, HBM_axicenter, globalparams, universalparams);
 	#else 
 	acts_kernel * acts = new acts_kernel(universalparams);
-	for(unsigned int batch=0; batch<1; batch++){
+	for(unsigned int burst_compute=0; burst_compute<1; burst_compute++){
 	acts->top_function(
 		(HBM_channelAXI_t *)HBM_axichannel[0][0], (HBM_channelAXI_t *)HBM_axichannel[1][0]
 		#if NUM_VALID_HBM_CHANNELS>1
@@ -763,13 +762,96 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		#endif 
 		#endif
 		,(HBM_channelAXI_t *)HBM_axicenter[0], (HBM_channelAXI_t *)HBM_axicenter[1]
-		,action.module ,action.start_pu ,action.size_pu ,action.start_pv ,action.size_pv ,action.start_llpset ,action.size_llpset ,action.start_llpid ,action.size_llpid ,action.start_tpid ,action.size_tpid
+		,action.module ,action.start_pu ,action.size_pu ,action.start_pv ,action.size_pv ,action.start_llpset ,action.size_llpset ,action.start_llpid ,action.size_llpid ,action.start_gv ,action.size_gv
 		);
 	}
 	#endif 
+	#endif 
 	
-	// ALL_MODULES, START_PU, ALL_LLP_SETs, ALL_LLP_IDs, START_PV, ALL_P_TRANSPORTs
-	// unsigned int module, unsigned int p_u, unsigned int llp_set, unsigned int llp_id, unsigned int p_v, unsigned int p_transport
+	
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// #ifdef YYYYYYYYYYYYYYYYYYYYYY
+	action_t action;
+	action.module = ALL_MODULES;
+	action.start_pu = 0; 
+	action.size_pu = universalparams.NUM_UPARTITIONS; 
+	action.start_pv = 0;
+	action.size_pv = universalparams.NUM_APPLYPARTITIONS; 
+	action.start_llpset = 0; 
+	action.size_llpset = universalparams.NUM_APPLYPARTITIONS; 
+	action.start_llpid = 0; 
+	action.size_llpid = EDGE_PACK_SIZE; 
+	action.start_gv = 0; 
+	action.size_gv = NUM_VALID_PEs;
+	action.finish = 1;
+	
+	unsigned int num_burst_computes = 1;
+	// unsigned int num_burst_computes = universalparams.NUM_UPARTITIONS + universalparams.NUM_APPLYPARTITIONS;
+
+	acts_kernel * acts = new acts_kernel(universalparams);
+	for(unsigned int burst_compute=0; burst_compute<num_burst_computes; burst_compute++){
+
+		if(num_burst_computes == 1){
+			action.module = ALL_MODULES;
+			action.start_pu = 0; 
+			action.size_pu = universalparams.NUM_UPARTITIONS; 
+			action.start_pv = 0;
+			action.size_pv = universalparams.NUM_APPLYPARTITIONS; 
+			action.start_llpset = 0; 
+			action.size_llpset = universalparams.NUM_APPLYPARTITIONS; 
+			action.start_llpid = 0; 
+			action.size_llpid = EDGE_PACK_SIZE; 
+			action.start_gv = 0; 
+			action.size_gv = NUM_VALID_PEs;
+			action.finish = 1;
+		} else {
+			// scatter <===> transport
+			if(burst_compute >= 0 && burst_compute < universalparams.NUM_UPARTITIONS){ 
+				action.module = PROCESS_EDGES_MODULE;
+				action.start_pu = burst_compute; 
+				action.size_pu = 1; 
+				action.finish = 0;
+			}
+			
+			// apply and gatherDSTs <===> transport
+			if(burst_compute >= universalparams.NUM_UPARTITIONS && burst_compute < universalparams.NUM_UPARTITIONS + universalparams.NUM_APPLYPARTITIONS){
+				action.module = APPLY_UPDATES_MODULE___AND___GATHER_DSTPROPERTIES_MODULE;
+				action.start_pv = burst_compute - universalparams.NUM_UPARTITIONS; 
+				action.size_pv = 1; 
+				action.start_gv = burst_compute - universalparams.NUM_UPARTITIONS; 
+				action.size_gv = 1;
+				action.finish = 0;
+			}		
+		}		
+			
+		acts->top_function(
+			(HBM_channelAXI_t *)HBM_axichannel[0][0], (HBM_channelAXI_t *)HBM_axichannel[1][0]
+			#if NUM_VALID_HBM_CHANNELS>1
+			,(HBM_channelAXI_t *)HBM_axichannel[0][1], (HBM_channelAXI_t *)HBM_axichannel[1][1] 
+			,(HBM_channelAXI_t *)HBM_axichannel[0][2], (HBM_channelAXI_t *)HBM_axichannel[1][2] 
+			,(HBM_channelAXI_t *)HBM_axichannel[0][3], (HBM_channelAXI_t *)HBM_axichannel[1][3] 
+			,(HBM_channelAXI_t *)HBM_axichannel[0][4], (HBM_channelAXI_t *)HBM_axichannel[1][4] 
+			,(HBM_channelAXI_t *)HBM_axichannel[0][5], (HBM_channelAXI_t *)HBM_axichannel[1][5] 
+			#if NUM_VALID_HBM_CHANNELS>6
+			,(HBM_channelAXI_t *)HBM_axichannel[0][6], (HBM_channelAXI_t *)HBM_axichannel[1][6] 
+			,(HBM_channelAXI_t *)HBM_axichannel[0][7], (HBM_channelAXI_t *)HBM_axichannel[1][7] 
+			,(HBM_channelAXI_t *)HBM_axichannel[0][8], (HBM_channelAXI_t *)HBM_axichannel[1][8] 
+			,(HBM_channelAXI_t *)HBM_axichannel[0][9], (HBM_channelAXI_t *)HBM_axichannel[1][9] 
+			,(HBM_channelAXI_t *)HBM_axichannel[0][10], (HBM_channelAXI_t *)HBM_axichannel[1][10] 
+			,(HBM_channelAXI_t *)HBM_axichannel[0][11], (HBM_channelAXI_t *)HBM_axichannel[1][11]
+			#if NUM_VALID_HBM_CHANNELS>12
+			,(HBM_channelAXI_t *)HBM_axichannel[0][12], (HBM_channelAXI_t *)HBM_axichannel[1][12]
+			#endif 
+			#endif 
+			#endif
+			,(HBM_channelAXI_t *)HBM_axicenter[0], (HBM_channelAXI_t *)HBM_axicenter[1]
+			,action.module ,action.start_pu ,action.size_pu ,action.start_pv ,action.size_pv ,action.start_llpset ,action.size_llpset ,action.start_llpid ,action.size_llpid ,action.start_gv ,action.size_gv ,action.finish
+			);
+	}
+	// #endif 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	
 	
 	#ifdef HOST_PRINT_RESULTS_XXXX
 	cout<<"---------------------------------------------- app:: after ---------------------------------------------- "<<endl;

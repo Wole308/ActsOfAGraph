@@ -1,12 +1,12 @@
 uint512_vec_dt updates_vecs[NUM_VALID_PEs];
-max_limit = 0; for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ limits[inst] = actpackupdates_dram___size[inst][p_v]; } for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ if(max_limit < limits[inst]){ max_limit = limits[inst]; }}
-
+// max_limit = 0; for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ limits[inst] = actpackupdates_dram___size[inst][p_v]; } for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ if(max_limit < limits[inst]){ max_limit = limits[inst]; }}
+max_limit = 0; for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ limits[inst] = updatesptrs[p_v].size; } for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ if(max_limit < limits[inst]){ max_limit = limits[inst]; }}
 // cout<<"------------------------- APPLY_UPDATES_LOOP1: max_limit: "<<max_limit<<" --------------------------------------"<<endl;
 			
 APPLY_UPDATES_LOOP1: for(unsigned int t=0; t<max_limit; t++){			
-#pragma HLS PIPELINE II=1
+#pragma HLS PIPELINE II={{context['II_APPLY_UPDATES_LOOP1']}}
 // #pragma HLS dependence variable=vdata_buffer type=inter false ///////// FIXME.
-	dretrievemany_udatesdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__VERTEXUPDATES] + updatesptrs[p_v], p_v, t, updates_vecs, {% include '___HBM___ARGS___.template' %}, updatesptrs); // NEW
+	dretrievemany_udatesdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__VERTEXUPDATES] + updatesptrs[p_v].offset, p_v, t, updates_vecs, {% include '___HBM___ARGS___.template' %}, updatesptrs); // NEW
 	MY_LOOP1521: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
 	#pragma HLS UNROLL
 		if(t < limits[inst]){
@@ -40,6 +40,4 @@ APPLY_UPDATES_LOOP1: for(unsigned int t=0; t<max_limit; t++){
 			}
 		}
 	}
-	// update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___APPLYUPDATES___, 1);
-}	
-// exit(EXIT_SUCCESS);			
+}			

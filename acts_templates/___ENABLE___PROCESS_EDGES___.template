@@ -33,11 +33,11 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_ACTIVE_LLPSETS
 		for(unsigned int n=0; n<NUM_VALID_PEs; n++){ offsets[n] = edge_maps[n][llp_id].offset; }		
 		
 		MY_LOOP1529: for(unsigned int n=0; n<NUM_VALID_PEs; n++){ counts[n] = 0; }
-		MY_LOOP1519: for(unsigned int n=0; n<NUM_VALID_PEs; n++){ offsets2[n] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__VERTEXUPDATES] + updatesptrs[llp_set]; }
+		MY_LOOP1519: for(unsigned int n=0; n<NUM_VALID_PEs; n++){ offsets2[n] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__VERTEXUPDATES] + updatesptrs[llp_set].offset; }
 			
 		// process edges
-		EC_PROCESS_EDGES_MAINLOOP1D: for(unsigned int t=0; t<max_sz; t++){ 
-		#pragma HLS PIPELINE II=1
+		PROCESS_EDGES_MAINLOOP1D: for(unsigned int t=0; t<max_sz; t++){ 
+		#pragma HLS PIPELINE II={{context['II_PROCESS_EDGES_MAINLOOP1D']}}
 			dretrievemanyfromA_actpackedges(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES], offsets, t, edge3_vecs, {% include '___HBM___ARGS___.template' %});
 			
 			keyvalue_t update_in[NUM_VALID_PEs][EDGE_PACK_SIZE];
@@ -105,7 +105,8 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_ACTIVE_LLPSETS
 			
 			for(unsigned int n=0; n<NUM_VALID_PEs; n++){ 
 			#pragma HLS UNROLL
-				offsets3[n] = offsets2[n] + actpackupdates_dram___size[n][llp_set] + counts[n];
+				// offsets3[n] = offsets2[n] + actpackupdates_dram___size[n][llp_set] + counts[n];
+				offsets3[n] = offsets2[n] + updatesptrs[llp_set].size + counts[n];
 			}	
 			dinsertmany_updatesdram(offsets3, update_out, ens, {% include '___HBM___ARGS___.template' %});	
 			update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___ECPROCESSEDGES___, 1);
@@ -114,7 +115,8 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_ACTIVE_LLPSETS
 		// update variables 
 		MY_LOOP161: for(unsigned int n=0; n<NUM_VALID_PEs; n++){ 
 		#pragma HLS UNROLL
-			actpackupdates_dram___size[n][llp_set] += counts[n];
+			// actpackupdates_dram___size[n][llp_set] += counts[n];
+			updatesptrs[llp_set].size += counts[n];
 		}
 		// exit(EXIT_SUCCESS);
 	}

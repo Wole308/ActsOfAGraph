@@ -71,7 +71,7 @@ PROCESS_EDGEUPDATES_MODULE_LOOP1B: for(unsigned int p_u=0; p_u<globalparams[GLOB
 			unsigned int sz = max_sz_eu; if(max_sz_eu > EDGE_UPDATES_DRAMBUFFER_SIZE){ sz = EDGE_UPDATES_DRAMBUFFER_SIZE; }
 			edge_update_vec_dt edge_update_vecs[NUM_VALID_PEs];
 			LOAD_EDGEUPDATES_LOOP1: for(unsigned int t=0; t<sz; t++){ 
-			#pragma HLS PIPELINE II=1
+			#pragma HLS PIPELINE II={{context['II_LOAD_EDGEUPDATES_LOOP1']}}
 				dretrievemany_edgeupdates(globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES], offsets_eu, t, edge_update_vecs, {% include '___HBM___ARGS___.template' %});
 				MY_LOOP1273: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
 				#pragma HLS UNROLL
@@ -115,8 +115,8 @@ PROCESS_EDGEUPDATES_MODULE_LOOP1B: for(unsigned int p_u=0; p_u<globalparams[GLOB
 			
 			// update edges 
 			edge_update_type invalid_data; invalid_data.srcvid = INVALIDDATA; invalid_data.dstvid = INVALIDDATA; unsigned int num_hits = 0; unsigned int num_misses = 0;
-			EC_PROCESS_EDGEUPDATES_MAINLOOP1D: for(unsigned int t=0; t<max_sz; t++){ //////////////////////////////////////////////////////////
-			#pragma HLS PIPELINE II=1
+			PROCESS_EDGEUPDATES_MAINLOOP1D: for(unsigned int t=0; t<max_sz; t++){ 
+			#pragma HLS PIPELINE II={{context['II_PROCESS_EDGEUPDATES_MAINLOOP1D']}}
 				dretrievemanyfromB_actpackedges(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES], offsets, t, edge3_vecs, {% include '___HBM___ARGS___.template' %});
 				
 				PROCESS_EDGEUPDATES_LOOP1E: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
