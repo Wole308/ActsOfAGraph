@@ -112,13 +112,6 @@ MY_IFDEF_SAVE_PARTIALLYPREPARED_EDGEUPDATES(){
 				else { edge_update_in[v].srcvid = p_[v]; edge_update_in[v].dstvid = INVALIDDATA; }				
 			}
 			
-			#ifdef _DEBUGMODE_CHECKS3
-			for(unsigned int v=0; v<EDGE_PACK_SIZE/2; v++){	
-				if(edge_update_in[v].srcvid != INVALIDDATA){ checkoutofbounds("save_partiallyprepared_edgeupdates::ERROR 82813::", edge_update_in[v].srcvid, MAX_UPARTITION_SIZE, t, v, NAp); }
-				if(edge_update_in[v].dstvid != INVALIDDATA){ checkoutofbounds("save_partiallyprepared_edgeupdates::ERROR 82823::", edge_update_in[v].dstvid, MAX_UPARTITION_SIZE, t, v, NAp); }
-			}
-			#endif
-			
 			#ifdef _DEBUGMODE_KERNELPRINTS//4
 			if(t==0){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ cout<<"save_partiallyprepared_edgeupdates (before-cyclic-rotate): llp_id: "<<llp_id<<", t:"<<t<<", edge_update_in["<<v<<"].srcvid: "<<edge_update_in[v].srcvid<<" ("<<edge_update_in[v].srcvid % EDGE_PACK_SIZE<<"), edge_update_in["<<v<<"].dstvid: "<<edge_update_in[v].dstvid<<" ("<<edge_update_in[v].dstvid % EDGE_PACK_SIZE<<")"<<endl; }}
 			#endif 
@@ -173,13 +166,6 @@ MY_IFDEF_SAVE_FULLYPREPARED_EDGEUPDATES(){
 				if(t==0){ cout<<"save_fullyprepared_edgeupdates: llp_id: "<<llp_id<<", t:"<<t<<", edge_update["<<v<<"].srcvid: "<<edge_update[v].srcvid<<" ("<<edge_update[v].srcvid % EDGE_PACK_SIZE<<"), edge_update["<<v<<"].dstvid: "<<edge_update[v].dstvid<<" ("<<edge_update[v].dstvid % EDGE_PACK_SIZE<<")"<<endl; }
 				#endif 
 			}
-			
-			#ifdef _DEBUGMODE_CHECKS3
-			for(unsigned int v=0; v<EDGE_PACK_SIZE/2; v++){	
-				if(edge_update[v].srcvid != INVALIDDATA){ checkoutofbounds("save_fullyprepared_edgeupdates::ERROR 82813::", edge_update[v].srcvid, MAX_UPARTITION_SIZE, t, v, NAp); }
-				if(edge_update[v].dstvid != INVALIDDATA){ checkoutofbounds("save_fullyprepared_edgeupdates::ERROR 82823::", edge_update[v].dstvid, MAX_UPARTITION_SIZE, t, v, NAp); }
-			}
-			#endif
 			
 			for(unsigned int v=0; v<EDGE_PACK_SIZE/2; v++){				
 			#pragma HLS UNROLL
@@ -397,10 +383,10 @@ MY_IFDEF_TOPLEVELFUNC(){
 	}
 	
 	// load updates ptrs 
-	// map_t updatesptrs[MAX_NUM_LLPSETS];
 	LOAD_UPDATEPTRS_lOOP1: for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]+1; t++){	
 	#pragma HLS PIPELINE II=1
 		updatesptrs[t] = load_vupdate_map(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS], t, {% include '___HBM___ARGS___.template' %});
+		if(action.finish == 2){ updatesptrs[t].size = 0; }
 		#ifdef _DEBUGMODE_KERNELPRINTS//4
 		cout<<"start: updatesptrs["<<t<<"].offset: "<<updatesptrs[t].offset<<", updatesptrs["<<t<<"].size: "<<updatesptrs[t].size<<endl;
 		#endif 
@@ -556,7 +542,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 	// save updates ptrs
 	if(action.module == PROCESS_EDGES_MODULE || action.module == ALL_MODULES){
 		LOAD_UPDATEPTRS_lOOP2: for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]; t++){	
-		#pragma HLS PIPELINE II=1
+		// #pragma HLS PIPELINE II=1
 			save_vupdate_map(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS], t, updatesptrs[t], {% include '___HBM___ARGS___.template' %});
 			#ifdef _DEBUGMODE_KERNELPRINTS//4
 			cout<<"finish: updatesptrs["<<t<<"].offset: "<<updatesptrs[t].offset<<", updatesptrs["<<t<<"].size: "<<updatesptrs[t].size<<endl;

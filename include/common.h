@@ -2,6 +2,12 @@
 #define COMMON_H
 #include <string.h> 
 #include <cmath>
+#include <ap_int.h>
+// #include "ap_fixed.h"	
+#include <vector> 
+#include<hls_vector.h> 
+#include<hls_stream.h> 
+#include <iostream>
  
 
 #define ___ENABLE___DYNAMICGRAPHANALYTICS___
@@ -34,7 +40,7 @@
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
-#define SW // SWEMU, HW, *SW
+#define HW // SWEMU, HW, *SW
 #if (defined(SWEMU) || defined(HW))
 #define FPGA_IMPL
 #endif 
@@ -96,7 +102,7 @@
 #define NUM_PROCS 2
 #define NUM_PEs 12
 #define NUM_VALID_PEs 1
-#define NUM_VALID_HBM_CHANNELS 12
+#define NUM_VALID_HBM_CHANNELS 1
 #define EDGE_PACK_SIZE_POW 4 // 1 4*
 #define EDGE_PACK_SIZE (1 << EDGE_PACK_SIZE_POW) // 2, 16*
 #define HBM_CHANNEL_PACK_SIZE (EDGE_PACK_SIZE * 2) // 32*

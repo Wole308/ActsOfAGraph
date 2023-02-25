@@ -1,6 +1,14 @@
 #include "app.h"
 using namespace std;
 
+#define MAX_HBM_PC_COUNT 32
+#define PC_NAME(n) n | XCL_MEM_TOPOLOGY
+const int pc[MAX_HBM_PC_COUNT] = {
+    PC_NAME(0),  PC_NAME(1),  PC_NAME(2),  PC_NAME(3),  PC_NAME(4),  PC_NAME(5),  PC_NAME(6),  PC_NAME(7),
+    PC_NAME(8),  PC_NAME(9),  PC_NAME(10), PC_NAME(11), PC_NAME(12), PC_NAME(13), PC_NAME(14), PC_NAME(15),
+    PC_NAME(16), PC_NAME(17), PC_NAME(18), PC_NAME(19), PC_NAME(20), PC_NAME(21), PC_NAME(22), PC_NAME(23),
+    PC_NAME(24), PC_NAME(25), PC_NAME(26), PC_NAME(27), PC_NAME(28), PC_NAME(29), PC_NAME(30), PC_NAME(31)};
+
 // order of base addresses
 // messages area {messages}
 // edges area {edges, vertex ptrs} 
@@ -90,6 +98,368 @@ universalparams_t app::get_universalparams(std::string algo, unsigned int numite
 	return universalparams;
 }
 
+#ifdef TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+void app::run(std::string setup, std::string algo, unsigned int rootvid, string graph_path, int graphisundirected, unsigned int numiterations, std::string _binaryFile1){
+	cout<<"app::run:: app algo started. (algo: "<<algo<<", numiterations: "<<numiterations<<", rootvid: "<<rootvid<<", graph path: "<<graph_path<<", graph dir: "<<graphisundirected<<", _binaryFile1: "<<_binaryFile1<<")"<<endl;
+	// exit(EXIT_SUCCESS);
+	
+	std::string binaryFile[2]; binaryFile[0] = _binaryFile1;
+	
+	unsigned int dataSize = 64 * 1024 * 1024; // taking maximum possible data size value for an HBM bank
+    unsigned int num_times = 1024;            // num_times specify, number of times a kernel
+                                              // will execute the same operation. This is
+                                              // needed
+    // to keep the kernel busy to test the actual bandwidth of all banks running
+    // concurrently.
+	
+	std::vector<int, aligned_allocator<int> > source_in1(dataSize);
+	std::generate(source_in1.begin(), source_in1.end(), std::rand);
+
+	// auto binaryFile = argv[1];
+	// std::string binaryFile = binaryFile; // binaryFile__[0]; 
+	cl_int err;
+	cl::CommandQueue q;
+	cl::Context context;
+	cl::Kernel krnl_vadd;
+
+	// OPENCL HOST CODE AREA START
+	// get_xil_devices() is a utility API which will find the xilinx
+	// platforms and will return list of devices connected to Xilinx platform
+	std::cout << "Creating Context..." << std::endl;
+	auto devices = xcl::get_xil_devices();
+
+	// read_binary_file() is a utility API which will load the binaryFile
+	// and will return the pointer to file buffer.
+	auto fileBuf = xcl::read_binary_file(binaryFile[0]);
+	cl::Program::Binaries bins{{fileBuf.data(), fileBuf.size()}};
+	bool valid_device = false;
+	for (unsigned int i = 0; i < devices.size(); i++) {
+		auto device = devices[i];
+		// Creating Context and Command Queue for selected Device
+		OCL_CHECK(err, context = cl::Context(device, nullptr, nullptr, nullptr, &err));
+		// This example will use an out of order command queue. The default command
+		// queue created by cl::CommandQueue is an inorder command queue.
+		OCL_CHECK(err, q = cl::CommandQueue(context, device, CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE, &err));
+
+		std::cout << "Trying to program device[" << i << "]: " << device.getInfo<CL_DEVICE_NAME>() << std::endl;
+		cl::Program program(context, {device}, bins, nullptr, &err);
+		if (err != CL_SUCCESS) {
+			std::cout << "Failed to program device[" << i << "] with xclbin file!\n";
+		} else {
+			std::cout << "Device[" << i << "]: program successful!\n";
+			OCL_CHECK(err, krnl_vadd = cl::Kernel(program, "top_function", &err));
+			valid_device = true;
+			break; // we break because we found a valid device
+		}
+	}
+	if (!valid_device) {
+		std::cout << "Failed to program any device found, exit!\n";
+		exit(EXIT_FAILURE);
+	}
+
+    std::vector<cl_mem_ext_ptr_t> inBufExt1(NUM_KERNEL);
+    std::vector<cl_mem_ext_ptr_t> inBufExt2(NUM_KERNEL);
+    std::vector<cl_mem_ext_ptr_t> outAddBufExt(NUM_KERNEL);
+    std::vector<cl_mem_ext_ptr_t> outMulBufExt(NUM_KERNEL);
+
+    std::vector<cl::Buffer> buffer_input1(NUM_KERNEL);
+    std::vector<cl::Buffer> buffer_input2(NUM_KERNEL);
+    std::vector<cl::Buffer> buffer_output_add(NUM_KERNEL);
+    std::vector<cl::Buffer> buffer_output_mul(NUM_KERNEL);
+
+    // For Allocating Buffer to specific Global Memory PC, user has to use
+    // cl_mem_ext_ptr_t
+    // and provide the PCs
+    for (int i = 0; i < NUM_KERNEL; i++) {
+		inBufExt1[i].obj = source_in1.data();
+        inBufExt1[i].param = 0;
+        inBufExt1[i].flags = pc[i];
+    }
+
+    // These commands will allocate memory on the FPGA. The cl::Buffer objects can
+    // be used to reference the memory locations on the device.
+    // Creating Buffers
+    for (int i = 0; i < NUM_KERNEL; i++) {
+		cout<<"------------------------------ creating buffer "<<i<<" -----------------------------"<<endl;
+        OCL_CHECK(err,
+                  buffer_input1[i] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+                                                sizeof(uint32_t) * dataSize, &inBufExt1[i%12], &err));
+    }
+	cout<<"------------------------------ FINISH -----------------------------"<<endl;
+	exit(EXIT_SUCCESS);
+}
+#endif 
+#ifdef TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+void app::run(std::string setup, std::string algo, unsigned int rootvid, string graph_path, int graphisundirected, unsigned int numiterations, std::string _binaryFile1){
+	cout<<"app::run:: app algo started. (algo: "<<algo<<", numiterations: "<<numiterations<<", rootvid: "<<rootvid<<", graph path: "<<graph_path<<", graph dir: "<<graphisundirected<<", _binaryFile1: "<<_binaryFile1<<")"<<endl;
+	// exit(EXIT_SUCCESS);
+	
+	std::string binaryFile[2]; binaryFile[0] = _binaryFile1;
+	
+	// #ifdef RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	unsigned int ARRAY_SIZE = 1024; // HBM_CHANNEL_SIZE * HBM_AXI_PACK_SIZE;
+	int flag = 0;
+	// cl_int err;
+	
+	// auto binaryFile = argv[1];
+	// std::string binaryFile = binaryFile; // binaryFile__[0]; 
+	cl_int err;
+	cl::CommandQueue q;
+	cl::Context context;
+	cl::Kernel krnl_vadd;
+
+	// OPENCL HOST CODE AREA START
+	// get_xil_devices() is a utility API which will find the xilinx
+	// platforms and will return list of devices connected to Xilinx platform
+	std::cout << "Creating Context..." << std::endl;
+	auto devices = xcl::get_xil_devices();
+
+	// read_binary_file() is a utility API which will load the binaryFile
+	// and will return the pointer to file buffer.
+	auto fileBuf = xcl::read_binary_file(binaryFile[0]);
+	cl::Program::Binaries bins{{fileBuf.data(), fileBuf.size()}};
+	bool valid_device = false;
+	for (unsigned int i = 0; i < devices.size(); i++) {
+		auto device = devices[i];
+		// Creating Context and Command Queue for selected Device
+		OCL_CHECK(err, context = cl::Context(device, nullptr, nullptr, nullptr, &err));
+		// This example will use an out of order command queue. The default command
+		// queue created by cl::CommandQueue is an inorder command queue.
+		OCL_CHECK(err, q = cl::CommandQueue(context, device, CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE, &err));
+
+		std::cout << "Trying to program device[" << i << "]: " << device.getInfo<CL_DEVICE_NAME>() << std::endl;
+		cl::Program program(context, {device}, bins, nullptr, &err);
+		if (err != CL_SUCCESS) {
+			std::cout << "Failed to program device[" << i << "] with xclbin file!\n";
+		} else {
+			std::cout << "Device[" << i << "]: program successful!\n";
+			OCL_CHECK(err, krnl_vadd = cl::Kernel(program, "top_function", &err));
+			valid_device = true;
+			break; // we break because we found a valid device
+		}
+	}
+	if (!valid_device) {
+		std::cout << "Failed to program any device found, exit!\n";
+		exit(EXIT_FAILURE);
+	}
+
+	// We will break down our problem into multiple iterations. Each iteration
+	// will perform computation on a subset of the entire data-set.
+	// size_t elements_per_iteration = ARRAY_SIZE; // 2048;
+	// size_t bytes_per_iteration = ARRAY_SIZE * sizeof(int); // elements_per_iteration * sizeof(int);
+	size_t bytes_per_iteration = 64 * sizeof(int); // 1000000 * sizeof(int); ////////////////////////////////////// REMOVEME.
+	size_t num_iterations = 1; 
+	unsigned int batch = 0;
+
+	std::vector<int, aligned_allocator<int> > HHX[32]; for(unsigned int i=0; i<NUM_PEs*2; i++){ HHX[i] = std::vector<int, aligned_allocator<int> >(ARRAY_SIZE); }
+	std::vector<int, aligned_allocator<int> > HHC[2]; for(unsigned int i=0; i<2; i++){ HHC[i] = std::vector<int, aligned_allocator<int> >(ARRAY_SIZE); }
+
+	vector<cl::Event> kernel_events(2);
+	vector<cl::Event> read_events(2);
+	cl::Buffer buffer_hbm0, buffer_hbm1, buffer_hbm2, buffer_hbm3, buffer_hbm4, buffer_hbm5, buffer_hbm6, buffer_hbm7, buffer_hbm8, buffer_hbm9, buffer_hbm10, buffer_hbm11, buffer_hbm12, buffer_hbm13,
+		buffer_hbm14, buffer_hbm15, buffer_hbm16, buffer_hbm17, buffer_hbm18, buffer_hbm19, buffer_hbm20, buffer_hbm21, buffer_hbm22, buffer_hbm23, buffer_hbm24, buffer_hbm25;
+	
+	cl_mem_ext_ptr_t inBufExt0, inBufExt1, inBufExt2, inBufExt3, inBufExt4, inBufExt5, inBufExt6, inBufExt7, inBufExt8, inBufExt9, inBufExt10, inBufExt11, inBufExt12, inBufExt13,
+		inBufExt14, inBufExt15, inBufExt16, inBufExt17, inBufExt18, inBufExt19, inBufExt20, inBufExt21, inBufExt22, inBufExt23, inBufExt24, inBufExt25;
+
+	inBufExt0.obj = HHX[0].data();
+	inBufExt0.param = 0;
+	inBufExt0.flags = pc[0];
+	
+	inBufExt1.obj = HHX[1].data();
+	inBufExt1.param = 0;
+	inBufExt1.flags = pc[1];
+
+	inBufExt2.obj = HHX[2].data();
+	inBufExt2.param = 0;
+	inBufExt2.flags = pc[2];
+	
+	inBufExt3.obj = HHX[3].data();
+	inBufExt3.param = 0;
+	inBufExt3.flags = pc[3];
+	
+	inBufExt4.obj = HHX[4].data();
+	inBufExt4.param = 0;
+	inBufExt4.flags = pc[4];
+	
+	inBufExt5.obj = HHX[5].data();
+	inBufExt5.param = 0;
+	inBufExt5.flags = pc[5];
+	
+	inBufExt6.obj = HHX[6].data();
+	inBufExt6.param = 0;
+	inBufExt6.flags = pc[6];
+	
+	inBufExt7.obj = HHX[7].data();
+	inBufExt7.param = 0;
+	inBufExt7.flags = pc[7];
+	
+	inBufExt8.obj = HHX[8].data();
+	inBufExt8.param = 0;
+	inBufExt8.flags = pc[8];
+	
+	inBufExt9.obj = HHX[9].data();
+	inBufExt9.param = 0;
+	inBufExt9.flags = pc[9];
+	
+	inBufExt10.obj = HHX[10].data();
+	inBufExt10.param = 0;
+	inBufExt10.flags = pc[10];
+	
+	inBufExt11.obj = HHX[11].data();
+	inBufExt11.param = 0;
+	inBufExt11.flags = pc[11];
+	
+	inBufExt12.obj = HHX[12].data();
+	inBufExt12.param = 0;
+	inBufExt12.flags = pc[12];
+	
+	inBufExt13.obj = HHX[13].data();
+	inBufExt13.param = 0;
+	inBufExt13.flags = pc[13];
+	
+	inBufExt14.obj = HHX[14].data();
+	inBufExt14.param = 0;
+	inBufExt14.flags = pc[14];
+	
+	inBufExt15.obj = HHX[15].data();
+	inBufExt15.param = 0;
+	inBufExt15.flags = pc[15];
+	
+	inBufExt16.obj = HHX[16].data();
+	inBufExt16.param = 0;
+	inBufExt16.flags = pc[16];
+	
+	inBufExt17.obj = HHX[17].data();
+	inBufExt17.param = 0;
+	inBufExt17.flags = pc[17];
+	
+	inBufExt18.obj = HHX[18].data();
+	inBufExt18.param = 0;
+	inBufExt18.flags = pc[18];
+	
+	inBufExt19.obj = HHX[19].data();
+	inBufExt19.param = 0;
+	inBufExt19.flags = pc[19];
+	
+	inBufExt20.obj = HHX[20].data();
+	inBufExt20.param = 0;
+	inBufExt20.flags = pc[20];
+	
+	inBufExt21.obj = HHX[21].data();
+	inBufExt21.param = 0;
+	inBufExt21.flags = pc[21];
+	
+	inBufExt22.obj = HHX[22].data();
+	inBufExt22.param = 0;
+	inBufExt22.flags = pc[22];
+	
+	inBufExt23.obj = HHX[23].data();
+	inBufExt23.param = 0;
+	inBufExt23.flags = pc[23];
+
+	inBufExt24.obj = HHC[0].data();
+	inBufExt24.param = 0;
+	inBufExt24.flags = pc[24];
+	
+	inBufExt25.obj = HHC[1].data();
+	inBufExt25.param = 0;
+	inBufExt25.flags = pc[25];
+	
+	OCL_CHECK(err, buffer_hbm0 = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+										bytes_per_iteration, &inBufExt0, &err));
+	OCL_CHECK(err, buffer_hbm1 = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+										bytes_per_iteration, &inBufExt1, &err));	
+	OCL_CHECK(err, buffer_hbm2 = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+										bytes_per_iteration, &inBufExt2, &err));	
+	OCL_CHECK(err, buffer_hbm3 = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+										bytes_per_iteration, &inBufExt3, &err));	
+	OCL_CHECK(err, buffer_hbm4 = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+										bytes_per_iteration, &inBufExt4, &err));	
+	OCL_CHECK(err, buffer_hbm5 = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+										bytes_per_iteration, &inBufExt5, &err));	
+	OCL_CHECK(err, buffer_hbm6 = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+										bytes_per_iteration, &inBufExt6, &err));	
+	OCL_CHECK(err, buffer_hbm7 = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+										bytes_per_iteration, &inBufExt7, &err));	
+	OCL_CHECK(err, buffer_hbm8 = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+										bytes_per_iteration, &inBufExt8, &err));	
+	OCL_CHECK(err, buffer_hbm9 = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+										bytes_per_iteration, &inBufExt9, &err));	
+	OCL_CHECK(err, buffer_hbm10 = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+										bytes_per_iteration, &inBufExt10, &err));	
+	OCL_CHECK(err, buffer_hbm11 = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+										bytes_per_iteration, &inBufExt11, &err));	
+	OCL_CHECK(err, buffer_hbm12 = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+										bytes_per_iteration, &inBufExt12, &err));	
+	OCL_CHECK(err, buffer_hbm13 = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+										bytes_per_iteration, &inBufExt13, &err));
+	buffer_hbm14 = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+										bytes_per_iteration, &inBufExt14, &err);
+	// CL_INVALID_CONTEXT if context is not a valid context.
+	// CL_INVALID_VALUE if values specified in flags are not valid as defined in the table above.
+	// CL_INVALID_BUFFER_SIZE if size is 0.
+	// Implementations may return CL_INVALID_BUFFER_SIZE if size is greater than the CL_DEVICE_MAX_MEM_ALLOC_SIZE value specified in the table of allowed values for param_name for clGetDeviceInfo for all devices in context.
+	// CL_INVALID_HOST_PTR if host_ptr is NULL and CL_MEM_USE_HOST_PTR or CL_MEM_COPY_HOST_PTR are set in flags or if host_ptr is not NULL but CL_MEM_COPY_HOST_PTR or CL_MEM_USE_HOST_PTR are not set in flags.
+	// CL_MEM_OBJECT_ALLOCATION_FAILURE if there is a failure to allocate memory for buffer object.
+	// CL_OUT_OF_RESOURCES if there is a failure to allocate resources required by the OpenCL implementation on the device.
+	// CL_OUT_OF_HOST_MEMORY if there is a failure to allocate resources required by the OpenCL implementation on the host.
+	cout<<"err=="<<err<<" ------------"<<endl;
+	if(err==CL_INVALID_CONTEXT){
+		cout<<"err==CL_INVALID_CONTEXT ------------"<<endl;
+	}
+	if(err==CL_INVALID_VALUE){
+		cout<<"err==CL_INVALID_VALUE ------------"<<endl;
+	}
+	if(err==CL_INVALID_BUFFER_SIZE){
+		cout<<"err==CL_INVALID_BUFFER_SIZE ------------"<<endl;
+	}
+	if(err==CL_INVALID_HOST_PTR){
+		cout<<"err==CL_INVALID_HOST_PTR ------------"<<endl;
+	}
+	if(err==CL_MEM_OBJECT_ALLOCATION_FAILURE){
+		cout<<"err==CL_MEM_OBJECT_ALLOCATION_FAILURE ------------"<<endl;
+	}
+	if(err==CL_OUT_OF_RESOURCES){
+		cout<<"err==CL_OUT_OF_RESOURCES ------------"<<endl;
+	}
+	if(err==CL_OUT_OF_HOST_MEMORY){
+		cout<<"err==CL_OUT_OF_HOST_MEMORY ------------"<<endl;
+	}
+	if(err==CL_INVALID_CONTEXT){
+		cout<<"err==CL_INVALID_CONTEXT ------------"<<endl;
+	}
+	OCL_CHECK(err, buffer_hbm14 = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+										bytes_per_iteration, &inBufExt14, &err));
+	OCL_CHECK(err, buffer_hbm15 = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+										bytes_per_iteration, &inBufExt15, &err));
+	OCL_CHECK(err, buffer_hbm16 = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+										bytes_per_iteration, &inBufExt16, &err));
+	OCL_CHECK(err, buffer_hbm17 = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+										bytes_per_iteration, &inBufExt17, &err));
+	OCL_CHECK(err, buffer_hbm18 = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+										bytes_per_iteration, &inBufExt18, &err));
+	OCL_CHECK(err, buffer_hbm19 = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+										bytes_per_iteration, &inBufExt19, &err));
+	OCL_CHECK(err, buffer_hbm20 = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+										bytes_per_iteration, &inBufExt20, &err));
+	OCL_CHECK(err, buffer_hbm21 = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+										bytes_per_iteration, &inBufExt21, &err));
+	OCL_CHECK(err, buffer_hbm22 = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+										bytes_per_iteration, &inBufExt22, &err));
+	OCL_CHECK(err, buffer_hbm23 = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+										bytes_per_iteration, &inBufExt23, &err));
+	OCL_CHECK(err, buffer_hbm24 = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+										bytes_per_iteration, &inBufExt24, &err));
+	OCL_CHECK(err, buffer_hbm25 = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+										bytes_per_iteration, &inBufExt25, &err));
+	exit(EXIT_SUCCESS); /////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// #endif 
+}
+#endif 
+// #ifdef TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
 void app::run(std::string setup, std::string algo, unsigned int rootvid, string graph_path, int graphisundirected, unsigned int numiterations, std::string _binaryFile1){
 	cout<<"app::run:: app algo started. (algo: "<<algo<<", numiterations: "<<numiterations<<", rootvid: "<<rootvid<<", graph path: "<<graph_path<<", graph dir: "<<graphisundirected<<", _binaryFile1: "<<_binaryFile1<<")"<<endl;
 	// exit(EXIT_SUCCESS);
@@ -609,9 +979,9 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		HBM_channel[i][GLOBALPARAMSCODE__PARAM__NUM_RUNS].data[0] = 1; // 
 
 		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___RESETBUFFERSATSTART].data[0] = 1;
-		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___PREPAREEDGEUPDATES].data[0] = 0; //
-		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___PROCESSEDGEUPDATES].data[0] = 0; //
-		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___PROCESSEDGES].data[0] = 1; //
+		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___PREPAREEDGEUPDATES].data[0] = 0;
+		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___PROCESSEDGEUPDATES].data[0] = 0;
+		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___PROCESSEDGES].data[0] = 1;
 		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___READ_FRONTIER_PROPERTIES].data[0] = 1;
 		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___VCPROCESSEDGES].data[0] = 1; 
 		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___ECUPDATEEDGES].data[0] = 1; 
@@ -710,7 +1080,11 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		}
 	}
 	
-	//Free 
+	//Free each sub-array
+    // for(unsigned int i=0; i<NUM_PEs; i++){ 
+        // delete[] HBM_channel[i];   
+    // }
+    // delete[] HBM_channel;
 	edgedatabuffer.clear();
 	vertexptrbuffer.clear();
 	// exit(EXIT_SUCCESS); 
@@ -744,15 +1118,11 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	action.finish = 1;
 	
 	#ifdef FPGA_IMPL
-	// host_fpga * fpgaobj = new host_fpga(universalparams);
-	host_fpga_async * fpgaobj = new host_fpga_async(universalparams);
+	host_fpga * fpgaobj = new host_fpga(universalparams);
 	#else 
 	acts_kernel * acts = new acts_kernel(universalparams);
 	#endif 
 	
-	#ifdef FPGA_IMPL
-	fpgaobj->runapp_sync(action, binaryFile, HBM_axichannel, HBM_axicenter, globalparams, universalparams);
-	#else 
 	unsigned int num_burst_computes = 1;
 	// unsigned int num_burst_computes = universalparams.NUM_UPARTITIONS + universalparams.NUM_APPLYPARTITIONS;
 	for(unsigned int burst_compute=0; burst_compute<num_burst_computes; burst_compute++){
@@ -787,8 +1157,11 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 				action.size_gv = 1;
 				action.finish = 0;
 			}		
-		}	
-		
+		}		
+			
+		#ifdef FPGA_IMPL
+		fpgaobj->runapp(action, binaryFile, HBM_axichannel, HBM_axicenter, globalparams, universalparams);
+		#else 
 		acts->top_function(
 			(HBM_channelAXI_t *)HBM_axichannel[0][0], (HBM_channelAXI_t *)HBM_axichannel[1][0]
 			#if NUM_VALID_HBM_CHANNELS>1
@@ -812,8 +1185,8 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 			,(HBM_channelAXI_t *)HBM_axicenter[0], (HBM_channelAXI_t *)HBM_axicenter[1]
 			,action.module ,action.start_pu ,action.size_pu ,action.start_pv ,action.size_pv ,action.start_llpset ,action.size_llpset ,action.start_llpid ,action.size_llpid ,action.start_gv ,action.size_gv ,action.finish
 			);
+		#endif 
 	}
-	#endif 
 
 	#ifdef HOST_PRINT_RESULTS_XXXX
 	cout<<"---------------------------------------------- app:: after ---------------------------------------------- "<<endl;
@@ -829,6 +1202,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	#endif 
 	return;
 }
+// #endif 
 
 void app::summary(){
 	return;

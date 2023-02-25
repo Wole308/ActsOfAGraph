@@ -89,8 +89,6 @@ unsigned int statsbuffer_idbased___size[NUM_VALID_PEs][MAX_NUM_APPLYPARTITIONS];
 offset_t upartition_vertices[MAX_NUM_UPARTITIONS]; 
 offset_t vpartition_vertices[NUM_VALID_PEs][MAX_NUM_APPLYPARTITIONS]; 
 #pragma HLS ARRAY_PARTITION variable = vpartition_vertices complete dim=1
-// unsigned int actpackupdates_dram___size[NUM_VALID_PEs][MAX_NUM_APPLYPARTITIONS]; 
-// #pragma HLS ARRAY_PARTITION variable = actpackupdates_dram___size complete dim=1
 unsigned int vptrbuffer___size[NUM_VALID_PEs]; 
 #pragma HLS ARRAY_PARTITION variable = vptrbuffer___size complete // dim=1
 unsigned int edges_buffer___size[NUM_VALID_PEs]; 
@@ -101,7 +99,6 @@ unsigned int cfrontier_bufferREAL___size[NUM_VALID_PEs];
 #pragma HLS ARRAY_MAP variable=stats_buffer___size instance=array1 horizontal
 #pragma HLS ARRAY_MAP variable=statsbuffer_idbased___size instance=array1 horizontal
 #pragma HLS ARRAY_MAP variable=vpartition_vertices instance=array1 horizontal
-// #pragma HLS ARRAY_MAP variable=actpackupdates_dram___size instance=array1 horizontal
 #pragma HLS ARRAY_MAP variable=vptrbuffer___size instance=array2 horizontal
 #pragma HLS ARRAY_MAP variable=edges_buffer___size instance=array2 horizontal
 #ifndef HW
@@ -117,7 +114,6 @@ unsigned int stats_buffer___size[NUM_VALID_PEs][MAX_NUM_APPLYPARTITIONS];
 unsigned int statsbuffer_idbased___size[NUM_VALID_PEs][MAX_NUM_APPLYPARTITIONS]; 
 offset_t * upartition_vertices = new offset_t[MAX_NUM_UPARTITIONS]; 
 offset_t * vpartition_vertices[NUM_VALID_PEs]; for(unsigned int i=0; i<NUM_VALID_PEs; i++){ vpartition_vertices[i] = new offset_t[MAX_NUM_APPLYPARTITIONS];  }
-unsigned int actpackupdates_dram___size[NUM_VALID_PEs][MAX_NUM_APPLYPARTITIONS]; 
 unsigned int vptrbuffer___size[NUM_VALID_PEs]; 
 unsigned int edges_buffer___size[NUM_VALID_PEs]; 
 unsigned int cfrontier_bufferREAL___size[NUM_VALID_PEs]; 
