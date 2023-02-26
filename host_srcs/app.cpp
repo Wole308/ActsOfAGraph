@@ -90,6 +90,31 @@ universalparams_t app::get_universalparams(std::string algo, unsigned int numite
 	return universalparams;
 }
 
+#ifdef FFFFFFFFFFFF
+void migrate_frontiers_host_to_device(unsigned int p_v, HBM_channelAXISW_t * HBM_axicenter[2], unsigned int globalparams[1024], universalparams_t universalparams){
+	// Copy input data to device global memory
+	std::cout << "app: copying frontier partition data (Host to Device)..." << std::endl;
+	for(unsigned int i=0; i<2; i++){
+		unsigned int base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__VDATAS];
+		for(unsigned int p=0; p<__NUM_APPLYPARTITIONS; p++){ 
+			for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE; t++){ 
+				for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+					unsigned int index = p*MAX_APPLYPARTITION_VECSIZE*EDGE_PACK_SIZE + t*EDGE_PACK_SIZE + v;
+					HBM_axicenter[i][base_offset + (p_v * MAX_APPLYPARTITION_VECSIZE + t)].data[2 * v] = algorithmobj->vertex_initdata(universalparams.ALGORITHM, index);
+					HBM_axicenter[i][base_offset + (p_v * MAX_APPLYPARTITION_VECSIZE + t)].data[2 * v + 1] = 0;
+				}
+				for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+					unsigned int index = p*MAX_APPLYPARTITION_VECSIZE*EDGE_PACK_SIZE + t*EDGE_PACK_SIZE + v;
+					HBM_axicenter[i][base_offset + (p_v * MAX_APPLYPARTITION_VECSIZE + t)].data[2 * v] = algorithmobj->vertex_initdata(universalparams.ALGORITHM, index);
+					HBM_axicenter[i][base_offset + (p_v * MAX_APPLYPARTITION_VECSIZE + t)].data[2 * v + 1] = 0;
+				}
+			}
+		}
+	}
+	return;
+}
+#endif 
+
 void app::run(std::string setup, std::string algo, unsigned int rootvid, string graph_path, int graphisundirected, unsigned int numiterations, std::string _binaryFile1){
 	cout<<"app::run:: app algo started. (algo: "<<algo<<", numiterations: "<<numiterations<<", rootvid: "<<rootvid<<", graph path: "<<graph_path<<", graph dir: "<<graphisundirected<<", _binaryFile1: "<<_binaryFile1<<")"<<endl;
 	// exit(EXIT_SUCCESS);
@@ -631,7 +656,6 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		HBM_channel[i][GLOBALPARAMSCODE__ASYNC__BATCH].data[0] = 0;
 		HBM_channel[i][GLOBALPARAMSCODE__ASYNC__BATCHSIZE].data[0] = universalparams.NUM_APPLYPARTITIONS;
 	}
-	
 	#ifdef _DEBUGMODE_HOSTPRINTS4
 	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__WWSIZE__ACTIONS: "<<globalparams[GLOBALPARAMSCODE__WWSIZE__ACTIONS]<<endl;
 	cout<<"app:: BASEOFFSET: GLOBALPARAMSCODE__WWSIZE__RAWEDGEUPDATESPTRS: "<<globalparams[GLOBALPARAMSCODE__WWSIZE__RAWEDGEUPDATESPTRS]<<endl;

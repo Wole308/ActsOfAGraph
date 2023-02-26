@@ -13,6 +13,19 @@ if(action.finish == 1){
 	cout<<"- NUMBER_OF_EDGEUPDATES_LOADED"<<endl; 
 	cout<<"- NUMBER_OF_EDGEUPDATES_APPLIED"<<endl; 
 	cout<<"- NUMBER_OF_NEW_EDGEUPDATES_ADDED"<<endl;
+	
+	cout<<"[RESETBUFFERSATSTART, ";
+	cout<<"READ_FRONTIERS, "; 
+	cout<<"PROCESSEDGES, "; 
+	cout<<"READ_DESTS, "; 
+	cout<<"APPLYUPDATES, "; 
+	cout<<"COLLECT_FRONTIERS, "; 
+	cout<<"SAVE_DEST, "; 
+	cout<<"GATHER_FRONTIERS, "; 
+	cout<<"# EDGEUPDATES_LOADED, "; 
+	cout<<"# EDGEUPDATES_APPLIED, "; 
+	cout<<"# NEW_EDGEUPDATES_ADDED, ";
+	cout<<endl;
 }																										
 
 cout<<">>> [";

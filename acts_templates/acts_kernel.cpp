@@ -1943,7 +1943,7 @@ MY_IFDEF_SAVE_PARTIALLYPREPARED_EDGEUPDATES(){
 		cout<<"save_partiallyprepared_edgeupdates: llp_id: "<<llp_id<<endl; for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ cout<<""<<offset_p[v]<<", "; } cout<<endl;
 		#endif 
 		
-		SAVE_PARTIALLYPREPARED_EDGEUPDATES: for(unsigned int t=0; t<max; t++){	
+		SAVE_PARTIALLYPREPARED_EDGEUPDATES: for(unsigned int t=0; t<max; t++){		// max // REMOVEME.
 		#pragma HLS PIPELINE II=1
 			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 	
 			#pragma HLS UNROLL
@@ -1995,7 +1995,7 @@ MY_IFDEF_SAVE_FULLYPREPARED_EDGEUPDATES(){
 		#endif 
 		
 		unsigned int max = 0; for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ if(max < count[v][llp_id].size){ max = count[v][llp_id].size; }}	
-		SAVE_FULLYPREPARED_EDGEUPDATES: for(unsigned int t=0; t<max; t++){	
+		SAVE_FULLYPREPARED_EDGEUPDATES: for(unsigned int t=0; t<max; t++){	// max // REMOVEME.
 		#pragma HLS PIPELINE II=1
 			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 	
 			#pragma HLS UNROLL
@@ -3679,6 +3679,19 @@ if(action.finish == 1){
 	cout<<"- NUMBER_OF_EDGEUPDATES_LOADED"<<endl; 
 	cout<<"- NUMBER_OF_EDGEUPDATES_APPLIED"<<endl; 
 	cout<<"- NUMBER_OF_NEW_EDGEUPDATES_ADDED"<<endl;
+	
+	cout<<"[RESETBUFFERSATSTART, ";
+	cout<<"READ_FRONTIERS, "; 
+	cout<<"PROCESSEDGES, "; 
+	cout<<"READ_DESTS, "; 
+	cout<<"APPLYUPDATES, "; 
+	cout<<"COLLECT_FRONTIERS, "; 
+	cout<<"SAVE_DEST, "; 
+	cout<<"GATHER_FRONTIERS, "; 
+	cout<<"# EDGEUPDATES_LOADED, "; 
+	cout<<"# EDGEUPDATES_APPLIED, "; 
+	cout<<"# NEW_EDGEUPDATES_ADDED, ";
+	cout<<endl;
 }																										
 
 cout<<">>> [";

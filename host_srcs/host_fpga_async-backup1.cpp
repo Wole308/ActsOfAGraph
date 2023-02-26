@@ -245,22 +245,23 @@ void migrate_device_to_host(cl::CommandQueue * q, cl_int err, std::vector<cl::Bu
 	return;
 }
 
-void migrate_frontiers_host_to_device(unsigned int fpga, unsigned int p_u, uint32_t* in_hbmc_pu[NUM_FPGAS][NUM_HBMC_ARGS][MAX_NUM_UPARTITIONS], universalparams_t universalparams){
+void migrate_frontiers_host_to_device(unsigned int p_u, uint32_t* in_hbmc_pu[NUM_HBMC_ARGS][MAX_NUM_UPARTITIONS], universalparams_t universalparams){
 	std::cout << "Copying frontier partition "<<p_u<<" data (Host to Device)..." << std::endl;
 	std::chrono::steady_clock::time_point begin_time0 = std::chrono::steady_clock::now();
 	algorithm * algorithmobj = new algorithm();
 	unsigned int index = 0; 
 	for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE; t++){ 
 		for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-			in_hbmc_pu[fpga][0][p_u][index + v] = 1; // algorithmobj->vertex_initdata(universalparams.ALGORITHM, index);
+			in_hbmc_pu[0][p_u][index + v] = 1; // algorithmobj->vertex_initdata(universalparams.ALGORITHM, index);
 		}
 		for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-			in_hbmc_pu[fpga][1][p_u][index + v] = 1; // algorithmobj->vertex_initdata(universalparams.ALGORITHM, index);
+			in_hbmc_pu[1][p_u][index + v] = 1; // algorithmobj->vertex_initdata(universalparams.ALGORITHM, index);
 		}
 		index += EDGE_PACK_SIZE;
 	}
 	double end_time0 = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin_time0).count()) / 1000;	
 	std::cout <<">>> write-to-FPGA time elapsed : "<<end_time0<<" ms, "<<(end_time0 * 1000)<<" microsecs, "<<std::endl;
+	std::cout << "Copying frontier data (Host to Device)... ----------------- CHECKING ---------- index: "<<index << std::endl;
 	return;
 }
 
@@ -376,12 +377,22 @@ long double host_fpga_async::runapp_sync(action_t action__, std::string binaryFi
 										bytes_per_iteration, &inBufExt_c[i], &err)); // REMOVEME 'i%6'
 	}
 	
+	#ifdef __NOT__NEEDED__
+	std::cout << "Mapping center buffers..." << std::endl;
+	uint32_t* in_hbmc[NUM_HBMC_ARGS];
+	for (int i = 0; i < NUM_HBMC_ARGS; i++) {
+		std::cout << "Mapping center buffer "<<i<<" to host memory..." << std::endl;
+		OCL_CHECK(err, in_hbmc[i] = (uint32_t*)q.enqueueMapBuffer(buffer_hbmc[i], CL_TRUE, CL_MAP_WRITE, 0, bytes_per_iteration, nullptr,
+                                                        nullptr, &err));
+	}
+	#endif 
+	
 	std::cout << "Mapping frontier partitions..." << std::endl;
-	uint32_t* in_hbmc_pu[NUM_FPGAS][NUM_HBMC_ARGS][MAX_NUM_UPARTITIONS];
+	uint32_t* in_hbmc_pu[NUM_HBMC_ARGS][MAX_NUM_UPARTITIONS];
 	for (int i = 0; i < NUM_HBMC_ARGS; i++) {
 		for (int p_u = 0; p_u < universalparams.NUM_UPARTITIONS; p_u++) {
 			std::cout << "Mapping frontier partition ("<<i<<", "<<p_u<<") to host memory..." << std::endl;
-			OCL_CHECK(err, in_hbmc_pu[0][i][p_u] = (uint32_t*)q.enqueueMapBuffer(buffer_hbmc[i], CL_TRUE, CL_MAP_WRITE, (p_u * MAX_UPARTITION_VECSIZE * EDGE_PACK_SIZE * sizeof(int)), ((p_u + 1) * MAX_UPARTITION_VECSIZE * EDGE_PACK_SIZE * sizeof(int)), nullptr,
+			OCL_CHECK(err, in_hbmc_pu[i][p_u] = (uint32_t*)q.enqueueMapBuffer(buffer_hbmc[i], CL_TRUE, CL_MAP_WRITE, (p_u * MAX_UPARTITION_VECSIZE * EDGE_PACK_SIZE * sizeof(int)), ((p_u + 1) * MAX_UPARTITION_VECSIZE * EDGE_PACK_SIZE * sizeof(int)), nullptr,
 															nullptr, &err));
 		}
 	}
@@ -400,10 +411,8 @@ long double host_fpga_async::runapp_sync(action_t action__, std::string binaryFi
 	
 	// Copy input data to device global memory
 	migrate_host_to_device(&q, err, buffer_hbm, buffer_hbmc);
-	for (int fpga = 0; fpga < NUM_FPGAS; fpga++) {
-		for(unsigned int p_u=0; p_u<universalparams.NUM_UPARTITIONS; p_u++){
-			migrate_frontiers_host_to_device(fpga, p_u, in_hbmc_pu, universalparams);
-		}
+	for(unsigned int p_u=0; p_u<universalparams.NUM_UPARTITIONS; p_u++){
+		migrate_frontiers_host_to_device(p_u, in_hbmc_pu, universalparams);
 	}
 		
 	// run acts
@@ -430,27 +439,18 @@ long double host_fpga_async::runapp_sync(action_t action__, std::string binaryFi
 		for(unsigned int burst_compute=0; burst_compute<num_burst_computes; burst_compute++){
 			std::cout <<"------------------------- host_fpga_async: burst_compute "<<burst_compute<<" started... -------------------------"<<std::endl;
 		
-			// migrate burst frontiers
-			std::chrono::steady_clock::time_point begin_time0 = std::chrono::steady_clock::now();
-			if(burst_compute >= 0 && burst_compute < universalparams.NUM_UPARTITIONS){
-				migrate_frontiers_host_to_device(0, burst_compute, in_hbmc_pu, universalparams);
-			}
-			double end_time0 = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin_time0).count()) / 1000;	
-			std::cout << TIMINGRESULTSCOLOR << ">>> time elapsed (frontier partition "<<burst_compute<<") for iteration "<<iteration_idx<<", burst_compute "<<burst_compute<<" : "<<end_time0<<" ms, "<<(end_time0 * 1000)<<" microsecs, "<< RESET <<std::endl;
-			
-			// set arguments
 			action_t action = get_action(burst_compute, num_burst_computes, universalparams);
+			// if(burst_compute >= 0 && burst_compute < universalparams.NUM_UPARTITIONS){
+				// migrate_frontiers_host_to_device(burst_compute, in_hbmc_pu, universalparams);
+			// }
 			set_args___actions(&krnl_vadd, action, err);
 
-			// run kernel 
 			printf("Enqueueing NDRange kernel.\n");
 			std::chrono::steady_clock::time_point begin_time1 = std::chrono::steady_clock::now();
 			OCL_CHECK(err, err = q.enqueueTask(krnl_vadd));
 			OCL_CHECK(err, err = q.finish());
 			double end_time1 = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin_time1).count()) / 1000;	
 			std::cout << TIMINGRESULTSCOLOR << ">>> kernel time elapsed for iteration "<<iteration_idx<<", burst_compute "<<burst_compute<<" : "<<end_time1<<" ms, "<<(end_time1 * 1000)<<" microsecs, "<< RESET <<std::endl;
-		
-			// exchange frontiers 
 		}
     }
 	double end_time = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin_time).count()) / 1000;	

@@ -12,6 +12,7 @@
 {%endif%} 
 
 #define ___ENABLE___DYNAMICGRAPHANALYTICS___
+#define NUM_FPGAS 1
 
 #define ALL_MODULES 222
 #define PREPARE_EDGEUPDATES_MODULE 2220
