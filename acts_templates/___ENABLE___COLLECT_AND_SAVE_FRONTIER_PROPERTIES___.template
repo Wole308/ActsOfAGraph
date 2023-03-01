@@ -44,7 +44,7 @@ COLLECT_AND_SAVE_FRONTIER_INFO_LOOP1: for(unsigned int p_actvv=0; p_actvv<NUM_AC
 		unsigned int mask = 1; if(enable___collectactivedstvids == true){ mask = {%for i in context['NUM_VALID_PEs_seq']%}{%if(i>0)%}+{%endif%}statsbuffer_maskbased[{{i}}][p_v][offset_aup]{%endfor%}; } else { mask = 1; }
 		if(mask > 0){ 	
 			COLLECT_FRONTIER_INFO_LOOP1B: for(unsigned int t=0; t<ACTVUPDATESBLOCK_VECSIZE; t++){
-			#pragma HLS PIPELINE II=1
+			#pragma HLS PIPELINE II={{context['COLLECT_FRONTIER_INFO_LOOP1B']}}
 				unsigned int dstvid_lpv = baseoffset0_aup + baseoffset1_aup + t;
 				bool en; if(baseoffset1_aup + t < MAX_ACTVV_VECSIZE && dstvid_lpv < MAX_APPLYPARTITION_VECSIZE){ en = true; } else { en = false; }
 				MY_LOOP114: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
@@ -96,7 +96,7 @@ COLLECT_AND_SAVE_FRONTIER_INFO_LOOP1: for(unsigned int p_actvv=0; p_actvv<NUM_AC
 	unsigned int offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS] + (p_actvv_ * MAX_APPLYPARTITION_VECSIZE);
 	keyvalue_t invalidkv; invalidkv.key = INVALIDDATA; invalidkv.value = INVALIDDATA;
 	SAVE_FRONTIER_INFO_LOOP2B: for(unsigned int t=0; t<max_limit; t++){
-	#pragma HLS PIPELINE II=1
+	#pragma HLS PIPELINE II={{context['SAVE_FRONTIER_INFO_LOOP2B']}}
 		MY_LOOP1092: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
 		#pragma HLS UNROLL
 			#ifndef FPGA_IMPL

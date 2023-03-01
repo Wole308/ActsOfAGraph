@@ -1,5 +1,4 @@
 //////////////////////////////////////////////////////////////////
-#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
 void insert_edgeupdatesbuffer(unsigned int v, unsigned int index, edge_update_type data, MY_IFDEF_EDGEUPDATESBUFFER()){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS3
@@ -14,7 +13,6 @@ edge_update_type retrieve_edgeupdatesbuffer(unsigned int v, unsigned int index, 
 	#endif 
 	return edgeupdates_buffer[v][index];
 }
-#endif 
 
 void insert_vdatabuffer(unsigned int v, unsigned int index, vprop_t data, MY_IFDEF_VDATABUFFER()){
 	#pragma HLS INLINE

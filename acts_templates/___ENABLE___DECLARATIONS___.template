@@ -6,7 +6,7 @@ keyvalue_t nfrontier_buffer[NUM_VALID_PEs][EDGE_PACK_SIZE][MAX_ACTVV_VECSIZE];
 keyvalue_t cfrontier_buffer_tmp[EDGE_PACK_SIZE][MAXVALID_APPLYPARTITION_VECSIZE]; 
 #pragma HLS resource variable=cfrontier_buffer_tmp core=XPM_MEMORY uram
 #pragma HLS ARRAY_PARTITION variable=cfrontier_buffer_tmp complete dim=1
-keyvalue_t cfrontier_buffer[NUM_VALID_PEs][MAXVALID_APPLYPARTITION_VECSIZE];
+keyvalue_t cfrontier_buffer[NUM_VALID_PEs][MAXVALID_APPLYPARTITION_VECSIZE]; 
 #pragma HLS resource variable=cfrontier_buffer core=XPM_MEMORY uram
 #pragma HLS ARRAY_PARTITION variable=cfrontier_buffer complete dim=1
 unsigned int statsbuffer_maskbased_tmp[NUM_VALID_PEs][EDGE_PACK_SIZE][BLOCKRAM_SIZE];

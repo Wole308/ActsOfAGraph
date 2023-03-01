@@ -25,6 +25,7 @@
 #include "make_graph.h"
 #include "algorithm.h"
 // #include "app_hw.h"
+#include "host.h"
 #include "host_fpga.h"
 #include "host_fpga_async.h"
 #include "../acts_templates/acts_kernel.h"	

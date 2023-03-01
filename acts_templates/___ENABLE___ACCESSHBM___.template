@@ -123,7 +123,7 @@ void master_retrievemany(unsigned int offsets[NUM_VALID_PEs], unsigned int v, un
 	}
 }
 
-void load_edgemap_vec(unsigned int index, unsigned int base_offset, map_t edge_map[NUM_VALID_PEs], {% include '___HBM___PARAMS___.template' %}){
+void load_edgemaps(unsigned int index, unsigned int base_offset, map_t edge_map[NUM_VALID_PEs], {% include '___HBM___PARAMS___.template' %}){
 #pragma HLS INLINE
 	index = index * 2; // '*2' because data is dual: i.e., offset and size
 	{%for n in context['NUM_VALID_PEs_seq']%}
@@ -134,7 +134,7 @@ void load_edgemap_vec(unsigned int index, unsigned int base_offset, map_t edge_m
 	{%endfor%}	
 	return;
 }
-void save_edgemap_vec(unsigned int index, unsigned int base_offset, map_t edge_map[NUM_VALID_PEs], {% include '___HBM___PARAMS___.template' %}){
+void save_edgemaps(unsigned int index, unsigned int base_offset, map_t edge_map[NUM_VALID_PEs], {% include '___HBM___PARAMS___.template' %}){
 #pragma HLS INLINE
 	index = index * 2; // '*2' because data is dual: i.e., offset and size
 	{%for n in context['NUM_VALID_PEs_seq']%}
@@ -273,7 +273,6 @@ void dretrievemany_edgeupdates_base(unsigned int offset__, unsigned int offsets[
 	}
 	return;
 }
-
 void dretrievemany_rawedgeupdates(unsigned int offset__, unsigned int offsets[NUM_VALID_PEs], unsigned int t, edge_update_vec_dt edge_update_vecs[NUM_VALID_PEs], {% include '___HBM___PARAMS___.template' %}){
 	#pragma HLS INLINE 
 	#ifdef _DEBUGMODE_CHECKS3
@@ -282,13 +281,38 @@ void dretrievemany_rawedgeupdates(unsigned int offset__, unsigned int offsets[NU
 	#endif 	
 	return dretrievemany_edgeupdates_base(offset__, offsets, t, edge_update_vecs, {% include '___HBM___ARGS___.template' %});
 }
-
 void dretrievemany_edgeupdates(unsigned int base_offset__, unsigned int offsets[NUM_VALID_PEs], unsigned int t, edge_update_vec_dt edge_update_vecs[NUM_VALID_PEs], {% include '___HBM___PARAMS___.template' %}){
 	#ifdef _DEBUGMODE_CHECKS3
 	unsigned int wwsize = globalparams_debug[GLOBALPARAMSCODE__WWSIZE__EDGEUPDATES];
 	checkoutofbounds("acts_kernel::ERROR 71723::", offsets[0], wwsize, NAp, NAp, NAp);
 	#endif 
 	return dretrievemany_edgeupdates_base(base_offset__, offsets, t, edge_update_vecs, {% include '___HBM___ARGS___.template' %});
+}
+void dinsertmany_edgeupdates(unsigned int offset__, unsigned int offsets[NUM_VALID_PEs], unsigned int t, edge_update_vec_dt edge_update_vecs[NUM_VALID_PEs], {% include '___HBM___PARAMS___.template' %}){
+	#pragma HLS INLINE 
+	unsigned int data_[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE]; // NEW
+	#pragma HLS ARRAY_PARTITION variable=data_ complete dim=0
+	unsigned int offsets_[NUM_VALID_PEs];
+	#pragma HLS ARRAY_PARTITION variable=offsets_ complete
+	bool ens_[NUM_VALID_PEs];
+	#pragma HLS ARRAY_PARTITION variable=ens_ complete
+	for(unsigned int n=0; n<NUM_VALID_PEs; n++){
+	#pragma HLS UNROLL
+		offsets_[n] = offset__ + offsets[n] + t;
+	}
+	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+	#pragma HLS UNROLL
+		for(unsigned int n=0; n<NUM_VALID_PEs; n++){
+			data_[n][2*v] = edge_update_vecs[n].data[v].srcvid;
+			data_[n][2*v+1] = edge_update_vecs[n].data[v].dstvid;
+		}
+	}
+	for(unsigned int n=0; n<NUM_VALID_PEs; n++){
+	#pragma HLS UNROLL
+		ens_[n] = true;
+	}
+	master_insertmany_vec(offsets_, ens_, data_, {% include '___HBM___ARGS___.template' %});
+	return;
 }
 
 edge3_vec_dt dretrieve_csredges(unsigned int base_offset__, unsigned int index, HBM_channelAXI_t * HBM_channelA, HBM_channelAXI_t * HBM_channelB, unsigned int inst){
