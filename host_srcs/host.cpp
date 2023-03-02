@@ -295,12 +295,6 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 	cout<<"--- host::runapp_sync: NUM_HBM_ARGS: "<<NUM_HBM_ARGS<<" ---"<<endl;
 	cout<<"--- host::runapp_sync: ARRAY_SIZE: "<<ARRAY_SIZE<<" ---"<<endl;
 	
-	
-	
-	
-	
-	
-	
 	// set arguments
 	#ifdef RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR
 	acts_kernel * acts2 = new acts_kernel(universalparams);
@@ -338,18 +332,7 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 	#endif 
 	exit(EXIT_SUCCESS);
 	#endif 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+		
 	// prepare OCL variables 
 	#ifdef FPGA_IMPL
     // auto binaryFile = argv[1];

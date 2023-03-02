@@ -282,6 +282,7 @@ void dretrievemany_rawedgeupdates(unsigned int offset__, unsigned int offsets[NU
 	return dretrievemany_edgeupdates_base(offset__, offsets, t, edge_update_vecs, {% include '___HBM___ARGS___.template' %});
 }
 void dretrievemany_edgeupdates(unsigned int base_offset__, unsigned int offsets[NUM_VALID_PEs], unsigned int t, edge_update_vec_dt edge_update_vecs[NUM_VALID_PEs], {% include '___HBM___PARAMS___.template' %}){
+	#pragma HLS INLINE 
 	#ifdef _DEBUGMODE_CHECKS3
 	unsigned int wwsize = globalparams_debug[GLOBALPARAMSCODE__WWSIZE__EDGEUPDATES];
 	checkoutofbounds("acts_kernel::ERROR 71723::", offsets[0], wwsize, NAp, NAp, NAp);

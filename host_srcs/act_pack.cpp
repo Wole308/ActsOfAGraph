@@ -437,5 +437,3 @@ void act_pack::load_edgeupdates(vector<edge_t> &vertexptrbuffer, vector<edge3_ty
 
 
 
-
-
