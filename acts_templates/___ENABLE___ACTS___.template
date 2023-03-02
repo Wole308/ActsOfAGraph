@@ -218,24 +218,26 @@ MY_IFDEF_TOPLEVELFUNC(){
 	// prepare edge updates into actpack format	
 	if(___ENABLE___PREPAREEDGEUPDATES___BOOL___ == 1){
 		#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___ 	
-		// unsigned int dest_baseoffset = 0; unsigned int destptrs_baseoffset = 0;
-		// if(globalparams[GLOBALPARAMSCODE__COMMANDS__COMMAND0] == 0){ dest_baseoffset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES]; destptrs_baseoffset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2]; } 
-		// else { dest_baseoffset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES]; destptrs_baseoffset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS]; }
-
 		#ifdef _____USED_BY_HOST_____
 			if(globalparams[GLOBALPARAMSCODE__COMMANDS__COMMAND0] == 0){ 
 				edge_update_type * edgeupdates_buffer[NUM_VALID_PEs][EDGE_PACK_SIZE];
 				for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ edgeupdates_buffer[i][v] = new edge_update_type[EDGE_UPDATES_DRAMBUFFER_LONGSIZE]; }}
 				create_actpack(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES], globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2], edgeupdates_buffer, EDGE_UPDATES_DRAMBUFFER_LONGSIZE, EDGE_UPDATES_DRAMBUFFER_LONGSIZE, globalparams, {% include '___HBM___ARGS___.template' %}, _NUMCLOCKCYCLES_);		
+				return;
 			} else {
 				create_actpack(globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES], globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS], edgeupdates_buffer, EDGE_UPDATES_DRAMBUFFER_SIZE, EDGE_UPDATES_WORKBUFFER_SIZE, globalparams, {% include '___HBM___ARGS___.template' %}, _NUMCLOCKCYCLES_);	
 			}
-			return;
 		#else 
 			create_actpack(globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES], globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS], edgeupdates_buffer, EDGE_UPDATES_DRAMBUFFER_SIZE, EDGE_UPDATES_WORKBUFFER_SIZE, globalparams, {% include '___HBM___ARGS___.template' %}, _NUMCLOCKCYCLES_);		
 		#endif 
 		#endif 
-	}	
+	}		
+	/* ///////////////////////////////////////////////////////////////////////////////////////////////////////	
+	map_t edge_map_vec[NUM_VALID_PEs];
+	load_edgemaps((23 * MAX_NUM_LLP_PER_UPARTITION) + (1 * NUM_LLP_PER_LLPSET) + 15, globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2], edge_map_vec, {% include '___HBM___ARGS___.template' %});
+	cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ acts kernel:: edge_map_vec[0].offset: "<<edge_map_vec[0].offset<<", edge_map_vec[0].size: "<<edge_map_vec[0].size<<endl;
+	///////////////////////////////////////////////////////////////////////////////////////////////////////	 */
+	// exit(EXIT_SUCCESS);
 	// return; // REMOVEME.
 	
 	// run acts 
@@ -259,18 +261,13 @@ MY_IFDEF_TOPLEVELFUNC(){
 		#endif 
 		
 		// insert/delete/update edges
-		#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___XXXXXX
-		if(___ENABLE___PROCESSEDGEUPDATES___BOOL___ == 1){
-			{% include '___ENABLE___PROCESS_EDGEUPDATES___.template' %}	
-		}
-		#endif
-		
-		// insert/delete/update edges
+		// #ifdef ______________REMOVEME______________
 		#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
 		if(___ENABLE___PROCESSEDGEUPDATES___BOOL___ == 1){
 			{% include '___ENABLE___APPLY_EDGEUPDATES___.template' %}	
 		}
 		#endif
+		// #endif 
 		// exit(EXIT_SUCCESS);
 		
 		// process-edges and partition-updates
@@ -303,6 +300,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 		}
 		}
 		#endif 
+		// exit(EXIT_SUCCESS); //////////// REMOVEME
 		
 		// prepare active destID stats [done] 
 		#ifdef ___ENABLE___COLLECTACTIVEDSTVIDS___

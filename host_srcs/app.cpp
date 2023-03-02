@@ -453,6 +453,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	#endif 
 	
 	// load partial-processed edge updates
+	cout<<"loading partial-processed edge updates..."<<endl;
 	for(unsigned int i=0; i<NUM_PEs; i++){ 
 		globalparams[GLOBALPARAMSCODE__WWSIZE__RAWEDGEUPDATES] = (size_u32 / HBM_CHANNEL_PACK_SIZE) + 16;
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__PARTIALLYPROCESSEDEDGEUPDATES] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES] + globalparams[GLOBALPARAMSCODE__WWSIZE__RAWEDGEUPDATES]; 
@@ -460,6 +461,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	size_u32 = EDGE_UPDATES_DRAMBUFFER_SIZE * 4 * HBM_CHANNEL_PACK_SIZE; // '4' is padding
 	
 	// load edge updates (actpack format)
+	cout<<"loading edge updates (actpack format)..."<<endl;
 	for(unsigned int i=0; i<NUM_PEs; i++){ 
 		globalparams[GLOBALPARAMSCODE__WWSIZE__PARTIALLYPROCESSEDEDGEUPDATES] = (size_u32 / HBM_CHANNEL_PACK_SIZE) + 16;
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__PARTIALLYPROCESSEDEDGEUPDATES] + globalparams[GLOBALPARAMSCODE__WWSIZE__PARTIALLYPROCESSEDEDGEUPDATES]; 
@@ -481,6 +483,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	#endif 
 	
 	// load csr edges 
+	cout<<"loading load csr edges..."<<endl;
 	for(unsigned int i=0; i<NUM_PEs; i++){ 
 		globalparams[GLOBALPARAMSCODE__WWSIZE__EDGEUPDATES] = (size_u32 / HBM_CHANNEL_PACK_SIZE) + 16;
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSREDGES] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES] + globalparams[GLOBALPARAMSCODE__WWSIZE__EDGEUPDATES]; 
@@ -502,6 +505,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	#endif 
 	
 	// load act-pack edges 
+	cout<<"loading act-pack edges..."<<endl;
 	for(unsigned int i=0; i<NUM_PEs; i++){ 
 		globalparams[GLOBALPARAMSCODE__WWSIZE__CSREDGES] = (size_u32 / HBM_CHANNEL_PACK_SIZE) + 16;
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSREDGES] + globalparams[GLOBALPARAMSCODE__WWSIZE__CSREDGES]; 
@@ -536,15 +540,20 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		}
 	}
 	
+	// size_u32 += 16 * 1024 * 1024; // REMOVEME.
+	
 	// load vertex updates 
+	cout<<"loading vertex updates..."<<endl;
 	for(unsigned int i=0; i<NUM_PEs; i++){ 
 		globalparams[GLOBALPARAMSCODE__WWSIZE__ACTPACKEDGES] = (size_u32 / HBM_CHANNEL_PACK_SIZE) + 16;
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__VERTEXUPDATES] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES] + 0; // act-pack edges occupy 1/2 of hbmchannel
 	}
 	
 	// load vertex properties
+	cout<<"loading vertex properties..."<<endl;
 	for(unsigned int i=0; i<NUM_PEs; i++){
-		globalparams[GLOBALPARAMSCODE__WWSIZE__VERTEXUPDATES] = max_num_updates + 16;
+		// globalparams[GLOBALPARAMSCODE__WWSIZE__VERTEXUPDATES] = max_num_updates + 16;
+		globalparams[GLOBALPARAMSCODE__WWSIZE__VERTEXUPDATES] = max_num_updates + (64 * 1024);
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__VDATAS] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__VERTEXUPDATES] + globalparams[GLOBALPARAMSCODE__WWSIZE__VERTEXUPDATES]; 
 	}
 	size_u32 = 0;
@@ -563,11 +572,13 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	}
 	
 	// cfrontier 
+	cout<<"loading cfrontier..."<<endl;
 	for(unsigned int i=0; i<NUM_PEs; i++){ 
 		globalparams[GLOBALPARAMSCODE__WWSIZE__VDATAS] = (vdatasz_u32 / HBM_CHANNEL_PACK_SIZE) + 16;
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__VDATAS] + globalparams[GLOBALPARAMSCODE__WWSIZE__VDATAS]; 
 	}
 	// nfrontier
+	cout<<"loading nfrontier..."<<endl;
 	for(unsigned int i=0; i<NUM_PEs; i++){ 
 		globalparams[GLOBALPARAMSCODE__WWSIZE__CFRONTIERSTMP] = (cfrontiersz_u32 / HBM_CHANNEL_PACK_SIZE) + 16;
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP] + globalparams[GLOBALPARAMSCODE__WWSIZE__CFRONTIERSTMP]; 
@@ -779,12 +790,18 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	action.size_gv = NUM_VALID_PEs;
 	action.finish = 1;
 	
+	// load commands
+	for(unsigned int i=0; i<NUM_PEs; i++){ 
+		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___PREPAREEDGEUPDATES].data[0] = 1; //
+		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___PROCESSEDGEUPDATES].data[0] = 1; //
+		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___PROCESSEDGES].data[0] = 1; //
+	}
+	
 	// populate actpack edges 
 	#ifdef _____USED_BY_HOST_____
 	acts_kernel * acts = new acts_kernel(universalparams);
-	for(unsigned int i=0; i<NUM_PEs; i++){ 
-		HBM_channel[i][GLOBALPARAMSCODE__COMMANDS__COMMAND0].data[0] = 0;
-	}
+	for(unsigned int i=0; i<NUM_PEs; i++){ HBM_axichannel[0][i][GLOBALPARAMSCODE__COMMANDS__COMMAND0].data[0] = 0; }
+	cout<<"##################################################################################### populating act-pack edges using acts kernel...."<<endl;
 	acts->top_function(
 		(HBM_channelAXI_t *)HBM_axichannel[0][0], (HBM_channelAXI_t *)HBM_axichannel[1][0]
 		#if NUM_VALID_HBM_CHANNELS>1
@@ -808,10 +825,12 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		,(HBM_channelAXI_t *)HBM_axicenter[0], (HBM_channelAXI_t *)HBM_axicenter[1]
 		,action.module ,action.start_pu ,action.size_pu ,action.start_pv ,action.size_pv ,action.start_llpset ,action.size_llpset ,action.start_llpid ,action.size_llpid ,action.start_gv ,action.size_gv ,action.finish
 		);
+	// exit(EXIT_SUCCESS);
 	#endif 
-	exit(EXIT_SUCCESS);
+	// exit(EXIT_SUCCESS);
 	
 	// run kernel
+	for(unsigned int i=0; i<NUM_PEs; i++){ HBM_axichannel[0][i][GLOBALPARAMSCODE__COMMANDS__COMMAND0].data[0] = 1; }
 	host * hostobj = new host(universalparams);
 	hostobj->runapp(action, binaryFile, HBM_axichannel, HBM_axicenter, globalparams, universalparams);
 	

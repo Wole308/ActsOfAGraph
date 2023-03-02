@@ -4,7 +4,7 @@
 #include <cmath>
  
 
-#define _____USED_BY_HOST_____ // FIXME.
+// #define _____USED_BY_HOST_____ // FIXME.
 #define ___ENABLE___DYNAMICGRAPHANALYTICS___
 #define NUM_FPGAS 1
 

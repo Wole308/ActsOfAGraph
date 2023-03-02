@@ -117,7 +117,7 @@ void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedat
 	#ifdef _DEBUGMODE_HOSTPRINTS4
 	cout<<"loading edges [STAGE 2]: preparing edges..."<<endl;
 	#endif 
-	for(unsigned int i=0; i<NUM_PEs; i++){ // NUM_PEs
+	for(unsigned int i=0; i<NUM_PEs; i++){ // NUM_PEs // NUM_VALID_HBM_CHANNELS
 		if(utilityobj->channel_is_active(i) == false){ continue; }
 		#ifdef _DEBUGMODE_HOSTPRINTS3
 		cout<<"act_pack:: [PE: "<<i<<"]"<<endl;
