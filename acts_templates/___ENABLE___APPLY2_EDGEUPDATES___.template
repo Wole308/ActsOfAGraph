@@ -24,8 +24,6 @@ unsigned int MISSBUFFER_edges_index[NUM_VALID_PEs][EDGE_PACK_SIZE];
 offset_t BBB[EDGE_UPDATES_DRAMBUFFER_SIZE];
 #endif 
 
-// #define _____DEBUG_____
-
 PROCESS_EDGEUPDATES_MODULE_LOOP1B: for(unsigned int p_u=0; p_u<globalparams[GLOBALPARAMSCODE__PARAM__NUM_UPARTITIONS]; p_u++){ // 1, __NUM_UPARTITIONS. REMOVEME.
 	#ifdef _DEBUGMODE_KERNELPRINTS4 
 	if(all_vertices_active_in_all_iterations == true){ cout<<"### inserting/deleting/updating edges in upartition "<<p_u<<": [PEs "; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<n<<", "; } cout<<"]"<<endl; }
@@ -76,41 +74,12 @@ PROCESS_EDGEUPDATES_MODULE_LOOP1B: for(unsigned int p_u=0; p_u<globalparams[GLOB
 			APPLY_EDGEUPDATES_MAINLOOP1: for(unsigned int c=0; c<1; c++){
 				
 				//////////////////////////////////////////////////////////////////////////////////////////////////
-				#ifdef _____DEBUG_____
+				#ifdef _DEBUGMODE_CHECKS3
 				for(unsigned int t=0; t<EDGE_UPDATES_DRAMBUFFER_SIZE; t++){ 
 					BBB[t].offset = 0; BBB[t].size = 0;
 				}
-				unsigned int sz_ = max_sz_eu; if(max_sz_eu > EDGE_UPDATES_DRAMBUFFER_SIZE){ sz_ = EDGE_UPDATES_DRAMBUFFER_SIZE; }
-				cout<<"--------------------------------- [p_u: "<<p_u<<", llp_set: "<<llp_set<<", llp_id: "<<llp_id<<", c: "<<c<<"] edge updates: max_sz: "<<max_sz<<", max_sz_eu: "<<max_sz_eu<<" --------------------------------------"<<endl;
-				edge_update_vec_dt edge_update_vecs2[NUM_VALID_PEs];	
-				for(unsigned int t=0; t<128; t++){ // sz_ // EDGE_UPDATES_DRAMBUFFER_SIZE // FIXME // FIXHANG
-					dretrievemany_edgeupdates(globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES], offsets_eu, t, edge_update_vecs2, {% include '___HBM___ARGS___.template' %});
-					for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
-						for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-							edge_update_type edge_update = edge_update_vecs2[inst].data[v];
-							bool en = edge_update.srcvid != INVALIDDATA && edge_update.dstvid != INVALIDDATA && edge_update.srcvid < EDGE_UPDATES_DRAMBUFFER_SIZE && edge_update.dstvid < EDGE_UPDATES_DRAMBUFFER_SIZE;
-							if(en == true){
-								if(v==0){ BBB[edge_update.srcvid].size += 1; }
-							}
-						}
-					}
-				}
-				
-				unsigned int tots_ = 0; unsigned int tots2_ = 0;
-				for(unsigned int t=0; t<EDGE_UPDATES_DRAMBUFFER_SIZE; t++){ 
-					if(BBB[t].size > 0){ cout<<"------ BBB["<<t<<"].size: "<<BBB[t].size<<endl; tots_ += 1; tots2_ += BBB[t].size; }
-				}
-				cout<<"------ summary: used "<<tots_<<" slots (of 8192 slots). tots2: "<<tots2_<<endl;
-				
-				// for(unsigned int t=1; t<EDGE_UPDATES_DRAMBUFFER_SIZE; t++){ BBB[t].offset = BBB[t-1].offset + BBB[t-1].size; }	
-				unsigned int fac = 32; // 8;
-				for(unsigned int t=1; t<EDGE_UPDATES_DRAMBUFFER_SIZE; t++){ BBB[t].offset = BBB[t-1].offset + (((BBB[t-1].size + (fac-1)) / fac) * fac); }	
-				
-				for(unsigned int t=0; t<EDGE_UPDATES_DRAMBUFFER_SIZE; t++){ 
-					if(BBB[t].size > 0){ cout<<"------ BBB["<<t<<"].offset: "<<BBB[t].offset<<", BBB["<<t<<"].size: "<<BBB[t].size<<endl; }
-				}
 				#endif 
-				// exit(EXIT_SUCCESS);////////
+				
 				//////////////////////////////////////////////////////////////////////////////////////////////////
 				
 				
@@ -129,7 +98,6 @@ PROCESS_EDGEUPDATES_MODULE_LOOP1B: for(unsigned int p_u=0; p_u<globalparams[GLOB
 				}	
 				// #endif 
 				
-				// clear MISSBUFFER_edgeupdates_index & MISSBUFFER_edges_index
 				MY_LOOP12735: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
 					#pragma HLS UNROLL
 						MY_LOOP12746: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
@@ -163,10 +131,6 @@ PROCESS_EDGEUPDATES_MODULE_LOOP1B: for(unsigned int p_u=0; p_u<globalparams[GLOB
 							bool en = edge_update.srcvid != INVALIDDATA && edge_update.dstvid != INVALIDDATA && edge_update.srcvid < EDGE_UPDATES_DRAMBUFFER_SIZE && edge_update.dstvid < EDGE_UPDATES_DRAMBUFFER_SIZE;
 							if(en == true){
 								unsigned int edge_hashid = hash_edge(edge_update.srcvid, edge_update.dstvid, t);
-								#ifdef _____DEBUG_____
-								// if(v==0){ edge_hashid = BBB[edge_update.srcvid].offset + (   ((edge_update.dstvid / 16) % 16)  +  (edge_update.dstvid % 16)   ); } //***
-								#endif
-								if(v==0){ cout<<"~ edge_hashid: "<<edge_hashid<<". [edge_update-update: srcvid: "<<edge_update.srcvid<<", dstvid: "<<edge_update.dstvid<<"]"<<endl; }
 								
 								#ifdef _DEBUGMODE_KERNELPRINTS//4 
 								if(inst==0 && p_u==0 && llp_set==0 && t<2){ cout<<"$$$ load-edge-updates::["<<inst<<"]["<<t<<"]["<<v<<"]: [edge_update-update: srcvid: "<<edge_update.srcvid<<", dstvid: "<<edge_update.dstvid<<"]---[edge_hashid: "<<edge_hashid<<"]"<<endl; }								
@@ -179,11 +143,14 @@ PROCESS_EDGEUPDATES_MODULE_LOOP1B: for(unsigned int p_u=0; p_u<globalparams[GLOB
 								if(former_edge_update.srcvid == INVALIDDATA){
 									edgeupdates_buffer[inst][v][edge_hashid] = edge_update;
 								} else {
-									#ifdef _DEBUGMODE_KERNELPRINTS4	
-									if(inst==0 && v==0){ cout<<"[edge update miss seen @ ["<<inst<<"]["<<v<<"]["<<t<<"]: srcvid: "<<edge_update.srcvid<<", dstvid: "<<edge_update.dstvid<<", edge_hashid: "<<edge_hashid<<"]"<<endl; }
+									#ifdef _DEBUGMODE_KERNELPRINTS//4	
+									if(inst==0){ cout<<"[edge update miss seen @ ["<<inst<<"]["<<v<<"]["<<t<<"]: srcvid: "<<edge_update.srcvid<<", dstvid: "<<edge_update.dstvid<<", edge_hashid: "<<edge_hashid<<"]"<<endl; }
 									#endif 
 									MISSBUFFER_edgeupdates[inst][v][MISSBUFFER_edgeupdates_index[inst][v]] = edge_update;
-									MISSBUFFER_edgeupdates_index[inst][v] += 1; 
+									MISSBUFFER_edgeupdates_index[inst][v] += 1; // NEWCHANGE.
+									#ifdef _DEBUGMODE_CHECKS3
+									if(v==0){ BBB[edge_hashid] += 1; }
+									#endif
 								}
 							}
 							if(inst==0 && v==0){ update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___NUMBER_OF_EDGEUPDATES_LOADED___, 1); }
@@ -191,10 +158,16 @@ PROCESS_EDGEUPDATES_MODULE_LOOP1B: for(unsigned int p_u=0; p_u<globalparams[GLOB
 					}
 				}
 				
-				#ifdef _DEBUGMODE_KERNELPRINTS4
+				#ifdef _DEBUGMODE_CHECKS3
 				for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ cout<<"[AFTERR]: MISSBUFFER_edgeupdates_index[0]["<<v<<"]: "<<MISSBUFFER_edgeupdates_index[0][v]<<endl; }
+				unsigned int tots = 0; unsigned int tots2 = 0;
+				for(unsigned int t=0; t<EDGE_UPDATES_DRAMBUFFER_SIZE; t++){ 
+					if(BBB[t] > 0){ cout<<"------ BBB["<<t<<"]: "<<BBB[t]<<endl; tots += 1; tots2 += BBB[t]; }
+				}
+				cout<<"------ summary: used "<<tots<<" slots (of 8192 slots). tots2: "<<tots2<<endl;
+				for(unsigned int t=0; t<EDGE_UPDATES_DRAMBUFFER_SIZE; t++){ BBB[t].offset = BBB[t-1].offset + BBB[t].size; }	
 				#endif 
-				// exit(EXIT_SUCCESS);///
+				exit(EXIT_SUCCESS);///
 				
 				// update trackers
 				for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
@@ -260,11 +233,11 @@ PROCESS_EDGEUPDATES_MODULE_LOOP1B: for(unsigned int p_u=0; p_u<globalparams[GLOB
 					update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___ECPROCESSEDGES___, 1);
 				}
 				
-				#ifdef _DEBUGMODE_KERNELPRINTS4
+				// #ifdef _DEBUGMODE_KERNELPRINTS4_PROCESSEDGEUPDATES
 				for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ cout<<"[AFTER]: MISSBUFFER_edgeupdates_index[0]["<<v<<"]: "<<MISSBUFFER_edgeupdates_index[0][v]<<endl; }
 				unsigned int total_num_misses = 0; for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ total_num_misses += MISSBUFFER_edges_index[0][v]; cout<<"[AFTER]: MISSBUFFER_edges_index[0]["<<v<<"]: "<<MISSBUFFER_edges_index[0][v]<<endl; }
 				cout<<"[AFTER]: number of hits: "<<num_hits<<", number of misses: "<<num_misses<<", total number of misses: "<<total_num_misses<<endl;
-				#endif 
+				// #endif 
 				
 				// prepare for next round
 				unsigned int maxs[NUM_VALID_PEs]; 

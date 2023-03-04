@@ -183,9 +183,13 @@ void _set_args___actions(cl::Kernel * krnl_vadd, action_t action, cl_int err){
 #ifdef FPGA_IMPL
 #define MIGRATE_HOST_TO_DEVICE() void _migrate_host_to_device(cl::CommandQueue * q, cl_int err, std::vector<cl::Buffer> &buffer_hbm, std::vector<cl::Buffer> &buffer_hbmc)
 #define MIGRATE_DEVICE_TO_HOST() void _migrate_device_to_host(cl::CommandQueue * q, cl_int err, std::vector<cl::Buffer> &buffer_hbm, std::vector<cl::Buffer> &buffer_hbmc)
+#define IMPORT_HOST_TO_DEVICE() void _import_host_to_device(cl::CommandQueue * q, cl_int err, std::vector<cl::Buffer> buffer_import)
+#define EXPORT_DEVICE_TO_HOST() void _export_device_to_host(cl::CommandQueue * q, cl_int err, std::vector<cl::Buffer> buffer_export)
 #else
 #define MIGRATE_HOST_TO_DEVICE() void _migrate_host_to_device()
 #define MIGRATE_DEVICE_TO_HOST() void _migrate_device_to_host()
+#define IMPORT_HOST_TO_DEVICE() void _import_host_to_device()
+#define EXPORT_DEVICE_TO_HOST() void _export_device_to_host()
 #endif
 
 action_t _get_action(unsigned int burst_compute, unsigned int num_burst_computes, universalparams_t universalparams){
@@ -288,8 +292,21 @@ void _migrate_frontiers_host_to_device(unsigned int p_u, uint32_t* in_hbmc_pu[NU
 	std::cout <<">>> write-to-FPGA time elapsed : "<<end_time0<<" ms, "<<(end_time0 * 1000)<<" microsecs, "<<std::endl;
 	return;
 }
+EXPORT_DEVICE_TO_HOST(){
+	std::cout << "Getting Export Results (Device to Host)..." << std::endl;
+	std::chrono::steady_clock::time_point begin_time2 = std::chrono::steady_clock::now();
+	#ifdef FPGA_IMPL
+	OCL_CHECK(err, err = q->enqueueMigrateMemObjects({buffer_export}, CL_MIGRATE_MEM_OBJECT_HOST));
+	OCL_CHECK(err, err = q->finish());
+	#else 
+		
+	#endif 
+	double end_time2 = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin_time2).count()) / 1000;	
+	std::cout <<">>> read-from-FPGA time elapsed : "<<end_time2<<" ms, "<<(end_time2 * 1000)<<" microsecs, "<<std::endl;
+	return;
+}
 
-long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_channelAXISW_t * HBM_axichannel[2][NUM_PEs], HBM_channelAXISW_t * HBM_axicenter[2], unsigned int globalparams[1024], universalparams_t universalparams){					
+long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_channelAXISW_t * HBM_axichannel[2][NUM_PEs], HBM_channelAXISW_t * HBM_axicenter[2], HBM_channelAXISW_t * HBM_import_export[2], unsigned int globalparams[1024], universalparams_t universalparams){					
 	unsigned int ARRAY_SIZE = HBM_CHANNEL_SIZE * HBM_AXI_PACK_SIZE;
 	
 	cout<<"--- host::runapp_sync: NUM_HBM_ARGS: "<<NUM_HBM_ARGS<<" ---"<<endl;
@@ -483,7 +500,7 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 	#endif 
 	for (int fpga = 0; fpga < NUM_FPGAS; fpga++) {
 		for(unsigned int p_u=0; p_u<universalparams.NUM_UPARTITIONS; p_u++){
-			_migrate_frontiers_host_to_device(p_u, in_hbmc_pu[fpga], universalparams);
+			// _migrate_frontiers_host_to_device(p_u, in_hbmc_pu[fpga], universalparams);
 		}
 	}
 		
@@ -527,6 +544,15 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 			#ifdef FPGA_IMPL
 			_set_args___actions(&krnl_vadd, action, err);
 			#endif 
+			
+			// import  
+			#ifdef ____NOT___YET___IMPLEMENTED___
+			#ifdef FPGA_IMPL
+			_import_host_to_device(&q, err, buffer_import);
+			#else 
+				
+			#endif 
+			#endif
 
 			// run kernel 
 			printf("Enqueueing NDRange kernel.\n");
@@ -556,13 +582,21 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 				#endif 
 				#endif
 				,(HBM_channelAXI_t *)HBM_axicenter[0], (HBM_channelAXI_t *)HBM_axicenter[1]
+				,(HBM_channelAXI_t *)HBM_import_export[0], (HBM_channelAXI_t *)HBM_import_export[1]
 				,action.module ,action.start_pu ,action.size_pu ,action.start_pv ,action.size_pv ,action.start_llpset ,action.size_llpset ,action.start_llpid ,action.size_llpid ,action.start_gv ,action.size_gv ,action.finish
 				);	
 			#endif 
 			double end_time1 = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin_time1).count()) / 1000;	
 			std::cout << TIMINGRESULTSCOLOR << ">>> kernel time elapsed for iteration "<<iteration_idx<<", burst_compute "<<burst_compute<<" : "<<end_time1<<" ms, "<<(end_time1 * 1000)<<" microsecs, "<< RESET <<std::endl;
 		
-			// exchange frontiers 
+			// export 
+			#ifdef ____NOT___YET___IMPLEMENTED___
+			#ifdef FPGA_IMPL
+			_export_device_to_host(&q, err, buffer_export);
+			#else 
+				
+			#endif 
+			#endif 
 		}
     }
 	double end_time = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin_time).count()) / 1000;	

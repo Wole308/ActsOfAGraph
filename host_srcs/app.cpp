@@ -107,6 +107,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	HBM_channel_t * HBM_channel[NUM_PEs];
 	HBM_channelAXISW_t * HBM_axichannel[2][NUM_PEs]; 
 	HBM_channelAXISW_t * HBM_axicenter[2]; 
+	HBM_channelAXISW_t * HBM_import_export[2]; 
 	unsigned int globalparams[1024];
 	vector<edge3_type> csr_pack_edges[NUM_PEs]; 
 	vector<edge3_vec_dt> act_pack_edges[NUM_PEs];
@@ -135,6 +136,12 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	for(unsigned int n=0; n<2; n++){
 		HBM_axicenter[n] = new HBM_channelAXISW_t[HBM_CHANNEL_SIZE]; 
 		for(unsigned int t=0; t<HBM_CHANNEL_SIZE; t++){ for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){ HBM_axicenter[n][t].data[v] = 0; }}
+	}
+	
+	cout<<"app: initializing HBM_import_export"<<endl;
+	for(unsigned int n=0; n<2; n++){
+		HBM_import_export[n] = new HBM_channelAXISW_t[HBM_CHANNEL_SIZE]; 
+		for(unsigned int t=0; t<HBM_CHANNEL_SIZE; t++){ for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){ HBM_import_export[n][t].data[v] = 0; }}
 	}
 	
 	string GRAPH_NAME = ""; 
@@ -374,7 +381,11 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ 
 			for(unsigned int t=0; t<MAX_NUM_LLP_PER_UPARTITION; t++){
 				HBM_channel[i][base_offset + (index / HBM_AXI_PACK_SIZE)].data[index % HBM_AXI_PACK_SIZE] = act_pack_map2[i][p_u][t].offset; 
+				#ifdef ___NOT_RUNNING_FPGA_SYNTHESIS___
+				HBM_channel[i][base_offset + ((index + 1) / HBM_AXI_PACK_SIZE)].data[(index + 1) % HBM_AXI_PACK_SIZE] = 0;
+				#else 
 				HBM_channel[i][base_offset + ((index + 1) / HBM_AXI_PACK_SIZE)].data[(index + 1) % HBM_AXI_PACK_SIZE] = act_pack_map2[i][p_u][t].size; 
+				#endif 
 				index += 2;
 				if(i==0){ size_u32 += 2; }
 			}
@@ -472,10 +483,8 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		unsigned int base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES];
 		for(unsigned int t=0; t<numww_actpackedges; t++){ 	// numww_actpackedges, numww_actpackedgeupdates
 			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-				if(false){
-				HBM_channel[i][base_offset + t].data[2 * v] = act_pack_edges[i][t].data[v].srcvid % MAX_UPARTITION_SIZE;
-				HBM_channel[i][base_offset + t].data[2 * v + 1] = act_pack_edges[i][t].data[v].dstvid % MAX_UPARTITION_SIZE;	
-				}
+				// HBM_channel[i][base_offset + t].data[2 * v] = act_pack_edges[i][t].data[v].srcvid % MAX_UPARTITION_SIZE;
+				// HBM_channel[i][base_offset + t].data[2 * v + 1] = act_pack_edges[i][t].data[v].dstvid % MAX_UPARTITION_SIZE;	
 				if(i==0){ size_u32 += 2; }
 			}
 		}
@@ -521,26 +530,24 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 				for(unsigned int v1=0; v1<EDGE_PACK_SIZE; v1++){ if(act_pack_edges[i][t].data[v1].valid == 1){ _sample_key = act_pack_edges[i][t].data[v1].dstvid % EDGE_PACK_SIZE; _sample_u = v1; }} 
 				unsigned int _rotateby = 0; if(_sample_key > _sample_u){ _rotateby = _sample_key - _sample_u; } else { _rotateby = _sample_u - _sample_key; }
 				
-				if(isvalid==1){
+				if(isvalid==1){		
 					sourceid = act_pack_edges[i][t].data[v].srcvid % MAX_UPARTITION_VECSIZE;
 					destid = get_local3(act_pack_edges[i][t].data[v].dstvid) % MAX_UPARTITION_VECSIZE;
 					weight = 1;
-				} else {
+				} else {	
 					sourceid = INVALIDDATA;
 					destid = get_local3(act_pack_edges[i][t].data[v].dstvid) % MAX_UPARTITION_VECSIZE;
 					weight = 1;
-				}
-				if(v==0){ weight = _rotateby; }
+				}	
+				if(v==0){ weight = _rotateby; }		
 				HBM_channel[i][base_offset + t].data[v] = ((weight & MAXLOCALVALUE2_ACTPACK_EDGEID) << (MAXNUMBITS2_ACTPACK_DESTVID + MAXNUMBITS2_ACTPACK_SRCVID)) | ((sourceid & MAXLOCALVALUE2_ACTPACK_SRCVID) << MAXNUMBITS2_ACTPACK_DESTVID) | (destid & MAXLOCALVALUE2_ACTPACK_DESTVID);		
-				///////////////////////// FIXME?
+				///////////////////////// FIXME?		
 				HBM_channel[i][base_offset + t].data[HBM_AXI_PACK_SIZE + v] = ((weight & MAXLOCALVALUE2_ACTPACK_EDGEID) << (MAXNUMBITS2_ACTPACK_DESTVID + MAXNUMBITS2_ACTPACK_SRCVID)) | ((sourceid & MAXLOCALVALUE2_ACTPACK_SRCVID) << MAXNUMBITS2_ACTPACK_DESTVID) | (destid & MAXLOCALVALUE2_ACTPACK_DESTVID);		
-				/////////////////////////
-				if(i==0){ size_u32 += 2; }
+				/////////////////////////		
+				if(i==0){ size_u32 += 2; }	
 			}
 		}
 	}
-	
-	// size_u32 += 16 * 1024 * 1024; // REMOVEME.
 	
 	// load vertex updates 
 	cout<<"loading vertex updates..."<<endl;
@@ -552,8 +559,8 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	// load vertex properties
 	cout<<"loading vertex properties..."<<endl;
 	for(unsigned int i=0; i<NUM_PEs; i++){
-		// globalparams[GLOBALPARAMSCODE__WWSIZE__VERTEXUPDATES] = max_num_updates + 16;
-		globalparams[GLOBALPARAMSCODE__WWSIZE__VERTEXUPDATES] = max_num_updates + (64 * 1024);
+		globalparams[GLOBALPARAMSCODE__WWSIZE__VERTEXUPDATES] = max_num_updates + 16;
+		// globalparams[GLOBALPARAMSCODE__WWSIZE__VERTEXUPDATES] = max_num_updates + (64 * 1024);
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__VDATAS] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__VERTEXUPDATES] + globalparams[GLOBALPARAMSCODE__WWSIZE__VERTEXUPDATES]; 
 	}
 	size_u32 = 0;
@@ -790,15 +797,8 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	action.size_gv = NUM_VALID_PEs;
 	action.finish = 1;
 	
-	// load commands
-	for(unsigned int i=0; i<NUM_PEs; i++){ 
-		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___PREPAREEDGEUPDATES].data[0] = 1; //
-		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___PROCESSEDGEUPDATES].data[0] = 1; //
-		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___PROCESSEDGES].data[0] = 1; //
-	}
-	
 	// populate actpack edges 
-	#ifdef _____USED_BY_HOST_____
+	#ifdef ___NOT_RUNNING_FPGA_SYNTHESIS___
 	acts_kernel * acts = new acts_kernel(universalparams);
 	for(unsigned int i=0; i<NUM_PEs; i++){ HBM_axichannel[0][i][GLOBALPARAMSCODE__COMMANDS__COMMAND0].data[0] = 0; }
 	cout<<"##################################################################################### populating act-pack edges using acts kernel...."<<endl;
@@ -823,16 +823,24 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		#endif 
 		#endif
 		,(HBM_channelAXI_t *)HBM_axicenter[0], (HBM_channelAXI_t *)HBM_axicenter[1]
+		,(HBM_channelAXI_t *)HBM_import_export[0], (HBM_channelAXI_t *)HBM_import_export[1]
 		,action.module ,action.start_pu ,action.size_pu ,action.start_pv ,action.size_pv ,action.start_llpset ,action.size_llpset ,action.start_llpid ,action.size_llpid ,action.start_gv ,action.size_gv ,action.finish
 		);
 	// exit(EXIT_SUCCESS);
 	#endif 
 	// exit(EXIT_SUCCESS);
 	
+	// load commands
+	for(unsigned int i=0; i<NUM_PEs; i++){ 
+		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___PREPAREEDGEUPDATES].data[0] = 1; //
+		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___PROCESSEDGEUPDATES].data[0] = 1; //
+		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___PROCESSEDGES].data[0] = 1; //
+	}
+	
 	// run kernel
 	for(unsigned int i=0; i<NUM_PEs; i++){ HBM_axichannel[0][i][GLOBALPARAMSCODE__COMMANDS__COMMAND0].data[0] = 1; }
 	host * hostobj = new host(universalparams);
-	hostobj->runapp(action, binaryFile, HBM_axichannel, HBM_axicenter, globalparams, universalparams);
+	hostobj->runapp(action, binaryFile, HBM_axichannel, HBM_axicenter, HBM_import_export, globalparams, universalparams);
 	
 	#ifdef HOST_PRINT_RESULTS_XXXX
 	cout<<"---------------------------------------------- app:: after ---------------------------------------------- "<<endl;

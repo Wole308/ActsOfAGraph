@@ -51,7 +51,6 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_ACTIVE_LLPSETS
 			
 			EC_PROCESS_EDGES_LOOP1F: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
 			#pragma HLS UNROLL
-				// #ifdef ______________REMOVEME______________
 				bool en = true; if(t >= limits[inst]){ en = false; } else { en = true; } 
 				edge3_vec_dt edge_vec = edge3_vecs[inst];
 				
@@ -106,7 +105,6 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_ACTIVE_LLPSETS
 				#ifdef _DEBUGMODE_CHECKS3___XXX
 				if(en == true){ check_if_contiguous(update_out[inst], update_in[inst], update_in[inst], rotateby, 0, rotateby); }
 				#endif	
-				// #endif 
 				
 				// collect stats
 				vpartition_vertices[inst][llp_set].count += 1;
@@ -118,13 +116,12 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_ACTIVE_LLPSETS
 			#pragma HLS UNROLL
 				offsets3[n] = offsets2[n] + updatesptrs[llp_set].size + counts[n];
 			}	
-			// #ifdef ______________REMOVEME______________
+
 			#ifdef _DEBUGMODE_CHECKS3
 			checkoutofbounds("acts_kernel::process-edges::ERROR 8813rrr::", offsets3[0], globalparams_debug[GLOBALPARAMSCODE__BASEOFFSET__VDATAS], offsets2[0], updatesptrs[llp_set].size, counts[0]); 
 			#endif
 			dinsertmany_updatesdram(offsets3, update_out, ens, {% include '___HBM___ARGS___.template' %});	
 			update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___ECPROCESSEDGES___, 1);
-			// #endif 
 		}
 		
 		// update variables 

@@ -23,9 +23,16 @@ unsigned int get_local_to_vpartition(unsigned int lvid){
 	return lvid % MAX_APPLYPARTITION_SIZE;
 }
 unsigned int hash_edge(unsigned int srcvid, unsigned int dstvid, unsigned int index){
-	// return ((srcvid % EDGE_UPDATES_BUFFER_SIZE) + (dstvid % EDGE_UPDATES_BUFFER_SIZE)) / 2;
+	// return ((srcvid % EDGE_UPDATES_DRAMBUFFER_SIZE) + (dstvid % EDGE_UPDATES_DRAMBUFFER_SIZE)) / 2;
 	// return index; // REMOVEME.
-	return srcvid;
+	
+	return ((srcvid / 16) * 14) + (((dstvid / 16) % 16) + (dstvid % 16));
+	
+	// return (srcvid + dstvid) % (EDGE_UPDATES_DRAMBUFFER_SIZE;
+	// return ((srcvid % (EDGE_UPDATES_DRAMBUFFER_SIZE / 16)) * 16) + (dstvid % 16);	
+	// return ((dstvid % (EDGE_UPDATES_DRAMBUFFER_SIZE / 16)) * 16) + (srcvid % 16);
+	// return srcvid; //*
+	// return dstvid;
 }
 
 void {{context['classname__acts']}}rearrangeLayoutVx16B(unsigned int s, keyvalue_t in[EDGE_PACK_SIZE], keyvalue_t out[EDGE_PACK_SIZE]){
