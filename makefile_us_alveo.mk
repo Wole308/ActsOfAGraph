@@ -43,16 +43,19 @@ endif
 ############################## ??? ##############################
 
 # RELREF = ../
-KERNEL_TOP_ALL += $(RELREF)acts_templates/acts_async_kernel.cpp
+KERNEL_TOP_ALL += $(RELREF)acts_templates/acts_kernel.cpp
 HOST_SRCS_ACTS += $(RELREF)host_srcs/hostprocess.cpp
 HOST_SRCS_ACTS += $(RELREF)host_srcs/prepare_graph.cpp
 HOST_SRCS_ACTS += $(RELREF)host_srcs/make_graph.cpp
 HOST_SRCS_ACTS += $(RELREF)host_srcs/act_pack.cpp
+# HOST_SRCS_ACTS += $(RELREF)acts_templates/transform_to_actpack.cpp
 HOST_SRCS_ACTS += $(RELREF)host_srcs/app.cpp
 HOST_SRCS_ACTS += $(RELREF)host_srcs/utility.cpp
 HOST_SRCS_ACTS += $(RELREF)host_srcs/algorithm.cpp
-HOST_SRCS_ACTS += $(RELREF)host_srcs/app_hw.cpp
-HOST_SRCS_ACTS += $(RELREF)host_srcs/host_fpga.cpp
+# HOST_SRCS_ACTS += $(RELREF)host_srcs/app_hw.cpp
+HOST_SRCS_ACTS += $(RELREF)host_srcs/host.cpp
+# HOST_SRCS_ACTS += $(RELREF)host_srcs/host_fpga.cpp
+# HOST_SRCS_ACTS += $(RELREF)host_srcs/host_fpga_async.cpp
 
 ############################## Setting up Project Variables ##############################
 TARGET := hw
@@ -87,7 +90,8 @@ LDFLAGS += -lrt -lstdc++
 VPP_FLAGS += --save-temps 
 
 # Kernel linker flags
-VPP_LDFLAGS_krnl_vadd += --config ./krnl_acts.cfg
+# VPP_LDFLAGS_krnl_vadd += --config ./krnl_acts1.cfg
+VPP_LDFLAGS_krnl_vadd += --config ./krnl_acts12.cfg
 EXECUTABLE = ./host
 EMCONFIG_DIR = $(TEMP_DIR)
 

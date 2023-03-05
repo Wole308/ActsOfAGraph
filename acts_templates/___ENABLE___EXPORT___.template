@@ -1,0 +1,8 @@
+for(unsigned int t=0; t<MAX_ACTVV_VECSIZE; t++){ 
+#pragma HLS PIPELINE II=1	
+	{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
+	HBM_export{{n}}[offset_exp + t].data[{{v}}] = HBM_centerA[offset_ch + t].data[{{v}}];
+	{%endfor%}	
+}
+
+				

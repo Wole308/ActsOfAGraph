@@ -268,26 +268,6 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATESPTRS] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTIONS] + globalparams[GLOBALPARAMSCODE__WWSIZE__ACTIONS]; 
 	}
 	size_u32 = 0;
-	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___XXXXXXXXXXXXX
-	vector<edge3_type> final_edge_updates[NUM_PEs][MAX_NUM_UPARTITIONS][MAX_NUM_LLPSETS];
-	pack->load_edgeupdates(vertexptrbuffer, edgedatabuffer, final_edge_updates);
-	for(unsigned int i=0; i<NUM_PEs; i++){ 
-		unsigned int index = 0;
-		unsigned int base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATESPTRS];
-		for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ 
-			for(unsigned int llp_set=0; llp_set<MAX_NUM_LLPSETS; llp_set++){
-				unsigned int min = 0xFFFFFFF; for(unsigned int n=0; n<NUM_PEs; n++){ if(min > final_edge_updates[i][p_u][llp_set].size()){ min = final_edge_updates[i][p_u][llp_set].size(); } }
-				unsigned int permissible_load_wwsz = 0; if(min < EDGE_UPDATES_WORKBUFFER_SIZE * EDGE_PACK_SIZE){ permissible_load_wwsz = min / EDGE_PACK_SIZE; } else { permissible_load_wwsz = EDGE_UPDATES_WORKBUFFER_SIZE; }
-
-				HBM_channel[i][base_offset + (index / HBM_AXI_PACK_SIZE)].data[index % HBM_AXI_PACK_SIZE] = permissible_load_wwsz; 
-				if(false && i==0 && p_u < universalparams.NUM_UPARTITIONS && llp_set < universalparams.NUM_APPLYPARTITIONS){ cout<<"final_edge_updates["<<i<<"]["<<p_u<<"]["<<llp_set<<"].size(): "<<final_edge_updates[i][p_u][llp_set].size()<<"[=>"<<permissible_load_wwsz*EDGE_PACK_SIZE<<"]"<<endl; }
-				index += 1;
-				if(i==0){ size_u32 += 1; }
-			}
-		}
-	}
-	#endif 
-	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___//GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
 	vector<edge3_type> final_edge_updates[NUM_PEs][MAX_NUM_UPARTITIONS][MAX_NUM_LLPSETS];
 	unsigned int * final_edge_updates_offsets[NUM_PEs]; for(unsigned int i=0; i<NUM_PEs; i++){ final_edge_updates_offsets[i] = new unsigned int[MAX_NUM_UPARTITIONS * MAX_NUM_LLPSETS]; for(unsigned int t=0; t<MAX_NUM_UPARTITIONS * MAX_NUM_LLPSETS; t++){ final_edge_updates_offsets[i][t] = 0; } }
 	pack->load_edgeupdates(vertexptrbuffer, edgedatabuffer, final_edge_updates);
@@ -309,7 +289,6 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 			}
 		}
 	}
-	#endif 
 	
 	// load edge udpdates vptrs  
 	for(unsigned int i=0; i<NUM_PEs; i++){  
@@ -317,7 +296,6 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATESPTRS] + globalparams[GLOBALPARAMSCODE__WWSIZE__RAWEDGEUPDATESPTRS]; 
 	}
 	size_u32 = 0;
-	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
 	for(unsigned int i=0; i<NUM_PEs; i++){  // FIXME?
 		unsigned int index = 0;
 		unsigned int base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS];
@@ -330,7 +308,6 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 			}
 		}
 	}
-	#endif 
 	
 	// load csr vptrs 
 	for(unsigned int i=0; i<NUM_PEs; i++){  
@@ -374,24 +351,18 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS] + globalparams[GLOBALPARAMSCODE__WWSIZE__ACTPACKVPTRS]; 
 	}
 	size_u32 = 0;
-	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___ 
 	for(unsigned int i=0; i<NUM_PEs; i++){ 
 		unsigned int index = 0;
 		unsigned int base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2];
 		for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ 
 			for(unsigned int t=0; t<MAX_NUM_LLP_PER_UPARTITION; t++){
 				HBM_channel[i][base_offset + (index / HBM_AXI_PACK_SIZE)].data[index % HBM_AXI_PACK_SIZE] = act_pack_map2[i][p_u][t].offset; 
-				#ifdef ___NOT_RUNNING_FPGA_SYNTHESIS___
-				HBM_channel[i][base_offset + ((index + 1) / HBM_AXI_PACK_SIZE)].data[(index + 1) % HBM_AXI_PACK_SIZE] = 0;
-				#else 
-				HBM_channel[i][base_offset + ((index + 1) / HBM_AXI_PACK_SIZE)].data[(index + 1) % HBM_AXI_PACK_SIZE] = act_pack_map2[i][p_u][t].size; 
-				#endif 
+				HBM_channel[i][base_offset + ((index + 1) / HBM_AXI_PACK_SIZE)].data[(index + 1) % HBM_AXI_PACK_SIZE] = 0; // act_pack_map2[i][p_u][t].size;
 				index += 2;
 				if(i==0){ size_u32 += 2; }
 			}
 		}
 	}
-	#endif 
 	
 	// load vertex-updates ptrs
 	cout<<"loading vertex-updates ptrs..."<<endl;
@@ -440,14 +411,12 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS] + globalparams[GLOBALPARAMSCODE__WWSIZE__UPDATESPTRS]; 
 	}
 	size_u32 = 0; 
-	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
 	for(unsigned int i=0; i<NUM_PEs; i++){
 		unsigned int index_i = 0;
 		for(unsigned int p_u=0; p_u<universalparams.NUM_UPARTITIONS; p_u++){
 			for(unsigned int llp_set=0; llp_set<universalparams.NUM_APPLYPARTITIONS; llp_set++){
 				unsigned int index = 0;
 				unsigned int offset = final_edge_updates_offsets[i][p_u*MAX_NUM_LLPSETS + llp_set];
-				// if(i==0){ cout<<"~~~++++++++++++++++++++++++++ final_edge_updates_offsets["<<i<<"]["<<p_u<<"]["<<llp_set<<"]: "<<final_edge_updates_offsets[i][p_u*MAX_NUM_LLPSETS + llp_set]<<endl; }
 				for(unsigned int t=0; t<final_edge_updates[i][p_u][llp_set].size() / EDGE_PACK_SIZE; t++){ 
 					for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){	
 						utilityobj->checkoutofbounds("app::ERROR 23487::", globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES] + offset + t, HBM_CHANNEL_SIZE, globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES], offset, t);
@@ -461,7 +430,6 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		}
 	}
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ for(unsigned int llp_set=0; llp_set<MAX_NUM_LLPSETS; llp_set++){ final_edge_updates[i][p_u][llp_set].clear(); }}}
-	#endif 
 	
 	// load partial-processed edge updates
 	cout<<"loading partial-processed edge updates..."<<endl;
@@ -469,7 +437,8 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		globalparams[GLOBALPARAMSCODE__WWSIZE__RAWEDGEUPDATES] = (size_u32 / HBM_CHANNEL_PACK_SIZE) + 16;
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__PARTIALLYPROCESSEDEDGEUPDATES] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES] + globalparams[GLOBALPARAMSCODE__WWSIZE__RAWEDGEUPDATES]; 
 	}
-	size_u32 = EDGE_UPDATES_DRAMBUFFER_SIZE * 4 * HBM_CHANNEL_PACK_SIZE; // '4' is padding
+	// size_u32 = EDGE_UPDATES_DRAMBUFFER_SIZE * 4 * HBM_CHANNEL_PACK_SIZE; // '4' is padding
+	size_u32 = EDGE_UPDATES_DRAMBUFFER_LONGSIZE * 4 * HBM_CHANNEL_PACK_SIZE; // '4' is padding
 	
 	// load edge updates (actpack format)
 	cout<<"loading edge updates (actpack format)..."<<endl;
@@ -480,16 +449,13 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	size_u32 = 0; 
 	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
 	for(unsigned int i=0; i<NUM_PEs; i++){
-		unsigned int base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES];
-		for(unsigned int t=0; t<numww_actpackedges; t++){ 	// numww_actpackedges, numww_actpackedgeupdates
+		for(unsigned int t=0; t<numww_actpackedges; t++){ 	
 			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-				// HBM_channel[i][base_offset + t].data[2 * v] = act_pack_edges[i][t].data[v].srcvid % MAX_UPARTITION_SIZE;
-				// HBM_channel[i][base_offset + t].data[2 * v + 1] = act_pack_edges[i][t].data[v].dstvid % MAX_UPARTITION_SIZE;	
 				if(i==0){ size_u32 += 2; }
 			}
 		}
 	}
-	#endif 
+	#endif
 	
 	// load csr edges 
 	cout<<"loading load csr edges..."<<endl;
@@ -798,7 +764,6 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	action.finish = 1;
 	
 	// populate actpack edges 
-	#ifdef ___NOT_RUNNING_FPGA_SYNTHESIS___
 	acts_kernel * acts = new acts_kernel(universalparams);
 	for(unsigned int i=0; i<NUM_PEs; i++){ HBM_axichannel[0][i][GLOBALPARAMSCODE__COMMANDS__COMMAND0].data[0] = 0; }
 	cout<<"##################################################################################### populating act-pack edges using acts kernel...."<<endl;
@@ -827,14 +792,18 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		,action.module ,action.start_pu ,action.size_pu ,action.start_pv ,action.size_pv ,action.start_llpset ,action.size_llpset ,action.start_llpid ,action.size_llpid ,action.start_gv ,action.size_gv ,action.finish
 		);
 	// exit(EXIT_SUCCESS);
-	#endif 
-	// exit(EXIT_SUCCESS);
 	
 	// load commands
 	for(unsigned int i=0; i<NUM_PEs; i++){ 
-		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___PREPAREEDGEUPDATES].data[0] = 1; //
-		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___PROCESSEDGEUPDATES].data[0] = 1; //
-		HBM_channel[i][GLOBALPARAMSCODE___ENABLE___PROCESSEDGES].data[0] = 1; //
+		#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
+		HBM_axichannel[0][i][GLOBALPARAMSCODE___ENABLE___PREPAREEDGEUPDATES].data[0] = 1; //
+		HBM_axichannel[0][i][GLOBALPARAMSCODE___ENABLE___PROCESSEDGEUPDATES].data[0] = 1; //
+		HBM_axichannel[0][i][GLOBALPARAMSCODE___ENABLE___PROCESSEDGES].data[0] = 1; //
+		#else 
+		HBM_axichannel[0][i][GLOBALPARAMSCODE___ENABLE___PREPAREEDGEUPDATES].data[0] = 0; //
+		HBM_axichannel[0][i][GLOBALPARAMSCODE___ENABLE___PROCESSEDGEUPDATES].data[0] = 0; //
+		HBM_axichannel[0][i][GLOBALPARAMSCODE___ENABLE___PROCESSEDGES].data[0] = 1; //	
+		#endif 
 	}
 	
 	// run kernel

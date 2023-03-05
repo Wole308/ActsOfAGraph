@@ -16,7 +16,7 @@ context['TESTKERNEL'] = sys.argv[4]
 
 context['FPGA_IMPL'] = 0
 context['NUM_VALID_PEs'] = 1 #1 #6* #12 #context['NUM_PEs'] # 4 NUM_VALID_PEs = 8 AXI interfaces
-context['NUM_VALID_HBM_CHANNELS'] = context['NUM_PEs'] #6, context['NUM_PEs']*
+context['NUM_VALID_HBM_CHANNELS'] = 1 # context['NUM_PEs'] #6, context['NUM_PEs']*
 context['EDGE_PACK_SIZE_POW'] = 4 
 context['EDGE_PACK_SIZE'] = 2**context['EDGE_PACK_SIZE_POW']
 context['HBM_AXI_PACK_SIZE'] = context['EDGE_PACK_SIZE'] 
@@ -29,6 +29,21 @@ print ('NUM_VALID_HBM_CHANNELS: ' + str(context['NUM_VALID_HBM_CHANNELS']))
 print ('EDGE_PACK_SIZE: ' + str(context['EDGE_PACK_SIZE']))
 print ('HBM_AXI_PACK_SIZE: ' + str(context['HBM_AXI_PACK_SIZE']))
 
+context['II_PREPARE_EDGEUPDATES_LOOP1'] = 2
+context['II_PREPARE_EDGEUPDATES_LOOP2'] = 2
+context['II_LOAD_EDGEUPDATES_LOOP1'] = 1
+context['II_PROCESS_EDGEUPDATES_MAINLOOP1D'] = 3
+context['II_PROCESS_EDGES_MAINLOOP1D'] = 1
+context['II_READ_DEST_PROPERTIES_LOOP2B'] = 1
+context['II_APPLY_UPDATES_LOOP1'] = 1
+context['II_SAVE_DEST_PROPERTIES_LOOP2'] = 1
+context['COLLECT_FRONTIER_INFO_LOOP1B'] = 1
+context['SAVE_FRONTIER_INFO_LOOP2B'] = 1
+context['II_TRANSPORT_FRONTIER_PROPERTIES_LOOP1B'] = 1
+context['YYYYYYYYYYYYYYYY'] = 1
+
+# LOAD_EDGEUPDATES_LOOP1
+
 ###
 
 # relref="../"
@@ -39,8 +54,8 @@ o_path1=relref+"acts_templates/acts_kernel.cpp"
 o_path2=relref+"acts_templates/acts_kernel.h"
 o_path3=relref+"acts_templates/acts_kernel.cpp"
 o_path4=relref+"acts_templates/acts_kernel.h"
-o_path5=relref+"include/common.h"
-o_path6=relref+"include/common.h"
+o_path5=relref+"include/common_h.cpp"
+o_path6=relref+"include/common_h.h"
 o_path7=relref+"include/common.h"
 o_path8=relref+"include/common.h"
 o_path9=relref+"include/common.h"

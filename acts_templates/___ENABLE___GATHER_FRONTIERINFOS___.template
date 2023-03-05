@@ -1,7 +1,3 @@
-// #ifdef _DEBUGMODE_KERNELPRINTS4
-// if(vpartition_vertices[0][p_v].count > 0){ cout<<"###>>> gathering vertex properties in "<<p_v<<" for transport..."<<endl; }
-// #endif	
-			
 {%for i in context['NUM_VALID_PEs_seq']%}	
 #ifdef _DEBUGMODE_KERNELPRINTS4 
 cout<<"### gathering dst vertex properties for vpartition "<<p_v<<": [PEs "; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<n<<", "; } cout<<"]"<<endl; 

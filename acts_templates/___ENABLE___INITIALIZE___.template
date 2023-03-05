@@ -40,11 +40,6 @@ int ___ENABLE___EXCHANGEFRONTIERINFOS___BOOL___ = globalparams[GLOBALPARAMSCODE_
 unsigned int threshold___activedstvids = globalparams[GLOBALPARAMSCODE__PARAM__THRESHOLD__ACTIVEDSTVID];
 unsigned int async_batch = globalparams[GLOBALPARAMSCODE__ASYNC__BATCH]; 
 unsigned int _ASYNC_BATCH_SIZE_ = globalparams[GLOBALPARAMSCODE__ASYNC__BATCHSIZE];	
-#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
-unsigned int num_edgeblocks_per_upartition = EDGE_PACK_SIZE;	
-#else 
-unsigned int num_edgeblocks_per_upartition = 1;	
-#endif 
 
 bool all_vertices_active_in_all_iterations = false; 
 if(globalparams[GLOBALPARAMSCODE__PARAM__ALGORITHM] == PAGERANK || globalparams[GLOBALPARAMSCODE__PARAM__ALGORITHM] == CF || globalparams[GLOBALPARAMSCODE__PARAM__ALGORITHM] == HITS || globalparams[GLOBALPARAMSCODE__PARAM__ALGORITHM] == SPMV){ all_vertices_active_in_all_iterations = true; }

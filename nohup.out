@@ -1,0 +1,27 @@
+rm -rf ./host /{*sw_emu*,*hw_emu*} 
+rm -rf profile_* TempConfig system_estimate.xtxt *.rpt *.csv 
+rm -rf src/*.ll *v++* .Xil emconfig.json dltmp* xmltmp* *.log *.jou *.wcfg *.wdb
+rm -rf build_dir*
+rm -rf package.*
+rm -rf _x* *xclbin.run_summary qemu-memory-_* emulation _vimage pl* start_simulation.sh
+# -rm -rf _x* *xclbin.run_summary qemu-memory-_* emulation _vimage pl* start_simulation.sh *.xclbin
+-------------------------------------------------- EVALUATE_DATASET.SH: SOFTWARE ACTS APPLICATION RUNNING --------------------------------------------------
+-------------------------------------------------- EVALUATE.SH: SOFTWARE ACTS APPLICATION RUNNING --------------------------------------------------
+python gen.py SW  EV_PERFORMANCEOFALGORITHM 12 RK
+ACTGraph (Courtesy: Jinja 2.0)...
+Generating sources... 
+XWARE: SW
+NUM_PEs: 12
+NUM_VALID_PEs: 1
+NUM_VALID_HBM_CHANNELS: 1
+EDGE_PACK_SIZE: 16
+HBM_AXI_PACK_SIZE: 16
+successful!
+...
+finished: successfully finished all processing
+rm -rf ./host /{*sw_emu*,*hw_emu*} 
+rm -rf profile_* TempConfig system_estimate.xtxt *.rpt *.csv 
+rm -rf src/*.ll *v++* .Xil emconfig.json dltmp* xmltmp* *.log *.jou *.wcfg *.wdb
+g++ host_srcs/hostprocess.cpp host_srcs/prepare_graph.cpp host_srcs/make_graph.cpp host_srcs/act_pack.cpp host_srcs/app.cpp host_srcs/utility.cpp host_srcs/algorithm.cpp host_srcs/host.cpp acts_templates/acts_kernel.cpp -std=c++11 -pthread -march=native -lrt -o host
+makefile_us_alveo.mk:135: recipe for target 'build_acts' failed
+/pr com-Orkut.mtx
