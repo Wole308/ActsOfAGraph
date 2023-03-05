@@ -1,0 +1,8 @@
+unsigned int global_subpartitionID = (p_v * NUM_SUBPARTITION_PER_PARTITION) + local_subpartitionID;
+{%for i in context['NUM_VALID_PEs_seq']%}	
+#ifdef _DEBUGMODE_KERNELPRINTS4 
+cout<<"### gathering dst vertex properties for vpartition "<<p_v<<", section "<<p_actvv<<": [PEs "; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<n<<", "; } cout<<"]"<<endl; 
+#endif 
+gather_and_export_frontier({{i}}, global_subpartitionID, cfrontier_dram___size, nfrontier_dram___size[{{i}}], upartition_vertices, HBM_channelA{{i}}, HBM_channelB{{i}}, HBM_centerA, HBM_centerB, &totalactvvs2, _NUMCLOCKCYCLES_);				
+{%endfor%}
+		
