@@ -332,17 +332,6 @@ void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedat
 }
 
 void act_pack::load_edgeupdates(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedatabuffer, vector<edge3_type> (&final_edge_updates)[NUM_PEs][MAX_NUM_UPARTITIONS][MAX_NUM_LLPSETS]){			
-	unsigned int num_vPs = universalparams.NUM_UPARTITIONS;
-	unsigned int vsize_vP = MAX_UPARTITION_SIZE;
-	unsigned int num_LLPs = universalparams.NUM_APPLYPARTITIONS * universalparams.NUM_PARTITIONS; // EDGE_PACK_SIZE; // 
-	unsigned int vsize_LLP = MAX_APPLYPARTITION_SIZE / EDGE_PACK_SIZE; 
-	unsigned int num_LLPset = (num_LLPs + (universalparams.NUM_PARTITIONS - 1)) / universalparams.NUM_PARTITIONS;
-	cout<<"=== load_edgeupdates: num_vPs: "<<num_vPs<<" ==="<<endl;
-	cout<<"=== load_edgeupdates: vsize_vP: "<<vsize_vP<<" ==="<<endl;
-	cout<<"=== load_edgeupdates: num_LLPs: "<<num_LLPs<<" ==="<<endl;
-	cout<<"=== load_edgeupdates: vsize_LLP: "<<vsize_LLP<<" ==="<<endl;
-	cout<<"=== load_edgeupdates: num_LLPset: "<<num_LLPset<<" ==="<<endl;
-	
 	cout<<"=== load_edgeupdates: EDGE_PACK_SIZE: "<<EDGE_PACK_SIZE<<" ==="<<endl;
 	cout<<"=== load_edgeupdates: HBM_CHANNEL_PACK_SIZE: "<<HBM_CHANNEL_PACK_SIZE<<" ==="<<endl;
 	cout<<"=== load_edgeupdates: HBM_AXI_PACK_SIZE: "<<HBM_AXI_PACK_SIZE<<" ==="<<endl;
@@ -375,7 +364,7 @@ void act_pack::load_edgeupdates(vector<edge_t> &vertexptrbuffer, vector<edge3_ty
 			if(edge.srcvid >= universalparams.NUM_VERTICES || edge.dstvid >= universalparams.NUM_VERTICES){ continue; } 
 			
 			unsigned int H = get_H2(edge.dstvid);
-			utilityobj->checkoutofbounds("loadedges::ERROR 223::", H, NUM_PEs, edge.srcvid, edge.dstvid, vsize_vP);
+			utilityobj->checkoutofbounds("loadedges::ERROR 223::", H, NUM_PEs, edge.srcvid, edge.dstvid, MAX_UPARTITION_SIZE);
 			
 			edges_in_channel[H].push_back(edge);
 		}
@@ -392,7 +381,7 @@ void act_pack::load_edgeupdates(vector<edge_t> &vertexptrbuffer, vector<edge3_ty
 		#ifdef _DEBUGMODE_HOSTPRINTS3
 		cout<<"act_pack:: [PE: "<<i<<"]"<<endl;
 		#endif 
-		for(unsigned int v_p=0; v_p<num_vPs; v_p++){ edgesin_srcvp[v_p].clear(); } // clear 
+		for(unsigned int v_p=0; v_p<universalparams.NUM_UPARTITIONS; v_p++){ edgesin_srcvp[v_p].clear(); } // clear 
 		
 		// within a HBM channel, partition into v-partitions 
 		if(debug){ cout<<"STAGE 1: within a HBM channel, partition into v-partitions "<<endl; }
@@ -402,16 +391,16 @@ void act_pack::load_edgeupdates(vector<edge_t> &vertexptrbuffer, vector<edge3_ty
 			if(edge.srcvid >= 60000000){ edge.srcvid = 60000000; } 
 			if(edge.dstvid >= 60000000){ edge.dstvid = 60000000; } 
 			
-			unsigned int vP = (edge.srcvid / vsize_vP);
-			if(vP >= num_vPs){ vP = num_vPs-1; } 
+			unsigned int vP = (edge.srcvid / MAX_UPARTITION_SIZE);
+			if(vP >= universalparams.NUM_UPARTITIONS){ vP = universalparams.NUM_UPARTITIONS-1; } 
 	
 			#ifdef _DEBUGMODE_HOSTCHECKS3
-			utilityobj->checkoutofbounds("act_pack::ERROR 22::", vP, num_vPs, edge.srcvid, edge.srcvid, vsize_vP);
+			utilityobj->checkoutofbounds("act_pack::ERROR 22::", vP, universalparams.NUM_UPARTITIONS, edge.srcvid, edge.srcvid, MAX_UPARTITION_SIZE);
 			#endif 
 			edgesin_srcvp[vP].push_back(edge);
 		}
 		
-		for(unsigned int v_p=0; v_p<num_vPs; v_p++){ // num_vPs
+		for(unsigned int v_p=0; v_p<universalparams.NUM_UPARTITIONS; v_p++){
 			// within a v-partition, partition into last-level-partition sets (LLP sets) 
 			if(debug){ cout<<"load_edgeupdates: STAGE 2: [i: "<<i<<", v-partition "<<v_p<<"] => partition into last-level-partitions (LLPsets)"<<endl; } 
 			for(unsigned int t=0; t<edgesin_srcvp[v_p].size(); t++){
@@ -421,11 +410,11 @@ void act_pack::load_edgeupdates(vector<edge_t> &vertexptrbuffer, vector<edge3_ty
 				final_edge_updates[i][v_p][llp_set].push_back(edge);
 			}
 			if(false){ cout<<"act_pack[STAGE 2 check]:: {srcvid, dstvid}"<<endl; }
-		} // iteration end: v_p:num_vPs 
+		} // iteration end: v_p
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS//4
-		for(unsigned int v_p=0; v_p<num_vPs; v_p++){
-			for(unsigned int llp_set=0; llp_set<num_LLPset; llp_set++){
+		for(unsigned int v_p=0; v_p<universalparams.NUM_UPARTITIONS; v_p++){
+			for(unsigned int llp_set=0; llp_set<universalparams.NUM_APPLYPARTITIONS; llp_set++){
 				if(i==0){ cout<<">>> final_edge_updates["<<i<<"]["<<v_p<<"]["<<llp_set<<"].size(): "<<final_edge_updates[i][v_p][llp_set].size()<<""<<endl; }
 			}
 		}

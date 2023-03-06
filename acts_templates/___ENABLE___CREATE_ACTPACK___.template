@@ -132,19 +132,19 @@ MY_IFDEF_SAVE_FULLYPREPARED_EDGEUPDATES(){
 		cout<<"save_fullyprepared_edgeupdates: llp_id: "<<llp_id<<endl; for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ cout<<""<<offset_p[v]<<", "; } cout<<endl;
 		#endif 
 		
-		#ifdef ___RUNNING_FPGA_SYNTHESIS___
+		// #ifdef ___RUNNING_FPGA_SYNTHESIS___
 		unsigned int sz = EDGE_UPDATES_DRAMBUFFER_SIZE / EDGE_PACK_SIZE; // FIXME. FIXHANG.
-		#else 
-		unsigned int sz = max;
-		#endif 	
+		// #else 
+		// unsigned int sz = max;
+		// #endif 	
 		SAVE_FULLYPREPARED_EDGEUPDATES: for(unsigned int t=0; t<sz; t++){
 		#pragma HLS PIPELINE II=1
 			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 	
 			#pragma HLS UNROLL
 				edge_update_type edge_update_ = edgeupdates_buffer[v][offset_p[v] + t];
-				if(t < count[v][p_[v]].size){ edge_update[v].srcvid = edge_update_.srcvid % MAX_UPARTITION_VECSIZE; edge_update[v].dstvid = edge_update_.dstvid % MAX_UPARTITION_VECSIZE; } 
-				// if(t < count[v][p_[v]].size){ edge_update[v].srcvid = edge_update_.srcvid % 8192; edge_update[v].dstvid = edge_update_.dstvid % 8192; } 
-				// if(t < count[v][p_[v]].size){ edge_update[v].srcvid = edge_update_.srcvid / EDGE_PACK_SIZE; edge_update[v].dstvid = edge_update_.dstvid / EDGE_PACK_SIZE; } 
+				// if(t < count[v][p_[v]].size){ edge_update[v].srcvid = edge_update_.srcvid % MAX_UPARTITION_VECSIZE; edge_update[v].dstvid = edge_update_.dstvid % MAX_UPARTITION_VECSIZE; }  // FIXME. 
+				// if(t < count[v][p_[v]].size){ edge_update[v].srcvid = edge_update_.srcvid % 8192; edge_update[v].dstvid = edge_update_.dstvid % 8192; }  // FIXME. 
+				if(t < count[v][p_[v]].size){ edge_update[v].srcvid = edge_update_.srcvid / EDGE_PACK_SIZE; edge_update[v].dstvid = edge_update_.dstvid / EDGE_PACK_SIZE; } 
 				else { edge_update[v].srcvid = INVALIDDATA; edge_update[v].dstvid = INVALIDDATA; }
 				#ifdef _DEBUGMODE_KERNELPRINTS//4
 				if(t==0){ cout<<"save_fullyprepared_edgeupdates: llp_id: "<<llp_id<<", t:"<<t<<", edge_update["<<v<<"].srcvid: "<<edge_update[v].srcvid<<" ("<<edge_update[v].srcvid % EDGE_PACK_SIZE<<"), edge_update["<<v<<"].dstvid: "<<edge_update[v].dstvid<<" ("<<edge_update[v].dstvid % EDGE_PACK_SIZE<<")"<<endl; }
@@ -324,7 +324,7 @@ MY_IFDEF_CREATE_ACTPACK(){
 							count[n][v][p].size = 0;
 						}
 					}
-				}	
+				}
 
 				// partition stage 2
 				CREATE_ACTPACK_LOOP2: for(unsigned int t=0; t<work_size; t++){ // _MAX_BUFFER_SIZE, 1024, work_size

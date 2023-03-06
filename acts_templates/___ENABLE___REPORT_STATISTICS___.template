@@ -1,7 +1,8 @@
 #ifdef _DEBUGMODE_CHECKS3 
 
-#ifdef _DEBUGMODE_KERNELPRINTS4//______
+#ifdef _DEBUGMODE_KERNELPRINTS4
 if(action.finish == 1){ 
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"- RESETBUFFERSATSTART"<<endl;
 	cout<<"- READ_FRONTIER_PROPERTIES"<<endl; 
 	cout<<"- ECPROCESSEDGES"<<endl; 
@@ -13,6 +14,7 @@ if(action.finish == 1){
 	cout<<"- NUMBER_OF_EDGEUPDATES_LOADED"<<endl; 
 	cout<<"- NUMBER_OF_EDGEUPDATES_APPLIED"<<endl; 
 	cout<<"- NUMBER_OF_NEW_EDGEUPDATES_ADDED"<<endl;
+	#endif 
 	
 	cout<<"[RESETBUFFERSATSTART, ";
 	cout<<"READ_FRONTIERS, "; 
@@ -21,10 +23,10 @@ if(action.finish == 1){
 	cout<<"APPLYUPDATES, "; 
 	cout<<"COLLECT_FRONTIERS, "; 
 	cout<<"SAVE_DEST, "; 
-	cout<<"GATHER_FRONTIERS, "; 
-	cout<<"# EDGEUPDATES_LOADED, "; 
+	cout<<"GATHER_FRONTIERS] "; 
+	cout<<"[# EDGEUPDATES_LOADED, "; 
 	cout<<"# EDGEUPDATES_APPLIED, "; 
-	cout<<"# NEW_EDGEUPDATES_ADDED, ";
+	cout<<"# NEW_EDGEUPDATES_ADDED]";
 	cout<<endl;
 }																										
 

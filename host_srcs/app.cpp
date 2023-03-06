@@ -140,8 +140,8 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	
 	cout<<"app: initializing HBM_import_export"<<endl;
 	for(unsigned int n=0; n<2; n++){
-		HBM_import_export[n] = new HBM_channelAXISW_t[HBM_CHANNEL_SIZE]; 
-		for(unsigned int t=0; t<HBM_CHANNEL_SIZE; t++){ for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){ HBM_import_export[n][t].data[v] = 0; }}
+		HBM_import_export[n] = new HBM_channelAXISW_t[IMPORT_EXPORT_GRANULARITY_VECSIZE]; 
+		for(unsigned int t=0; t<IMPORT_EXPORT_GRANULARITY_VECSIZE; t++){ for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){ HBM_import_export[n][t].data[v] = 0; }}
 	}
 	
 	string GRAPH_NAME = ""; 
@@ -230,7 +230,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	unsigned int csrvptrsz_u32 = ((universalparams.NUM_VERTICES / NUM_PEs) + 64); 
 	unsigned int vdatasz_u32 = __NUM_APPLYPARTITIONS * MAX_APPLYPARTITION_VECSIZE * EDGE_PACK_SIZE * 2;
 	unsigned int cfrontiersz_u32 = 1 * MAX_APPLYPARTITION_VECSIZE * EDGE_PACK_SIZE * 2;
-	unsigned int nfrontiersz_u32 = (__NUM_APPLYPARTITIONS * MAX_ACTVV_VECSIZE * NUM_ACTVVPARTITIONS_PER_APPLYPARTITION * EDGE_PACK_SIZE) * 2;
+	unsigned int nfrontiersz_u32 = (__NUM_APPLYPARTITIONS * VDATA_SUBPARTITION_VECSIZE * NUM_SUBPARTITION_PER_PARTITION * EDGE_PACK_SIZE) * 2;
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	cout<<"--_________________________--------------------- nfrontiersz_u32: "<<nfrontiersz_u32<<", vdatasz_u32: "<<vdatasz_u32<<", globalparams[GLOBALPARAMSCODE__WWSIZE__NFRONTIERS] = "<<((nfrontiersz_u32 / (HBM_CHANNEL_PACK_SIZE / 2)) + 16)<<" "<<endl;
 	#endif 
@@ -250,8 +250,8 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	cout<<"app: UPDATES_BUFFER_PACK_SIZE: "<<UPDATES_BUFFER_PACK_SIZE<<endl;
 	cout<<"app: __NUM_UPARTITIONS: "<<__NUM_UPARTITIONS<<endl;
 	cout<<"app: __NUM_APPLYPARTITIONS: "<<__NUM_APPLYPARTITIONS<<endl;
-	cout<<"app: NUM_ACTVVPARTITIONS_PER_APPLYPARTITION: "<<NUM_ACTVVPARTITIONS_PER_APPLYPARTITION<<endl;
-	cout<<"app: MAX_ACTVV_VECSIZE: "<<MAX_ACTVV_VECSIZE<<endl;
+	cout<<"app: NUM_SUBPARTITION_PER_PARTITION: "<<NUM_SUBPARTITION_PER_PARTITION<<endl;
+	cout<<"app: VDATA_SUBPARTITION_VECSIZE: "<<VDATA_SUBPARTITION_VECSIZE<<endl;
 	cout<<"app: UPDATES_BUFFER_PACK_SIZE: "<<UPDATES_BUFFER_PACK_SIZE<<endl;
 	#endif 
 	
@@ -438,7 +438,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__PARTIALLYPROCESSEDEDGEUPDATES] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES] + globalparams[GLOBALPARAMSCODE__WWSIZE__RAWEDGEUPDATES]; 
 	}
 	// size_u32 = EDGE_UPDATES_DRAMBUFFER_SIZE * 4 * HBM_CHANNEL_PACK_SIZE; // '4' is padding
-	size_u32 = EDGE_UPDATES_DRAMBUFFER_LONGSIZE * 4 * HBM_CHANNEL_PACK_SIZE; // '4' is padding
+	size_u32 = EDGE_UPDATES_DRAMBUFFER_LONGSIZE * 4 * HBM_CHANNEL_PACK_SIZE; // '4' is padding // FIXME.
 	
 	// load edge updates (actpack format)
 	cout<<"loading edge updates (actpack format)..."<<endl;
@@ -809,7 +809,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	// run kernel
 	for(unsigned int i=0; i<NUM_PEs; i++){ HBM_axichannel[0][i][GLOBALPARAMSCODE__COMMANDS__COMMAND0].data[0] = 1; }
 	host * hostobj = new host(universalparams);
-	hostobj->runapp(action, binaryFile, HBM_axichannel, HBM_axicenter, HBM_import_export, globalparams, universalparams);
+	hostobj->runapp(action, binaryFile, HBM_axichannel, HBM_axicenter, globalparams, universalparams);
 	
 	#ifdef HOST_PRINT_RESULTS_XXXX
 	cout<<"---------------------------------------------- app:: after ---------------------------------------------- "<<endl;
