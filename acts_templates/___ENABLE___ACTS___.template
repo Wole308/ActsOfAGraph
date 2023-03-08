@@ -33,7 +33,7 @@
 
 #define MAXVALID_APPLYPARTITION_VECSIZE (MAX_APPLYPARTITION_VECSIZE >> POW_VALID_VDATA)
 
-#ifdef FPGA_IMPL
+#ifdef ___RUNNING_FPGA_SYNTHESIS___ // FPGA_IMPL
 #define MY_IFDEF_NFRONTIER() keyvalue_t nfrontier_buffer[EDGE_PACK_SIZE][VDATA_SUBPARTITION_VECSIZE]
 #define MY_IFDEF_CFRONTIER_TMP() keyvalue_t cfrontier_buffer_tmp[EDGE_PACK_SIZE][MAXVALID_APPLYPARTITION_VECSIZE]
 #define MY_IFDEF_CFRONTIER() keyvalue_t cfrontier_buffer[NUM_VALID_PEs][MAXVALID_APPLYPARTITION_VECSIZE]
@@ -45,7 +45,7 @@
 #define MY_IFDEF_EDGESBUFFER() edge3_type edges_buffer[EDGE_PACK_SIZE][EDGE_BUFFER_SIZE]
 #define MY_IFDEF_EDGEUPDATESBUFFER() edge_update_type edgeupdates_buffer[EDGE_PACK_SIZE][EDGE_UPDATES_DRAMBUFFER_SIZE]
 #define MY_IFDEF_VDATABUFFER() vprop_t vdata_buffer[EDGE_PACK_SIZE][MAXVALID_APPLYPARTITION_VECSIZE]
-#define MY_IFDEF_TOPLEVELFUNC() void top_function({% include '___HBM___PARAMS___.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, HBM_channelAXI_t * HBM_import, HBM_channelAXI_t * HBM_export, unsigned int module, unsigned int start_pu, unsigned int size_pu, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_gv, unsigned int size_gv, unsigned int finish)
+#define MY_IFDEF_TOPLEVELFUNC() void top_function({% include '___HBM___PARAMS___.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, HBM_channelAXI_t * HBM_import, HBM_channelAXI_t * HBM_export, unsigned int module, unsigned int start_pu, unsigned int size_pu, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_gv, unsigned int size_gv, unsigned int size_import_export, unsigned int finish)
 #else
 #define MY_IFDEF_NFRONTIER() keyvalue_t * nfrontier_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_CFRONTIER_TMP() keyvalue_t * cfrontier_buffer_tmp[EDGE_PACK_SIZE]
@@ -58,18 +58,18 @@
 #define MY_IFDEF_EDGESBUFFER() edge3_type * edges_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_EDGEUPDATESBUFFER() edge_update_type * edgeupdates_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_VDATABUFFER() vprop_t * vdata_buffer[EDGE_PACK_SIZE]
-#define MY_IFDEF_TOPLEVELFUNC() void acts_kernel::top_function({% include '___HBM___PARAMS___.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, HBM_channelAXI_t * HBM_import, HBM_channelAXI_t * HBM_export, unsigned int module, unsigned int start_pu, unsigned int size_pu, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_gv, unsigned int size_gv, unsigned int finish)					
+#define MY_IFDEF_TOPLEVELFUNC() void acts_kernel::top_function({% include '___HBM___PARAMS___.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, HBM_channelAXI_t * HBM_import, HBM_channelAXI_t * HBM_export, unsigned int module, unsigned int start_pu, unsigned int size_pu, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_gv, unsigned int size_gv, unsigned int size_import_export, unsigned int finish)					
 #endif
 
 #define APPLY_CMD 2
 #define TRANSPORT_CMD 3
 
-#ifndef FPGA_IMPL
+#ifndef ___RUNNING_FPGA_SYNTHESIS___ // FPGA_IMPL
 unsigned int * globalparams_debug;
 // unsigned int _NUMCLOCKCYCLES_[2][32]; 
 #endif 
 
-#ifndef FPGA_IMPL 
+#ifndef ___RUNNING_FPGA_SYNTHESIS___ // FPGA_IMPL 
 acts_kernel::acts_kernel(universalparams_t _universalparams){
 	utilityobj = new utility(_universalparams);
 	universalparams = _universalparams;
@@ -86,31 +86,33 @@ acts_kernel::~acts_kernel(){}
 
 {% include '___ENABLE___CREATE_ACTPACK___.template' %}
 
-void import_frontiers(unsigned int chunk, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_import, unsigned int _NUMCLOCKCYCLES_[2][32]){
+void import_frontiers(unsigned int chunk, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_import, action_t action, unsigned int _NUMCLOCKCYCLES_[2][32]){
 	#ifdef _DEBUGMODE_KERNELPRINTS4
-	cout<<"acts_kernel::run:: importing data (Host -> FPGA)..."<<endl;
+	cout<<"acts_kernel::run:: importing "<<action.size_import_export<<" 32bit-integers (Host -> FPGA)..."<<endl;
 	#endif 
 	unsigned int offset_c = 0 * chunk; // FIXME
-	IMPORT_LOOP1: for(unsigned int t=0; t<IMPORT_EXPORT_GRANULARITY_VECSIZE; t++){
+	IMPORT_LOOP1: for(unsigned int t=0; t<action.size_import_export; t++){ 
 	#pragma HLS PIPELINE II={{context['II_TRANSPORT_FRONTIER_PROPERTIES_LOOP1B']}}
 		// import (Host -> FPGA)
 		{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 		HBM_centerA[offset_c + t].data[{{v}}] = HBM_import[t].data[{{v}}];
-		{%endfor%}
+		{%endfor%}	
+		update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___GATHER_FRONTIERINFOS___, 1); 
 	}
 }	
 
-void export_frontiers(unsigned int chunk, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_export, unsigned int _NUMCLOCKCYCLES_[2][32]){	
+void export_frontiers(unsigned int chunk, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_export, action_t action, unsigned int _NUMCLOCKCYCLES_[2][32]){	
 	#ifdef _DEBUGMODE_KERNELPRINTS4
-	cout<<"acts_kernel::run:: exporting data (FPGA -> Host)..."<<endl;
+	cout<<"acts_kernel::run:: exporting "<<action.size_import_export<<" 32bit-integers (FPGA -> Host)..."<<endl;
 	#endif 
 	unsigned int offset_c = 0 * chunk; // FIXME
-	EXPORT_LOOP1B: for(unsigned int t=0; t<IMPORT_EXPORT_GRANULARITY_VECSIZE; t++){
+	EXPORT_LOOP1: for(unsigned int t=0; t<action.size_import_export; t++){ 
 	#pragma HLS PIPELINE II={{context['II_TRANSPORT_FRONTIER_PROPERTIES_LOOP1B']}}
 		// export (FPGA -> Host)
 		{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 		HBM_export[t].data[{{v}}] = HBM_centerA[offset_c + t].data[{{v}}];
-		{%endfor%}
+		{%endfor%}	
+		update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___GATHER_FRONTIERINFOS___, 1); 
 	}
 }	
 
@@ -127,7 +129,7 @@ void gather_frontiers(unsigned int inst, unsigned int p_v, unsigned int * cfront
 			{%endfor%}
 			{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 			HBM_centerB[offset_centerhbm + t].data[{{v}}] = HBM_channelB[offset_channelhbm + t].data[{{v}}];
-			{%endfor%}
+			{%endfor%}	
 			if(inst==0){ update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___GATHER_FRONTIERINFOS___, 1); }
 		}
 		
@@ -146,7 +148,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 #pragma HLS INTERFACE m_axi port = HBM_centerA offset = slave bundle = gmem{{2*context['NUM_VALID_HBM_CHANNELS']}}
 #pragma HLS INTERFACE m_axi port = HBM_centerB offset = slave bundle = gmem{{2*context['NUM_VALID_HBM_CHANNELS']+1}}
 #pragma HLS INTERFACE m_axi port = HBM_import offset = slave bundle = gmem{{2*context['NUM_VALID_HBM_CHANNELS']+2}}
-#pragma HLS INTERFACE m_axi port = HBM_export offset = slave bundle = gmem{{2*context['NUM_VALID_HBM_CHANNELS']+2}}
+#pragma HLS INTERFACE m_axi port = HBM_export offset = slave bundle = gmem{{2*context['NUM_VALID_HBM_CHANNELS']+3}}
 
 {%for i in context['NUM_VALID_HBM_CHANNELS_seq']%}
 #pragma HLS INTERFACE s_axilite port = HBM_channelA{{i}}
@@ -168,10 +170,12 @@ MY_IFDEF_TOPLEVELFUNC(){
 #pragma HLS INTERFACE s_axilite port = size_llpid
 #pragma HLS INTERFACE s_axilite port = start_gv
 #pragma HLS INTERFACE s_axilite port = size_gv
+#pragma HLS INTERFACE s_axilite port = size_import_export
 #pragma HLS INTERFACE s_axilite port = finish
 #pragma HLS INTERFACE s_axilite port = return
 
-	#ifdef _DEBUGMODE_KERNELPRINTS4
+	// #ifdef _DEBUGMODE_KERNELPRINTS4
+	#ifndef ___RUNNING_FPGA_SYNTHESIS___
 	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
 	if(finish == 1) { cout<<"acts_kernel::run:: dynamic acts started "<<endl; }
 	#else 
@@ -192,6 +196,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 	action.size_llpid = size_llpid; 
 	action.start_gv = start_gv; 
 	action.size_gv = size_gv;
+	action.size_import_export = size_import_export;
 	action.finish = finish;
 	
 	// declarations
@@ -238,11 +243,13 @@ MY_IFDEF_TOPLEVELFUNC(){
 		#endif
 	}
 	
+	#ifdef RRRRRRRRRRRRRRRRRRRRR
 	// import (keep the PCIe channels busy always)
-	import_frontiers(0, HBM_centerA, HBM_import, _NUMCLOCKCYCLES_);
+	import_frontiers(0, HBM_centerA, HBM_import, action, _NUMCLOCKCYCLES_);
 	
 	// export (keep the PCIe channels busy always)
-	export_frontiers(0, HBM_centerA, HBM_export, _NUMCLOCKCYCLES_);
+	export_frontiers(0, HBM_centerA, HBM_export, action, _NUMCLOCKCYCLES_);
+	#endif 
 
 	// run acts 
 	RUN_ACTS_LOOP1: for(unsigned int run=0; run<globalparams[GLOBALPARAMSCODE__PARAM__NUM_RUNS]; run++){
@@ -330,7 +337,8 @@ MY_IFDEF_TOPLEVELFUNC(){
 				#endif 
 				
 				if(vpartition_vertices[0][p_v].count > 0 || all_vertices_active_in_all_iterations == true){ 
-					#ifdef _DEBUGMODE_KERNELPRINTS4
+					// #ifdef _DEBUGMODE_KERNELPRINTS4
+					#ifndef ___RUNNING_FPGA_SYNTHESIS___
 					if(en == true){ cout<<"### applying updates in vpartition "<<p_v<<"..."<<endl; }
 					#endif
 				
@@ -386,7 +394,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 	}
 
 	// save state
-	if(action.module == PROCESS_EDGES_MODULE || action.module == ALL_MODULES){
+	if(action.module == PROCESS_EDGES_MODULE){ //  || action.module == ALL_MODULES){
 		LOAD_UPDATEPTRS_lOOP2: for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]; t++){	
 			save_vupdate_map(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS], t, updatesptrs[t], {% include '___HBM___ARGS___.template' %});
 			#ifdef _DEBUGMODE_KERNELPRINTS//4

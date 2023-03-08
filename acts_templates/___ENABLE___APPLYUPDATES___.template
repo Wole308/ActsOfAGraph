@@ -1,8 +1,6 @@
 uint512_vec_dt updates_vecs[NUM_VALID_PEs];
-// max_limit = 0; for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ limits[inst] = actpackupdates_dram___size[inst][p_v]; } for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ if(max_limit < limits[inst]){ max_limit = limits[inst]; }}
+unsigned int offset_c = 0 * 0; // FIXME
 max_limit = 0; for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ limits[inst] = updatesptrs[p_v].size; } for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ if(max_limit < limits[inst]){ max_limit = limits[inst]; }}
-// cout<<"------------------------- APPLY_UPDATES_LOOP1: max_limit: "<<max_limit<<" --------------------------------------"<<endl;
-			
 APPLY_UPDATES_LOOP1: for(unsigned int t=0; t<max_limit; t++){			
 #pragma HLS PIPELINE II={{context['II_APPLY_UPDATES_LOOP1']}}
 // #pragma HLS dependence variable=vdata_buffer type=inter false ///////// FIXME.
@@ -40,4 +38,15 @@ APPLY_UPDATES_LOOP1: for(unsigned int t=0; t<max_limit; t++){
 			}
 		}
 	}
+	
+	// if(t<action.size_import_export){
+	// import (Host -> FPGA)
+	{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
+	HBM_centerA[offset_c + t].data[{{v}}] = HBM_import[t].data[{{v}}];
+	{%endfor%}	
+	// export (FPGA -> Host)
+	{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
+	HBM_export[t].data[{{v}}] = HBM_centerB[offset_c + t].data[{{v}}];
+	{%endfor%}
+	// }
 }			

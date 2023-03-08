@@ -92,8 +92,6 @@ using std::vector;
 #define NUM_HBMC_ARGS 2
 #define NUM_HBMIO_ARGS 2
 
-#define ___SYNC___
-
 host::host(universalparams_t _universalparams){
 	utilityobj = new utility(_universalparams);
 	myuniversalparams = _universalparams;
@@ -112,7 +110,7 @@ const int pc[MAX_HBM_PC_COUNT] = {
 
 // An event callback function that prints the operations performed by the OpenCL
 // runtime.
-void event_cb(cl_event event1, cl_int cmd_status, void* data) {
+void _event_cb_async(cl_event event1, cl_int cmd_status, void* data) {
     cl_int err;
     cl_command_type command;
     cl::Event event(event1, true);
@@ -162,9 +160,9 @@ void event_cb(cl_event event1, cl_int cmd_status, void* data) {
 }
 
 // Sets the callback for a particular event
-void set_callback(cl::Event event, const char* queue_name) {
+void _set_callback_async(cl::Event event, const char* queue_name) {
     cl_int err;
-    OCL_CHECK(err, err = event.setCallback(CL_COMPLETE, event_cb, (void*)queue_name));
+    OCL_CHECK(err, err = event.setCallback(CL_COMPLETE, _event_cb_async, (void*)queue_name));
 }
 
 void _set_args___actions(cl::Kernel * krnl_vadd, action_t action, cl_int err){
@@ -179,8 +177,7 @@ void _set_args___actions(cl::Kernel * krnl_vadd, action_t action, cl_int err){
 	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + 8, int(action.size_llpid)));
 	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + 9, int(action.start_gv)));
 	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + 10, int(action.size_gv)));
-	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + 11, int(action.size_import_export)));
-	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + 12, int(action.finish)));
+	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + 11, int(action.finish)));
 }
 #endif 
 
@@ -196,9 +193,9 @@ void _set_args___actions(cl::Kernel * krnl_vadd, action_t action, cl_int err){
 #define EXPORT_DEVICE_TO_HOST() void _export_device_to_host()
 #endif
 
-action_t _get_action(unsigned int launch_idx, unsigned int launch_type, universalparams_t universalparams){
+action_t _get_action(unsigned int launch_idx, unsigned int num_launches, universalparams_t universalparams){
 	action_t action;
-	if(launch_type == 0){
+	if(num_launches == 1){
 		action.module = ALL_MODULES;
 		action.start_pu = 0; 
 		action.size_pu = universalparams.NUM_UPARTITIONS; 
@@ -230,8 +227,7 @@ action_t _get_action(unsigned int launch_idx, unsigned int launch_type, universa
 			cout<<"ERROR 234. launch_idx is out-of-range. EXITING... "<<endl;
 			exit(EXIT_FAILURE);
 		}
-	}
-	action.size_import_export = IMPORT_EXPORT_GRANULARITY_VECSIZE;
+	}	
 	return action;
 }
 
@@ -321,7 +317,6 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 	cout<<"--- host::runapp_sync: NUM_HBM_ARGS: "<<NUM_HBM_ARGS<<" ---"<<endl;
 	cout<<"--- host::runapp_sync: ARRAY_SIZE: "<<ARRAY_SIZE<<" ---"<<endl;
 	cout<<"--- host::runapp_sync: IO_ARRAY_SIZE: "<<IO_ARRAY_SIZE<<" ---"<<endl;
-	cout<<"--- host::runapp_sync: TOTAL: "<<ARRAY_SIZE + IO_ARRAY_SIZE<<" ---"<<endl;
 	
 	// set arguments
 	#ifdef RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR
@@ -387,9 +382,9 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
         OCL_CHECK(err, context = cl::Context(device, nullptr, nullptr, nullptr, &err));
         // This example will use an out of order command queue. The default command
         // queue created by cl::CommandQueue is an inorder command queue.
-        OCL_CHECK(err, q = cl::CommandQueue(context, device, CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE, &err));
+        // OCL_CHECK(err, q = cl::CommandQueue(context, device, CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE, &err));
 		// OCL_CHECK(err, q = cl::CommandQueue(context, device, CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE | CL_QUEUE_PROFILING_ENABLE, &err)); 
-		// OCL_CHECK(err, q = cl::CommandQueue(context, device, CL_QUEUE_PROFILING_ENABLE, &err)); ////////// FIXME.
+		OCL_CHECK(err, q = cl::CommandQueue(context, device, CL_QUEUE_PROFILING_ENABLE, &err)); ////////// FIXME.
 
         std::cout << "Trying to program device[" << i << "]: " << device.getInfo<CL_DEVICE_NAME>() << std::endl;
         cl::Program program(context, {device}, bins, nullptr, &err);
@@ -431,13 +426,6 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 			for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){ HHC[flag][1][t*HBM_AXI_PACK_SIZE + v] = HBM_axicenter[1][t].data[v]; }
 		}
 	}
-	#else 
-	HBM_channelAXISW_t * HBM_import[8]; 
-	HBM_channelAXISW_t * HBM_export[8]; 
-	for(unsigned int n=0; n<1; n++){
-		HBM_import[n] = new HBM_channelAXISW_t[IMPORT_EXPORT_GRANULARITY_VECSIZE]; 
-		HBM_export[n] = new HBM_channelAXISW_t[IMPORT_EXPORT_GRANULARITY_VECSIZE]; 
-	}
 	#endif 
 	
     // THIS PAIR OF EVENTS WILL BE USED TO TRACK WHEN A KERNEL IS FINISHED WITH
@@ -469,12 +457,12 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 	for (int i = 0; i < 8; i++) {
 		inBufExt_import[i].obj = HHIO_IMPORT[i].data();
 		inBufExt_import[i].param = 0;
-		inBufExt_import[i].flags = pc[4];
+		inBufExt_import[i].flags = pc[0];
 	}
 	for (int i = 0; i < 8; i++) {
 		inBufExt_export[i].obj = HHIO_EXPORT[i].data();
 		inBufExt_export[i].param = 0;
-		inBufExt_export[i].flags = pc[4];
+		inBufExt_export[i].flags = pc[0];
 	}
 	#endif 
 	
@@ -533,12 +521,9 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 	action.size_gv = NUM_VALID_PEs;
 	action.finish = 1;
 	
-	unsigned int launch_type = 0; // 0:full run,1:segmented runs 
 	unsigned int num_launches = 1;
-	
-	// unsigned int launch_type = 1; // 0:full run,1:segmented runs 
+	// unsigned int num_launches = universalparams.NUM_UPARTITIONS;
 	// unsigned int num_launches = universalparams.NUM_UPARTITIONS + universalparams.NUM_APPLYPARTITIONS;
-	
 	#ifndef FPGA_IMPL
 	acts_kernel * acts = new acts_kernel(universalparams);
 	#endif 
@@ -549,12 +534,6 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 			std::cout <<"------------------------- host: launch_idx "<<launch_idx<<" started... -------------------------"<<std::endl;
 			
 			int flag = launch_idx % 2;
-			
-			#ifdef FPGA_IMPL	
-			if (launch_idx >= 2) {
-				OCL_CHECK(err, err = read_events[flag].wait());
-			}
-			#endif 	
 			
 			// Allocate Buffer in Global Memory
 			// Buffers are allocated using CL_MEM_USE_HOST_PTR for efficient memory and
@@ -568,10 +547,6 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 			OCL_CHECK(err, buffer_export[flag] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
 											import_export_bytes_per_iteration, &inBufExt_export[flag], &err)); // REMOVEME 'i%6'
 			#endif 
-			
-			#ifdef FPGA_IMPL
-			vector<cl::Event> write_event(1);
-			#endif 
 											   
 			std::cout << "Setting Import/Export Arguments..." << std::endl;
 			#ifdef FPGA_IMPL
@@ -581,8 +556,7 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 		
 			// set scalar arguments
 			std::cout << "Setting Scalar Arguments..." << std::endl;
-			action_t action = _get_action(launch_idx, launch_type, universalparams);
-			action.size_import_export = IMPORT_EXPORT_GRANULARITY_VECSIZE; // 
+			action_t action = _get_action(launch_idx, num_launches, universalparams);
 			#ifdef FPGA_IMPL
 			_set_args___actions(&krnl_vadd, action, err);
 			#endif 
@@ -590,18 +564,7 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 			
 			// import 
 			#ifdef FPGA_IMPL
-			// _import_host_to_device(&q, err, buffer_import, flag);
-			std::cout << "Host to FPGA Transfer..." << std::endl;
-			std::chrono::steady_clock::time_point begin_time2 = std::chrono::steady_clock::now();
-			for(unsigned int t=0; t<1; t++){
-				OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_import[flag]}, 0, nullptr, &write_event[0]));
-				set_callback(write_event[0], "ooo_queue");
-				#ifdef ___SYNC___
-				OCL_CHECK(err, err = write_event[0].wait()); ////////////////////////////////////
-				#endif 
-			}
-			double end_time2 = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin_time2).count()) / 1000;	
-			std::cout <<">>> Host to FPGA Transfer time elapsed : "<<end_time2<<" ms, "<<(end_time2 * 1000)<<" microsecs, "<<std::endl;
+			_import_host_to_device(&q, err, buffer_import, flag);
 			#else 
 			_import_host_to_device();	
 			#endif
@@ -610,28 +573,8 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 			printf("Enqueueing NDRange kernel.\n");
 			std::chrono::steady_clock::time_point begin_time1 = std::chrono::steady_clock::now();
 			#ifdef FPGA_IMPL
-			/* // OCL_CHECK(err, err = q.enqueueTask(krnl_vadd));
-			// OCL_CHECK(err, err = q.finish());			
-			std::vector<cl::Event> waitList;
-			waitList.push_back(write_event[0]);
-			OCL_CHECK(err, err = q.enqueueNDRangeKernel(krnl_vadd, 0, 1, 1, &waitList, &kernel_events[flag]));
-			set_callback(kernel_events[flag], "ooo_queue");
-			OCL_CHECK(err, err = kernel_events[flag].wait()); ////////////////////////////////////
-			
-			// OCL_CHECK(err, err = q.enqueueTask(krnl_vadd));
-			// OCL_CHECK(err, err = q.finish());			
-			// std::vector<cl::Event> waitList;
-			// waitList.push_back(write_event[0]); */
-				#ifdef ___SYNC___
-				OCL_CHECK(err, err = q.enqueueNDRangeKernel(krnl_vadd, 0, 1, 1, NULL, &kernel_events[flag]));
-				set_callback(kernel_events[flag], "ooo_queue");
-				OCL_CHECK(err, err = kernel_events[flag].wait()); ////////////////////////////////////
-				#else 
-				std::vector<cl::Event> waitList;
-				waitList.push_back(write_event[0]);
-				OCL_CHECK(err, err = q.enqueueNDRangeKernel(krnl_vadd, 0, 1, 1, &waitList, &kernel_events[flag]));
-				set_callback(kernel_events[flag], "ooo_queue");
-				#endif 			
+			OCL_CHECK(err, err = q.enqueueTask(krnl_vadd));
+			OCL_CHECK(err, err = q.finish());
 			#else 
 			acts->top_function(
 				(HBM_channelAXI_t *)HBM_axichannel[0][0], (HBM_channelAXI_t *)HBM_axichannel[1][0]
@@ -655,7 +598,7 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 				#endif
 				,(HBM_channelAXI_t *)HBM_axicenter[0], (HBM_channelAXI_t *)HBM_axicenter[1]
 				,(HBM_channelAXI_t *)HBM_import[0], (HBM_channelAXI_t *)HBM_export[0]
-				,action.module ,action.start_pu ,action.size_pu ,action.start_pv ,action.size_pv ,action.start_llpset ,action.size_llpset ,action.start_llpid ,action.size_llpid ,action.start_gv ,action.size_gv ,action.size_import_export ,action.finish
+				,action.module ,action.start_pu ,action.size_pu ,action.start_pv ,action.size_pv ,action.start_llpset ,action.size_llpset ,action.start_llpid ,action.size_llpid ,action.start_gv ,action.size_gv ,action.finish
 				);	
 			#endif 
 			double end_time1 = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin_time1).count()) / 1000;	
@@ -663,37 +606,14 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 		
 			// export
 			#ifdef FPGA_IMPL
-			// _export_device_to_host(&q, err, buffer_export, flag);
-			std::cout << "FPGA to Host Transfer..." << std::endl;
-			std::chrono::steady_clock::time_point begin_time3 = std::chrono::steady_clock::now();
-			std::cout << "Getting Results (Device to Host)..." << std::endl;
-			std::vector<cl::Event> eventList;
-			eventList.push_back(kernel_events[flag]);
-			for(unsigned int t=0; t<1; t++){
-				OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_export[flag]}, CL_MIGRATE_MEM_OBJECT_HOST, &eventList,
-                                                        &read_events[flag]));
-				set_callback(read_events[flag], "ooo_queue");
-				#ifdef ___SYNC___
-				OCL_CHECK(err, err = read_events[flag].wait()); ////////////////////////////////////
-				#endif 
-			}
-			double end_time3 = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin_time3).count()) / 1000;	
-			std::cout <<">>> FPGA to Host Transfer time elapsed : "<<end_time3<<" ms, "<<(end_time3 * 1000)<<" microsecs, "<<std::endl;
+			_export_device_to_host(&q, err, buffer_export, flag);
 			#else 
 			_export_device_to_host();	
 			#endif
 		}
     }
-	
-	// Wait for all of the OpenCL operations to complete
-    printf("Waiting...\n");
-	#ifdef FPGA_IMPL
-    OCL_CHECK(err, err = q.flush());
-    OCL_CHECK(err, err = q.finish());
-	#endif 
-	
 	double end_time = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin_time).count()) / 1000;	
-	std::cout << TIMINGRESULTSCOLOR <<">>> total kernel time elapsed for all iterations : "<<end_time<<" ms, "<<(end_time * 1000)<<" microsecs, "<< RESET << std::endl;
+	std::cout <<">>> kernel time elapsed for all iterations : "<<end_time<<" ms, "<<(end_time * 1000)<<" microsecs, "<<std::endl;
 
 	// Copy Result from Device Global Memory to Host Local Memory
 	#ifdef FPGA_IMPL

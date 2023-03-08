@@ -28,7 +28,8 @@ offset_t BBB[EDGE_UPDATES_DRAMBUFFER_SIZE];
 #endif 
 
 PROCESS_EDGEUPDATES_MODULE_LOOP1B: for(unsigned int p_u=0; p_u<globalparams[GLOBALPARAMSCODE__PARAM__NUM_UPARTITIONS]; p_u++){ // 1, __NUM_UPARTITIONS. REMOVEME.
-	#ifdef _DEBUGMODE_KERNELPRINTS4 
+	// #ifdef _DEBUGMODE_KERNELPRINTS4 
+	#ifndef ___RUNNING_FPGA_SYNTHESIS___
 	if(all_vertices_active_in_all_iterations == true){ cout<<"### inserting/deleting/updating edges in upartition "<<p_u<<": [PEs "; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<n<<", "; } cout<<"]"<<endl; }
 	#endif 
 	EC_PROCESS_EDGEUPDATES_LOOP1: for(unsigned int llp_set=0; llp_set<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]; llp_set++){	

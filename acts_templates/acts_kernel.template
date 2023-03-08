@@ -1,14 +1,7 @@
 #include "../include/common.h"
-#ifndef FPGA_IMPL
+#ifndef ___RUNNING_FPGA_SYNTHESIS___ // FPGA_IMPL
 #include "acts_kernel.h"
 using namespace std;
 #endif 
 
-// ___ENABLE___ACTS___
-// ___ENABLE___TEST3___
-
-#define RUN_TEST_KERNEL
-
-#ifdef RUN_TEST_KERNEL	
 {% include '___ENABLE___ACTS___.template' %}		
-#endif 	

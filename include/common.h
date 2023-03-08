@@ -146,7 +146,8 @@
 #define VDATA_SUBSUBPARTITION_VECSIZE (1 << 4)
 #define NUM_SUBPARTITION_PER_PARTITION NUM_PEs
 
-#define IMPORT_EXPORT_GRANULARITY_VECSIZE 8192
+// #define IMPORT_EXPORT_GRANULARITY_VECSIZE 8192
+#define IMPORT_EXPORT_GRANULARITY_VECSIZE (16 * 8192)
 
 #define UPDATES_BUFFER_PACK_SIZE MAX(EDGE_PACK_SIZE, NUM_PEs)
 
@@ -374,6 +375,7 @@ typedef struct {
 	unsigned int size_llpid; 
 	unsigned int start_gv; 
 	unsigned int size_gv;
+	unsigned int size_import_export;
 	unsigned int finish;
 } action_t;
 
