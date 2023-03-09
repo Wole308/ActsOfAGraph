@@ -2,17 +2,10 @@
 #define COMMON_H
 #include <string.h> 
 #include <cmath>
-#include <ap_int.h>
-// #include "ap_fixed.h"	
-#include <vector> 
-#include<hls_vector.h> 
-#include<hls_stream.h> 
-#include <iostream>
  
 
-#define ___RUNNING_FPGA_SYNTHESIS___
  
-// #define ___ENABLE___DYNAMICGRAPHANALYTICS___
+#define ___ENABLE___DYNAMICGRAPHANALYTICS___
 #define NUM_FPGAS 1
 
 #define ALL_MODULES 222
@@ -43,7 +36,7 @@
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
-#define HW // SWEMU, HW, *SW
+#define SW // SWEMU, HW, *SW
 #if (defined(SWEMU) || defined(HW))
 #define FPGA_IMPL
 #endif 
@@ -146,8 +139,9 @@
 #define VDATA_SUBSUBPARTITION_VECSIZE (1 << 4)
 #define NUM_SUBPARTITION_PER_PARTITION NUM_PEs
 
-// #define IMPORT_EXPORT_GRANULARITY_VECSIZE 8192
-#define IMPORT_EXPORT_GRANULARITY_VECSIZE (16 * 8192)
+#define IMPORT_EXPORT_GRANULARITY_VECSIZE 8192
+// #define IMPORT_EXPORT_GRANULARITY_VECSIZE 64 // (0 * 8192)
+// #define IMPORT_EXPORT_GRANULARITY_VECSIZE (256 * 8192)
 
 #define UPDATES_BUFFER_PACK_SIZE MAX(EDGE_PACK_SIZE, NUM_PEs)
 

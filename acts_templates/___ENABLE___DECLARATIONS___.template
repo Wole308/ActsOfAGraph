@@ -25,6 +25,7 @@ edge3_type edges_buffer[NUM_VALID_PEs][EDGE_PACK_SIZE][EDGE_BUFFER_SIZE];
 #pragma HLS ARRAY_PARTITION variable=edges_buffer complete dim=2	
 #ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
 edge_update_type edgeupdates_buffer[NUM_VALID_PEs][EDGE_PACK_SIZE][EDGE_UPDATES_DRAMBUFFER_SIZE];	
+#pragma HLS resource variable=edgeupdates_buffer core=XPM_MEMORY uram 
 #pragma HLS ARRAY_PARTITION variable=edgeupdates_buffer complete dim=1	
 #pragma HLS ARRAY_PARTITION variable=edgeupdates_buffer complete dim=2	
 #endif 

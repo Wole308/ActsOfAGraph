@@ -387,9 +387,13 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
         OCL_CHECK(err, context = cl::Context(device, nullptr, nullptr, nullptr, &err));
         // This example will use an out of order command queue. The default command
         // queue created by cl::CommandQueue is an inorder command queue.
-        OCL_CHECK(err, q = cl::CommandQueue(context, device, CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE, &err));
+        // OCL_CHECK(err, q = cl::CommandQueue(context, device, CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE, &err));
 		// OCL_CHECK(err, q = cl::CommandQueue(context, device, CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE | CL_QUEUE_PROFILING_ENABLE, &err)); 
-		// OCL_CHECK(err, q = cl::CommandQueue(context, device, CL_QUEUE_PROFILING_ENABLE, &err)); ////////// FIXME.
+		#ifdef ___SYNC___
+		OCL_CHECK(err, q = cl::CommandQueue(context, device, CL_QUEUE_PROFILING_ENABLE, &err)); ////////// FIXME.
+		#else 
+		OCL_CHECK(err, q = cl::CommandQueue(context, device, CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE, &err));	
+		#endif 
 
         std::cout << "Trying to program device[" << i << "]: " << device.getInfo<CL_DEVICE_NAME>() << std::endl;
         cl::Program program(context, {device}, bins, nullptr, &err);
@@ -417,8 +421,8 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 	#ifdef FPGA_IMPL
 	std::vector<int, aligned_allocator<int> > HHX[32]; for(unsigned int i=0; i<NUM_PEs*2; i++){ HHX[i] = std::vector<int, aligned_allocator<int> >(ARRAY_SIZE); }
 	std::vector<int, aligned_allocator<int> > HHC[2][2]; for(unsigned int flag=0; flag<2; flag++){ for(unsigned int i=0; i<2; i++){ HHC[flag][i] = std::vector<int, aligned_allocator<int> >(ARRAY_SIZE); }}
-	std::vector<int, aligned_allocator<int> > HHIO_IMPORT[8]; for(unsigned int i=0; i<8; i++){ HHIO_IMPORT[i] = std::vector<int, aligned_allocator<int> >(IO_ARRAY_SIZE); }
-	std::vector<int, aligned_allocator<int> > HHIO_EXPORT[8]; for(unsigned int i=0; i<8; i++){ HHIO_EXPORT[i] = std::vector<int, aligned_allocator<int> >(IO_ARRAY_SIZE); }
+	std::vector<int, aligned_allocator<int> > HHIO_IMPORT[2]; for(unsigned int i=0; i<2; i++){ HHIO_IMPORT[i] = std::vector<int, aligned_allocator<int> >(IO_ARRAY_SIZE); }
+	std::vector<int, aligned_allocator<int> > HHIO_EXPORT[2]; for(unsigned int i=0; i<2; i++){ HHIO_EXPORT[i] = std::vector<int, aligned_allocator<int> >(IO_ARRAY_SIZE); }
 	for(unsigned int i=0; i<NUM_PEs; i++){ // REMOVEME.
 		for(unsigned int t=0; t<hbm_channel_wwsize; t++){ 
 			for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){ HHX[2*i][t*HBM_AXI_PACK_SIZE + v] = HBM_axichannel[0][i][t].data[v]; }
@@ -432,8 +436,8 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 		}
 	}
 	#else 
-	HBM_channelAXISW_t * HBM_import[8]; 
-	HBM_channelAXISW_t * HBM_export[8]; 
+	HBM_channelAXISW_t * HBM_import[2]; 
+	HBM_channelAXISW_t * HBM_export[2]; 
 	for(unsigned int n=0; n<1; n++){
 		HBM_import[n] = new HBM_channelAXISW_t[IMPORT_EXPORT_GRANULARITY_VECSIZE]; 
 		HBM_export[n] = new HBM_channelAXISW_t[IMPORT_EXPORT_GRANULARITY_VECSIZE]; 
@@ -453,8 +457,8 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 	std::vector<cl::Buffer> buffer_export(2);
 	std::vector<cl_mem_ext_ptr_t> inBufExt(32);
 	std::vector<cl_mem_ext_ptr_t> inBufExt_c(2);
-	std::vector<cl_mem_ext_ptr_t> inBufExt_import(8);
-	std::vector<cl_mem_ext_ptr_t> inBufExt_export(8);
+	std::vector<cl_mem_ext_ptr_t> inBufExt_import(2);
+	std::vector<cl_mem_ext_ptr_t> inBufExt_export(2);
 	
 	for (int i = 0; i < NUM_HBM_ARGS; i++) {
         inBufExt[i].obj = HHX[i].data();
@@ -466,12 +470,12 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
         inBufExt_c[i].param = 0;
         inBufExt_c[i].flags = pc[NUM_HBM_ARGS + i];
     }
-	for (int i = 0; i < 8; i++) {
+	for (int i = 0; i < 2; i++) {
 		inBufExt_import[i].obj = HHIO_IMPORT[i].data();
 		inBufExt_import[i].param = 0;
 		inBufExt_import[i].flags = pc[4];
 	}
-	for (int i = 0; i < 8; i++) {
+	for (int i = 0; i < 2; i++) {
 		inBufExt_export[i].obj = HHIO_EXPORT[i].data();
 		inBufExt_export[i].param = 0;
 		inBufExt_export[i].flags = pc[4];
@@ -537,12 +541,13 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 	unsigned int num_launches = 1;
 	
 	// unsigned int launch_type = 1; // 0:full run,1:segmented runs 
-	// unsigned int num_launches = universalparams.NUM_UPARTITIONS + universalparams.NUM_APPLYPARTITIONS;
+	// unsigned int num_launches = universalparams.NUM_UPARTITIONS;// + universalparams.NUM_APPLYPARTITIONS;
 	
 	#ifndef FPGA_IMPL
 	acts_kernel * acts = new acts_kernel(universalparams);
 	#endif 
 	
+	// run kernel
 	std::chrono::steady_clock::time_point begin_time = std::chrono::steady_clock::now();
 	for (unsigned int iteration_idx = 0; iteration_idx < 1; iteration_idx++) {
 		for(unsigned int launch_idx=0; launch_idx<num_launches; launch_idx++){
@@ -601,7 +606,7 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 				#endif 
 			}
 			double end_time2 = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin_time2).count()) / 1000;	
-			std::cout <<">>> Host to FPGA Transfer time elapsed : "<<end_time2<<" ms, "<<(end_time2 * 1000)<<" microsecs, "<<std::endl;
+			std::cout << TIMINGRESULTSCOLOR <<">>> Host to FPGA Transfer time elapsed : "<<end_time2<<" ms, "<<(end_time2 * 1000)<<" microsecs, "<< RESET << std::endl;
 			#else 
 			_import_host_to_device();	
 			#endif
@@ -610,18 +615,6 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 			printf("Enqueueing NDRange kernel.\n");
 			std::chrono::steady_clock::time_point begin_time1 = std::chrono::steady_clock::now();
 			#ifdef FPGA_IMPL
-			/* // OCL_CHECK(err, err = q.enqueueTask(krnl_vadd));
-			// OCL_CHECK(err, err = q.finish());			
-			std::vector<cl::Event> waitList;
-			waitList.push_back(write_event[0]);
-			OCL_CHECK(err, err = q.enqueueNDRangeKernel(krnl_vadd, 0, 1, 1, &waitList, &kernel_events[flag]));
-			set_callback(kernel_events[flag], "ooo_queue");
-			OCL_CHECK(err, err = kernel_events[flag].wait()); ////////////////////////////////////
-			
-			// OCL_CHECK(err, err = q.enqueueTask(krnl_vadd));
-			// OCL_CHECK(err, err = q.finish());			
-			// std::vector<cl::Event> waitList;
-			// waitList.push_back(write_event[0]); */
 				#ifdef ___SYNC___
 				OCL_CHECK(err, err = q.enqueueNDRangeKernel(krnl_vadd, 0, 1, 1, NULL, &kernel_events[flag]));
 				set_callback(kernel_events[flag], "ooo_queue");
@@ -678,12 +671,15 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 				#endif 
 			}
 			double end_time3 = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin_time3).count()) / 1000;	
-			std::cout <<">>> FPGA to Host Transfer time elapsed : "<<end_time3<<" ms, "<<(end_time3 * 1000)<<" microsecs, "<<std::endl;
+			std::cout << TIMINGRESULTSCOLOR << ">>> FPGA to Host Transfer time elapsed : "<<end_time3<<" ms, "<<(end_time3 * 1000)<<" microsecs, "<< RESET << std::endl;
 			#else 
 			_export_device_to_host();	
 			#endif
 		}
     }
+	
+	double end_time = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin_time).count()) / 1000;	
+	std::cout << TIMINGRESULTSCOLOR <<">>> total kernel time elapsed for all iterations : "<<end_time<<" ms, "<<(end_time * 1000)<<" microsecs, "<< RESET << std::endl;
 	
 	// Wait for all of the OpenCL operations to complete
     printf("Waiting...\n");
@@ -692,8 +688,8 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
     OCL_CHECK(err, err = q.finish());
 	#endif 
 	
-	double end_time = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin_time).count()) / 1000;	
-	std::cout << TIMINGRESULTSCOLOR <<">>> total kernel time elapsed for all iterations : "<<end_time<<" ms, "<<(end_time * 1000)<<" microsecs, "<< RESET << std::endl;
+	// double end_time = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin_time).count()) / 1000;	
+	// std::cout << TIMINGRESULTSCOLOR <<">>> total kernel time elapsed for all iterations : "<<end_time<<" ms, "<<(end_time * 1000)<<" microsecs, "<< RESET << std::endl;
 
 	// Copy Result from Device Global Memory to Host Local Memory
 	#ifdef FPGA_IMPL
