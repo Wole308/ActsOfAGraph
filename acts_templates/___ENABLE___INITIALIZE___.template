@@ -72,7 +72,7 @@ if(all_vertices_active_in_all_iterations == false){
 		#pragma HLS UNROLL
 			MY_LOOP196: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
 			#pragma HLS UNROLL
-				insert_vdatabuffer(v, t, prop, vdata_buffer[inst]); 
+				insert_vdatabuffer(v, t, prop, URAM_vprop[inst]); 
 			}
 		}
 		update_bramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___READ_FRONTIER_PROPERTIES___, 1);

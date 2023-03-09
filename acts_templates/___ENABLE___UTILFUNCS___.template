@@ -65,6 +65,20 @@ unsigned int hash_edge(unsigned int srcvid, unsigned int dstvid, unsigned int in
 	// return dstvid;
 }
 
+// unsigned int hash2_edge(map_t * URAM_map, unsigned int srcvid, unsigned int dstvid, unsigned int padding_factor){
+// #pragma HLS INLINE
+	// unsigned int allotted_hashspace = URAM_map[srcvid].size * padding_factor; 
+	// unsigned int edge_hashid = URAM_map[srcvid].offset + (dstvid % allotted_hashspace); 
+	// return edge_hashid;							
+// }
+
+unsigned int hash2_edge(map_t URAM_map, unsigned int srcvid, unsigned int dstvid, unsigned int padding_factor){
+#pragma HLS INLINE
+	unsigned int allotted_hashspace = URAM_map.size * padding_factor; 
+	unsigned int edge_hashid = URAM_map.offset + (dstvid % allotted_hashspace); 
+	return edge_hashid;							
+}
+
 void {{context['classname__acts']}}rearrangeLayoutVx16B(unsigned int s, keyvalue_t in[EDGE_PACK_SIZE], keyvalue_t out[EDGE_PACK_SIZE]){
 	#ifndef FPGA_IMPL
 	// checkoutofbounds("acts_kernel::rearrangeLayoutVx16B::ERROR 2925::", s, EDGE_PACK_SIZE, NAp, NAp, NAp);

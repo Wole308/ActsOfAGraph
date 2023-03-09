@@ -4,14 +4,14 @@ void insert_edgeupdatesbuffer(unsigned int v, unsigned int index, edge_update_ty
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_kernel::ERROR 992::", index, EDGE_UPDATES_DRAMBUFFER_SIZE, NAp, NAp, NAp);
 	#endif 
-	edgeupdates_buffer[v][index] = data;
+	URAM_edges[v][index] = data;
 }
 edge_update_type retrieve_edgeupdatesbuffer(unsigned int v, unsigned int index, MY_IFDEF_EDGEUPDATESBUFFER()){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_kernel::ERROR 993::", index, EDGE_UPDATES_DRAMBUFFER_SIZE, NAp, NAp, NAp);
 	#endif 
-	return edgeupdates_buffer[v][index];
+	return URAM_edges[v][index];
 }
 
 void insert_vdatabuffer(unsigned int v, unsigned int index, vprop_t data, MY_IFDEF_VDATABUFFER()){
@@ -19,14 +19,14 @@ void insert_vdatabuffer(unsigned int v, unsigned int index, vprop_t data, MY_IFD
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_kernel::ERROR 102::", index, MAX_UPARTITION_VECSIZE, NAp, NAp, NAp);
 	#endif
-	vdata_buffer[v][index >> POW_VALID_VDATA] = data; 
+	URAM_vprop[v][index >> POW_VALID_VDATA] = data; 
 }
 vprop_t retrieve_vdatabuffer(unsigned int v, unsigned int index, MY_IFDEF_VDATABUFFER()){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_kernel::ERROR 103::", index, MAX_UPARTITION_VECSIZE, NAp, NAp, NAp);
 	#endif
-	return vdata_buffer[v][index >> POW_VALID_VDATA];
+	return URAM_vprop[v][index >> POW_VALID_VDATA];
 }
 void insertvec_vdatabuffer(unsigned int index, vprop_t data[EDGE_PACK_SIZE], MY_IFDEF_VDATABUFFER()){
 	#pragma HLS INLINE
@@ -35,7 +35,7 @@ void insertvec_vdatabuffer(unsigned int index, vprop_t data[EDGE_PACK_SIZE], MY_
 		#ifdef _DEBUGMODE_CHECKS3
 		checkoutofbounds("acts_kernel::ERROR 104::", index, MAX_UPARTITION_VECSIZE, NAp, NAp, NAp);
 		#endif 
-		vdata_buffer[v][index >> POW_VALID_VDATA] = data[v];
+		URAM_vprop[v][index >> POW_VALID_VDATA] = data[v];
 	}
 }
 void retrievevec_vdatabuffer(unsigned int index, vprop_t data[EDGE_PACK_SIZE], MY_IFDEF_VDATABUFFER()){
@@ -45,7 +45,7 @@ void retrievevec_vdatabuffer(unsigned int index, vprop_t data[EDGE_PACK_SIZE], M
 		#ifdef _DEBUGMODE_CHECKS3
 		checkoutofbounds("acts_kernel::ERROR 105::", index, MAX_UPARTITION_VECSIZE, NAp, NAp, NAp);
 		#endif 
-		data[v] = vdata_buffer[v][index >> POW_VALID_VDATA];
+		data[v] = URAM_vprop[v][index >> POW_VALID_VDATA];
 	}
 }
 void retrieveandresetvec_vdatabuffer(unsigned int index, vprop_t data[EDGE_PACK_SIZE], MY_IFDEF_VDATABUFFER()){
@@ -55,7 +55,7 @@ void retrieveandresetvec_vdatabuffer(unsigned int index, vprop_t data[EDGE_PACK_
 		#ifdef _DEBUGMODE_CHECKS3
 		checkoutofbounds("acts_kernel::ERROR 105::", index, MAX_UPARTITION_VECSIZE, NAp, NAp, NAp);
 		#endif 
-		data[v].prop = vdata_buffer[v][index >> POW_VALID_VDATA].prop; 
+		data[v].prop = URAM_vprop[v][index >> POW_VALID_VDATA].prop; 
 		data[v].degree = INVALIDMASK;  
 	}
 }
@@ -117,7 +117,7 @@ frontier_t retrieve_cfrontierbuffer_tmp(unsigned int v, unsigned int t, MY_IFDEF
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("acts_kernel::ERROR 114::", t, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
 	#endif 
-	return cfrontier_buffer_tmp[v][t];
+	return URAM_frontiers[v][t];
 }
 void insertvec_cfrontierbuffer_tmp(unsigned int t, frontier_t data[EDGE_PACK_SIZE], MY_IFDEF_CFRONTIER_TMP()){
 	#pragma HLS INLINE
@@ -126,7 +126,7 @@ void insertvec_cfrontierbuffer_tmp(unsigned int t, frontier_t data[EDGE_PACK_SIZ
 		#ifdef _DEBUGMODE_CHECKS3
 		checkoutofbounds("acts_kernel::ERROR 115::", t, MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
 		#endif 
-		cfrontier_buffer_tmp[v][t] = data[v];
+		URAM_frontiers[v][t] = data[v];
 	}
 }
 void retrievevec_nfrontierbuffer(unsigned int t, frontier_t data[EDGE_PACK_SIZE], MY_IFDEF_NFRONTIER()){

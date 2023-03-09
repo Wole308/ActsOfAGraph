@@ -55,7 +55,7 @@ COLLECT_AND_SAVE_FRONTIER_INFO_LOOP1: for(unsigned int local_subpartitionID=0; l
 							#ifdef _DEBUGMODE_CHECKS3
 							checkoutofbounds("acts_kernel::ERROR 713::", dstvid_lpv, MAX_APPLYPARTITION_VECSIZE, local_subpartitionID, au_p, t); 
 							#endif	
-							vprop_t vprop =  retrieve_vdatabuffer(v, dstvid_lpv, vdata_buffer[inst]);
+							vprop_t vprop =  retrieve_vdatabuffer(v, dstvid_lpv, URAM_vprop[inst]);
 							unsigned int vid = vid_first1[inst] + v;
 							#ifdef _DEBUGMODE_CHECKS3
 							if((vid % EDGE_PACK_SIZE != v)){ cout<<"acts_kernel:: ERROR 234. vid("<<vid<<") % EDGE_PACK_SIZE("<<EDGE_PACK_SIZE<<")(="<<vid % EDGE_PACK_SIZE<<") != v("<<v<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }

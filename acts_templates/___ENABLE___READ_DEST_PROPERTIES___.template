@@ -20,7 +20,7 @@ if(stats_buffer___size[0][p_v] < threshold___activedstvids && enable___collectac
 			for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
 			#pragma HLS UNROLL
 				if((k < statsbuffer_idbased___size[inst][p_v]) && (offsets[inst] + t < MAX_APPLYPARTITION_VECSIZE)){ 
-					insertvec_vdatabuffer(offsets[inst] + t, datas[inst], vdata_buffer[inst]);
+					insertvec_vdatabuffer(offsets[inst] + t, datas[inst], URAM_vprop[inst]);
 				}
 			}
 			update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___READ_DEST_PROPERTIES___, 1);
@@ -34,7 +34,7 @@ if(stats_buffer___size[0][p_v] < threshold___activedstvids && enable___collectac
 		dretrievemany_vdatadram(voffset, offsets, t, datas, {% include '___HBM___ARGS___.template' %});
 		READ_DEST_PROPERTIES_LOOP2C: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
 		#pragma HLS UNROLL
-			insertvec_vdatabuffer(t, datas[inst], vdata_buffer[inst]);
+			insertvec_vdatabuffer(t, datas[inst], URAM_vprop[inst]);
 		}
 		update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___READ_DEST_PROPERTIES___, 1);
 	}
