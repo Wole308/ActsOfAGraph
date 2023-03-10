@@ -75,6 +75,7 @@ unsigned int hash_edge(unsigned int srcvid, unsigned int dstvid, unsigned int in
 unsigned int hash2_edge(map_t URAM_map, unsigned int srcvid, unsigned int dstvid, unsigned int padding_factor){
 #pragma HLS INLINE
 	unsigned int allotted_hashspace = URAM_map.size * padding_factor; 
+	// if(URAM_map.size == 0){ cout<<"-------------------------------- hash2_edge: URAM_map.size == 0. EXITING..."<<endl; exit(EXIT_FAILURE); }
 	unsigned int edge_hashid = URAM_map.offset + (dstvid % allotted_hashspace); 
 	return edge_hashid;							
 }

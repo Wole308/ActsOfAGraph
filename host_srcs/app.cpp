@@ -132,11 +132,6 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<HBM_CHANNEL_SIZE; t++){ for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){ HBM_axichannel[n][i][t].data[v] = 0; }}}
 	}
 	
-	
-	
-	
-	
-	
 	// #ifdef CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCc ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	cout<<"app: initializing HBM_axicenters"<<endl;
 	for(unsigned int n=0; n<2; n++){
@@ -755,32 +750,34 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	
 	// populate actpack edges 
 	acts_kernel * acts = new acts_kernel(universalparams);
-	for(unsigned int i=0; i<NUM_PEs; i++){ HBM_axichannel[0][i][GLOBALPARAMSCODE__COMMANDS__COMMAND0].data[0] = 0; }
-	cout<<"##################################################################################### populating act-pack edges using acts kernel...."<<endl;
-	acts->top_function(
-		(HBM_channelAXI_t *)HBM_axichannel[0][0], (HBM_channelAXI_t *)HBM_axichannel[1][0]
-		#if NUM_VALID_HBM_CHANNELS>1
-		,(HBM_channelAXI_t *)HBM_axichannel[0][1], (HBM_channelAXI_t *)HBM_axichannel[1][1] 
-		,(HBM_channelAXI_t *)HBM_axichannel[0][2], (HBM_channelAXI_t *)HBM_axichannel[1][2] 
-		,(HBM_channelAXI_t *)HBM_axichannel[0][3], (HBM_channelAXI_t *)HBM_axichannel[1][3] 
-		,(HBM_channelAXI_t *)HBM_axichannel[0][4], (HBM_channelAXI_t *)HBM_axichannel[1][4] 
-		,(HBM_channelAXI_t *)HBM_axichannel[0][5], (HBM_channelAXI_t *)HBM_axichannel[1][5] 
-		#if NUM_VALID_HBM_CHANNELS>6
-		,(HBM_channelAXI_t *)HBM_axichannel[0][6], (HBM_channelAXI_t *)HBM_axichannel[1][6] 
-		,(HBM_channelAXI_t *)HBM_axichannel[0][7], (HBM_channelAXI_t *)HBM_axichannel[1][7] 
-		,(HBM_channelAXI_t *)HBM_axichannel[0][8], (HBM_channelAXI_t *)HBM_axichannel[1][8] 
-		,(HBM_channelAXI_t *)HBM_axichannel[0][9], (HBM_channelAXI_t *)HBM_axichannel[1][9] 
-		,(HBM_channelAXI_t *)HBM_axichannel[0][10], (HBM_channelAXI_t *)HBM_axichannel[1][10] 
-		,(HBM_channelAXI_t *)HBM_axichannel[0][11], (HBM_channelAXI_t *)HBM_axichannel[1][11]
-		#if NUM_VALID_HBM_CHANNELS>12
-		,(HBM_channelAXI_t *)HBM_axichannel[0][12], (HBM_channelAXI_t *)HBM_axichannel[1][12]
-		#endif 
-		#endif 
-		#endif
-		,(HBM_channelAXI_t *)HBM_axicenter[0], (HBM_channelAXI_t *)HBM_axicenter[1]
-		,(HBM_channelAXI_t *)HBM_import_export[0], (HBM_channelAXI_t *)HBM_import_export[1]
-		,action.module ,action.start_pu ,action.size_pu ,action.start_pv ,action.size_pv ,action.start_llpset ,action.size_llpset ,action.start_llpid ,action.size_llpid ,action.start_gv ,action.size_gv ,8192 ,action.finish
-		);
+	for(unsigned int c=0; c<2; c++){ 
+		for(unsigned int i=0; i<NUM_PEs; i++){ HBM_axichannel[0][i][GLOBALPARAMSCODE__COMMANDS__COMMAND0].data[0] = c; }
+		cout<<"##################################################################################### populating act-pack edges using acts kernel...."<<endl;
+		acts->top_function(
+			(HBM_channelAXI_t *)HBM_axichannel[0][0], (HBM_channelAXI_t *)HBM_axichannel[1][0]
+			#if NUM_VALID_HBM_CHANNELS>1
+			,(HBM_channelAXI_t *)HBM_axichannel[0][1], (HBM_channelAXI_t *)HBM_axichannel[1][1] 
+			,(HBM_channelAXI_t *)HBM_axichannel[0][2], (HBM_channelAXI_t *)HBM_axichannel[1][2] 
+			,(HBM_channelAXI_t *)HBM_axichannel[0][3], (HBM_channelAXI_t *)HBM_axichannel[1][3] 
+			,(HBM_channelAXI_t *)HBM_axichannel[0][4], (HBM_channelAXI_t *)HBM_axichannel[1][4] 
+			,(HBM_channelAXI_t *)HBM_axichannel[0][5], (HBM_channelAXI_t *)HBM_axichannel[1][5] 
+			#if NUM_VALID_HBM_CHANNELS>6
+			,(HBM_channelAXI_t *)HBM_axichannel[0][6], (HBM_channelAXI_t *)HBM_axichannel[1][6] 
+			,(HBM_channelAXI_t *)HBM_axichannel[0][7], (HBM_channelAXI_t *)HBM_axichannel[1][7] 
+			,(HBM_channelAXI_t *)HBM_axichannel[0][8], (HBM_channelAXI_t *)HBM_axichannel[1][8] 
+			,(HBM_channelAXI_t *)HBM_axichannel[0][9], (HBM_channelAXI_t *)HBM_axichannel[1][9] 
+			,(HBM_channelAXI_t *)HBM_axichannel[0][10], (HBM_channelAXI_t *)HBM_axichannel[1][10] 
+			,(HBM_channelAXI_t *)HBM_axichannel[0][11], (HBM_channelAXI_t *)HBM_axichannel[1][11]
+			#if NUM_VALID_HBM_CHANNELS>12
+			,(HBM_channelAXI_t *)HBM_axichannel[0][12], (HBM_channelAXI_t *)HBM_axichannel[1][12]
+			#endif 
+			#endif 
+			#endif
+			,(HBM_channelAXI_t *)HBM_axicenter[0], (HBM_channelAXI_t *)HBM_axicenter[1]
+			,(HBM_channelAXI_t *)HBM_import_export[0], (HBM_channelAXI_t *)HBM_import_export[1]
+			,action.module ,action.start_pu ,action.size_pu ,action.start_pv ,action.size_pv ,action.start_llpset ,action.size_llpset ,action.start_llpid ,action.size_llpid ,action.start_gv ,action.size_gv ,8192 ,action.finish
+			);
+	}
 	// exit(EXIT_SUCCESS);
 	
 	// load commands
@@ -797,18 +794,8 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	}
 	
 	// run kernel
-	for(unsigned int i=0; i<NUM_PEs; i++){ HBM_axichannel[0][i][GLOBALPARAMSCODE__COMMANDS__COMMAND0].data[0] = 1; }
+	for(unsigned int i=0; i<NUM_PEs; i++){ HBM_axichannel[0][i][GLOBALPARAMSCODE__COMMANDS__COMMAND0].data[0] = 2; }
 	// #endif ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	
-	
-	
-	
-	// action_t action; universalparams_t universalparams; /////////////////////// REMOVEME ///////////////////////////////
-	
-	
-	
-	
 	
 	host * hostobj = new host(universalparams);
 	hostobj->runapp(action, binaryFile, HBM_axichannel, HBM_axicenter, lastww_addr, globalparams, universalparams);

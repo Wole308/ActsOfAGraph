@@ -223,23 +223,42 @@ MY_IFDEF_TOPLEVELFUNC(){
 		#endif 
 	}
 	
-	// turn raw edges into actpact format
+	/* // turn raw edges into actpact format
 	if(___ENABLE___PREPAREEDGEUPDATES___BOOL___ == 1){
 		#ifdef ___RUNNING_FPGA_SYNTHESIS___
-			#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___ 
-			create_actpack(globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES], globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS], URAM_edges, EDGE_UPDATES_DRAMBUFFER_SIZE, EDGE_UPDATES_WORKBUFFER_SIZE, globalparams, {% include '___HBM___ARGS___.template' %}, _NUMCLOCKCYCLES_);		
-			#endif
+			// #ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___ 
+			// create_actpack(globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES], globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS], URAM_edges, EDGE_UPDATES_DRAMBUFFER_SIZE, EDGE_UPDATES_WORKBUFFER_SIZE, globalparams, {% include '___HBM___ARGS___.template' %}, _NUMCLOCKCYCLES_);		
+			// #endif	
 		#else
 			if(globalparams[GLOBALPARAMSCODE__COMMANDS__COMMAND0] == 0){ 
 				edge_update_type * URAM_edges[NUM_VALID_PEs][EDGE_PACK_SIZE];
 				for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ URAM_edges[i][v] = new edge_update_type[EDGE_UPDATES_DRAMBUFFER_LONGSIZE]; }}
 				create_actpack(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES], globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2], URAM_edges, EDGE_UPDATES_DRAMBUFFER_LONGSIZE, EDGE_UPDATES_DRAMBUFFER_LONGSIZE, globalparams, {% include '___HBM___ARGS___.template' %}, _NUMCLOCKCYCLES_);		
-				// create_actpack(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES], globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2], URAM_edges, EDGE_UPDATES_DRAMBUFFER_SIZE, EDGE_UPDATES_WORKBUFFER_SIZE, globalparams, {% include '___HBM___ARGS___.template' %}, _NUMCLOCKCYCLES_);		
-				return;
-			} else {
-				#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___ 
 				create_actpack(globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES], globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS], URAM_edges, EDGE_UPDATES_DRAMBUFFER_SIZE, EDGE_UPDATES_WORKBUFFER_SIZE, globalparams, {% include '___HBM___ARGS___.template' %}, _NUMCLOCKCYCLES_);	
-				#endif 
+				return;
+			} else {		
+				// #ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___ 
+				// create_actpack(globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES], globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS], URAM_edges, EDGE_UPDATES_DRAMBUFFER_SIZE, EDGE_UPDATES_WORKBUFFER_SIZE, globalparams, {% include '___HBM___ARGS___.template' %}, _NUMCLOCKCYCLES_);	
+				// #endif 
+			}		
+		#endif
+	} */
+	
+	// turn raw edges into actpact format
+	if(___ENABLE___PREPAREEDGEUPDATES___BOOL___ == 1){
+		#ifdef ___RUNNING_FPGA_SYNTHESIS___
+			// #ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___ 
+			// create_actpack(globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES], globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS], URAM_edges, EDGE_UPDATES_DRAMBUFFER_SIZE, EDGE_UPDATES_WORKBUFFER_SIZE, globalparams, {% include '___HBM___ARGS___.template' %}, _NUMCLOCKCYCLES_);		
+			// #endif	
+		#else
+			edge_update_type * URAM_edges[NUM_VALID_PEs][EDGE_PACK_SIZE];
+			for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ URAM_edges[i][v] = new edge_update_type[EDGE_UPDATES_DRAMBUFFER_LONGSIZE]; }}
+			if(globalparams[GLOBALPARAMSCODE__COMMANDS__COMMAND0] == 0){ 
+				create_actpack(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES], globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2], URAM_edges, EDGE_UPDATES_DRAMBUFFER_LONGSIZE, EDGE_UPDATES_DRAMBUFFER_LONGSIZE, globalparams, {% include '___HBM___ARGS___.template' %}, _NUMCLOCKCYCLES_);		
+				return;
+			} else if(globalparams[GLOBALPARAMSCODE__COMMANDS__COMMAND0] == 1){	
+				create_actpack(globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES], globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS], URAM_edges, EDGE_UPDATES_DRAMBUFFER_SIZE, EDGE_UPDATES_WORKBUFFER_SIZE, globalparams, {% include '___HBM___ARGS___.template' %}, _NUMCLOCKCYCLES_);	
+				return;
 			}
 		#endif
 	}

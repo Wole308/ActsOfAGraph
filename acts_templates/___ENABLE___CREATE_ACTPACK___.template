@@ -153,7 +153,7 @@ MY_IFDEF_SAVE_FULLYPREPARED_EDGEUPDATES(){
 			}
 			
 			#ifdef ___RUNNING_FPGA_SYNTHESIS___
-				for(unsigned int v=0; v<EDGE_PACK_SIZE/2; v++){				
+				for(unsigned int v=0; v<EDGE_PACK_SIZE/2; v++){					
 				#pragma HLS UNROLL
 					HBM_channelA[offset + t].data[2*v] = edge_update[v].srcvid;
 					HBM_channelA[offset + t].data[2*v + 1] = edge_update[v].dstvid;
@@ -185,7 +185,7 @@ MY_IFDEF_SAVE_FULLYPREPARED_EDGEUPDATES(){
 					HBM_channelB[offset + t].data[2*v] = edge_update[EDGE_PACK_SIZE/2 + v].srcvid;
 					HBM_channelB[offset + t].data[2*v + 1] = edge_update[EDGE_PACK_SIZE/2 + v].dstvid;
 				}
-			}
+			}		
 			#endif 
 			update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___ECPROCESSEDGES___, 1);
 		}		
