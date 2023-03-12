@@ -17,12 +17,14 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_ACTIVE_LLPSETS
 		#pragma HLS ARRAY_PARTITION variable=edge_maps complete	
 		
 		// load edges map
+		// cout<<"--------------------------------------- process-edges A"<<endl;
 		map_t edge_map_vec[NUM_VALID_PEs];
 		load_edgemaps((p_u * MAX_NUM_LLP_PER_UPARTITION) + (llp_set * NUM_LLP_PER_LLPSET) + llp_id, globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2], edge_map_vec, {% include '___HBM___ARGS___.template' %});
 		for(unsigned int n=0; n<NUM_VALID_PEs; n++){
 		#pragma HLS UNROLL
 			edge_maps[n] = edge_map_vec[n];
 		}	
+		// cout<<"--------------------------------------- process-edges B"<<endl;
 		
 		for(unsigned int n=0; n<NUM_VALID_PEs; n++){ edge_maps[n].size = ((__PERCENTAGE_ACTIVE_EDGES * edge_maps[n].size) + (100-1)) / 100; } // FIXME.
 		#ifdef _DEBUGMODE_KERNELPRINTS//4
@@ -116,11 +118,12 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_ACTIVE_LLPSETS
 
 			#ifdef _DEBUGMODE_CHECKS3
 			checkoutofbounds("acts_kernel::process-edges::ERROR 8813rrr::", offsets3[0], globalparams_debug[GLOBALPARAMSCODE__BASEOFFSET__VDATAS], offsets2[0], updatesptrs[llp_set].size, counts[0]); 
+			// checkoutofbounds("acts_kernel::process-edges::ERROR 8813rrr::", offsets3[0], globalparams_debug[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP], offsets2[0], updatesptrs[llp_set].size, counts[0]); // FIXME.
 			#endif
 			dinsertmany_updatesdram(offsets3, update_out, ens, {% include '___HBM___ARGS___.template' %});	
 			update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___ECPROCESSEDGES___, 1);
 			
-			// if(t<action.size_import_export){
+			if(t<action.size_import_export){
 			// import (Host -> FPGA)
 			{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 			HBM_centerA[offset_c + t].data[{{v}}] = HBM_import[t].data[{{v}}];
@@ -129,7 +132,7 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_ACTIVE_LLPSETS
 			{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 			HBM_export[t].data[{{v}}] = HBM_centerB[offset_c + t].data[{{v}}];
 			{%endfor%}
-			// }
+			}		
 		}
 		
 		// update variables 

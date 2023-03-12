@@ -311,13 +311,15 @@ EXPORT_DEVICE_TO_HOST(){
 	return;
 }
 
-long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_channelAXISW_t * HBM_axichannel[2][NUM_PEs], HBM_channelAXISW_t * HBM_axicenter[2], unsigned int hbm_channel_wwsize, unsigned int globalparams[1024], universalparams_t universalparams){					
+long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_channelAXISW_t * HBM_axichannel[2][NUM_PEs], HBM_channelAXISW_t * HBM_axicenter[2], unsigned int hbm_channel_wwsize, unsigned int globalparams[1024], universalparams_t universalparams,
+	vector<edge3_type> (&final_edge_updates)[NUM_PEs][MAX_NUM_UPARTITIONS][MAX_NUM_LLPSETS]){					
 	// unsigned int ARRAY_SIZE = HBM_CHANNEL_SIZE * HBM_AXI_PACK_SIZE;
 	// unsigned int IO_ARRAY_SIZE = IMPORT_EXPORT_GRANULARITY_VECSIZE * HBM_AXI_PACK_SIZE;
 	
 	unsigned int ARRAY_SIZE = hbm_channel_wwsize * HBM_AXI_PACK_SIZE; // REMOVEME.
 	unsigned int IO_ARRAY_SIZE = IMPORT_EXPORT_GRANULARITY_VECSIZE * HBM_AXI_PACK_SIZE; // REMOVEME.
 	
+	// cout<<"--- host::runapp_sync ##################: final_edge_updates[0][0][0].size(): "<<final_edge_updates[0][0][0].size()<<" ---"<<endl;
 	cout<<"--- host::runapp_sync: NUM_HBM_ARGS: "<<NUM_HBM_ARGS<<" ---"<<endl;
 	cout<<"--- host::runapp_sync: ARRAY_SIZE: "<<ARRAY_SIZE<<" ---"<<endl;
 	cout<<"--- host::runapp_sync: IO_ARRAY_SIZE: "<<IO_ARRAY_SIZE<<" ---"<<endl;
@@ -541,7 +543,7 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 	unsigned int num_launches = 1;
 	
 	// unsigned int launch_type = 1; // 0:full run,1:segmented runs 
-	// unsigned int num_launches = universalparams.NUM_UPARTITIONS;// + universalparams.NUM_APPLYPARTITIONS;
+	// unsigned int num_launches = universalparams.NUM_UPARTITIONS; // + universalparams.NUM_APPLYPARTITIONS;
 	
 	#ifndef FPGA_IMPL
 	acts_kernel * acts = new acts_kernel(universalparams);
@@ -648,7 +650,7 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 				#endif
 				,(HBM_channelAXI_t *)HBM_axicenter[0], (HBM_channelAXI_t *)HBM_axicenter[1]
 				,(HBM_channelAXI_t *)HBM_import[0], (HBM_channelAXI_t *)HBM_export[0]
-				,action.module ,action.start_pu ,action.size_pu ,action.start_pv ,action.size_pv ,action.start_llpset ,action.size_llpset ,action.start_llpid ,action.size_llpid ,action.start_gv ,action.size_gv ,action.size_import_export ,action.finish
+				,action.module ,action.start_pu ,action.size_pu ,action.start_pv ,action.size_pv ,action.start_llpset ,action.size_llpset ,action.start_llpid ,action.size_llpid ,action.start_gv ,action.size_gv ,action.size_import_export ,action.finish ,final_edge_updates
 				);	
 			#endif 
 			double end_time1 = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin_time1).count()) / 1000;	

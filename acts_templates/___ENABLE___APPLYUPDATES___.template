@@ -5,7 +5,7 @@ APPLY_UPDATES_LOOP1: for(unsigned int t=0; t<max_limit; t++){
 #pragma HLS PIPELINE II={{context['II_APPLY_UPDATES_LOOP1']}}
 // #pragma HLS dependence variable=URAM_vprop type=inter false
 	dretrievemany_udatesdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__VERTEXUPDATES] + updatesptrs[p_v].offset, p_v, t, updates_vecs, {% include '___HBM___ARGS___.template' %}, updatesptrs); // NEW
-	MY_LOOP1521: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
+	for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
 	#pragma HLS UNROLL
 		if(t < limits[inst]){
 			uint512_vec_dt updates_vec = updates_vecs[inst];
@@ -39,7 +39,7 @@ APPLY_UPDATES_LOOP1: for(unsigned int t=0; t<max_limit; t++){
 		}
 	}
 	
-	// if(t<action.size_import_export){
+	if(t<action.size_import_export){
 	// import (Host -> FPGA)
 	{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 	HBM_centerA[offset_c + t].data[{{v}}] = HBM_import[t].data[{{v}}];
@@ -48,5 +48,5 @@ APPLY_UPDATES_LOOP1: for(unsigned int t=0; t<max_limit; t++){
 	{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 	HBM_export[t].data[{{v}}] = HBM_centerB[offset_c + t].data[{{v}}];
 	{%endfor%}
-	// }
+	}		
 }			

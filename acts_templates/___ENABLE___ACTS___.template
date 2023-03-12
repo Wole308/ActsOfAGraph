@@ -59,7 +59,7 @@
 #define MY_IFDEF_EDGESBUFFER() edge3_type * edges_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_EDGEUPDATESBUFFER() edge_update_type * URAM_edges[EDGE_PACK_SIZE]
 #define MY_IFDEF_VDATABUFFER() vprop_t * URAM_vprop[EDGE_PACK_SIZE]
-#define MY_IFDEF_TOPLEVELFUNC() void acts_kernel::top_function({% include '___HBM___PARAMS___.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, HBM_channelAXI_t * HBM_import, HBM_channelAXI_t * HBM_export, unsigned int module, unsigned int start_pu, unsigned int size_pu, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_gv, unsigned int size_gv, unsigned int size_import_export, unsigned int finish)					
+#define MY_IFDEF_TOPLEVELFUNC() void acts_kernel::top_function({% include '___HBM___PARAMS___.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, HBM_channelAXI_t * HBM_import, HBM_channelAXI_t * HBM_export, unsigned int module, unsigned int start_pu, unsigned int size_pu, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_gv, unsigned int size_gv, unsigned int size_import_export, unsigned int finish, vector<edge3_type> (&final_edge_updates)[NUM_PEs][MAX_NUM_UPARTITIONS][MAX_NUM_LLPSETS])					
 #endif
 
 #define APPLY_CMD 2
@@ -214,6 +214,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 	}
 	
 	// load vertex-updates map 
+	// map_t updatesptrs[MAX_NUM_LLPSETS];
 	LOAD_UPDATEPTRS_lOOP1: for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]+1; t++){	
 	#pragma HLS PIPELINE II=1
 		updatesptrs[t] = load_vupdate_map(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS], t, {% include '___HBM___ARGS___.template' %});
@@ -223,53 +224,20 @@ MY_IFDEF_TOPLEVELFUNC(){
 		#endif 
 	}
 	
-	/* // turn raw edges into actpact format
-	if(___ENABLE___PREPAREEDGEUPDATES___BOOL___ == 1){
-		#ifdef ___RUNNING_FPGA_SYNTHESIS___
-			// #ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___ 
-			// create_actpack(globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES], globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS], URAM_edges, EDGE_UPDATES_DRAMBUFFER_SIZE, EDGE_UPDATES_WORKBUFFER_SIZE, globalparams, {% include '___HBM___ARGS___.template' %}, _NUMCLOCKCYCLES_);		
-			// #endif	
-		#else
-			if(globalparams[GLOBALPARAMSCODE__COMMANDS__COMMAND0] == 0){ 
-				edge_update_type * URAM_edges[NUM_VALID_PEs][EDGE_PACK_SIZE];
-				for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ URAM_edges[i][v] = new edge_update_type[EDGE_UPDATES_DRAMBUFFER_LONGSIZE]; }}
-				create_actpack(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES], globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2], URAM_edges, EDGE_UPDATES_DRAMBUFFER_LONGSIZE, EDGE_UPDATES_DRAMBUFFER_LONGSIZE, globalparams, {% include '___HBM___ARGS___.template' %}, _NUMCLOCKCYCLES_);		
-				create_actpack(globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES], globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS], URAM_edges, EDGE_UPDATES_DRAMBUFFER_SIZE, EDGE_UPDATES_WORKBUFFER_SIZE, globalparams, {% include '___HBM___ARGS___.template' %}, _NUMCLOCKCYCLES_);	
-				return;
-			} else {		
-				// #ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___ 
-				// create_actpack(globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES], globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS], URAM_edges, EDGE_UPDATES_DRAMBUFFER_SIZE, EDGE_UPDATES_WORKBUFFER_SIZE, globalparams, {% include '___HBM___ARGS___.template' %}, _NUMCLOCKCYCLES_);	
-				// #endif 
-			}		
-		#endif
-	} */
-	
 	// turn raw edges into actpact format
 	if(___ENABLE___PREPAREEDGEUPDATES___BOOL___ == 1){
-		#ifdef ___RUNNING_FPGA_SYNTHESIS___
-			// #ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___ 
-			// create_actpack(globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES], globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS], URAM_edges, EDGE_UPDATES_DRAMBUFFER_SIZE, EDGE_UPDATES_WORKBUFFER_SIZE, globalparams, {% include '___HBM___ARGS___.template' %}, _NUMCLOCKCYCLES_);		
-			// #endif	
-		#else
-			edge_update_type * URAM_edges[NUM_VALID_PEs][EDGE_PACK_SIZE];
-			for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ URAM_edges[i][v] = new edge_update_type[EDGE_UPDATES_DRAMBUFFER_LONGSIZE]; }}
-			if(globalparams[GLOBALPARAMSCODE__COMMANDS__COMMAND0] == 0){ 
-				create_actpack(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES], globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2], URAM_edges, EDGE_UPDATES_DRAMBUFFER_LONGSIZE, EDGE_UPDATES_DRAMBUFFER_LONGSIZE, globalparams, {% include '___HBM___ARGS___.template' %}, _NUMCLOCKCYCLES_);		
-				return;
-			} else if(globalparams[GLOBALPARAMSCODE__COMMANDS__COMMAND0] == 1){	
-				create_actpack(globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES], globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS], URAM_edges, EDGE_UPDATES_DRAMBUFFER_SIZE, EDGE_UPDATES_WORKBUFFER_SIZE, globalparams, {% include '___HBM___ARGS___.template' %}, _NUMCLOCKCYCLES_);	
-				return;
-			}
+		#ifndef ___RUNNING_FPGA_SYNTHESIS___
+		edge_update_type * URAM_edges[NUM_VALID_PEs][EDGE_PACK_SIZE];
+		for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ URAM_edges[i][v] = new edge_update_type[EDGE_UPDATES_DRAMBUFFER_LONGSIZE]; }}
+		if(globalparams[GLOBALPARAMSCODE__COMMANDS__COMMAND0] == 0){ 
+			create_actpack(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES], globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2], URAM_edges, EDGE_UPDATES_DRAMBUFFER_LONGSIZE, EDGE_UPDATES_DRAMBUFFER_LONGSIZE, globalparams, {% include '___HBM___ARGS___.template' %}, final_edge_updates, _NUMCLOCKCYCLES_);		
+			return;
+		} else if(globalparams[GLOBALPARAMSCODE__COMMANDS__COMMAND0] == 1){	
+			create_actpack(globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES], globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS], URAM_edges, EDGE_UPDATES_DRAMBUFFER_SIZE, EDGE_UPDATES_WORKBUFFER_SIZE, globalparams, {% include '___HBM___ARGS___.template' %}, final_edge_updates, _NUMCLOCKCYCLES_);	
+			return;
+		}
 		#endif
 	}
-	
-	#ifdef RRRRRRRRRRRRRRRRRRRRR
-	// import (keep the PCIe channels busy always)
-	import_frontiers(0, HBM_centerA, HBM_import, action, _NUMCLOCKCYCLES_);
-	
-	// export (keep the PCIe channels busy always)
-	export_frontiers(0, HBM_centerA, HBM_export, action, _NUMCLOCKCYCLES_);
-	#endif 
 
 	// run acts 
 	RUN_ACTS_LOOP1: for(unsigned int run=0; run<globalparams[GLOBALPARAMSCODE__PARAM__NUM_RUNS]; run++){
@@ -415,7 +383,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 
 	// save state
 	if(action.module == PROCESS_EDGES_MODULE){ //  || action.module == ALL_MODULES){
-		LOAD_UPDATEPTRS_lOOP2: for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]; t++){	
+		SAVE_UPDATEPTRS_lOOP2: for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]; t++){	
 			save_vupdate_map(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS], t, updatesptrs[t], {% include '___HBM___ARGS___.template' %});
 			#ifdef _DEBUGMODE_KERNELPRINTS//4
 			cout<<"finish: updatesptrs["<<t<<"].offset: "<<updatesptrs[t].offset<<", updatesptrs["<<t<<"].size: "<<updatesptrs[t].size<<endl;

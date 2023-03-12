@@ -40,7 +40,7 @@
 	
 	#ifdef _____DEBUG_____
 	map_t URAM_map[NUM_VALID_PEs][EDGE_PACK_SIZE][EDGE_UPDATES_DRAMBUFFER_SIZE];
-	#pragma HLS resource variable=URAM_edges core=XPM_MEMORY URAM_map 
+	#pragma HLS resource variable=URAM_map core=XPM_MEMORY uram 
 	#pragma HLS ARRAY_PARTITION variable=URAM_map complete dim=1	
 	#pragma HLS ARRAY_PARTITION variable=URAM_map complete dim=2	
 	#endif

@@ -32,7 +32,8 @@ public:
 	host(universalparams_t _universalparams);
 	~host();
 	
-	long double runapp(action_t action, std::string binaryFile[2], HBM_channelAXISW_t * HBM_axichannel[2][NUM_PEs], HBM_channelAXISW_t * HBM_axicenter[2], unsigned int lastww_addr, unsigned int globalparams[1024], universalparams_t universalparams);					
+	long double runapp(action_t action, std::string binaryFile[2], HBM_channelAXISW_t * HBM_axichannel[2][NUM_PEs], HBM_channelAXISW_t * HBM_axicenter[2], unsigned int lastww_addr, unsigned int globalparams[1024], universalparams_t universalparams,
+		vector<edge3_type> (&final_edge_updates)[NUM_PEs][MAX_NUM_UPARTITIONS][MAX_NUM_LLPSETS]);					
 	
 private:
 	utility * utilityobj;
