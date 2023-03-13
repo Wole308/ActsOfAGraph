@@ -485,7 +485,9 @@ MY_IFDEF_CREATE_ACTPACK(){
 						#pragma HLS UNROLL
 							edge_map_vec[n] = edgeupdate_maps[n][llp_id];
 						}
+						#ifndef ___RUNNING_FPGA_SYNTHESIS___
 						vupdates_map[p_u][llp_set].size += edgeupdate_maps[0][llp_id].size;
+						#endif 
 						save_edgemaps((p_u * MAX_NUM_LLP_PER_UPARTITION) + (llp_set * NUM_LLP_PER_LLPSET) + llp_id, destedgeupdateptrs_baseoffset, edge_map_vec, {% include '___HBM___ARGS___.template' %});
 					}
 				}
@@ -500,7 +502,7 @@ MY_IFDEF_CREATE_ACTPACK(){
 		// exit(EXIT_SUCCESS);
 	} // p_u
 	
-	#ifndef ___RUNNING_FPGA_SYNTHESIS___//XXXXXXXXXX
+	#ifndef ___RUNNING_FPGA_SYNTHESIS___
 	if(globalparams[GLOBALPARAMSCODE__COMMANDS__COMMAND0] == 0){ 
 		map_t vertex_updates_map[MAX_NUM_LLPSETS]; 
 		for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]+1; t++){ vertex_updates_map[t].offset=0; vertex_updates_map[t].size=0; }

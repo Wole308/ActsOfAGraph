@@ -451,13 +451,6 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	size_u32 = 0; 
 	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
 	size_u32 += numww_actpackedges * EDGE_PACK_SIZE * 2;
-	// for(unsigned int i=0; i<NUM_PEs; i++){
-		// for(unsigned int t=0; t<numww_actpackedges; t++){ 	
-			// for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-				// if(i==0){ size_u32 += 2; }
-			// }
-		// }
-	// }
 	#endif
 	
 	// load csr edges 
@@ -490,36 +483,6 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	}
 	size_u32 = 0; unsigned int sourceid = 0; unsigned int destid = 0; unsigned int weight = 0;
 	size_u32 = numww_actpackedges * EDGE_PACK_SIZE * 2; 
-	/* for(unsigned int i=0; i<NUM_PEs; i++){
-		unsigned int base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES];
-		for(unsigned int t=0; t<numww_actpackedges; t++){ 	
-			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-				// #ifdef XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-				unsigned int isvalid = act_pack_edges[i][t].data[v].valid;
-
-				unsigned int _sample_key = INVALIDDATA; unsigned int _sample_u = 0; 
-				for(unsigned int v1=0; v1<EDGE_PACK_SIZE; v1++){ if(act_pack_edges[i][t].data[v1].valid == 1){ _sample_key = act_pack_edges[i][t].data[v1].dstvid % EDGE_PACK_SIZE; _sample_u = v1; }} 
-				unsigned int _rotateby = 0; if(_sample_key > _sample_u){ _rotateby = _sample_key - _sample_u; } else { _rotateby = _sample_u - _sample_key; }
-				
-				if(isvalid==1){		
-					sourceid = act_pack_edges[i][t].data[v].srcvid % MAX_UPARTITION_VECSIZE;
-					destid = get_local3(act_pack_edges[i][t].data[v].dstvid) % MAX_UPARTITION_VECSIZE;
-					weight = 1;
-				} else {	
-					sourceid = INVALIDDATA;
-					destid = get_local3(act_pack_edges[i][t].data[v].dstvid) % MAX_UPARTITION_VECSIZE;
-					weight = 1;
-				}	
-				if(v==0){ weight = _rotateby; }		
-				HBM_channel[i][base_offset + t].data[v] = ((weight & MAXLOCALVALUE2_ACTPACK_EDGEID) << (MAXNUMBITS2_ACTPACK_DESTVID + MAXNUMBITS2_ACTPACK_SRCVID)) | ((sourceid & MAXLOCALVALUE2_ACTPACK_SRCVID) << MAXNUMBITS2_ACTPACK_DESTVID) | (destid & MAXLOCALVALUE2_ACTPACK_DESTVID);		
-				///////////////////////// FIXME?		
-				HBM_channel[i][base_offset + t].data[HBM_AXI_PACK_SIZE + v] = ((weight & MAXLOCALVALUE2_ACTPACK_EDGEID) << (MAXNUMBITS2_ACTPACK_DESTVID + MAXNUMBITS2_ACTPACK_SRCVID)) | ((sourceid & MAXLOCALVALUE2_ACTPACK_SRCVID) << MAXNUMBITS2_ACTPACK_DESTVID) | (destid & MAXLOCALVALUE2_ACTPACK_DESTVID);		
-				/////////////////////////	
-				// #endif 
-				if(i==0){ size_u32 += 2; }	
-			}
-		}
-	} */
 	
 	// load vertex updates 
 	cout<<"loading vertex updates..."<<endl;

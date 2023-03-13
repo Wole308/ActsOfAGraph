@@ -17,14 +17,12 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_ACTIVE_LLPSETS
 		#pragma HLS ARRAY_PARTITION variable=edge_maps complete	
 		
 		// load edges map
-		// cout<<"--------------------------------------- process-edges A"<<endl;
 		map_t edge_map_vec[NUM_VALID_PEs];
 		load_edgemaps((p_u * MAX_NUM_LLP_PER_UPARTITION) + (llp_set * NUM_LLP_PER_LLPSET) + llp_id, globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2], edge_map_vec, {% include '___HBM___ARGS___.template' %});
 		for(unsigned int n=0; n<NUM_VALID_PEs; n++){
 		#pragma HLS UNROLL
 			edge_maps[n] = edge_map_vec[n];
 		}	
-		// cout<<"--------------------------------------- process-edges B"<<endl;
 		
 		for(unsigned int n=0; n<NUM_VALID_PEs; n++){ edge_maps[n].size = ((__PERCENTAGE_ACTIVE_EDGES * edge_maps[n].size) + (100-1)) / 100; } // FIXME.
 		#ifdef _DEBUGMODE_KERNELPRINTS//4

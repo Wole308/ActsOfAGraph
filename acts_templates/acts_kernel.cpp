@@ -155,7 +155,11 @@ unsigned int hash_edge(unsigned int srcvid, unsigned int dstvid, unsigned int in
 unsigned int hash2_edge(map_t URAM_map, unsigned int srcvid, unsigned int dstvid, unsigned int padding_factor){
 #pragma HLS INLINE
 	unsigned int allotted_hashspace = URAM_map.size * padding_factor; 
+	#ifdef _DEBUGMODE_CHECKS3
 	if(URAM_map.size == 0){ cout<<"-------------------------------- hash2_edge: URAM_map.size == 0. EXITING..."<<endl; exit(EXIT_FAILURE); }
+	if(padding_factor == 0){ cout<<"-------------------------------- hash2_edge: padding_factor == 0. EXITING..."<<endl; exit(EXIT_FAILURE); }
+	// if(dstvid == 0){ cout<<"-------------------------------- hash2_edge: srcvid = 0. dstvid == 0. EXITING..."<<endl; exit(EXIT_FAILURE); }
+	#endif 
 	unsigned int edge_hashid = URAM_map.offset + (dstvid % allotted_hashspace); 
 	#ifdef _DEBUGMODE_CHECKS3
 	checkoutofbounds("utility::ERROR 779911::", edge_hashid, EDGE_UPDATES_DRAMBUFFER_SIZE, dstvid, URAM_map.offset, URAM_map.size); 
@@ -2451,7 +2455,9 @@ MY_IFDEF_CREATE_ACTPACK(){
 						#pragma HLS UNROLL
 							edge_map_vec[n] = edgeupdate_maps[n][llp_id];
 						}
+						#ifndef ___RUNNING_FPGA_SYNTHESIS___
 						vupdates_map[p_u][llp_set].size += edgeupdate_maps[0][llp_id].size;
+						#endif 
 						save_edgemaps((p_u * MAX_NUM_LLP_PER_UPARTITION) + (llp_set * NUM_LLP_PER_LLPSET) + llp_id, destedgeupdateptrs_baseoffset, edge_map_vec,  HBM_channelA0, HBM_channelB0);
 					}
 				}
@@ -2466,7 +2472,7 @@ MY_IFDEF_CREATE_ACTPACK(){
 		// exit(EXIT_SUCCESS);
 	} // p_u
 	
-	#ifndef ___RUNNING_FPGA_SYNTHESIS___//XXXXXXXXXX
+	#ifndef ___RUNNING_FPGA_SYNTHESIS___
 	if(globalparams[GLOBALPARAMSCODE__COMMANDS__COMMAND0] == 0){ 
 		map_t vertex_updates_map[MAX_NUM_LLPSETS]; 
 		for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]+1; t++){ vertex_updates_map[t].offset=0; vertex_updates_map[t].size=0; }
@@ -3056,6 +3062,7 @@ for(unsigned int t=0; t<BLOCKRAM_SIZE; t++){
 			#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
 			if(___ENABLE___PROCESSEDGEUPDATES___BOOL___ == 1){
 // #define _DEBUGMODE_KERNELPRINTS4_PROCESSEDGEUPDATES
+// #define _DEBUGMODE_APPLYEDGEUPDATES_PRINTS4
 edge_update_vec_dt edge_update_vecs[NUM_VALID_PEs];
 #pragma HLS ARRAY_PARTITION variable=edge_update_vecs complete
 edge3_vec_dt edge3_vecs[NUM_VALID_PEs]; 
@@ -3086,7 +3093,7 @@ PROCESS_EDGEUPDATES_MODULE_LOOP1B: for(unsigned int p_u=0; p_u<globalparams[GLOB
 	#endif 
 	EC_PROCESS_EDGEUPDATES_LOOP1: for(unsigned int llp_set=0; llp_set<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]; llp_set++){	
 		EC_PROCESS_EDGEUPDATES_LOOP1B: for(unsigned int llp_id=0; llp_id<EDGE_PACK_SIZE; llp_id++){ // REMOVEME.
-			#ifdef _DEBUGMODE_KERNELPRINTS//4 
+			#ifdef _DEBUGMODE_APPLYEDGEUPDATES_PRINTS4 
 			cout<<"------------------- update edges: ["<<p_u<<", "<<llp_set<<", "<<llp_id<<", "<<llp_id<<"] -------------------"<<endl; 
 			#endif 
 			
@@ -3097,18 +3104,20 @@ PROCESS_EDGEUPDATES_MODULE_LOOP1B: for(unsigned int p_u=0; p_u<globalparams[GLOB
 
 			// load edges map
 			map_t edge_map_vec[NUM_VALID_PEs];
-			load_edgemaps((p_u * MAX_NUM_LLP_PER_UPARTITION) + (llp_set * NUM_LLP_PER_LLPSET) + llp_id, globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2], edge_map_vec,  HBM_channelA0, HBM_channelB0);
-			for(unsigned int n=0; n<NUM_VALID_PEs; n++){
-			#pragma HLS UNROLL
-				edge_maps[n] = edge_map_vec[n];
-			}
+			// load_edgemaps((p_u * MAX_NUM_LLP_PER_UPARTITION) + (llp_set * NUM_LLP_PER_LLPSET) + llp_id, globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2], edge_map_vec,  HBM_channelA0, HBM_channelB0);
+			load_edgemaps((p_u * MAX_NUM_LLP_PER_UPARTITION) + (llp_set * NUM_LLP_PER_LLPSET) + llp_id, globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2], edge_maps,  HBM_channelA0, HBM_channelB0);
+			// for(unsigned int n=0; n<NUM_VALID_PEs; n++){
+			// #pragma HLS UNROLL
+				// edge_maps[n] = edge_map_vec[n];
+			// }
 			
 			// load edge updates maps 
-			load_edgemaps((p_u * MAX_NUM_LLP_PER_UPARTITION) + (llp_set * NUM_LLP_PER_LLPSET) + llp_id, globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS], edge_map_vec,  HBM_channelA0, HBM_channelB0);
-			for(unsigned int n=0; n<NUM_VALID_PEs; n++){
-			#pragma HLS UNROLL
-				edgeupdate_maps[n] = edge_map_vec[n];
-			}
+			// load_edgemaps((p_u * MAX_NUM_LLP_PER_UPARTITION) + (llp_set * NUM_LLP_PER_LLPSET) + llp_id, globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS], edge_map_vec,  HBM_channelA0, HBM_channelB0);
+			load_edgemaps((p_u * MAX_NUM_LLP_PER_UPARTITION) + (llp_set * NUM_LLP_PER_LLPSET) + llp_id, globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS], edgeupdate_maps,  HBM_channelA0, HBM_channelB0);
+			// for(unsigned int n=0; n<NUM_VALID_PEs; n++){
+			// #pragma HLS UNROLL
+				// edgeupdate_maps[n] = edge_map_vec[n];
+			// }
 			
 			#ifdef _DEBUGMODE_KERNELPRINTS4_PROCESSEDGEUPDATES
 			for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<"process-edge-updates: edgeupdate_maps[n]["<<llp_id<<"]: p_u: "<<p_u<<", llp_set: "<<llp_set<<", llp_id: "<<llp_id<<", offset: "<<edgeupdate_maps[n].offset<<", size: "<<edgeupdate_maps[n].size<<""<<endl; }
@@ -3137,10 +3146,11 @@ PROCESS_EDGEUPDATES_MODULE_LOOP1B: for(unsigned int p_u=0; p_u<globalparams[GLOB
 			cout<<"[BEFORE - EDGE UPDATES MAP]: "; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<edgeupdate_maps[n].size<<", "; } cout<<endl;
 			cout<<"[BEFORE - EDGE MAP]: "; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<edge_maps[n].size<<", "; } cout<<endl;
 			#endif 
+			if(max_sz_eu == 0){ continue; }
 			
 			// successive applies until no more edge updates are left
 			APPLY_EDGEUPDATES_MAINLOOP1: for(unsigned int c=0; c<1; c++){
-				#ifdef _DEBUGMODE_KERNELPRINTS//4
+				#ifdef _DEBUGMODE_APPLYEDGEUPDATES_PRINTS4
 				cout<<"--------------------------------- [p_u: "<<p_u<<", llp_set: "<<llp_set<<", llp_id: "<<llp_id<<", c: "<<c<<"] edge updates: max_sz: "<<max_sz<<", max_sz_eu: "<<max_sz_eu<<", offsets_eu[0]: "<<offsets_eu[0]<<" --------------------------------------"<<endl;
 				for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<"max_sz_eus for PE "<<n<<": "; for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ cout<<max_sz_eus[n][v]<<", "; } cout<<endl; }
 				#endif 
@@ -3188,6 +3198,9 @@ PROCESS_EDGEUPDATES_MODULE_LOOP1B: for(unsigned int p_u=0; p_u<globalparams[GLOB
 				}
 				
 				unsigned int padding_factor = EDGE_UPDATES_DRAMBUFFER_SIZE / max_sz_eu; // 12; // 16; // 8;
+				#ifdef _DEBUGMODE_CHECKS3
+				if(padding_factor == 0){ cout<<"apply-edge-updates: padding_factor == 0. EDGE_UPDATES_DRAMBUFFER_SIZE: "<<EDGE_UPDATES_DRAMBUFFER_SIZE<<", max_sz_eu: "<<max_sz_eu<<". EXITING..."<<endl; exit(EXIT_FAILURE); }
+				#endif 
 				COLLECTSTATS_EDGEUPDATES_LOOP2: for(unsigned int t=1; t<EDGE_UPDATES_DRAMBUFFER_SIZE; t++){ 
 				#pragma HLS PIPELINE II=2
 					for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){	
@@ -3254,15 +3267,15 @@ PROCESS_EDGEUPDATES_MODULE_LOOP1B: for(unsigned int p_u=0; p_u<globalparams[GLOB
 				}
 				
 				// summary
-				#ifdef _DEBUGMODE_KERNELPRINTS//4
+				#ifdef _DEBUGMODE_APPLYEDGEUPDATES_PRINTS4
 				unsigned int total_num_misses_ = 0; for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ total_num_misses_ += MISSBUFFER_edgeupdates_index[0][v]; cout<<"[AFTERR]: MISSBUFFER_edgeupdates_index[0]["<<v<<"]: "<<MISSBUFFER_edgeupdates_index[0][v]<<endl; }
 				cout<<"[SUMMARY]: total number of misses: "<<total_num_misses_<<" (of "<<max_sz_eu * EDGE_PACK_SIZE<<")"<<endl;
 				#endif 
 				// exit(EXIT_SUCCESS);
 				
-				// #ifdef UUUUUUUUUUUUUUUUUUUUUUU 
 				// apply edge updates 
 				edge_update_type invalid_data; invalid_data.srcvid = INVALIDDATA; invalid_data.dstvid = INVALIDDATA; unsigned int num_hits = 0; unsigned int num_misses = 0;
+				// #ifdef TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
 				PROCESS_EDGEUPDATES_MAINLOOP1D: for(unsigned int t=0; t<max_sz; t++){
 				#pragma HLS PIPELINE II=2
 					dretrievemanyfromB_actpackedges(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES], offsets, t, edge3_vecs,  HBM_channelA0, HBM_channelB0);
@@ -3277,8 +3290,8 @@ PROCESS_EDGEUPDATES_MODULE_LOOP1B: for(unsigned int p_u=0; p_u<globalparams[GLOB
 							map_t map; map.size = 0;
 							if(edge.srcvid < EDGE_UPDATES_DRAMBUFFER_SIZE){ map = URAM_map[inst][v][edge.srcvid]; }
 							
-							if(map.size > 0){	
-								unsigned int edge_hashid = hash2_edge(URAM_map[inst][v][edge.srcvid], edge.srcvid, edge.dstvid, padding_factor);
+							if(map.size > 0){
+								unsigned int edge_hashid = hash2_edge(map, edge.srcvid, edge.dstvid, padding_factor);
 								unsigned int eu_weight = 1;
 								
 								#ifdef _DEBUGMODE_KERNELPRINTS//4 
@@ -3319,6 +3332,7 @@ PROCESS_EDGEUPDATES_MODULE_LOOP1B: for(unsigned int p_u=0; p_u<globalparams[GLOB
 					update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___ECPROCESSEDGES___, 1);
 				}
 				// exit(EXIT_SUCCESS);
+				// #endif 
 				
 				#ifdef _DEBUGMODE_KERNELPRINTS//4
 				for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ cout<<"[AFTER]: MISSBUFFER_edgeupdates_index[0]["<<v<<"]: "<<MISSBUFFER_edgeupdates_index[0][v]<<endl; }
@@ -3357,7 +3371,6 @@ PROCESS_EDGEUPDATES_MODULE_LOOP1B: for(unsigned int p_u=0; p_u<globalparams[GLOB
 						max_sz_eus[n][v] = MISSBUFFER_edgeupdates_index[n][v];
 					}
 				}
-				// #endif ////////////////
 			} // c
 			
 			// save edge 
@@ -3580,14 +3593,12 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_ACTIVE_LLPSETS
 		#pragma HLS ARRAY_PARTITION variable=edge_maps complete	
 		
 		// load edges map
-		// cout<<"--------------------------------------- process-edges A"<<endl;
 		map_t edge_map_vec[NUM_VALID_PEs];
 		load_edgemaps((p_u * MAX_NUM_LLP_PER_UPARTITION) + (llp_set * NUM_LLP_PER_LLPSET) + llp_id, globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2], edge_map_vec,  HBM_channelA0, HBM_channelB0);
 		for(unsigned int n=0; n<NUM_VALID_PEs; n++){
 		#pragma HLS UNROLL
 			edge_maps[n] = edge_map_vec[n];
 		}	
-		// cout<<"--------------------------------------- process-edges B"<<endl;
 		
 		for(unsigned int n=0; n<NUM_VALID_PEs; n++){ edge_maps[n].size = ((__PERCENTAGE_ACTIVE_EDGES * edge_maps[n].size) + (100-1)) / 100; } // FIXME.
 		#ifdef _DEBUGMODE_KERNELPRINTS//4
