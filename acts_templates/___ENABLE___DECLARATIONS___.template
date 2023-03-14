@@ -32,10 +32,10 @@
 	#pragma HLS aggregate variable=URAM_vprop 
 
 	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
-	edge_update_type URAM_edges[NUM_VALID_PEs][EDGE_PACK_SIZE][EDGE_UPDATES_DRAMBUFFER_SIZE];	
-	#pragma HLS resource variable=URAM_edges core=XPM_MEMORY uram 
-	#pragma HLS ARRAY_PARTITION variable=URAM_edges complete dim=1	
-	#pragma HLS ARRAY_PARTITION variable=URAM_edges complete dim=2	
+	edge_update_type URAM_edgeupdates[NUM_VALID_PEs][EDGE_PACK_SIZE][EDGE_UPDATES_DRAMBUFFER_SIZE];	
+	#pragma HLS resource variable=URAM_edgeupdates core=XPM_MEMORY uram 
+	#pragma HLS ARRAY_PARTITION variable=URAM_edgeupdates complete dim=1	
+	#pragma HLS ARRAY_PARTITION variable=URAM_edgeupdates complete dim=2	
 	#endif 
 	
 	#ifdef _____DEBUG_____
@@ -53,7 +53,7 @@
 	vtr_t * vptr_buffer[NUM_VALID_PEs]; 
 	edge3_type * edges_buffer[NUM_VALID_PEs][EDGE_PACK_SIZE];
 	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
-	edge_update_type * URAM_edges[NUM_VALID_PEs][EDGE_PACK_SIZE];
+	edge_update_type * URAM_edgeupdates[NUM_VALID_PEs][EDGE_PACK_SIZE];
 	#endif 
 	#ifdef _____DEBUG_____
 	map_t * URAM_map[NUM_VALID_PEs][EDGE_PACK_SIZE];
@@ -68,7 +68,7 @@
 	for(unsigned int i=0; i<NUM_VALID_PEs; i++){ vptr_buffer[i] = new vtr_t[VPTR_BUFFER_SIZE]; }
 	for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ edges_buffer[i][v] = new edge3_type[EDGE_BUFFER_SIZE]; }}
 	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
-	for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ URAM_edges[i][v] = new edge_update_type[EDGE_UPDATES_DRAMBUFFER_SIZE]; }}
+	for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ URAM_edgeupdates[i][v] = new edge_update_type[EDGE_UPDATES_DRAMBUFFER_SIZE]; }}
 	#endif 
 	#ifdef _____DEBUG_____
 	for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ URAM_map[i][v] = new map_t[EDGE_UPDATES_DRAMBUFFER_SIZE]; }}

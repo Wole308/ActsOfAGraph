@@ -719,7 +719,6 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	
 	// populate actpack edges 
 	// #ifdef TTTTTTTTTTTT
-	cout<<"--- app:: ##################: final_edge_updates[0][0][0].size(): "<<final_edge_updates[0][0][0].size()<<" ---"<<endl;
 	acts_kernel * acts = new acts_kernel(universalparams);
 	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
 	unsigned int num_its = 2;
