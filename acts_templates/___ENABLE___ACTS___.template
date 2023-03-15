@@ -46,7 +46,10 @@
 #define MY_IFDEF_EDGESBUFFER() edge3_type edges_buffer[EDGE_PACK_SIZE][EDGE_BUFFER_SIZE]
 #define MY_IFDEF_EDGEUPDATESBUFFER() edge_update_type URAM_edges[EDGE_PACK_SIZE][EDGE_UPDATES_DRAMBUFFER_SIZE]
 #define MY_IFDEF_VDATABUFFER() vprop_t URAM_vprop[EDGE_PACK_SIZE][MAXVALID_APPLYPARTITION_VECSIZE]
-#define MY_IFDEF_TOPLEVELFUNC() void top_function({% include '___HBM___PARAMS___.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, HBM_channelAXI_t * HBM_import, HBM_channelAXI_t * HBM_export, unsigned int module, unsigned int start_pu, unsigned int size_pu, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_gv, unsigned int size_gv, unsigned int size_import_export, unsigned int finish)
+#define MY_IFDEF_TOPLEVELFUNC() void top_function({% include '___HBM___PARAMS___.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, \
+	HBM_channelAXI_t * HBM_import, HBM_channelAXI_t * HBM_export, \
+	checkpoint_t * import_checkpoint_dram, checkpoint_t * export_checkpoint_dram, \
+	unsigned int module, unsigned int start_pu, unsigned int size_pu, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_gv, unsigned int size_gv, unsigned int size_import_export, unsigned int finish)
 #else
 #define MY_IFDEF_NFRONTIER() keyvalue_t * nfrontier_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_CFRONTIER_TMP() keyvalue_t * URAM_frontiers[EDGE_PACK_SIZE]
@@ -59,7 +62,11 @@
 #define MY_IFDEF_EDGESBUFFER() edge3_type * edges_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_EDGEUPDATESBUFFER() edge_update_type * URAM_edges[EDGE_PACK_SIZE]
 #define MY_IFDEF_VDATABUFFER() vprop_t * URAM_vprop[EDGE_PACK_SIZE]
-#define MY_IFDEF_TOPLEVELFUNC() void acts_kernel::top_function({% include '___HBM___PARAMS___.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, HBM_channelAXI_t * HBM_import, HBM_channelAXI_t * HBM_export, unsigned int module, unsigned int start_pu, unsigned int size_pu, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_gv, unsigned int size_gv, unsigned int size_import_export, unsigned int finish, vector<edge3_type> (&final_edge_updates)[NUM_PEs][MAX_NUM_UPARTITIONS][MAX_NUM_LLPSETS])					
+#define MY_IFDEF_TOPLEVELFUNC() void acts_kernel::top_function({% include '___HBM___PARAMS___.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, \
+	HBM_channelAXI_t * HBM_import, HBM_channelAXI_t * HBM_export, \
+	checkpoint_t * import_checkpoint_dram, checkpoint_t * export_checkpoint_dram, \
+	unsigned int module, unsigned int start_pu, unsigned int size_pu, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_gv, unsigned int size_gv, unsigned int size_import_export, unsigned int finish, \
+	vector<edge3_type> (&final_edge_updates)[NUM_PEs][MAX_NUM_UPARTITIONS][MAX_NUM_LLPSETS])					
 #endif
 
 #define APPLY_CMD 2
@@ -197,6 +204,8 @@ MY_IFDEF_TOPLEVELFUNC(){
 	action.size_llpid = size_llpid; 
 	action.start_gv = start_gv; 
 	action.size_gv = size_gv;
+	// action.import_partition = import_partition;
+	// action.export_partition = export_partition;
 	action.size_import_export = size_import_export;
 	action.finish = finish;
 	
@@ -214,7 +223,6 @@ MY_IFDEF_TOPLEVELFUNC(){
 	}
 	
 	// load vertex-updates map 
-	// map_t updatesptrs[MAX_NUM_LLPSETS];
 	LOAD_UPDATEPTRS_lOOP1: for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]+1; t++){	
 	#pragma HLS PIPELINE II=1
 		updatesptrs[t] = load_vupdate_map(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS], t, {% include '___HBM___ARGS___.template' %});
@@ -238,7 +246,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 		}
 		#endif
 	}
-
+	
 	// run acts 
 	RUN_ACTS_LOOP1: for(unsigned int run=0; run<globalparams[GLOBALPARAMSCODE__PARAM__NUM_RUNS]; run++){
 		RUN_ACTS_LOOP1B: for(unsigned int GraphIter=0; GraphIter<globalparams[GLOBALPARAMSCODE__PARAM__NUM_ITERATIONS]; GraphIter++){
@@ -261,9 +269,9 @@ MY_IFDEF_TOPLEVELFUNC(){
 			
 			// insert/delete/update edges
 			#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
-			if(___ENABLE___PROCESSEDGEUPDATES___BOOL___ == 1){
-				{% include '___ENABLE___APPLY_EDGEUPDATES___.template' %}	
-			}
+			if(___ENABLE___PROCESSEDGEUPDATES___BOOL___ == 1){	
+				{% include '___ENABLE___APPLY_EDGEUPDATES___.template' %}		
+			}	
 			#endif
 			// exit(EXIT_SUCCESS);
 			
@@ -287,17 +295,27 @@ MY_IFDEF_TOPLEVELFUNC(){
 				#ifdef ___ENABLE___RESET_BUFFERS___
 				{% include '___ENABLE___RESET_BUFFERS___.template' %}	
 				#endif 
-		
+				
+				// get checkpoint
+				unsigned int v_index = export_checkpoint_dram[0].msg;
+				
 				// process-edges and partition-updates
 				#ifdef ___ENABLE___ECPROCESSEDGES___II1___		
 				if(___ENABLE___PROCESSEDGES___BOOL___ == 1){
-					{% include '___ENABLE___PROCESS_EDGES___.template' %}	
+					{% include '___ENABLE___PROCESS_EDGES___.template' %}		
 				}
 				#endif		
+				
+				// update checkpoint
+				#ifndef FPGA_IMPL
+				checkoutofbounds("set checkpoint::ERROR 863::", v_index, MAX_NUM_UPARTITIONS, NAp, NAp, NAp);
+				#endif
+				export_checkpoint_dram[1 + v_index].msg = 2; // v_index += 1;
+				export_checkpoint_dram[0].msg = v_index;
 			}
 			}
 			#endif 
-			// exit(EXIT_SUCCESS); //////////// REMOVEME
+			// exit(EXIT_SUCCESS); 
 			
 			// prepare active destID stats [done] 
 			#ifdef ___ENABLE___COLLECTACTIVEDSTVIDS___
@@ -325,7 +343,6 @@ MY_IFDEF_TOPLEVELFUNC(){
 				#endif 
 				
 				if(vpartition_vertices[0][p_v].count > 0 || all_vertices_active_in_all_iterations == true){ 
-					// #ifdef _DEBUGMODE_KERNELPRINTS4
 					#ifndef ___RUNNING_FPGA_SYNTHESIS___
 					if(en == true){ cout<<"### applying updates in vpartition "<<p_v<<"..."<<endl; }
 					#endif
@@ -337,12 +354,22 @@ MY_IFDEF_TOPLEVELFUNC(){
 					}
 					#endif 
 					
+					// get checkpoint
+					unsigned int v_index = export_checkpoint_dram[0].msg;
+					
 					// apply updates [done]
 					#ifdef ___ENABLE___APPLYUPDATES___II1___ 
 					if(___ENABLE___APPLYUPDATES___BOOL___ == 1){
 						{% include '___ENABLE___APPLYUPDATES___.template' %}	 
 					}
 					#endif 
+					
+					// update checkpoint
+					#ifndef FPGA_IMPL
+					checkoutofbounds("set checkpoint::ERROR 863::", v_index, MAX_NUM_UPARTITIONS, NAp, NAp, NAp);
+					#endif
+					export_checkpoint_dram[1 + v_index].msg = 2; // v_index += 1;
+					export_checkpoint_dram[0].msg = v_index;
 					
 					// collect and save frontier information
 					#ifdef ___ENABLE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES___
@@ -368,6 +395,13 @@ MY_IFDEF_TOPLEVELFUNC(){
 			GATHER_FRONTIERS_MODULE_LOOP: for(unsigned int p_v=action.start_pv; p_v<action.start_pv + action.size_pv; p_v++){		
 				if(___ENABLE___EXCHANGEFRONTIERINFOS___BOOL___ == 1){
 					{% include '___ENABLE___GATHER_FRONTIER_PROPERTIES___.template' %}	
+					
+					// set checkpoint
+					#ifndef FPGA_IMPL
+					checkoutofbounds("set checkpoint::ERROR 863::", p_v, MAX_NUM_UPARTITIONS, NAp, NAp, NAp);
+					#endif 
+					export_checkpoint_dram[1 + p_v].finish = 1; // p_v += 1;
+					export_checkpoint_dram[0].msg = p_v;
 				}
 			}
 			}
@@ -396,7 +430,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 	if(action.finish == 1){
 		{% include '___ENABLE___SUMMARY___.template' %}	
 	}
-	#endif
+	#endif	
 	return;
 }
 }

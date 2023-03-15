@@ -220,6 +220,13 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		v_ptr[i][vid / NUM_PEs] = index; index += degrees[i][vid / NUM_PEs]; ind += 1; }}}			
 	for(unsigned int i=0; i<NUM_PEs; i++){ cout<<"csr-pack:: PE: 21: act_pack_edges["<<i<<"].size(): "<<csr_pack_edges[i].size()<<endl; }
 	cout<<"app::csr-pack:: max_degree: "<<max_degree<<endl;
+	
+	checkpoint_t * import_checkpoint_dram = new checkpoint_t[MAX_NUM_UPARTITIONS];
+	checkpoint_t * export_checkpoint_dram = new checkpoint_t[MAX_NUM_UPARTITIONS];
+	for(unsigned int t=0; t<MAX_NUM_UPARTITIONS; t++){
+		import_checkpoint_dram[t].msg = 0;
+		export_checkpoint_dram[t].msg = 0;
+	}
 
 	// load globalparams: {vptrs, edges, updatesptrs, updates, vertexprops, frontiers}
 	cout<<"app: loading global addresses: {vptrs, edges, updates, vertexprops, frontiers}..."<<endl;
@@ -750,6 +757,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 			#endif
 			,(HBM_channelAXI_t *)HBM_axicenter[0], (HBM_channelAXI_t *)HBM_axicenter[1]
 			,(HBM_channelAXI_t *)HBM_import_export[0], (HBM_channelAXI_t *)HBM_import_export[1]
+			,import_checkpoint_dram ,export_checkpoint_dram
 			,action.module ,action.start_pu ,action.size_pu ,action.start_pv ,action.size_pv ,action.start_llpset ,action.size_llpset ,action.start_llpid ,action.size_llpid ,action.start_gv ,action.size_gv ,action.size_import_export ,action.finish, final_edge_updates
 			); 
 	}

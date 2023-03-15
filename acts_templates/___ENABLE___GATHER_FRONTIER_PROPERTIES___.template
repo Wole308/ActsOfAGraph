@@ -1,5 +1,4 @@
 {%for i in context['NUM_VALID_PEs_seq']%}	
-// #ifdef _DEBUGMODE_KERNELPRINTS4 
 #ifndef ___RUNNING_FPGA_SYNTHESIS___
 cout<<"### gathering dst vertex properties for vpartition "<<p_v<<": [PEs "; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<n<<", "; } cout<<"]"<<endl; 
 #endif 

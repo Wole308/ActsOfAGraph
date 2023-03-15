@@ -5,7 +5,8 @@ unsigned int offsets[NUM_VALID_PEs];
 cout<<"### processing edges in upartition "<<p_u<<": [PEs "; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<n<<", "; } cout<<"]"<<endl; 
 #endif 
 
-unsigned int offset_c = 0 * 0; // FIXME
+unsigned int import_offset = 0;//u_index * action.size_import_export;
+unsigned int export_offset = 0;//v_index * action.size_import_export;
 
 EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_ACTIVE_LLPSETS; llp_set++){	// __NUM_APPLYPARTITIONS
 	EC_PROCESS_EDGES_LOOP1B: for(unsigned int llp_id=0; llp_id<NUM_LLP_PER_LLPSET; llp_id++){ 
@@ -121,15 +122,15 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_ACTIVE_LLPSETS
 			dinsertmany_updatesdram(offsets3, update_out, ens, {% include '___HBM___ARGS___.template' %});	
 			update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___ECPROCESSEDGES___, 1);
 			
-			if(t<action.size_import_export){
-			// import (Host -> FPGA)
-			{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
-			HBM_centerA[offset_c + t].data[{{v}}] = HBM_import[t].data[{{v}}];
-			{%endfor%}	
-			// export (FPGA -> Host)
-			{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
-			HBM_export[t].data[{{v}}] = HBM_centerB[offset_c + t].data[{{v}}];
-			{%endfor%}
+			if(t<action.size_import_export){	
+				// import (Host -> FPGA)
+				{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
+				HBM_centerA[import_offset + t].data[{{v}}] = HBM_import[t].data[{{v}}];
+				{%endfor%}	
+				// export (FPGA -> Host)
+				{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
+				HBM_export[t].data[{{v}}] = HBM_centerB[export_offset + t].data[{{v}}];
+				{%endfor%}
 			}		
 		}
 		

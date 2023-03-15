@@ -362,6 +362,11 @@ typedef struct {
 } offset_t;
 
 typedef struct {
+	unsigned int msg;
+	// bool finish;
+} checkpoint_t;
+
+typedef struct {
 	unsigned int module; 
 	unsigned int start_pu; 
 	unsigned int size_pu; 
@@ -373,6 +378,8 @@ typedef struct {
 	unsigned int size_llpid; 
 	unsigned int start_gv; 
 	unsigned int size_gv;
+	// unsigned int import_partition;
+	// unsigned int export_partition;
 	unsigned int size_import_export;
 	unsigned int finish;
 } action_t;

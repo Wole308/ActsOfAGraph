@@ -324,44 +324,13 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 	cout<<"--- host::runapp_sync: ARRAY_SIZE: "<<ARRAY_SIZE<<" ---"<<endl;
 	cout<<"--- host::runapp_sync: IO_ARRAY_SIZE: "<<IO_ARRAY_SIZE<<" ---"<<endl;
 	cout<<"--- host::runapp_sync: TOTAL: "<<ARRAY_SIZE + IO_ARRAY_SIZE<<" ---"<<endl;
-	
-	// set arguments
-	#ifdef RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR
-	acts_kernel * acts2 = new acts_kernel(universalparams);
-	action_t action2 = _get_action(0, 1, universalparams);
-	// run kernel 
-	printf("Enqueueing NDRange kernel.\n");
-	std::chrono::steady_clock::time_point begin_time1 = std::chrono::steady_clock::now();
-	#ifdef FPGA_IMPL
-	OCL_CHECK(err, err = q.enqueueTask(krnl_vadd));
-	OCL_CHECK(err, err = q.finish());
-	#else 
-	acts2->top_function(
-		(HBM_channelAXI_t *)HBM_axichannel[0][0], (HBM_channelAXI_t *)HBM_axichannel[1][0]
-		#if NUM_VALID_HBM_CHANNELS>1
-		,(HBM_channelAXI_t *)HBM_axichannel[0][1], (HBM_channelAXI_t *)HBM_axichannel[1][1] 
-		,(HBM_channelAXI_t *)HBM_axichannel[0][2], (HBM_channelAXI_t *)HBM_axichannel[1][2] 
-		,(HBM_channelAXI_t *)HBM_axichannel[0][3], (HBM_channelAXI_t *)HBM_axichannel[1][3] 
-		,(HBM_channelAXI_t *)HBM_axichannel[0][4], (HBM_channelAXI_t *)HBM_axichannel[1][4] 
-		,(HBM_channelAXI_t *)HBM_axichannel[0][5], (HBM_channelAXI_t *)HBM_axichannel[1][5] 
-		#if NUM_VALID_HBM_CHANNELS>6
-		,(HBM_channelAXI_t *)HBM_axichannel[0][6], (HBM_channelAXI_t *)HBM_axichannel[1][6] 
-		,(HBM_channelAXI_t *)HBM_axichannel[0][7], (HBM_channelAXI_t *)HBM_axichannel[1][7] 
-		,(HBM_channelAXI_t *)HBM_axichannel[0][8], (HBM_channelAXI_t *)HBM_axichannel[1][8] 
-		,(HBM_channelAXI_t *)HBM_axichannel[0][9], (HBM_channelAXI_t *)HBM_axichannel[1][9] 
-		,(HBM_channelAXI_t *)HBM_axichannel[0][10], (HBM_channelAXI_t *)HBM_axichannel[1][10] 
-		,(HBM_channelAXI_t *)HBM_axichannel[0][11], (HBM_channelAXI_t *)HBM_axichannel[1][11]
-		#if NUM_VALID_HBM_CHANNELS>12
-		,(HBM_channelAXI_t *)HBM_axichannel[0][12], (HBM_channelAXI_t *)HBM_axichannel[1][12]
-		#endif 
-		#endif 
-		#endif
-		,(HBM_channelAXI_t *)HBM_axicenter[0], (HBM_channelAXI_t *)HBM_axicenter[1]
-		,action2.module ,action2.start_pu ,action2.size_pu ,action2.start_pv ,action2.size_pv ,action2.start_llpset ,action2.size_llpset ,action2.start_llpid ,action2.size_llpid ,action2.start_gv ,action2.size_gv ,action2.finish
-		);	
-	#endif 
-	exit(EXIT_SUCCESS);
-	#endif 
+
+	checkpoint_t * import_checkpoint_dram = new checkpoint_t[MAX_NUM_UPARTITIONS];
+	checkpoint_t * export_checkpoint_dram = new checkpoint_t[MAX_NUM_UPARTITIONS];
+	for(unsigned int t=0; t<MAX_NUM_UPARTITIONS; t++){
+		import_checkpoint_dram[t].msg = 0;
+		export_checkpoint_dram[t].msg = 0;
+	}	
 		
 	// prepare OCL variables 
 	#ifdef FPGA_IMPL
@@ -590,6 +559,12 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 			std::cout << "Setting Scalar Arguments..." << std::endl;
 			action_t action = _get_action(launch_idx, launch_type, universalparams);
 			action.size_import_export = IMPORT_EXPORT_GRANULARITY_VECSIZE; // 
+			
+			// ==> move in / <== move out
+			// for(unsigned int t=0; t<MAX_NUM_UPARTITIONS; t++){ if() }
+			// action.import_partition = upartition_status[u_index]; // 
+			// action.export_partition = vpartition_status[v_index]; // 
+			
 			#ifdef FPGA_IMPL
 			_set_args___actions(&krnl_vadd, action, err);
 			#endif 
@@ -650,12 +625,17 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 				#endif
 				,(HBM_channelAXI_t *)HBM_axicenter[0], (HBM_channelAXI_t *)HBM_axicenter[1]
 				,(HBM_channelAXI_t *)HBM_import[0], (HBM_channelAXI_t *)HBM_export[0]
+				,import_checkpoint_dram ,export_checkpoint_dram
 				,action.module ,action.start_pu ,action.size_pu ,action.start_pv ,action.size_pv ,action.start_llpset ,action.size_llpset ,action.start_llpid ,action.size_llpid ,action.start_gv ,action.size_gv ,action.size_import_export ,action.finish ,final_edge_updates
 				);	
 			#endif 
 			double end_time1 = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin_time1).count()) / 1000;	
 			std::cout << TIMINGRESULTSCOLOR << ">>> kernel time elapsed for iteration "<<iteration_idx<<", launch_idx "<<launch_idx<<" : "<<end_time1<<" ms, "<<(end_time1 * 1000)<<" microsecs, "<< RESET <<std::endl;
 		
+			// ==> move in / <== move out
+			// u_index += 1; // 
+			// v_index += 1; // 
+			
 			// export
 			#ifdef FPGA_IMPL
 			// _export_device_to_host(&q, err, buffer_export, flag);
