@@ -55,10 +55,10 @@ github.com/GRAND-Lab/graph_datasets
 
 #define NUM_KERNEL 24 //24
 	
-app::app(){
+app::app(){		
 	algorithmobj = new algorithm();
 }
-app::~app(){
+app::~app(){	
 	cout<<"app::~app:: finish destroying memory structures... "<<endl;
 }
 
@@ -82,7 +82,7 @@ universalparams_t app::get_universalparams(std::string algo, unsigned int numite
 	universalparams.NUM_EDGES = num_edges; 
 
 	universalparams.NUM_UPARTITIONS = (universalparams.NUM_VERTICES + (MAX_UPARTITION_SIZE - 1)) /  MAX_UPARTITION_SIZE;
-	if(universalparams.NUM_UPARTITIONS > MAX_NUM_UPARTITIONS){ universalparams.NUM_UPARTITIONS = MAX_NUM_UPARTITIONS; } // FIXME.
+	// if(universalparams.NUM_UPARTITIONS > MAX_NUM_UPARTITIONS){ universalparams.NUM_UPARTITIONS = MAX_NUM_UPARTITIONS; } // FIXME.
 	universalparams.NUM_APPLYPARTITIONS = ((universalparams.NUM_VERTICES / NUM_PEs) + (MAX_APPLYPARTITION_SIZE - 1)) /  MAX_APPLYPARTITION_SIZE; // NUM_PEs
 	
 	universalparams.NUM_PARTITIONS = 16;
@@ -406,6 +406,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		for(unsigned int t=0; t<MAX_NUM_LLPSETS; t++){
 			if(false){ if(i==0){ cout<<"maxs["<<t<<"].key: "<<maxs[t].key<<", maxs["<<t<<"].value: "<<maxs[t].value<<endl; }}
 			HBM_channel[i][base_offset + t].data[0] = maxs[t].key;
+			HBM_channel[i][base_offset + t].data[1] = 0; /////////////
 			if(i==0){ size_u32 += HBM_AXI_PACK_SIZE; }
 		}
 	}
@@ -711,6 +712,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	// run acts
 	action_t action;
 	action.module = ALL_MODULES;
+	action.graph_iteration = 0;
 	action.start_pu = 0; 
 	action.size_pu = universalparams.NUM_UPARTITIONS; 
 	action.start_pv = 0;
@@ -722,7 +724,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	action.start_gv = 0; 
 	action.size_gv = NUM_VALID_PEs;
 	action.size_import_export = IMPORT_EXPORT_GRANULARITY_VECSIZE;
-	action.finish = 1;
+	action.status = 1;
 	
 	// populate actpack edges 
 	// #ifdef TTTTTTTTTTTT
@@ -733,7 +735,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	unsigned int num_its = 1;	
 	#endif 
 	for(unsigned int c=0; c<num_its; c++){ 
-		for(unsigned int i=0; i<NUM_PEs; i++){ HBM_axichannel[0][i][GLOBALPARAMSCODE__COMMANDS__COMMAND0].data[0] = c; }
+		for(unsigned int i=0; i<NUM_PEs; i++){ HBM_axichannel[0][i][GLOBALPARAMSCODE__COMMANDS__COMMAND0].data[0] = c; action.module = PREPROCESSING_MODULE; }
 		cout<<"##################################################################################### populating act-pack edges using acts kernel...."<<endl;
 		acts->top_function(
 			(HBM_channelAXI_t *)HBM_axichannel[0][0], (HBM_channelAXI_t *)HBM_axichannel[1][0]
@@ -758,7 +760,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 			,(HBM_channelAXI_t *)HBM_axicenter[0], (HBM_channelAXI_t *)HBM_axicenter[1]
 			,(HBM_channelAXI_t *)HBM_import_export[0], (HBM_channelAXI_t *)HBM_import_export[1]
 			,import_checkpoint_dram ,export_checkpoint_dram
-			,action.module ,action.start_pu ,action.size_pu ,action.start_pv ,action.size_pv ,action.start_llpset ,action.size_llpset ,action.start_llpid ,action.size_llpid ,action.start_gv ,action.size_gv ,action.size_import_export ,action.finish, final_edge_updates
+			,action.module ,0 ,action.start_pu ,action.size_pu ,action.start_pv ,action.size_pv ,action.start_llpset ,action.size_llpset ,action.start_llpid ,action.size_llpid ,action.start_gv ,action.size_gv ,action.size_import_export ,action.status, final_edge_updates
 			); 
 	}
 	// #endif 

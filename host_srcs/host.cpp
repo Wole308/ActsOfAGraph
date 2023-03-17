@@ -169,18 +169,19 @@ void set_callback(cl::Event event, const char* queue_name) {
 
 void _set_args___actions(cl::Kernel * krnl_vadd, action_t action, cl_int err){
 	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS, int(action.module)));
-	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + 1, int(action.start_pu)));
-	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + 2, int(action.size_pu)));
-	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + 3, int(action.start_pv)));
-	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + 4, int(action.size_pv)));
-	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + 5, int(action.start_llpset)));
-	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + 6, int(action.size_llpset)));
-	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + 7, int(action.start_llpid)));
-	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + 8, int(action.size_llpid)));
-	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + 9, int(action.start_gv)));
-	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + 10, int(action.size_gv)));
-	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + 11, int(action.size_import_export)));
-	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + 12, int(action.finish)));
+	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + 1, int(action.graph_iteration)));
+	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + 2, int(action.start_pu)));
+	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + 3, int(action.size_pu)));
+	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + 4, int(action.start_pv)));
+	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + 5, int(action.size_pv)));
+	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + 6, int(action.start_llpset)));
+	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + 7, int(action.size_llpset)));
+	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + 8, int(action.start_llpid)));
+	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + 9, int(action.size_llpid)));
+	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + 10, int(action.start_gv)));
+	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + 11, int(action.size_gv)));
+	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + 12, int(action.size_import_export)));
+	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + 13, int(action.status)));
 }
 #endif 
 
@@ -210,14 +211,14 @@ action_t _get_action(unsigned int launch_idx, unsigned int launch_type, universa
 		action.size_llpid = EDGE_PACK_SIZE; 
 		action.start_gv = 0; 
 		action.size_gv = NUM_VALID_PEs;
-		action.finish = 1;
-	} else {
+		action.status = 1;
+	} else {		
 		if(launch_idx >= 0 && launch_idx < universalparams.NUM_UPARTITIONS){ 
 			// scatter <===> transport
 			action.module = PROCESS_EDGES_MODULE;
 			action.start_pu = launch_idx; 
 			action.size_pu = 1; 
-			action.finish = 0;
+			action.status = 0;
 		} else if(launch_idx >= universalparams.NUM_UPARTITIONS && launch_idx < universalparams.NUM_UPARTITIONS + universalparams.NUM_APPLYPARTITIONS){
 			// apply and gatherDSTs <===> transport
 			action.module = APPLY_UPDATES_MODULE___AND___GATHER_DSTPROPERTIES_MODULE;
@@ -225,7 +226,7 @@ action_t _get_action(unsigned int launch_idx, unsigned int launch_type, universa
 			action.size_pv = 1; 
 			action.start_gv = launch_idx - universalparams.NUM_UPARTITIONS; 
 			action.size_gv = 1;
-			action.finish = 0;
+			action.status = 0;
 		} else {
 			cout<<"ERROR 234. launch_idx is out-of-range. EXITING... "<<endl;
 			exit(EXIT_FAILURE);
@@ -313,25 +314,28 @@ EXPORT_DEVICE_TO_HOST(){
 
 long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_channelAXISW_t * HBM_axichannel[2][NUM_PEs], HBM_channelAXISW_t * HBM_axicenter[2], unsigned int hbm_channel_wwsize, unsigned int globalparams[1024], universalparams_t universalparams,
 	vector<edge3_type> (&final_edge_updates)[NUM_PEs][MAX_NUM_UPARTITIONS][MAX_NUM_LLPSETS]){					
-	// unsigned int ARRAY_SIZE = HBM_CHANNEL_SIZE * HBM_AXI_PACK_SIZE;
-	// unsigned int IO_ARRAY_SIZE = IMPORT_EXPORT_GRANULARITY_VECSIZE * HBM_AXI_PACK_SIZE;
-	
 	unsigned int ARRAY_SIZE = hbm_channel_wwsize * HBM_AXI_PACK_SIZE; // REMOVEME.
 	unsigned int IO_ARRAY_SIZE = IMPORT_EXPORT_GRANULARITY_VECSIZE * HBM_AXI_PACK_SIZE; // REMOVEME.
 	
-	// cout<<"--- host::runapp_sync ##################: final_edge_updates[0][0][0].size(): "<<final_edge_updates[0][0][0].size()<<" ---"<<endl;
-	cout<<"--- host::runapp_sync: NUM_HBM_ARGS: "<<NUM_HBM_ARGS<<" ---"<<endl;
-	cout<<"--- host::runapp_sync: ARRAY_SIZE: "<<ARRAY_SIZE<<" ---"<<endl;
-	cout<<"--- host::runapp_sync: IO_ARRAY_SIZE: "<<IO_ARRAY_SIZE<<" ---"<<endl;
-	cout<<"--- host::runapp_sync: TOTAL: "<<ARRAY_SIZE + IO_ARRAY_SIZE<<" ---"<<endl;
-
+	cout<<"host::runapp_sync: NUM_HBM_ARGS: "<<NUM_HBM_ARGS<<" ---"<<endl;
+	cout<<"host::runapp_sync: ARRAY_SIZE: "<<ARRAY_SIZE<<" ---"<<endl;
+	cout<<"host::runapp_sync: IO_ARRAY_SIZE: "<<IO_ARRAY_SIZE<<" ---"<<endl;
+	cout<<"host::runapp_sync: TOTAL: "<<ARRAY_SIZE + IO_ARRAY_SIZE<<" ---"<<endl;
+	
+	HBM_channelAXISW_t * vertex_properties[MAX_NUM_UPARTITIONS];
+	unsigned int * vertex_properties_metadata___iteration = new unsigned int[MAX_NUM_UPARTITIONS];
+	for(unsigned int p=0; p<universalparams.NUM_UPARTITIONS + 4; p++){ vertex_properties[p] = new HBM_channelAXISW_t[8192]; }
+	for(unsigned int p=0; p<MAX_NUM_UPARTITIONS; p++){ vertex_properties_metadata___iteration[p] = 0; }
+	
 	checkpoint_t * import_checkpoint_dram = new checkpoint_t[MAX_NUM_UPARTITIONS];
 	checkpoint_t * export_checkpoint_dram = new checkpoint_t[MAX_NUM_UPARTITIONS];
 	for(unsigned int t=0; t<MAX_NUM_UPARTITIONS; t++){
-		import_checkpoint_dram[t].msg = 0;
-		export_checkpoint_dram[t].msg = 0;
+		import_checkpoint_dram[t].msg = 1; import_checkpoint_dram[t].graph_iteration = 0;
+		export_checkpoint_dram[t].msg = 0; export_checkpoint_dram[t].graph_iteration = 0;
 	}	
-		
+	import_checkpoint_dram[0].ptr = 3;
+	export_checkpoint_dram[0].ptr = 0;
+	
 	// prepare OCL variables 
 	#ifdef FPGA_IMPL
     // auto binaryFile = argv[1];
@@ -407,9 +411,9 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 		}
 	}
 	#else 
-	HBM_channelAXISW_t * HBM_import[2]; 
-	HBM_channelAXISW_t * HBM_export[2]; 
-	for(unsigned int n=0; n<1; n++){
+	HBM_channelAXISW_t * HBM_import[MAX_NUM_UPARTITIONS]; 
+	HBM_channelAXISW_t * HBM_export[MAX_NUM_UPARTITIONS]; 
+	for(unsigned int n=0; n<MAX_NUM_UPARTITIONS; n++){
 		HBM_import[n] = new HBM_channelAXISW_t[IMPORT_EXPORT_GRANULARITY_VECSIZE]; 
 		HBM_export[n] = new HBM_channelAXISW_t[IMPORT_EXPORT_GRANULARITY_VECSIZE]; 
 	}
@@ -496,6 +500,7 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 	// run acts
 	action_t action;
 	action.module = ALL_MODULES;
+	action.graph_iteration = 0;
 	action.start_pu = 0; 
 	action.size_pu = universalparams.NUM_UPARTITIONS; 
 	action.start_pv = 0;
@@ -506,23 +511,24 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 	action.size_llpid = EDGE_PACK_SIZE; 
 	action.start_gv = 0; 
 	action.size_gv = NUM_VALID_PEs;
-	action.finish = 1;
+	action.status = 1;
 	
-	unsigned int launch_type = 0; // 0:full run,1:segmented runs 
-	unsigned int num_launches = 1;
+	// unsigned int launch_type = 0; // 0:full run,1:segmented runs 
+	// unsigned int num_launches = 1;
 	
-	// unsigned int launch_type = 1; // 0:full run,1:segmented runs 
-	// unsigned int num_launches = universalparams.NUM_UPARTITIONS; // + universalparams.NUM_APPLYPARTITIONS;
+	unsigned int launch_type = 1; // 0:full run,1:segmented runs 
+	unsigned int num_launches = universalparams.NUM_UPARTITIONS + universalparams.NUM_APPLYPARTITIONS;
 	
 	#ifndef FPGA_IMPL
 	acts_kernel * acts = new acts_kernel(universalparams);
 	#endif 
 	
 	// run kernel
+	// unsigned int partition_exported = 0;
 	std::chrono::steady_clock::time_point begin_time = std::chrono::steady_clock::now();
-	for (unsigned int iteration_idx = 0; iteration_idx < 1; iteration_idx++) {
+	for (unsigned int iteration_idx = 0; iteration_idx < 16; iteration_idx++) {
 		for(unsigned int launch_idx=0; launch_idx<num_launches; launch_idx++){
-			std::cout <<"------------------------- host: launch_idx "<<launch_idx<<" started... -------------------------"<<std::endl;
+			std::cout << endl << TIMINGRESULTSCOLOR <<"-------------------------------- host: GAS iteration: "<<iteration_idx<<", launch_idx "<<launch_idx<<" started... --------------------------------"<< RESET << std::endl;
 			
 			int flag = launch_idx % 2;
 			
@@ -558,17 +564,12 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 			// set scalar arguments
 			std::cout << "Setting Scalar Arguments..." << std::endl;
 			action_t action = _get_action(launch_idx, launch_type, universalparams);
+			action.graph_iteration = iteration_idx;
 			action.size_import_export = IMPORT_EXPORT_GRANULARITY_VECSIZE; // 
-			
-			// ==> move in / <== move out
-			// for(unsigned int t=0; t<MAX_NUM_UPARTITIONS; t++){ if() }
-			// action.import_partition = upartition_status[u_index]; // 
-			// action.export_partition = vpartition_status[v_index]; // 
 			
 			#ifdef FPGA_IMPL
 			_set_args___actions(&krnl_vadd, action, err);
 			#endif 
-			// exit(EXIT_SUCCESS); ///////////////////////
 			
 			// import 
 			#ifdef FPGA_IMPL
@@ -583,11 +584,9 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 				#endif 
 			}
 			double end_time2 = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin_time2).count()) / 1000;	
-			std::cout << TIMINGRESULTSCOLOR <<">>> Host to FPGA Transfer time elapsed : "<<end_time2<<" ms, "<<(end_time2 * 1000)<<" microsecs, "<< RESET << std::endl;
-			#else 
-			_import_host_to_device();	
+			std::cout << TIMINGRESULTSCOLOR <<">>> Host to FPGA Transfer time elapsed : "<<end_time2<<" ms, "<<(end_time2 * 1000)<<" microsecs, "<< RESET << std::endl;		
 			#endif
-
+			
 			// run kernel 
 			printf("Enqueueing NDRange kernel.\n");
 			std::chrono::steady_clock::time_point begin_time1 = std::chrono::steady_clock::now();
@@ -603,38 +602,39 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 				set_callback(kernel_events[flag], "ooo_queue");
 				#endif 			
 			#else 
-			acts->top_function(
-				(HBM_channelAXI_t *)HBM_axichannel[0][0], (HBM_channelAXI_t *)HBM_axichannel[1][0]
-				#if NUM_VALID_HBM_CHANNELS>1
-				,(HBM_channelAXI_t *)HBM_axichannel[0][1], (HBM_channelAXI_t *)HBM_axichannel[1][1] 
-				,(HBM_channelAXI_t *)HBM_axichannel[0][2], (HBM_channelAXI_t *)HBM_axichannel[1][2] 
-				,(HBM_channelAXI_t *)HBM_axichannel[0][3], (HBM_channelAXI_t *)HBM_axichannel[1][3] 
-				,(HBM_channelAXI_t *)HBM_axichannel[0][4], (HBM_channelAXI_t *)HBM_axichannel[1][4] 
-				,(HBM_channelAXI_t *)HBM_axichannel[0][5], (HBM_channelAXI_t *)HBM_axichannel[1][5] 
-				#if NUM_VALID_HBM_CHANNELS>6
-				,(HBM_channelAXI_t *)HBM_axichannel[0][6], (HBM_channelAXI_t *)HBM_axichannel[1][6] 
-				,(HBM_channelAXI_t *)HBM_axichannel[0][7], (HBM_channelAXI_t *)HBM_axichannel[1][7] 
-				,(HBM_channelAXI_t *)HBM_axichannel[0][8], (HBM_channelAXI_t *)HBM_axichannel[1][8] 
-				,(HBM_channelAXI_t *)HBM_axichannel[0][9], (HBM_channelAXI_t *)HBM_axichannel[1][9] 
-				,(HBM_channelAXI_t *)HBM_axichannel[0][10], (HBM_channelAXI_t *)HBM_axichannel[1][10] 
-				,(HBM_channelAXI_t *)HBM_axichannel[0][11], (HBM_channelAXI_t *)HBM_axichannel[1][11]
-				#if NUM_VALID_HBM_CHANNELS>12
-				,(HBM_channelAXI_t *)HBM_axichannel[0][12], (HBM_channelAXI_t *)HBM_axichannel[1][12]
-				#endif 
-				#endif 
-				#endif
-				,(HBM_channelAXI_t *)HBM_axicenter[0], (HBM_channelAXI_t *)HBM_axicenter[1]
-				,(HBM_channelAXI_t *)HBM_import[0], (HBM_channelAXI_t *)HBM_export[0]
-				,import_checkpoint_dram ,export_checkpoint_dram
-				,action.module ,action.start_pu ,action.size_pu ,action.start_pv ,action.size_pv ,action.start_llpset ,action.size_llpset ,action.start_llpid ,action.size_llpid ,action.start_gv ,action.size_gv ,action.size_import_export ,action.finish ,final_edge_updates
-				);	
+			if(export_checkpoint_dram[0].ptr > universalparams.NUM_UPARTITIONS){ cout<<"host: ERROR 377233 export_checkpoint_dram[0].msg ("<<export_checkpoint_dram[0].msg<<") >= universalparams.NUM_UPARTITIONS ("<<universalparams.NUM_UPARTITIONS<<"). EXITING..."<<endl; exit(EXIT_SUCCESS); }
+			if(import_checkpoint_dram[0].ptr > universalparams.NUM_UPARTITIONS){ cout<<"host: ERROR 377233 import_checkpoint_dram[0].msg ("<<export_checkpoint_dram[0].msg<<") >= universalparams.NUM_UPARTITIONS ("<<universalparams.NUM_UPARTITIONS<<"). EXITING..."<<endl; exit(EXIT_SUCCESS); }
+			cout<<"$$$ host: running acts... [import target: partition "<<import_checkpoint_dram[0].ptr<<"][export target: partition "<<export_checkpoint_dram[0].ptr<<"] "<<endl;
+			for(unsigned int n=0; n<NUM_FPGAS; n++){
+				acts->top_function(
+					(HBM_channelAXI_t *)HBM_axichannel[0][0], (HBM_channelAXI_t *)HBM_axichannel[1][0]
+					#if NUM_VALID_HBM_CHANNELS>1
+					,(HBM_channelAXI_t *)HBM_axichannel[0][1], (HBM_channelAXI_t *)HBM_axichannel[1][1] 
+					,(HBM_channelAXI_t *)HBM_axichannel[0][2], (HBM_channelAXI_t *)HBM_axichannel[1][2] 
+					,(HBM_channelAXI_t *)HBM_axichannel[0][3], (HBM_channelAXI_t *)HBM_axichannel[1][3] 
+					,(HBM_channelAXI_t *)HBM_axichannel[0][4], (HBM_channelAXI_t *)HBM_axichannel[1][4] 
+					,(HBM_channelAXI_t *)HBM_axichannel[0][5], (HBM_channelAXI_t *)HBM_axichannel[1][5] 
+					#if NUM_VALID_HBM_CHANNELS>6
+					,(HBM_channelAXI_t *)HBM_axichannel[0][6], (HBM_channelAXI_t *)HBM_axichannel[1][6] 
+					,(HBM_channelAXI_t *)HBM_axichannel[0][7], (HBM_channelAXI_t *)HBM_axichannel[1][7] 
+					,(HBM_channelAXI_t *)HBM_axichannel[0][8], (HBM_channelAXI_t *)HBM_axichannel[1][8] 
+					,(HBM_channelAXI_t *)HBM_axichannel[0][9], (HBM_channelAXI_t *)HBM_axichannel[1][9] 
+					,(HBM_channelAXI_t *)HBM_axichannel[0][10], (HBM_channelAXI_t *)HBM_axichannel[1][10] 
+					,(HBM_channelAXI_t *)HBM_axichannel[0][11], (HBM_channelAXI_t *)HBM_axichannel[1][11] 
+					#if NUM_VALID_HBM_CHANNELS>12
+					,(HBM_channelAXI_t *)HBM_axichannel[0][12], (HBM_channelAXI_t *)HBM_axichannel[1][12]
+					#endif 
+					#endif 
+					#endif
+					,(HBM_channelAXI_t *)HBM_axicenter[0], (HBM_channelAXI_t *)HBM_axicenter[1]
+					,(HBM_channelAXI_t *)HBM_import[import_checkpoint_dram[0].ptr], (HBM_channelAXI_t *)HBM_export[export_checkpoint_dram[0].ptr]
+					,import_checkpoint_dram ,export_checkpoint_dram
+					,action.module ,action.graph_iteration ,action.start_pu ,action.size_pu ,action.start_pv ,action.size_pv ,action.start_llpset ,action.size_llpset ,action.start_llpid ,action.size_llpid ,action.start_gv ,action.size_gv ,action.size_import_export ,action.status ,final_edge_updates
+					);		
+			}
 			#endif 
 			double end_time1 = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin_time1).count()) / 1000;	
 			std::cout << TIMINGRESULTSCOLOR << ">>> kernel time elapsed for iteration "<<iteration_idx<<", launch_idx "<<launch_idx<<" : "<<end_time1<<" ms, "<<(end_time1 * 1000)<<" microsecs, "<< RESET <<std::endl;
-		
-			// ==> move in / <== move out
-			// u_index += 1; // 
-			// v_index += 1; // 
 			
 			// export
 			#ifdef FPGA_IMPL
@@ -654,11 +654,13 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 			}
 			double end_time3 = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin_time3).count()) / 1000;	
 			std::cout << TIMINGRESULTSCOLOR << ">>> FPGA to Host Transfer time elapsed : "<<end_time3<<" ms, "<<(end_time3 * 1000)<<" microsecs, "<< RESET << std::endl;
-			#else 
-			_export_device_to_host();	
 			#endif
 		}
     }
+	
+	for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS + 8; t++){
+		cout<<"host: export_checkpoint_dram["<<t<<"].msg: "<<export_checkpoint_dram[t].msg<<endl;
+	}	
 	
 	double end_time = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin_time).count()) / 1000;	
 	std::cout << TIMINGRESULTSCOLOR <<">>> total kernel time elapsed for all iterations : "<<end_time<<" ms, "<<(end_time * 1000)<<" microsecs, "<< RESET << std::endl;

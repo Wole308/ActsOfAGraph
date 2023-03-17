@@ -41,16 +41,19 @@ APPLY_UPDATES_LOOP1: for(unsigned int t=0; t<max_limit; t++){
 		}
 	}
 	
-	if(t<action.size_import_export){
-		// import (Host -> FPGA)	
+	/* if(perform_import== true && t<action.size_import_export){	
+		// import (Host -> FPGA)
 		{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 		HBM_centerA[import_offset + t].data[{{v}}] = HBM_import[t].data[{{v}}];
 		{%endfor%}	
-		// export (FPGA -> Host)	
+	}		 */		
+	
+	/* if(perform_export== true && t<action.size_import_export){	
+		// export (FPGA -> Host)
 		{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 		HBM_export[t].data[{{v}}] = HBM_centerB[export_offset + t].data[{{v}}];
 		{%endfor%}
-	}		
+	}		 */
 }			
 
 

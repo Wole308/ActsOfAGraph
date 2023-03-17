@@ -1,7 +1,7 @@
 #ifdef _DEBUGMODE_CHECKS3 
 
 #ifdef _DEBUGMODE_KERNELPRINTS4
-if(action.finish == 1){ 
+if(action.status == 1){ 
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"- RESETBUFFERSATSTART"<<endl;
 	cout<<"- READ_FRONTIER_PROPERTIES"<<endl; 
@@ -50,7 +50,8 @@ cout<<endl;
 cout<<endl;
 #endif 
 
-if(action.finish == 1){
+#ifdef _DEBUGMODE_KERNELPRINTS//4
+if(action.status == 1){
 	float total_cycles_iter = 
 	+ _NUMCLOCKCYCLES_[0][___CODE___RESETBUFFERSATSTART___]
 	+ _NUMCLOCKCYCLES_[0][___CODE___PROCESSEDGES___]
@@ -75,4 +76,5 @@ if(action.finish == 1){
 }
 for(unsigned int t=0; t<16; t++){ total_cycles += _NUMCLOCKCYCLES_[0][t]; }
 for(unsigned int t=0; t<16; t++){ _NUMCLOCKCYCLES_[0][t] = 0; }
+#endif 
 #endif

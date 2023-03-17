@@ -5,8 +5,8 @@ unsigned int offsets[NUM_VALID_PEs];
 cout<<"### processing edges in upartition "<<p_u<<": [PEs "; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<n<<", "; } cout<<"]"<<endl; 
 #endif 
 
-unsigned int import_offset = 0;//u_index * action.size_import_export;
-unsigned int export_offset = 0;//v_index * action.size_import_export;
+unsigned int import_offset = u_index * action.size_import_export;
+unsigned int export_offset = v_index * action.size_import_export;
 
 EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_ACTIVE_LLPSETS; llp_set++){	// __NUM_APPLYPARTITIONS
 	EC_PROCESS_EDGES_LOOP1B: for(unsigned int llp_id=0; llp_id<NUM_LLP_PER_LLPSET; llp_id++){ 
@@ -110,28 +110,29 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_ACTIVE_LLPSETS
 				ens[inst][0] = true;	
 			}
 			
-			for(unsigned int n=0; n<NUM_VALID_PEs; n++){ 
+			for(unsigned int n=0; n<NUM_VALID_PEs; n++){ 	
 			#pragma HLS UNROLL
-				offsets3[n] = offsets2[n] + updatesptrs[llp_set].size + counts[n];
-			}	
-
-			#ifdef _DEBUGMODE_CHECKS3
+				offsets3[n] = offsets2[n] + updatesptrs[llp_set].size + counts[n];	
+			}		
+				
+			#ifdef _DEBUGMODE_CHECKS3	
 			checkoutofbounds("acts_kernel::process-edges::ERROR 8813rrr::", offsets3[0], globalparams_debug[GLOBALPARAMSCODE__BASEOFFSET__VDATAS], offsets2[0], updatesptrs[llp_set].size, counts[0]); 
-			// checkoutofbounds("acts_kernel::process-edges::ERROR 8813rrr::", offsets3[0], globalparams_debug[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP], offsets2[0], updatesptrs[llp_set].size, counts[0]); // FIXME.
-			#endif
+			#endif	
 			dinsertmany_updatesdram(offsets3, update_out, ens, {% include '___HBM___ARGS___.template' %});	
 			update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___ECPROCESSEDGES___, 1);
 			
-			if(t<action.size_import_export){	
+			if(perform_import== true && t<action.size_import_export){	
 				// import (Host -> FPGA)
 				{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 				HBM_centerA[import_offset + t].data[{{v}}] = HBM_import[t].data[{{v}}];
 				{%endfor%}	
+			}		
+			if(perform_export== true && t<action.size_import_export){	
 				// export (FPGA -> Host)
 				{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 				HBM_export[t].data[{{v}}] = HBM_centerB[export_offset + t].data[{{v}}];
 				{%endfor%}
-			}		
+			}	
 		}
 		
 		// update variables 

@@ -14,14 +14,15 @@
 {%if(context['RUNNING_SYNTHESIS'] == "1")%}
 #define ___RUNNING_FPGA_SYNTHESIS___
 {%endif%} 
-#define ___ENABLE___DYNAMICGRAPHANALYTICS___
+// #define ___ENABLE___DYNAMICGRAPHANALYTICS___
 #ifndef ___RUNNING_FPGA_SYNTHESIS___
 	#define ___CREATE_ACTPACK_FROM_VECTOR___
 #endif 
 #define NUM_FPGAS 1
 
 #define ALL_MODULES 222
-#define PREPARE_EDGEUPDATES_MODULE 2220
+// #define PREPARE_EDGEUPDATES_MODULE 2220
+#define PREPROCESSING_MODULE 2220
 #define COMMIT_EDGEUPDATES_MODULE 2221
 #define PROCESS_EDGES_MODULE 2220
 #define APPLY_UPDATES_MODULE 2222
@@ -370,13 +371,18 @@ typedef struct {
 	unsigned int count;
 } offset_t;
 
+#define LOCAL_OWNED_VERTEX 0
+#define REMOTE_OWNED_VERTEX 1
+
 typedef struct {
+	unsigned int ptr;
 	unsigned int msg;
-	// bool finish;
+	unsigned int graph_iteration;
 } checkpoint_t;
 
 typedef struct {
 	unsigned int module; 
+	unsigned int graph_iteration;
 	unsigned int start_pu; 
 	unsigned int size_pu; 
 	unsigned int start_pv;
@@ -387,10 +393,8 @@ typedef struct {
 	unsigned int size_llpid; 
 	unsigned int start_gv; 
 	unsigned int size_gv;
-	// unsigned int import_partition;
-	// unsigned int export_partition;
 	unsigned int size_import_export;
-	unsigned int finish;
+	unsigned int status;
 } action_t;
 
 // HBM: {vptrs, edges, updatesptrs, updates, vertexprops, frontiers}

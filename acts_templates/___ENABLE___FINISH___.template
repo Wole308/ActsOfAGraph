@@ -1,5 +1,5 @@
 #ifndef HW // _DEBUGMODE_KERNELPRINTS4
-if(action.finish == 1){
+if(action.status == 1 && all_vertices_active_in_all_iterations == false){
 	for(unsigned int t=0; t<__NUM_UPARTITIONS; t++){ if(hybrid_map[GraphIter][t] == 0){ std::cout<<"V, "; } else if(hybrid_map[GraphIter][t] == 1){ std::cout<<"E, "; } else { std::cout<<"-, "; }} std::cout<<std::endl;
 	std::cout<<""<<std::endl;
 	std::cout<< TIMINGRESULTSCOLOR <<"### GAS iteration: "<<GraphIter + 1<<" ["<<totalactvvs2<<" active vertices]"<< RESET << std::endl; 
