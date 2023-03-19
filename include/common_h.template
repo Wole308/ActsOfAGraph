@@ -393,6 +393,8 @@ typedef struct {
 	unsigned int size_llpid; 
 	unsigned int start_gv; 
 	unsigned int size_gv;
+	unsigned int id_import;
+	unsigned int id_export;
 	unsigned int size_import_export;
 	unsigned int status;
 } action_t;

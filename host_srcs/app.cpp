@@ -221,11 +221,11 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	for(unsigned int i=0; i<NUM_PEs; i++){ cout<<"csr-pack:: PE: 21: act_pack_edges["<<i<<"].size(): "<<csr_pack_edges[i].size()<<endl; }
 	cout<<"app::csr-pack:: max_degree: "<<max_degree<<endl;
 	
-	checkpoint_t * import_checkpoint_dram = new checkpoint_t[MAX_NUM_UPARTITIONS];
-	checkpoint_t * export_checkpoint_dram = new checkpoint_t[MAX_NUM_UPARTITIONS];
+	checkpoint_t * HBM_import_chkpt = new checkpoint_t[MAX_NUM_UPARTITIONS];
+	checkpoint_t * HBM_export_chkpt = new checkpoint_t[MAX_NUM_UPARTITIONS];
 	for(unsigned int t=0; t<MAX_NUM_UPARTITIONS; t++){
-		import_checkpoint_dram[t].msg = 0;
-		export_checkpoint_dram[t].msg = 0;
+		HBM_import_chkpt[t].msg = 0;
+		HBM_export_chkpt[t].msg = 0;
 	}
 
 	// load globalparams: {vptrs, edges, updatesptrs, updates, vertexprops, frontiers}
@@ -723,6 +723,8 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	action.size_llpid = EDGE_PACK_SIZE; 
 	action.start_gv = 0; 
 	action.size_gv = NUM_VALID_PEs;
+	action.id_import = 0;
+	action.id_export = 0;
 	action.size_import_export = IMPORT_EXPORT_GRANULARITY_VECSIZE;
 	action.status = 1;
 	
@@ -759,8 +761,8 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 			#endif
 			,(HBM_channelAXI_t *)HBM_axicenter[0], (HBM_channelAXI_t *)HBM_axicenter[1]
 			,(HBM_channelAXI_t *)HBM_import_export[0], (HBM_channelAXI_t *)HBM_import_export[1]
-			,import_checkpoint_dram ,export_checkpoint_dram
-			,action.module ,0 ,action.start_pu ,action.size_pu ,action.start_pv ,action.size_pv ,action.start_llpset ,action.size_llpset ,action.start_llpid ,action.size_llpid ,action.start_gv ,action.size_gv ,action.size_import_export ,action.status, final_edge_updates
+			,HBM_import_chkpt ,HBM_export_chkpt
+			,action.module ,0 ,action.start_pu ,action.size_pu ,action.start_pv ,action.size_pv ,action.start_llpset ,action.size_llpset ,action.start_llpid ,action.size_llpid ,action.start_gv ,action.size_gv ,action.id_import, action.id_export ,action.size_import_export ,action.status, final_edge_updates
 			); 
 	}
 	// #endif 

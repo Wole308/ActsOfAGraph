@@ -2,8 +2,15 @@
 #define COMMON_H
 #include <string.h> 
 #include <cmath>
+#include <ap_int.h>
+// #include "ap_fixed.h"	
+#include <vector> 
+#include<hls_vector.h> 
+#include<hls_stream.h> 
+#include <iostream>
  
 
+#define ___RUNNING_FPGA_SYNTHESIS___
  
 // #define ___ENABLE___DYNAMICGRAPHANALYTICS___
 #ifndef ___RUNNING_FPGA_SYNTHESIS___
@@ -40,7 +47,7 @@
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
-#define SW // SWEMU, HW, *SW
+#define HW // SWEMU, HW, *SW
 #if (defined(SWEMU) || defined(HW))
 #define FPGA_IMPL
 #endif 
@@ -384,6 +391,8 @@ typedef struct {
 	unsigned int size_llpid; 
 	unsigned int start_gv; 
 	unsigned int size_gv;
+	unsigned int id_import;
+	unsigned int id_export;
 	unsigned int size_import_export;
 	unsigned int status;
 } action_t;

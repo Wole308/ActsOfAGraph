@@ -1,6 +1,6 @@
 uint512_vec_dt updates_vecs[NUM_VALID_PEs];
-unsigned int import_offset = 0;//u_index * action.size_import_export;
-unsigned int export_offset = 0;//v_index * action.size_import_export;
+unsigned int import_offset = id_import * action.size_import_export;
+unsigned int export_offset = id_export * action.size_import_export;
 max_limit = 0; for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ limits[inst] = updatesptrs[p_v].size; } for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ if(max_limit < limits[inst]){ max_limit = limits[inst]; }}
 
 APPLY_UPDATES_LOOP1: for(unsigned int t=0; t<max_limit; t++){			
@@ -41,19 +41,19 @@ APPLY_UPDATES_LOOP1: for(unsigned int t=0; t<max_limit; t++){
 		}
 	}
 	
-	/* if(perform_import== true && t<action.size_import_export){	
-		// import (Host -> FPGA)
+	// import (Host -> FPGA)
+	if(action.id_import != INVALIDDATA && t<action.size_import_export){	
 		{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 		HBM_centerA[import_offset + t].data[{{v}}] = HBM_import[t].data[{{v}}];
 		{%endfor%}	
-	}		 */		
+	}				
 	
-	/* if(perform_export== true && t<action.size_import_export){	
-		// export (FPGA -> Host)
+	// export (FPGA -> Host)
+	if(action.id_export != INVALIDDATA && t<action.size_import_export){	
 		{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 		HBM_export[t].data[{{v}}] = HBM_centerB[export_offset + t].data[{{v}}];
 		{%endfor%}
-	}		 */
+	}		
 }			
 
 

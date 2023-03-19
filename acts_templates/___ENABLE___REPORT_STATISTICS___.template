@@ -47,7 +47,7 @@ cout<<_NUMCLOCKCYCLES_[0][___CODE___NUMBER_OF_EDGEUPDATES_APPLIED___] * EDGE_PAC
 cout<<_NUMCLOCKCYCLES_[0][___CODE___NUMBER_OF_NEW_EDGEUPDATES_ADDED___] * EDGE_PACK_SIZE<<"";
 cout<<"]";
 cout<<endl;
-cout<<endl;
+// cout<<endl;
 #endif 
 
 #ifdef _DEBUGMODE_KERNELPRINTS//4

@@ -48,8 +48,8 @@
 #define MY_IFDEF_VDATABUFFER() vprop_t URAM_vprop[EDGE_PACK_SIZE][MAXVALID_APPLYPARTITION_VECSIZE]
 #define MY_IFDEF_TOPLEVELFUNC() void top_function({% include '___HBM___PARAMS___.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, \
 	HBM_channelAXI_t * HBM_import, HBM_channelAXI_t * HBM_export, \
-	checkpoint_t * import_checkpoint_dram, checkpoint_t * export_checkpoint_dram, \
-	unsigned int module, unsigned int graph_iteration, unsigned int start_pu, unsigned int size_pu, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_gv, unsigned int size_gv, unsigned int size_import_export, unsigned int status)
+	checkpoint_t * HBM_import_chkpt, checkpoint_t * HBM_export_chkpt, \
+	unsigned int module, unsigned int graph_iteration, unsigned int start_pu, unsigned int size_pu, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_gv, unsigned int size_gv, unsigned int id_import ,unsigned int id_export, unsigned int size_import_export, unsigned int status)
 #else
 #define MY_IFDEF_NFRONTIER() keyvalue_t * nfrontier_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_CFRONTIER_TMP() keyvalue_t * URAM_frontiers[EDGE_PACK_SIZE]
@@ -64,8 +64,8 @@
 #define MY_IFDEF_VDATABUFFER() vprop_t * URAM_vprop[EDGE_PACK_SIZE]
 #define MY_IFDEF_TOPLEVELFUNC() void acts_kernel::top_function({% include '___HBM___PARAMS___.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, \
 	HBM_channelAXI_t * HBM_import, HBM_channelAXI_t * HBM_export, \
-	checkpoint_t * import_checkpoint_dram, checkpoint_t * export_checkpoint_dram, \
-	unsigned int module, unsigned int graph_iteration, unsigned int start_pu, unsigned int size_pu, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_gv, unsigned int size_gv, unsigned int size_import_export, unsigned int status, \
+	checkpoint_t * HBM_import_chkpt, checkpoint_t * HBM_export_chkpt, \
+	unsigned int module, unsigned int graph_iteration, unsigned int start_pu, unsigned int size_pu, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_gv, unsigned int size_gv, unsigned int id_import ,unsigned int id_export, unsigned int size_import_export, unsigned int status, \
 	vector<edge3_type> (&final_edge_updates)[NUM_PEs][MAX_NUM_UPARTITIONS][MAX_NUM_LLPSETS])					
 #endif
 
@@ -157,6 +157,8 @@ MY_IFDEF_TOPLEVELFUNC(){
 #pragma HLS INTERFACE m_axi port = HBM_centerB offset = slave bundle = gmem{{2*context['NUM_VALID_HBM_CHANNELS']+1}}
 #pragma HLS INTERFACE m_axi port = HBM_import offset = slave bundle = gmem{{2*context['NUM_VALID_HBM_CHANNELS']+2}}
 #pragma HLS INTERFACE m_axi port = HBM_export offset = slave bundle = gmem{{2*context['NUM_VALID_HBM_CHANNELS']+3}}
+#pragma HLS INTERFACE m_axi port = HBM_import_chkpt offset = slave bundle = gmem{{2*context['NUM_VALID_HBM_CHANNELS']+4}}
+#pragma HLS INTERFACE m_axi port = HBM_export_chkpt offset = slave bundle = gmem{{2*context['NUM_VALID_HBM_CHANNELS']+4}}
 
 {%for i in context['NUM_VALID_HBM_CHANNELS_seq']%}
 #pragma HLS INTERFACE s_axilite port = HBM_channelA{{i}}
@@ -166,6 +168,8 @@ MY_IFDEF_TOPLEVELFUNC(){
 #pragma HLS INTERFACE s_axilite port = HBM_centerB
 #pragma HLS INTERFACE s_axilite port = HBM_import
 #pragma HLS INTERFACE s_axilite port = HBM_export
+#pragma HLS INTERFACE s_axilite port = HBM_import_chkpt
+#pragma HLS INTERFACE s_axilite port = HBM_export_chkpt
 
 #pragma HLS INTERFACE s_axilite port = module
 #pragma HLS INTERFACE s_axilite port = graph_iteration
@@ -179,6 +183,8 @@ MY_IFDEF_TOPLEVELFUNC(){
 #pragma HLS INTERFACE s_axilite port = size_llpid
 #pragma HLS INTERFACE s_axilite port = start_gv
 #pragma HLS INTERFACE s_axilite port = size_gv
+#pragma HLS INTERFACE s_axilite port = id_import
+#pragma HLS INTERFACE s_axilite port = id_export
 #pragma HLS INTERFACE s_axilite port = size_import_export
 #pragma HLS INTERFACE s_axilite port = status
 #pragma HLS INTERFACE s_axilite port = return
@@ -205,6 +211,8 @@ MY_IFDEF_TOPLEVELFUNC(){
 	action.size_llpid = size_llpid; 
 	action.start_gv = start_gv; 
 	action.size_gv = size_gv;
+	action.id_import = id_import;
+	action.id_export = id_export;
 	action.size_import_export = size_import_export;
 	action.status = status;
 	
@@ -298,16 +306,9 @@ MY_IFDEF_TOPLEVELFUNC(){
 				{% include '___ENABLE___RESET_BUFFERS___.template' %}	
 				#endif 
 				
-				// get checkpoint
-				unsigned int v_index = export_checkpoint_dram[0].ptr;
-				unsigned int u_index = import_checkpoint_dram[0].ptr;
-				checkpoint_t v_status = export_checkpoint_dram[v_index];
-				checkpoint_t u_status = import_checkpoint_dram[u_index];
-				bool perform_export = true; if(v_status.msg == 1 && v_index < globalparams[GLOBALPARAMSCODE__PARAM__NUM_UPARTITIONS]){ perform_export = true; } else { perform_export = false; }	
-				bool perform_import = true; if(u_status.msg == 1 && u_index < globalparams[GLOBALPARAMSCODE__PARAM__NUM_UPARTITIONS]){ perform_import = true; } else { perform_import = false; }
 				#ifdef _DEBUGMODE_KERNELPRINTS4	
-				if(perform_export == true){ cout<< TIMINGRESULTSCOLOR << "<-- exporting vpartition: "<<v_index<<"..."<< RESET <<endl; }	 
-				if(perform_import == true){ cout<< TIMINGRESULTSCOLOR << "--> importing upartition: "<<u_index<<"..."<< RESET <<endl; }	
+				if(action.id_import != INVALIDDATA){ cout<< TIMINGRESULTSCOLOR << "<-- exporting vpartition: "<<action.id_import<<"..."<< RESET <<endl; }	 
+				if(action.id_export != INVALIDDATA){ cout<< TIMINGRESULTSCOLOR << "--> importing upartition: "<<action.id_export<<"..."<< RESET <<endl; }	
 				#endif 
 				
 				// process-edges and partition-updates
@@ -315,22 +316,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 				if(___ENABLE___PROCESSEDGES___BOOL___ == 1){ 
 					{% include '___ENABLE___PROCESS_EDGES___.template' %}		
 				}
-				#endif		
-				
-				// update checkpoint
-				#ifndef FPGA_IMPL
-				checkoutofbounds("set checkpoint::ERROR 863::", v_index, MAX_NUM_UPARTITIONS, NAp, NAp, NAp);
 				#endif
-				if(perform_export == true){
-					v_index += 1;
-					if(v_index >= globalparams[GLOBALPARAMSCODE__PARAM__NUM_UPARTITIONS]){ v_index = 0; }
-					export_checkpoint_dram[0].ptr = v_index;
-				}
-				if(perform_import == true){
-					u_index += 1;
-					if(u_index >= globalparams[GLOBALPARAMSCODE__PARAM__NUM_UPARTITIONS]){ u_index = 0; }
-					import_checkpoint_dram[0].ptr = u_index;
-				}	
 			}
 			}
 			#endif 
@@ -373,13 +359,10 @@ MY_IFDEF_TOPLEVELFUNC(){
 					}
 					#endif 
 					
-					// get checkpoint
-					/* unsigned int v_index = export_checkpoint_dram[0].msg;		
-					checkpoint_t v_status = export_checkpoint_dram[1 + v_index];		
-					bool perform_export = true; if(v_status.msg == 1 && v_status.graph_iteration == action.graph_iteration - 1 && v_index < globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]){ perform_export = true; } else { perform_export = false; }	
 					#ifdef _DEBUGMODE_KERNELPRINTS4
-					if(perform_export == true){ cout<<"<-- exporting vpartition: "<<v_index<<"..."<<endl; }	
-					#endif  */
+					if(action.id_import != INVALIDDATA){ cout<< TIMINGRESULTSCOLOR << "<-- exporting vpartition: "<<action.id_import<<"..."<< RESET <<endl; }	 
+					if(action.id_export != INVALIDDATA){ cout<< TIMINGRESULTSCOLOR << "--> importing upartition: "<<action.id_export<<"..."<< RESET <<endl; }	
+					#endif 
 					
 					// apply updates [done]
 					#ifdef ___ENABLE___APPLYUPDATES___II1___ 
@@ -387,16 +370,6 @@ MY_IFDEF_TOPLEVELFUNC(){
 						{% include '___ENABLE___APPLYUPDATES___.template' %}	 
 					}
 					#endif 
-					
-					// update checkpoint
-					/* #ifndef FPGA_IMPL
-					checkoutofbounds("set checkpoint::ERROR 863::", v_index, MAX_NUM_UPARTITIONS, NAp, NAp, NAp);
-					#endif
-					if(perform_export == true){
-						checkpoint_t status; status.msg = 0; status.graph_iteration = action.graph_iteration; 
-						export_checkpoint_dram[1 + v_index] = status; v_index += 1;
-						export_checkpoint_dram[0].msg = v_index;
-					}	 */
 					
 					// collect and save frontier information
 					#ifdef ___ENABLE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES___
@@ -431,8 +404,8 @@ MY_IFDEF_TOPLEVELFUNC(){
 						#ifdef _DEBUGMODE_KERNELPRINTS4
 						cout<< TIMINGRESULTSCOLOR << "<<< transferring vpartition: "<<(p_v * NUM_SUBPARTITION_PER_PARTITION) + local_subpartitionID<<"..."<< RESET <<endl;	
 						#endif 
-						export_checkpoint_dram[(p_v * NUM_SUBPARTITION_PER_PARTITION) + local_subpartitionID].msg = 1;
-						export_checkpoint_dram[(p_v * NUM_SUBPARTITION_PER_PARTITION) + local_subpartitionID].graph_iteration = action.graph_iteration;
+						HBM_export_chkpt[(p_v * NUM_SUBPARTITION_PER_PARTITION) + local_subpartitionID].msg = 1;
+						HBM_export_chkpt[(p_v * NUM_SUBPARTITION_PER_PARTITION) + local_subpartitionID].graph_iteration = action.graph_iteration;
 					}
 				}
 			}

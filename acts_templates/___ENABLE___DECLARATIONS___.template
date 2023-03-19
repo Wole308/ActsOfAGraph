@@ -38,12 +38,18 @@
 	#pragma HLS ARRAY_PARTITION variable=URAM_edgeupdates complete dim=2	
 	#endif 
 	
-	#ifdef _____DEBUG_____
 	map_t URAM_map[NUM_VALID_PEs][EDGE_PACK_SIZE][EDGE_UPDATES_DRAMBUFFER_SIZE];
 	#pragma HLS resource variable=URAM_map core=XPM_MEMORY uram 
 	#pragma HLS ARRAY_PARTITION variable=URAM_map complete dim=1	
 	#pragma HLS ARRAY_PARTITION variable=URAM_map complete dim=2	
-	#endif
+	
+	// #ifdef NUM_FPGAS>1	
+	keyvalue_t URAM_updates[NUM_VALID_PEs][EDGE_PACK_SIZE][8192];	
+	#pragma HLS resource variable=URAM_updates core=XPM_MEMORY uram 
+	#pragma HLS ARRAY_PARTITION variable=URAM_updates complete dim=1	
+	#pragma HLS ARRAY_PARTITION variable=URAM_updates complete dim=2		
+	// #endif 
+	
 #else 
 	keyvalue_t * nfrontier_buffer[NUM_VALID_PEs][EDGE_PACK_SIZE]; 
 	keyvalue_t * URAM_frontiers[EDGE_PACK_SIZE]; 
@@ -55,11 +61,10 @@
 	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
 	edge_update_type * URAM_edgeupdates[NUM_VALID_PEs][EDGE_PACK_SIZE];
 	#endif 
-	#ifdef _____DEBUG_____
 	map_t * URAM_map[NUM_VALID_PEs][EDGE_PACK_SIZE];
-	#endif
 	keyvalue_t * updates_buffer2[NUM_VALID_PEs][UPDATES_BUFFER_PACK_SIZE]; 
 	vprop_t * URAM_vprop[NUM_VALID_PEs][EDGE_PACK_SIZE];
+	keyvalue_t * URAM_updates[NUM_VALID_PEs][EDGE_PACK_SIZE];	
 	for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ nfrontier_buffer[i][v] = new keyvalue_t[VDATA_SUBPARTITION_VECSIZE]; }}
 	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ URAM_frontiers[v] = new keyvalue_t[MAX_APPLYPARTITION_VECSIZE]; }	
 	for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ statsbuffer_maskbased_tmp[i][v] = new unsigned int[BLOCKRAM_SIZE]; }}
@@ -70,11 +75,10 @@
 	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
 	for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ URAM_edgeupdates[i][v] = new edge_update_type[EDGE_UPDATES_DRAMBUFFER_SIZE]; }}
 	#endif 
-	#ifdef _____DEBUG_____
 	for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ URAM_map[i][v] = new map_t[EDGE_UPDATES_DRAMBUFFER_SIZE]; }}
-	#endif 
 	for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<UPDATES_BUFFER_PACK_SIZE; v++){ updates_buffer2[i][v] = new keyvalue_t[UPDATES_BUFFER_SIZE]; }}
 	for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ URAM_vprop[i][v] = new vprop_t[MAXVALID_APPLYPARTITION_VECSIZE]; }}
+	for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ URAM_updates[i][v] = new keyvalue_t[8192]; }}
 #endif 
 
 #ifdef FPGA_IMPL	
