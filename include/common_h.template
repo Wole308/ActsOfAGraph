@@ -18,7 +18,7 @@
 #ifndef ___RUNNING_FPGA_SYNTHESIS___
 	#define ___CREATE_ACTPACK_FROM_VECTOR___
 #endif 
-#define NUM_FPGAS 1
+#define NUM_FPGAS 2
 
 #define ALL_MODULES 222
 // #define PREPARE_EDGEUPDATES_MODULE 2220

@@ -62,14 +62,6 @@ app::~app(){
 	cout<<"app::~app:: finish destroying memory structures... "<<endl;
 }
 
-unsigned int get_local3(unsigned int vid){
-	unsigned int W = (FOLD_SIZE * EDGE_PACK_SIZE) * NUM_PEs;
-	unsigned int y = vid / W; 
-	unsigned int x = vid % (FOLD_SIZE * EDGE_PACK_SIZE);
-	unsigned int lvid = (y * (FOLD_SIZE * EDGE_PACK_SIZE)) + x;
-	return lvid;
-}
-
 universalparams_t app::get_universalparams(std::string algo, unsigned int numiterations, unsigned int rootvid, unsigned int num_vertices, unsigned int num_edges, bool graphisundirected){
 	universalparams_t universalparams;
 	// algorithm * algorithmobj = new algorithm();
@@ -404,14 +396,19 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		unsigned int index = 0;
 		unsigned int base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS];
 		for(unsigned int t=0; t<MAX_NUM_LLPSETS; t++){
-			if(false){ if(i==0){ cout<<"maxs["<<t<<"].key: "<<maxs[t].key<<", maxs["<<t<<"].value: "<<maxs[t].value<<endl; }}
-			HBM_channel[i][base_offset + t].data[0] = maxs[t].key;
-			HBM_channel[i][base_offset + t].data[1] = 0; /////////////
+			if(true){ if(i==0){ cout<<"maxs["<<t<<"].key: "<<maxs[t].key<<", maxs["<<t<<"].value: "<<maxs[t].value<<endl; }}
+			// HBM_channel[i][base_offset + t].data[0] = maxs[t].key;
+			// HBM_channel[i][base_offset + t].data[1] = 0; /////////////
 			if(i==0){ size_u32 += HBM_AXI_PACK_SIZE; }
 		}
 	}
 	unsigned int max_num_updates = maxs[MAX_NUM_LLPSETS-1].key;
 	if(true){ cout<<"app: max_num_updates: "<<max_num_updates<<endl; }
+	
+	// size_u32 = MAX_NUM_LLPSETS * HBM_AXI_PACK_SIZE;
+	// unsigned int max_num_updates2 = universalparams.NUM_EDGES / NUM_PEs / EDGE_PACK_SIZE;
+	// cout<<"app: max_num_updates2: "<<max_num_updates2<<endl; 
+	// exit(EXIT_SUCCESS);
 	
 	// load raw edge updates
 	cout<<"loading raw edge updates..."<<endl;

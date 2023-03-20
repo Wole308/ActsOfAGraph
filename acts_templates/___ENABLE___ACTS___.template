@@ -314,7 +314,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 				// process-edges and partition-updates
 				#ifdef ___ENABLE___ECPROCESSEDGES___II1___		
 				if(___ENABLE___PROCESSEDGES___BOOL___ == 1){ 
-					{% include '___ENABLE___PROCESS_EDGES___.template' %}		
+					{% include '___ENABLE___PROCESS2_EDGES___.template' %}		
 				}
 				#endif
 			}

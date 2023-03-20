@@ -9,22 +9,19 @@ act_pack::~act_pack(){}
 
 unsigned int get_H2(unsigned int vid){
 	return (vid % (FOLD_SIZE * EDGE_PACK_SIZE * NUM_PEs)) / (FOLD_SIZE * EDGE_PACK_SIZE);
+	// return vid % NUM_PEs;
+	// return utilityobj->get_H(vid);
 }
-unsigned int get_local2(unsigned int vid){
+/* unsigned int get_local2(unsigned int vid){
 	unsigned int W = (FOLD_SIZE * EDGE_PACK_SIZE) * NUM_PEs;
 	unsigned int y = vid / W; 
 	unsigned int x = vid % (FOLD_SIZE * EDGE_PACK_SIZE);
 	unsigned int lvid = (y * (FOLD_SIZE * EDGE_PACK_SIZE)) + x;
 	return lvid;
+} */
+unsigned int get_local2(unsigned int vid){
+	return (vid % NUM_PEs) / NUM_PEs;
 }
-
-// unsigned int get_H2(unsigned int vid){ // NEWCHANGE. FIXME.
-	// return vid % NUM_PEs;
-// }
-// unsigned int get_local2(unsigned int vid){
-	// return vid / NUM_PEs;
-// }
-
 /* unsigned int get_global2(unsigned int lvid, unsigned int H){
 	unsigned int W = (FOLD_SIZE * EDGE_PACK_SIZE) * NUM_PEs;
 	unsigned int y2 = lvid / (FOLD_SIZE * EDGE_PACK_SIZE);
@@ -157,14 +154,13 @@ void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedat
 				edge3_type edge = edgesin_srcvp[v_p][t];
 				unsigned int local_dstvid = get_local2(edge.dstvid);
 				unsigned int ll_p = local_dstvid / vsize_LLP;
-				
 				unsigned int newll_p = ((ll_p / EDGE_PACK_SIZE) * EDGE_PACK_SIZE) + (local_dstvid % EDGE_PACK_SIZE);
 				#ifdef _DEBUGMODE_HOSTCHECKS3
 				utilityobj->checkoutofbounds("act_pack::ERROR 23::", newll_p, num_LLPs, local_dstvid, vsize_LLP, ll_p);
+				// if(local_dstvid % EDGE_PACK_SIZE != newll_p){ cout<<"act-pack:   ll_p: "<<ll_p<<", local_dstvid("<<local_dstvid<<") % EDGE_PACK_SIZE("<<EDGE_PACK_SIZE<<")(="<<local_dstvid % EDGE_PACK_SIZE<<") != newll_p("<<newll_p<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }
 				#endif 
-				edgesin_srcvp_lldstvp[newll_p].push_back(edge);
 				
-				// edgesin_srcvp_lldstvp[ll_p].push_back(edge);
+				edgesin_srcvp_lldstvp[newll_p].push_back(edge);
 			}
 			if(false){ cout<<"act_pack[STAGE 2 check]:: {srcvid, dstvid}"<<endl; }
 			
@@ -246,7 +242,7 @@ void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedat
 								}
 							}
 						}
-						#endif	
+						#endif
 						
 						#ifdef _DEBUGMODE_CHECKS3
 						edge3_vec_dt edge_vec_test = edge_vec3;
@@ -265,7 +261,7 @@ void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedat
 								}
 							}
 						}
-						#endif	
+						#endif
 
 						// load to act_pack buffer
 						act_pack_edges[i].push_back(edge_vec3);
@@ -334,7 +330,7 @@ void act_pack::pack(vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedat
 	for(unsigned int v_p=0; v_p<num_vPs; v_p++){ edgesin_srcvp[v_p].clear(); } 
 	for(unsigned int ll_p=0; ll_p<num_LLPs; ll_p++){ edgesin_srcvp_lldstvp[ll_p].clear(); } 
 	for(unsigned int ll_p=0; ll_p<num_LLPs; ll_p++){ for(unsigned int p=0; p<universalparams.NUM_PARTITIONS; p++){ edgesin_srcvp_lldstvp_srcv2p[ll_p][p].clear(); }} 
-	// exit(EXIT_SUCCESS);
+	exit(EXIT_SUCCESS);
 	return;
 }
 
@@ -407,6 +403,18 @@ void act_pack::load_edgeupdates(vector<edge_t> &vertexptrbuffer, vector<edge3_ty
 			edgesin_srcvp[vP].push_back(edge);
 		}
 		
+		/* for(unsigned int v_p=0; v_p<universalparams.NUM_UPARTITIONS; v_p++){
+			// within a v-partition, partition into last-level-partition sets (LLP sets) 
+			if(debug){ cout<<"load_edgeupdates: STAGE 2: [i: "<<i<<", v-partition "<<v_p<<"] => partition into last-level-partitions (LLPsets)"<<endl; } 
+			for(unsigned int t=0; t<edgesin_srcvp[v_p].size(); t++){
+				edge3_type edge = edgesin_srcvp[v_p][t];
+				unsigned int local_dstvid = get_local2(edge.dstvid);
+				unsigned int llp_set = local_dstvid / MAX_APPLYPARTITION_SIZE;
+				final_edge_updates[i][v_p][llp_set].push_back(edge);
+			}
+			if(false){ cout<<"act_pack[STAGE 2 check]:: {srcvid, dstvid}"<<endl; }
+		} // iteration end: v_p */
+		
 		for(unsigned int v_p=0; v_p<universalparams.NUM_UPARTITIONS; v_p++){
 			// within a v-partition, partition into last-level-partition sets (LLP sets) 
 			if(debug){ cout<<"load_edgeupdates: STAGE 2: [i: "<<i<<", v-partition "<<v_p<<"] => partition into last-level-partitions (LLPsets)"<<endl; } 
@@ -414,12 +422,6 @@ void act_pack::load_edgeupdates(vector<edge_t> &vertexptrbuffer, vector<edge3_ty
 				edge3_type edge = edgesin_srcvp[v_p][t];
 				unsigned int local_dstvid = get_local2(edge.dstvid);
 				unsigned int llp_set = local_dstvid / MAX_APPLYPARTITION_SIZE;
-				edge.dstvid = local_dstvid; //////////////////////////////////////////
-				if(edge.dstvid != INVALIDDATA){
-					if(i==0 && edge.dstvid % NUM_FPGAS == 1){ //////////////////////
-						// cout<<"---------------- load_edgeupdates: v_p: "<<v_p<<", edge.dstvid("<<edge.dstvid<<") % NUM_FPGAs == 1. EXITING..."<<endl; exit(EXIT_SUCCESS);
-					}
-				}
 				final_edge_updates[i][v_p][llp_set].push_back(edge);
 			}
 			if(false){ cout<<"act_pack[STAGE 2 check]:: {srcvid, dstvid}"<<endl; }

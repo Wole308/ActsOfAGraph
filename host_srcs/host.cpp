@@ -548,11 +548,11 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 	action.size_gv = NUM_VALID_PEs;
 	action.status = 1;
 	
-	// unsigned int launch_type = 0; // 0:full run,1:segmented runs 
-	// unsigned int num_launches = 1;
+	unsigned int launch_type = 0; // 0:full run,1:segmented runs 
+	unsigned int num_launches = 1;
 	
-	unsigned int launch_type = 1; // 0:full run,1:segmented runs 
-	unsigned int num_launches = universalparams.NUM_UPARTITIONS + universalparams.NUM_APPLYPARTITIONS;
+	// unsigned int launch_type = 1; // 0:full run,1:segmented runs 
+	// unsigned int num_launches = universalparams.NUM_UPARTITIONS + universalparams.NUM_APPLYPARTITIONS;
 	
 	#ifndef FPGA_IMPL
 	acts_kernel * acts = new acts_kernel(universalparams);
@@ -650,7 +650,7 @@ long double host::runapp(action_t action__, std::string binaryFile__[2], HBM_cha
 				set_callback(kernel_events[flag], "ooo_queue");
 				#endif 			
 			#else 
-			for(unsigned int n=0; n<NUM_FPGAS; n++){
+			for(unsigned int n=0; n<1; n++){ // NUM_FPGAS
 				acts->top_function(
 					(HBM_channelAXI_t *)HBM_axichannel[0][0], (HBM_channelAXI_t *)HBM_axichannel[1][0]
 					#if NUM_VALID_HBM_CHANNELS>1
