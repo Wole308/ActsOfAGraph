@@ -621,16 +621,35 @@ MY_IFDEF_CREATE_ACTPACK(){
 				vertex_updates2_map[fpga][t].size = 0;	
 			}
 		}
-		for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]+1; t++){	
-			save_vupdate_map(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS], t, vertex_updates_map[t], {% include '___HBM___ARGS___.template' %});
+		/* for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]+1; t++){	
+			// save_vupdate_map(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS], t, vertex_updates_map[t], {% include '___HBM___ARGS___.template' %});
 			for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){	
 				save_vupdate_map(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS], (fpga * MAX_NUM_LLPSETS) + t, vertex_updates_map[t], {% include '___HBM___ARGS___.template' %});
+			}
+		}	 */		
+		for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){
+			for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]; t++){		
+				save_vupdate_map(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS], (fpga * MAX_NUM_LLPSETS) + t, vertex_updates2_map[fpga][t], {% include '___HBM___ARGS___.template' %});
 			}
 		}	
 	}
 	#endif	
+	
+	
+	
+	// load vertex-updates map 
+	map_t updatesptrs[NUM_FPGAS][MAX_NUM_LLPSETS];
+	LOAD_UPDATEPTRS_lOOP1: for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){
+		LOAD_UPDATEPTRS_lOOP1B: for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]; t++){	
+		#pragma HLS PIPELINE II=1
+			updatesptrs[fpga][t] = load_vupdate_map(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS], (fpga * MAX_NUM_LLPSETS) + t, {% include '___HBM___ARGS___.template' %});	
+			#ifdef _DEBUGMODE_KERNELPRINTS4
+			cout<<"!!!!!!!!!!: updatesptrs["<<fpga<<"]["<<t<<"].offset: "<<updatesptrs[fpga][t].offset<<", updatesptrs["<<fpga<<"]["<<t<<"].size: "<<updatesptrs[fpga][t].size<<endl;
+			#endif 
+		}
+	}
 	// cout<<"finish~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: TOTALL_INVALIDS___: "<<TOTALL_INVALIDS___<<", TOTALL___: "<<TOTALL___<<", TOTALL___ * EDGE_PACK_SIZE: "<<TOTALL___ * EDGE_PACK_SIZE<<endl;
-	// exit(EXIT_SUCCESS);
+	exit(EXIT_SUCCESS);
 }
 // exit(EXIT_SUCCESS);
 

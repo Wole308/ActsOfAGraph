@@ -234,10 +234,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 		LOAD_UPDATEPTRS_lOOP1B: for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]+1; t++){	
 		#pragma HLS PIPELINE II=1
 			updatesptrs[fpga][t] = load_vupdate_map(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS], (fpga * MAX_NUM_LLPSETS) + t, {% include '___HBM___ARGS___.template' %});	
-			// cout<<"--------------------------------^^^^^^^^^^^^^^^ acts. action.start_pu: "<<action.start_pu<<".  ------------------"<<endl;
-			if((action.module == ALL_MODULES || action.module == PROCESS_EDGES_MODULE) && action.start_pu == 0){ 
-				// cout<<"------------------------------------------------------------------------------------------------------------ acts. resetting updates ptr ------------------"<<endl;
-				updatesptrs[fpga][t].size = 0; }		
+			if((action.module == ALL_MODULES || action.module == PROCESS_EDGES_MODULE) && action.start_pu == 0){ updatesptrs[fpga][t].size = 0; }		
 			#ifdef _DEBUGMODE_KERNELPRINTS4
 			cout<<"start: updatesptrs["<<fpga<<"]["<<t<<"].offset: "<<updatesptrs[fpga][t].offset<<", updatesptrs["<<fpga<<"]["<<t<<"].size: "<<updatesptrs[fpga][t].size<<endl;
 			#endif 

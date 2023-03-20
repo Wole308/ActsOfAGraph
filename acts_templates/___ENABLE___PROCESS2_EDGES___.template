@@ -101,7 +101,7 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_ACTIVE_LLPSETS
 							unsigned int fpga = update_out[inst][v].key % NUM_FPGAS; // FIXME?
 							URAM_updates[inst][v][(fpga * batch_size) + offset_fpga[inst][v][fpga].size] = update_out[inst][v];
 							offset_fpga[inst][v][fpga].size += 1;
-							if(p_u==0 && llp_set==0 && llp_id==0 && t<128){ cout<<"~~~ update_out["<<inst<<"]["<<v<<"].key: "<<update_out[inst][v].key<<", fpga: "<<fpga<<endl; }
+							// if(p_u==0 && llp_set==0 && llp_id==0 && t<128){ cout<<"~~~ update_out["<<inst<<"]["<<v<<"].key: "<<update_out[inst][v].key<<", fpga: "<<fpga<<endl; }
 							#ifdef _DEBUGMODE_CHECKS3	
 							checkoutofbounds("acts_kernel::process-edges::ERROR 8873rrr::", offset_fpga[inst][v][fpga].size, 8192, NAp, offset_fpga[inst][v][fpga].offset, NAp); 
 							#endif
