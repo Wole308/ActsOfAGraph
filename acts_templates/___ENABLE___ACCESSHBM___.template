@@ -508,11 +508,10 @@ void dinsertmany_updatesdram(unsigned int offsets[NUM_VALID_PEs], keyvalue_t dat
 	}
 	master_insertmany_Bvec(offsets, ens_, data_, {% include '___HBM___ARGS___.template' %}); // CRITICAL FIXME. the issue.
 }
-void dretrievemany_udatesdram(unsigned int offset__, unsigned int llp_set, unsigned int index, uint512_vec_dt data[NUM_VALID_PEs], {% include '___HBM___PARAMS___.template' %}, map_t updatesptrs[MAX_NUM_LLPSETS]){
+void dretrievemany_udatesdram(unsigned int offset__, unsigned int llp_set, unsigned int index, uint512_vec_dt data[NUM_VALID_PEs], {% include '___HBM___PARAMS___.template' %}){
 	#pragma HLS INLINE 
 	#ifdef _DEBUGMODE_CHECKS3
 	unsigned int wwsize = globalparams_debug[GLOBALPARAMSCODE__WWSIZE__VERTEXUPDATES];
-	// checkoutofbounds("acts_kernel::ERROR 710a::", updatesptrs[llp_set].offset + index, updatesptrs[llp_set + 1].offset, llp_set, NAp, NAp); // FIXME.
 	#endif 
 
 	unsigned int data_[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE]; 

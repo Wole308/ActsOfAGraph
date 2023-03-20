@@ -114,7 +114,7 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_ACTIVE_LLPSETS
 			
 			// save vertex updates
 			SAVE_VERTEXUPDATES_MAINLOOP1: for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){
-				#ifdef _DEBUGMODE_KERNELPRINTS4 
+				#ifdef _DEBUGMODE_KERNELPRINTS//4 
 				cout<<"### saving "<<offset_fpga[0][0][fpga].size<<" vertex updates into fpga partition "<<fpga<<"..."<<endl; 
 				#endif 
 				SAVE_VERTEXUPDATES_MAINLOOP1B: for(unsigned int t=0; t<offset_fpga[0][0][fpga].size; t++){ 
@@ -130,11 +130,11 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_ACTIVE_LLPSETS
 					for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 	
 					#pragma HLS UNROLL
 						ens[inst][0] = true;	
-						offsets3[inst] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__VERTEXUPDATES] + updatesptrs[llp_set].offset + updatesptrs[llp_set].size + t;
+						offsets3[inst] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__VERTEXUPDATES] + updatesptrs[fpga][llp_set].offset + updatesptrs[fpga][llp_set].size + t;
 					}
 					
 					#ifdef _DEBUGMODE_CHECKS3	
-					checkoutofbounds("acts_kernel::process-edges::ERROR 8813rrr::", offsets3[0], globalparams_debug[GLOBALPARAMSCODE__BASEOFFSET__VDATAS], NAp, updatesptrs[llp_set].size, NAp); 
+					checkoutofbounds("acts_kernel::process-edges::ERROR 8813rrr::", offsets3[0], globalparams_debug[GLOBALPARAMSCODE__BASEOFFSET__VDATAS], NAp, updatesptrs[fpga][llp_set].size, NAp); 
 					#endif	
 					dinsertmany_updatesdram(offsets3, update_out, ens, {% include '___HBM___ARGS___.template' %});	
 				}
@@ -143,7 +143,7 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_ACTIVE_LLPSETS
 			// update variables 
 			for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){
 			#pragma HLS UNROLL
-				updatesptrs[llp_set].size += offset_fpga[0][0][fpga].size;
+				updatesptrs[fpga][llp_set].size += offset_fpga[0][0][fpga].size;
 			}
 			
 			// collect stats

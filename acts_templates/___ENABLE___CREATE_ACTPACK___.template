@@ -614,7 +614,7 @@ MY_IFDEF_CREATE_ACTPACK(){
 			}
 		}	
 		
-		exit(EXIT_SUCCESS); /////////////
+		// exit(EXIT_SUCCESS); /////////////
 		for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){	
 			for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]+1; t++){	
 				vertex_updates_map[t].size = 0;	
@@ -624,13 +624,13 @@ MY_IFDEF_CREATE_ACTPACK(){
 		for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]+1; t++){	
 			save_vupdate_map(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS], t, vertex_updates_map[t], {% include '___HBM___ARGS___.template' %});
 			for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){	
-				
+				save_vupdate_map(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS], (fpga * MAX_NUM_LLPSETS) + t, vertex_updates_map[t], {% include '___HBM___ARGS___.template' %});
 			}
 		}	
 	}
 	#endif	
-	cout<<"finish~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: TOTALL_INVALIDS___: "<<TOTALL_INVALIDS___<<", TOTALL___: "<<TOTALL___<<", TOTALL___ * EDGE_PACK_SIZE: "<<TOTALL___ * EDGE_PACK_SIZE<<endl;
-	exit(EXIT_SUCCESS);
+	// cout<<"finish~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: TOTALL_INVALIDS___: "<<TOTALL_INVALIDS___<<", TOTALL___: "<<TOTALL___<<", TOTALL___ * EDGE_PACK_SIZE: "<<TOTALL___ * EDGE_PACK_SIZE<<endl;
+	// exit(EXIT_SUCCESS);
 }
 // exit(EXIT_SUCCESS);
 

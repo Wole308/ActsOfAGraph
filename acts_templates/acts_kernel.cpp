@@ -1618,11 +1618,10 @@ void dinsertmany_updatesdram(unsigned int offsets[NUM_VALID_PEs], keyvalue_t dat
 	}
 	master_insertmany_Bvec(offsets, ens_, data_,  HBM_channelA0, HBM_channelB0); // CRITICAL FIXME. the issue.
 }
-void dretrievemany_udatesdram(unsigned int offset__, unsigned int llp_set, unsigned int index, uint512_vec_dt data[NUM_VALID_PEs],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, map_t updatesptrs[MAX_NUM_LLPSETS]){
+void dretrievemany_udatesdram(unsigned int offset__, unsigned int llp_set, unsigned int index, uint512_vec_dt data[NUM_VALID_PEs],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0){
 	#pragma HLS INLINE 
 	#ifdef _DEBUGMODE_CHECKS3
 	unsigned int wwsize = globalparams_debug[GLOBALPARAMSCODE__WWSIZE__VERTEXUPDATES];
-	// checkoutofbounds("acts_kernel::ERROR 710a::", updatesptrs[llp_set].offset + index, updatesptrs[llp_set + 1].offset, llp_set, NAp, NAp); // FIXME.
 	#endif 
 
 	unsigned int data_[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE]; 
@@ -2563,62 +2562,23 @@ MY_IFDEF_CREATE_ACTPACK(){
 				}
 			}
 		}	
-		// for(unsigned int p_u=0; p_u<globalparams[GLOBALPARAMSCODE__PARAM__NUM_UPARTITIONS]; p_u++){	
-			// for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]; t++){ 
-				// for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){
-					// cout<<"finish: vupdates2_map["<<p_u<<"]["<<fpga<<"]["<<t<<"].size: "<<vupdates2_map[p_u][fpga][t].size<<endl;
-					// vertex_updates2_map[fpga][t].size += vupdates2_map[p_u][fpga][t].size; 
-				// }
-			// }
-		// }
 		for(unsigned int t=1; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]+1; t++){	
 			vertex_updates_map[t].offset = vertex_updates_map[t-1].offset + vertex_updates_map[t-1].size;	
 		}	
-		
-		
-		
-		/* unsigned int new_base = 0;
-		for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){		
-			for(unsigned int t=1; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]+1; t++){	
-				vertex_updates2_map[fpga][t].offset = new_base + vertex_updates2_map[fpga][t-1].offset + vertex_updates2_map[fpga][t-1].size;	
-			}	
-			new_base += vertex_updates2_map[fpga][globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]].offset;
-		} */	
-		
-		
 		
 		for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){		
 			for(unsigned int t=1; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]+1; t++){	
 				vertex_updates2_map[fpga][t].offset = vertex_updates2_map[fpga][t-1].offset + vertex_updates2_map[fpga][t-1].size;	
 			}	
 			unsigned int last_index = globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS] - 1;
-			// new_base += vertex_updates2_map[0][last_index].offset + vertex_updates2_map[0][last_index].size; 
 			vertex_updates2_map[fpga+1][0].offset = vertex_updates2_map[fpga][last_index].offset + vertex_updates2_map[fpga][last_index].size; 
 		}	
 		
-		
-		
-		/* unsigned int new_base = 0;
-		for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){		
-			for(unsigned int t=1; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]+1; t++){	
-				vertex_updates2_map[fpga][t].offset = new_base + vertex_updates2_map[fpga][t-1].offset + vertex_updates2_map[fpga][t-1].size; 
-			}	
-			unsigned int last_index = globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS] - 1;
-			// new_base = vertex_updates2_map[fpga][t].offset; // vertex_updates2_map[fpga][t-1].offset + vertex_updates2_map[fpga][t-1].size; 
-			vertex_updates2_map[1][0].offset = vertex_updates2_map[0][last_index].offset + vertex_updates2_map[0][last_index].size; 
-			for(unsigned int t=1; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]+1; t++){	
-				vertex_updates2_map[fpga][t].offset = new_base + vertex_updates2_map[fpga][t-1].offset + vertex_updates2_map[fpga][t-1].size; 
-			}	
-			// new_base += vertex_updates2_map[fpga][globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]].offset;
-		} */
-		
-		
-		
-		
-		
-		
-		
-		
+		for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]+1; t++){	
+			#ifdef _DEBUGMODE_KERNELPRINTS//4
+			cout<<"finish: vertex_updates_map["<<t<<"].offset: "<<vertex_updates_map[t].offset<<", vertex_updates_map["<<t<<"].size: "<<vertex_updates_map[t].size<<endl;
+			#endif
+		}	
 		for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){	
 			#ifdef _DEBUGMODE_KERNELPRINTS4
 			cout<<"finish: offsets for fpga "<<fpga<<endl;
@@ -2630,19 +2590,7 @@ MY_IFDEF_CREATE_ACTPACK(){
 			}
 		}	
 		
-		
-		
-		/* for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]+1; t++){	
-			#ifdef _DEBUGMODE_KERNELPRINTS//4
-			cout<<"finish: vertex_updates_map["<<t<<"].offset: "<<vertex_updates_map[t].offset<<", vertex_updates_map["<<t<<"].size: "<<vertex_updates_map[t].size<<endl;
-			#endif 
-			for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){	
-				#ifdef _DEBUGMODE_KERNELPRINTS4
-				cout<<"finish: [vertex_updates2_map["<<fpga<<"]["<<t<<"].offset: "<<vertex_updates2_map[fpga][t].offset<<", vertex_updates2_map["<<fpga<<"]["<<t<<"].size: "<<vertex_updates2_map[fpga][t].size<<"]"<<endl;
-				#endif 
-			}
-		}	 */
-		exit(EXIT_SUCCESS); /////////////
+		// exit(EXIT_SUCCESS); /////////////
 		for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){	
 			for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]+1; t++){	
 				vertex_updates_map[t].size = 0;	
@@ -2652,13 +2600,13 @@ MY_IFDEF_CREATE_ACTPACK(){
 		for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]+1; t++){	
 			save_vupdate_map(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS], t, vertex_updates_map[t],  HBM_channelA0, HBM_channelB0);
 			for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){	
-				
+				save_vupdate_map(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS], (fpga * MAX_NUM_LLPSETS) + t, vertex_updates_map[t],  HBM_channelA0, HBM_channelB0);
 			}
 		}	
 	}
 	#endif	
-	cout<<"finish~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: TOTALL_INVALIDS___: "<<TOTALL_INVALIDS___<<", TOTALL___: "<<TOTALL___<<", TOTALL___ * EDGE_PACK_SIZE: "<<TOTALL___ * EDGE_PACK_SIZE<<endl;
-	exit(EXIT_SUCCESS);
+	// cout<<"finish~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: TOTALL_INVALIDS___: "<<TOTALL_INVALIDS___<<", TOTALL___: "<<TOTALL___<<", TOTALL___ * EDGE_PACK_SIZE: "<<TOTALL___ * EDGE_PACK_SIZE<<endl;
+	// exit(EXIT_SUCCESS);
 }
 // exit(EXIT_SUCCESS);
 
@@ -3010,7 +2958,7 @@ unsigned int vid_first0[NUM_VALID_PEs];
 unsigned int vid_first1[NUM_VALID_PEs]; 
 #pragma HLS ARRAY_PARTITION variable = vid_first1 complete
 unsigned int globalparams[GLOBALBUFFER_SIZE];
-map_t updatesptrs[MAX_NUM_LLPSETS];
+map_t updatesptrs[NUM_FPGAS][MAX_NUM_LLPSETS];
 unsigned int limits[NUM_VALID_PEs];
 #pragma HLS ARRAY_PARTITION variable = limits complete
 unsigned int max_limits[NUM_VALID_PEs];
@@ -3145,7 +3093,7 @@ MY_LOOP202: for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v
 MY_LOOP203: for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ for(unsigned int p=0; p<MAX_NUM_APPLYPARTITIONS; p++){ updates_buffer___size[i][v][p] = 0; }}}
 MY_LOOP204: for(unsigned int p=0; p<__NUM_UPARTITIONS; p++){ upartition_vertices[p].offset = 0; upartition_vertices[p].size = 0; upartition_vertices[p].count = 0; } upartition_vertices[0].count = 1;
 MY_LOOP205: for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int p=0; p<__NUM_APPLYPARTITIONS; p++){ vpartition_vertices[i][p].offset = 0; vpartition_vertices[i][p].size = 0; vpartition_vertices[i][p].count = 0; }}					
-for(unsigned int p=0; p<__NUM_APPLYPARTITIONS; p++){ updatesptrs[p].size = 0; }
+for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ for(unsigned int p=0; p<__NUM_APPLYPARTITIONS; p++){ updatesptrs[fpga][p].size = 0; }}
 MY_LOOP207: for(unsigned int i=0; i<NUM_VALID_PEs; i++){ vptrbuffer___size[i] = 0; }
 MY_LOOP208: for(unsigned int i=0; i<NUM_VALID_PEs; i++){ edges_buffer___size[i] = 0; }
 #ifndef HW
@@ -3155,16 +3103,18 @@ for(unsigned int i=0; i<MAXNUMGRAPHITERATIONS; i++){ for(unsigned int t=0; t<MAX
 	}
 	
 	// load vertex-updates map 
-	LOAD_UPDATEPTRS_lOOP1: for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]+1; t++){	
-	#pragma HLS PIPELINE II=1
-		updatesptrs[t] = load_vupdate_map(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS], t,  HBM_channelA0, HBM_channelB0);	
-		// cout<<"--------------------------------^^^^^^^^^^^^^^^ acts. action.start_pu: "<<action.start_pu<<".  ------------------"<<endl;
-		if((action.module == ALL_MODULES || action.module == PROCESS_EDGES_MODULE) && action.start_pu == 0){ 
-			// cout<<"------------------------------------------------------------------------------------------------------------ acts. resetting updates ptr ------------------"<<endl;
-			updatesptrs[t].size = 0; }		
-		#ifdef _DEBUGMODE_KERNELPRINTS//4
-		cout<<"start: updatesptrs["<<t<<"].offset: "<<updatesptrs[t].offset<<", updatesptrs["<<t<<"].size: "<<updatesptrs[t].size<<endl;
-		#endif 
+	LOAD_UPDATEPTRS_lOOP1: for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){
+		LOAD_UPDATEPTRS_lOOP1B: for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]+1; t++){	
+		#pragma HLS PIPELINE II=1
+			updatesptrs[fpga][t] = load_vupdate_map(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS], (fpga * MAX_NUM_LLPSETS) + t,  HBM_channelA0, HBM_channelB0);	
+			// cout<<"--------------------------------^^^^^^^^^^^^^^^ acts. action.start_pu: "<<action.start_pu<<".  ------------------"<<endl;
+			if((action.module == ALL_MODULES || action.module == PROCESS_EDGES_MODULE) && action.start_pu == 0){ 
+				// cout<<"------------------------------------------------------------------------------------------------------------ acts. resetting updates ptr ------------------"<<endl;
+				updatesptrs[fpga][t].size = 0; }		
+			#ifdef _DEBUGMODE_KERNELPRINTS4
+			cout<<"start: updatesptrs["<<fpga<<"]["<<t<<"].offset: "<<updatesptrs[fpga][t].offset<<", updatesptrs["<<fpga<<"]["<<t<<"].size: "<<updatesptrs[fpga][t].size<<endl;
+			#endif 
+		}
 	}
 	
 	// turn raw edges into actpact format
@@ -3925,7 +3875,7 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_ACTIVE_LLPSETS
 			
 			// save vertex updates
 			SAVE_VERTEXUPDATES_MAINLOOP1: for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){
-				#ifdef _DEBUGMODE_KERNELPRINTS4 
+				#ifdef _DEBUGMODE_KERNELPRINTS//4 
 				cout<<"### saving "<<offset_fpga[0][0][fpga].size<<" vertex updates into fpga partition "<<fpga<<"..."<<endl; 
 				#endif 
 				SAVE_VERTEXUPDATES_MAINLOOP1B: for(unsigned int t=0; t<offset_fpga[0][0][fpga].size; t++){ 
@@ -3941,11 +3891,11 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_ACTIVE_LLPSETS
 					for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 	
 					#pragma HLS UNROLL
 						ens[inst][0] = true;	
-						offsets3[inst] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__VERTEXUPDATES] + updatesptrs[llp_set].offset + updatesptrs[llp_set].size + t;
+						offsets3[inst] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__VERTEXUPDATES] + updatesptrs[fpga][llp_set].offset + updatesptrs[fpga][llp_set].size + t;
 					}
 					
 					#ifdef _DEBUGMODE_CHECKS3	
-					checkoutofbounds("acts_kernel::process-edges::ERROR 8813rrr::", offsets3[0], globalparams_debug[GLOBALPARAMSCODE__BASEOFFSET__VDATAS], NAp, updatesptrs[llp_set].size, NAp); 
+					checkoutofbounds("acts_kernel::process-edges::ERROR 8813rrr::", offsets3[0], globalparams_debug[GLOBALPARAMSCODE__BASEOFFSET__VDATAS], NAp, updatesptrs[fpga][llp_set].size, NAp); 
 					#endif	
 					dinsertmany_updatesdram(offsets3, update_out, ens,  HBM_channelA0, HBM_channelB0);	
 				}
@@ -3954,7 +3904,7 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_ACTIVE_LLPSETS
 			// update variables 
 			for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){
 			#pragma HLS UNROLL
-				updatesptrs[llp_set].size += offset_fpga[0][0][fpga].size;
+				updatesptrs[fpga][llp_set].size += offset_fpga[0][0][fpga].size;
 			}
 			
 			// collect stats
@@ -4079,15 +4029,16 @@ if(stats_buffer___size[0][p_v] < threshold___activedstvids && enable___collectac
 					// apply updates [done]
 					#ifdef ___ENABLE___APPLYUPDATES___II1___ 
 					if(___ENABLE___APPLYUPDATES___BOOL___ == 1){
+						for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){
 uint512_vec_dt updates_vecs[NUM_VALID_PEs];
 unsigned int import_offset = id_import * action.size_import_export;
 unsigned int export_offset = id_export * action.size_import_export;
-max_limit = 0; for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ limits[inst] = updatesptrs[p_v].size; } for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ if(max_limit < limits[inst]){ max_limit = limits[inst]; }}
+max_limit = 0; for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ limits[inst] = updatesptrs[fpga][p_v].size; } for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ if(max_limit < limits[inst]){ max_limit = limits[inst]; }}
 
 APPLY_UPDATES_LOOP1: for(unsigned int t=0; t<max_limit; t++){			
 #pragma HLS PIPELINE II=1
 // #pragma HLS dependence variable=URAM_vprop type=inter false
-	dretrievemany_udatesdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__VERTEXUPDATES] + updatesptrs[p_v].offset, p_v, t, updates_vecs,  HBM_channelA0, HBM_channelB0, updatesptrs); // NEW
+	dretrievemany_udatesdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__VERTEXUPDATES] + updatesptrs[fpga][p_v].offset, p_v, t, updates_vecs,  HBM_channelA0, HBM_channelB0); // NEW
 	for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
 	#pragma HLS UNROLL
 		if(t < limits[inst]){
@@ -4166,7 +4117,8 @@ APPLY_UPDATES_LOOP1: for(unsigned int t=0; t<max_limit; t++){
 
 
 
-	 
+	
+						}						
 					}
 					#endif 
 					
@@ -4506,11 +4458,13 @@ for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ for(unsigned int p_u=0; p_
 
 	// save state
 	if(action.module == PROCESS_EDGES_MODULE){ //  || action.module == ALL_MODULES){
-		SAVE_UPDATEPTRS_lOOP2: for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]; t++){	
-			save_vupdate_map(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS], t, updatesptrs[t],  HBM_channelA0, HBM_channelB0);
-			#ifdef _DEBUGMODE_KERNELPRINTS//4
-			cout<<"finish: updatesptrs["<<t<<"].offset: "<<updatesptrs[t].offset<<", updatesptrs["<<t<<"].size: "<<updatesptrs[t].size<<endl;
-			#endif 
+		SAVE_UPDATEPTRS_lOOP1: for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){
+			SAVE_UPDATEPTRS_lOOP2: for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]; t++){	
+				save_vupdate_map(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS], (fpga * MAX_NUM_LLPSETS) + t, updatesptrs[fpga][t],  HBM_channelA0, HBM_channelB0);
+				#ifdef _DEBUGMODE_KERNELPRINTS//4
+				cout<<"finish: updatesptrs["<<fpga<<"]["<<t<<"].offset: "<<updatesptrs[fpga][t].offset<<", updatesptrs["<<fpga<<"]["<<t<<"].size: "<<updatesptrs[fpga][t].size<<endl;
+				#endif 
+			}
 		}
 	}
 	

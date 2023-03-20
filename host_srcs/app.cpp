@@ -370,7 +370,8 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		globalparams[GLOBALPARAMSCODE__WWSIZE__ACTPACKVPTRS2] = (size_u32 / HBM_AXI_PACK_SIZE) + 16; // NB: not 'HBM_CHANNEL_PACK_SIZE' because only half of dual-HBM channel is used.
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2] + globalparams[GLOBALPARAMSCODE__WWSIZE__ACTPACKVPTRS2]; 
 	}
-	size_u32 = 0;
+	size_u32 = 0;	
+	/* //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	keyvalue_t updateswwcount[NUM_PEs][MAX_NUM_LLPSETS]; 
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<MAX_NUM_LLPSETS; t++){ updateswwcount[i][t].value = 0; updateswwcount[i][t].key = 0; }}
 	for(unsigned int i=0; i<NUM_PEs; i++){ 
@@ -403,11 +404,13 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		}
 	}
 	unsigned int max_num_updates = maxs[MAX_NUM_LLPSETS-1].key;
-	if(true){ cout<<"app: max_num_updates: "<<max_num_updates<<endl; }
+	if(true){ cout<<"))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))) app: max_num_updates: "<<max_num_updates<<endl; }
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
 	
-	// size_u32 = MAX_NUM_LLPSETS * HBM_AXI_PACK_SIZE;
-	// unsigned int max_num_updates2 = universalparams.NUM_EDGES / NUM_PEs / EDGE_PACK_SIZE;
-	// cout<<"app: max_num_updates2: "<<max_num_updates2<<endl; 
+	size_u32 = NUM_FPGAS * MAX_NUM_LLPSETS * HBM_AXI_PACK_SIZE;
+	unsigned int max_num_updates = (universalparams.NUM_EDGES / NUM_PEs / EDGE_PACK_SIZE) + ((3 * 1024 * 1024) / 16);
+	// cout<<"app: *&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& max_num_updates2: "<<max_num_updates2<<endl; 
+	// cout<<"app: universalparams.NUM_EDGES: "<<universalparams.NUM_EDGES<<", NUM_PEs: "<<NUM_PEs<<endl; 
 	// exit(EXIT_SUCCESS);
 	
 	// load raw edge updates
