@@ -49,7 +49,7 @@
 #define MY_IFDEF_TOPLEVELFUNC() void top_function({% include '___HBM___PARAMS___.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, \
 	HBM_channelAXI_t * HBM_import, HBM_channelAXI_t * HBM_export, \
 	checkpoint_t * HBM_import_chkpt, checkpoint_t * HBM_export_chkpt, \
-	unsigned int module, unsigned int graph_iteration, unsigned int start_pu, unsigned int size_pu, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_gv, unsigned int size_gv, unsigned int id_import ,unsigned int id_export, unsigned int size_import_export, unsigned int status)
+	unsigned int fpga, unsigned int module, unsigned int graph_iteration, unsigned int start_pu, unsigned int size_pu, unsigned int skip_pu, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_gv, unsigned int size_gv, unsigned int id_import ,unsigned int id_export, unsigned int size_import_export, unsigned int status)
 #else
 #define MY_IFDEF_NFRONTIER() keyvalue_t * nfrontier_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_CFRONTIER_TMP() keyvalue_t * URAM_frontiers[EDGE_PACK_SIZE]
@@ -62,10 +62,10 @@
 #define MY_IFDEF_EDGESBUFFER() edge3_type * edges_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_EDGEUPDATESBUFFER() edge_update_type * URAM_edges[EDGE_PACK_SIZE]
 #define MY_IFDEF_VDATABUFFER() vprop_t * URAM_vprop[EDGE_PACK_SIZE]
-#define MY_IFDEF_TOPLEVELFUNC() void acts_kernel::top_function({% include '___HBM___PARAMS___.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, \
+#define MY_IFDEF_TOPLEVELFUNC() unsigned int acts_kernel::top_function({% include '___HBM___PARAMS___.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, \
 	HBM_channelAXI_t * HBM_import, HBM_channelAXI_t * HBM_export, \
 	checkpoint_t * HBM_import_chkpt, checkpoint_t * HBM_export_chkpt, \
-	unsigned int module, unsigned int graph_iteration, unsigned int start_pu, unsigned int size_pu, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_gv, unsigned int size_gv, unsigned int id_import ,unsigned int id_export, unsigned int size_import_export, unsigned int status, \
+	unsigned int fpga, unsigned int module, unsigned int graph_iteration, unsigned int start_pu, unsigned int size_pu, unsigned int skip_pu, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_gv, unsigned int size_gv, unsigned int id_import ,unsigned int id_export, unsigned int size_import_export, unsigned int status, \
 	vector<edge3_type> (&final_edge_updates)[NUM_PEs][MAX_NUM_UPARTITIONS][MAX_NUM_LLPSETS])					
 #endif
 
@@ -171,10 +171,12 @@ MY_IFDEF_TOPLEVELFUNC(){
 #pragma HLS INTERFACE s_axilite port = HBM_import_chkpt
 #pragma HLS INTERFACE s_axilite port = HBM_export_chkpt
 
+#pragma HLS INTERFACE s_axilite port = fpga
 #pragma HLS INTERFACE s_axilite port = module
 #pragma HLS INTERFACE s_axilite port = graph_iteration
 #pragma HLS INTERFACE s_axilite port = start_pu 
 #pragma HLS INTERFACE s_axilite port = size_pu
+#pragma HLS INTERFACE s_axilite port = skip_pu
 #pragma HLS INTERFACE s_axilite port = start_pv
 #pragma HLS INTERFACE s_axilite port = size_pv
 #pragma HLS INTERFACE s_axilite port = start_llpset
@@ -191,18 +193,20 @@ MY_IFDEF_TOPLEVELFUNC(){
 
 	#ifndef ___RUNNING_FPGA_SYNTHESIS___
 	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
-	if(status == 1) { cout<<"acts_kernel::run:: dynamic acts started "<<endl; }
+	if(status == 1) { cout<<"acts_kernel::run:: dynamic acts started: start_pu: "<<start_pu<<", size_pu: "<<size_pu<<", skip_pu: "<<skip_pu<<", start_pv: "<<start_pv<<", size_pv: "<<size_pv<<endl; }
 	#else 
-	if(status == 1) { cout<<"acts_kernel::run:: acts started "<<endl; }	
+	if(status == 1) { cout<<"acts_kernel::run:: acts started: start_pu: "<<start_pu<<", size_pu: "<<size_pu<<", skip_pu: "<<skip_pu<<", start_pv: "<<start_pv<<", size_pv: "<<size_pv<<endl; }	
 	#endif 
 	#endif 
 	
 	// commands from host
 	action_t action;
+	action.fpga = fpga; 
 	action.module = module; 
 	action.graph_iteration = graph_iteration; 
 	action.start_pu = start_pu; 
 	action.size_pu = size_pu; 
+	action.skip_pu = skip_pu; 
 	action.start_pv = start_pv;
 	action.size_pv = size_pv; 
 	action.start_llpset = start_llpset; 
@@ -231,12 +235,15 @@ MY_IFDEF_TOPLEVELFUNC(){
 	
 	// load vertex-updates map 
 	LOAD_UPDATEPTRS_lOOP1: for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){
-		LOAD_UPDATEPTRS_lOOP1B: for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]+1; t++){	
+		#ifdef _DEBUGMODE_KERNELPRINTS4
+		cout<<"acts: offsets for fpga "<<fpga<<endl;
+		#endif 
+		LOAD_UPDATEPTRS_lOOP1B: for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]; t++){	
 		#pragma HLS PIPELINE II=1
 			updatesptrs[fpga][t] = load_vupdate_map(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS], (fpga * MAX_NUM_LLPSETS) + t, {% include '___HBM___ARGS___.template' %});	
 			if((action.module == ALL_MODULES || action.module == PROCESS_EDGES_MODULE) && action.start_pu == 0){ updatesptrs[fpga][t].size = 0; }		
 			#ifdef _DEBUGMODE_KERNELPRINTS4
-			cout<<"start: updatesptrs["<<fpga<<"]["<<t<<"].offset: "<<updatesptrs[fpga][t].offset<<", updatesptrs["<<fpga<<"]["<<t<<"].size: "<<updatesptrs[fpga][t].size<<endl;
+			cout<<"acts: updatesptrs["<<fpga<<"]["<<t<<"].offset: "<<updatesptrs[fpga][t].offset<<", updatesptrs["<<fpga<<"]["<<t<<"].size: "<<updatesptrs[fpga][t].size<<endl;
 			#endif 
 		}
 	}
@@ -247,11 +254,9 @@ MY_IFDEF_TOPLEVELFUNC(){
 		edge_update_type * URAM_edges[NUM_VALID_PEs][EDGE_PACK_SIZE];
 		for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ URAM_edges[i][v] = new edge_update_type[EDGE_UPDATES_DRAMBUFFER_LONGSIZE]; }}
 		if(globalparams[GLOBALPARAMSCODE__COMMANDS__COMMAND0] == 0){ 
-			create_actpack(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES], globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2], URAM_edges, EDGE_UPDATES_DRAMBUFFER_LONGSIZE, EDGE_UPDATES_DRAMBUFFER_LONGSIZE, globalparams, {% include '___HBM___ARGS___.template' %}, final_edge_updates, _NUMCLOCKCYCLES_);		
-			return;
+			return create_actpack(action, globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES], globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2], URAM_edges, EDGE_UPDATES_DRAMBUFFER_LONGSIZE, EDGE_UPDATES_DRAMBUFFER_LONGSIZE, globalparams, {% include '___HBM___ARGS___.template' %}, final_edge_updates, _NUMCLOCKCYCLES_);		
 		} else if(globalparams[GLOBALPARAMSCODE__COMMANDS__COMMAND0] == 1){	
-			create_actpack(globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES], globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS], URAM_edges, EDGE_UPDATES_DRAMBUFFER_SIZE, EDGE_UPDATES_WORKBUFFER_SIZE, globalparams, {% include '___HBM___ARGS___.template' %}, final_edge_updates, _NUMCLOCKCYCLES_);	
-			return;
+			return create_actpack(action, globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES], globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS], URAM_edges, EDGE_UPDATES_DRAMBUFFER_SIZE, EDGE_UPDATES_WORKBUFFER_SIZE, globalparams, {% include '___HBM___ARGS___.template' %}, final_edge_updates, _NUMCLOCKCYCLES_);	
 		}
 		#endif
 	}
@@ -279,7 +284,8 @@ MY_IFDEF_TOPLEVELFUNC(){
 			// process-edges and partition-updates
 			#ifdef ___ENABLE___PROCESSEDGES___
 			if(action.module == PROCESS_EDGES_MODULE || action.module == ALL_MODULES){
-			PROCESS_EDGES_MODULE_LOOP1B: for(unsigned int p_u=action.start_pu; p_u<action.start_pu + action.size_pu; p_u++){ 
+			PROCESS_EDGES_MODULE_LOOP1B: for(unsigned int p_u=action.start_pu; p_u<action.start_pu + action.size_pu; p_u+=action.skip_pu){ 
+			// PROCESS_EDGES_MODULE_LOOP1B: for(unsigned int p_u=0; p_u<globalparams[GLOBALPARAMSCODE__PARAM__NUM_UPARTITIONS]; p_u+=1){ // FIXME.
 				MASK_CODE_PE = ((1 + GraphIter) * MAX_NUM_UPARTITIONS) + p_u;
 				#ifdef _DEBUGMODE_KERNELPRINTS//4 
 				cout<<"$$$ processing edges in upartition "<<p_u<<": [PEs "; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<n<<", "; } cout<<"]"<<endl; 
@@ -347,10 +353,6 @@ MY_IFDEF_TOPLEVELFUNC(){
 				#endif 
 				
 				if(vpartition_vertices[0][p_v].count > 0 || all_vertices_active_in_all_iterations == true){ 
-					#ifndef ___RUNNING_FPGA_SYNTHESIS___
-					if(en == true){ cout<<"### applying updates in vpartition "<<p_v<<"..."<<endl; }
-					#endif
-				
 					// read destination properties
 					#ifdef ___ENABLE___READ_DEST_PROPERTIES___
 					if(___ENABLE___READ_DEST_PROPERTIES___BOOL___ == 1){
@@ -367,7 +369,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 					#ifdef ___ENABLE___APPLYUPDATES___II1___ 
 					if(___ENABLE___APPLYUPDATES___BOOL___ == 1){
 						for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){
-						{% include '___ENABLE___APPLYUPDATES___.template' %}	
+						{% include '___ENABLE___APPLY_VERTEXUPDATES___.template' %}	
 						}						
 					}
 					#endif 
@@ -439,6 +441,6 @@ MY_IFDEF_TOPLEVELFUNC(){
 		{% include '___ENABLE___SUMMARY___.template' %}	
 	}
 	#endif	
-	return;
+	return 0;
 }
 }

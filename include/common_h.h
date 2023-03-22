@@ -372,10 +372,12 @@ typedef struct {
 } checkpoint_t;
 
 typedef struct {
+	unsigned int fpga; 
 	unsigned int module; 
 	unsigned int graph_iteration;
 	unsigned int start_pu; 
 	unsigned int size_pu; 
+	unsigned int skip_pu; 
 	unsigned int start_pv;
 	unsigned int size_pv; 
 	unsigned int start_llpset; 

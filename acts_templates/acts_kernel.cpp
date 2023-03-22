@@ -55,7 +55,7 @@ using namespace std;
 #define MY_IFDEF_TOPLEVELFUNC() void top_function( HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, \
 	HBM_channelAXI_t * HBM_import, HBM_channelAXI_t * HBM_export, \
 	checkpoint_t * HBM_import_chkpt, checkpoint_t * HBM_export_chkpt, \
-	unsigned int module, unsigned int graph_iteration, unsigned int start_pu, unsigned int size_pu, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_gv, unsigned int size_gv, unsigned int id_import ,unsigned int id_export, unsigned int size_import_export, unsigned int status)
+	unsigned int fpga, unsigned int module, unsigned int graph_iteration, unsigned int start_pu, unsigned int size_pu, unsigned int skip_pu, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_gv, unsigned int size_gv, unsigned int id_import ,unsigned int id_export, unsigned int size_import_export, unsigned int status)
 #else
 #define MY_IFDEF_NFRONTIER() keyvalue_t * nfrontier_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_CFRONTIER_TMP() keyvalue_t * URAM_frontiers[EDGE_PACK_SIZE]
@@ -68,10 +68,10 @@ using namespace std;
 #define MY_IFDEF_EDGESBUFFER() edge3_type * edges_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_EDGEUPDATESBUFFER() edge_update_type * URAM_edges[EDGE_PACK_SIZE]
 #define MY_IFDEF_VDATABUFFER() vprop_t * URAM_vprop[EDGE_PACK_SIZE]
-#define MY_IFDEF_TOPLEVELFUNC() void acts_kernel::top_function( HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, \
+#define MY_IFDEF_TOPLEVELFUNC() unsigned int acts_kernel::top_function( HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, \
 	HBM_channelAXI_t * HBM_import, HBM_channelAXI_t * HBM_export, \
 	checkpoint_t * HBM_import_chkpt, checkpoint_t * HBM_export_chkpt, \
-	unsigned int module, unsigned int graph_iteration, unsigned int start_pu, unsigned int size_pu, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_gv, unsigned int size_gv, unsigned int id_import ,unsigned int id_export, unsigned int size_import_export, unsigned int status, \
+	unsigned int fpga, unsigned int module, unsigned int graph_iteration, unsigned int start_pu, unsigned int size_pu, unsigned int skip_pu, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_gv, unsigned int size_gv, unsigned int id_import ,unsigned int id_export, unsigned int size_import_export, unsigned int status, \
 	vector<edge3_type> (&final_edge_updates)[NUM_PEs][MAX_NUM_UPARTITIONS][MAX_NUM_LLPSETS])					
 #endif
 
@@ -1978,145 +1978,15 @@ unsigned int retrieve_stats2buffer(unsigned int t, unsigned int v, MY_IFDEF_STAT
 #ifdef ___RUNNING_FPGA_SYNTHESIS___
 #define MY_IFDEF_SAVE_PARTIALLYPREPARED_EDGEUPDATES() int SAVE_partiallyprepared_edgeupdates(unsigned int base_offset, map_t count[EDGE_PACK_SIZE][EDGE_PACK_SIZE], edge_update_type URAM_edges[EDGE_PACK_SIZE][EDGE_UPDATES_DRAMBUFFER_SIZE], HBM_channelAXI_t * HBM_channelA, HBM_channelAXI_t * HBM_channelB, unsigned int _MAX_BUFFER_SIZE, unsigned int globalparams[GLOBALBUFFER_SIZE], unsigned int _NUMCLOCKCYCLES_[2][32])
 #define MY_IFDEF_SAVE_FULLYPREPARED_EDGEUPDATES() void SAVE_fullyprepared_edgeupdates(unsigned int base_offset, map_t count[EDGE_PACK_SIZE][EDGE_PACK_SIZE], edge_update_type URAM_edges[EDGE_PACK_SIZE][EDGE_UPDATES_DRAMBUFFER_SIZE], map_t * edgeupdate_maps, HBM_channelAXI_t * HBM_channelA, HBM_channelAXI_t * HBM_channelB, unsigned int globalparams[GLOBALBUFFER_SIZE], unsigned int _NUMCLOCKCYCLES_[2][32])
-#define MY_IFDEF_CREATE_ACTPACK() void create_actpack(unsigned int destedgeupdates_baseoffset, unsigned int destedgeupdateptrs_baseoffset, edge_update_type URAM_edges[NUM_VALID_PEs][EDGE_PACK_SIZE][EDGE_UPDATES_DRAMBUFFER_SIZE], unsigned int _MAX_BUFFER_SIZE, unsigned int _MAX_WORKBUFFER_SIZE, unsigned int globalparams[GLOBALBUFFER_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, unsigned int _NUMCLOCKCYCLES_[2][32])
+#define MY_IFDEF_CREATE_ACTPACK() unsigned int create_actpack(action_t action, unsigned int destedgeupdates_baseoffset, unsigned int destedgeupdateptrs_baseoffset, edge_update_type URAM_edges[NUM_VALID_PEs][EDGE_PACK_SIZE][EDGE_UPDATES_DRAMBUFFER_SIZE], unsigned int _MAX_BUFFER_SIZE, unsigned int _MAX_WORKBUFFER_SIZE, unsigned int globalparams[GLOBALBUFFER_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, unsigned int _NUMCLOCKCYCLES_[2][32])
 #else
 #define MY_IFDEF_SAVE_PARTIALLYPREPARED_EDGEUPDATES() int SAVE_partiallyprepared_edgeupdates(unsigned int base_offset, map_t count[EDGE_PACK_SIZE][EDGE_PACK_SIZE], edge_update_type * URAM_edges[EDGE_PACK_SIZE], HBM_channelAXI_t * HBM_channelA, HBM_channelAXI_t * HBM_channelB, unsigned int _MAX_BUFFER_SIZE, unsigned int globalparams[GLOBALBUFFER_SIZE], unsigned int _NUMCLOCKCYCLES_[2][32])
-
-// map_t edgeupdate2_maps[NUM_VALID_PEs][NUM_FPGAS][NUM_LLP_PER_LLPSET]; // FIXME. ADD HLS PRAGMAS?
 #define MY_IFDEF_SAVE_FULLYPREPARED_EDGEUPDATES() void SAVE_fullyprepared_edgeupdates(unsigned int base_offset, map_t count[EDGE_PACK_SIZE][EDGE_PACK_SIZE], edge_update_type * URAM_edges[EDGE_PACK_SIZE], map_t * edgeupdate_maps, map_t edgeupdate2_maps[NUM_FPGAS][NUM_LLP_PER_LLPSET], HBM_channelAXI_t * HBM_channelA, HBM_channelAXI_t * HBM_channelB, unsigned int globalparams[GLOBALBUFFER_SIZE], unsigned int _NUMCLOCKCYCLES_[2][32])
-
-#define MY_IFDEF_CREATE_ACTPACK() void create_actpack(unsigned int destedgeupdates_baseoffset, unsigned int destedgeupdateptrs_baseoffset, edge_update_type * URAM_edges[NUM_VALID_PEs][EDGE_PACK_SIZE], unsigned int _MAX_BUFFER_SIZE, unsigned int _MAX_WORKBUFFER_SIZE, unsigned int globalparams[GLOBALBUFFER_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, vector<edge3_type> (&final_edge_updates)[NUM_PEs][MAX_NUM_UPARTITIONS][MAX_NUM_LLPSETS], unsigned int _NUMCLOCKCYCLES_[2][32])			
+#define MY_IFDEF_CREATE_ACTPACK() unsigned int create_actpack(action_t action, unsigned int destedgeupdates_baseoffset, unsigned int destedgeupdateptrs_baseoffset, edge_update_type * URAM_edges[NUM_VALID_PEs][EDGE_PACK_SIZE], unsigned int _MAX_BUFFER_SIZE, unsigned int _MAX_WORKBUFFER_SIZE, unsigned int globalparams[GLOBALBUFFER_SIZE],  HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, vector<edge3_type> (&final_edge_updates)[NUM_PEs][MAX_NUM_UPARTITIONS][MAX_NUM_LLPSETS], unsigned int _NUMCLOCKCYCLES_[2][32])			
 #endif
 
 unsigned int TOTALL___;
 unsigned int TOTALL_INVALIDS___;
-
-#ifdef ___NOT_YET_IMPLEMENTED___
-MY_IFDEF_SAVE_PARTIALLYPREPARED_EDGEUPDATES(){
-	unsigned int index[EDGE_PACK_SIZE]; for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ index[v] = 0; }
-	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
-		for(unsigned int llp_id=0; llp_id<NUM_LLP_PER_LLPSET; llp_id++){ 
-			for(unsigned int t=count[v][llp_id].offset; t<count[v][llp_id].offset + count[v][llp_id].size; t++){ 
-				edge_update_type edge_update = URAM_edges[v][t]; 
-				unsigned int p = edge_update.srcvid % EDGE_PACK_SIZE;
-				
-				// #ifndef FPGA_IMPL	
-				// checkoutofbounds("acts_kernel::ERROR 2215rrttyy::", index[p], EDGE_UPDATES_DRAMBUFFER_SIZE, NAp, NAp, NAp); 
-				// #endif 	
-				if(p >= 0 && p < EDGE_PACK_SIZE/2){
-					unsigned int loc = p;
-					HBM_channelA[base_offset + index[p]].data[2*loc] = edge_update.srcvid;
-					HBM_channelA[base_offset + index[p]].data[2*loc + 1] = edge_update.dstvid;
-				} else {
-					unsigned int loc = p - EDGE_PACK_SIZE/2;
-					HBM_channelB[base_offset + index[p]].data[2*loc] = edge_update.srcvid;
-					HBM_channelB[base_offset + index[p]].data[2*loc + 1] = edge_update.dstvid;
-				}
-				index[p] += 1;
-				// if(v==0){ index[v] += 1; }
-			}
-		}
-	}
-	
-	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
-	if(index[v] >= index[0]){ continue; }
-	for(unsigned int t=index[v]; t<index[0]; t++){ 
-		if(v >= 0 && v < EDGE_PACK_SIZE/2){
-			unsigned int loc = v;
-			HBM_channelA[base_offset + t].data[2*loc] = INVALIDDATA;
-			HBM_channelA[base_offset + t].data[2*loc + 1] = INVALIDDATA;
-		} else {
-			unsigned int loc = v - EDGE_PACK_SIZE/2;
-			HBM_channelB[base_offset + t].data[2*loc] = INVALIDDATA;
-			HBM_channelB[base_offset + t].data[2*loc + 1] = INVALIDDATA;
-		}
-	}
-	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS//4
-	// for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ checkoutofbounds("acts_kernel::ERROR 2215::", index[v], EDGE_UPDATES_DRAMBUFFER_SIZE, NAp, NAp, NAp); }
-	for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ cout<<">>> save_partiallyprepared_edgeupdates: index["<<v<<"]: "<<index[v]<<endl; }
-	#endif 	
-							
-	#ifdef _DEBUGMODE_KERNELPRINTS//4
-	cout<<">>> save_partiallyprepared_edgeupdates (after-cyclic-rotate): index[0]: "<<index[0]<<endl;
-	#endif 
-	return index[0];
-}
-#endif 
-
-#ifdef ___NOT_YET_IMPLEMENTED___
-MY_IFDEF_SAVE_FULLYPREPARED_EDGEUPDATES(){
-	unsigned int offset_p[EDGE_PACK_SIZE];
-	unsigned int p_[EDGE_PACK_SIZE];
-	edge_update_type edge_update[EDGE_PACK_SIZE];	
-	for(unsigned int llp_id=0; llp_id<EDGE_PACK_SIZE; llp_id++){	
-		unsigned int offset = base_offset + edgeupdate_maps[llp_id].offset + edgeupdate_maps[llp_id].size;
-		for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ p_[v] =  ((llp_id + v) % EDGE_PACK_SIZE); offset_p[v] = count[v][p_[v]].offset; }
-		unsigned int max = 0; for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ if(max < count[v][llp_id].size){ max = count[v][llp_id].size; }}	
-		#ifdef _DEBUGMODE_KERNELPRINTS//4
-		cout<<"save_fullyprepared_edgeupdates: llp_id: "<<llp_id<<endl; for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ cout<<""<<p_[v]<<", "; } cout<<endl;
-		cout<<"save_fullyprepared_edgeupdates: llp_id: "<<llp_id<<endl; for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ cout<<""<<offset_p[v]<<", "; } cout<<endl;
-		#endif 
-		
-		SAVE_FULLYPREPARED_EDGEUPDATES: for(unsigned int t=0; t<max; t++){	// max // REMOVEME. // max // EDGE_UPDATES_DRAMBUFFER_SIZE / EDGE_PACK_SIZE
-		#pragma HLS PIPELINE II=1
-			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 	
-			#pragma HLS UNROLL
-				// if(t < count[v][p_[v]].size){ edge_update[v] = retrieve_edgeupdatesbuffer(v, offset_p[v] + t, URAM_edges); } // FIXME. SIMPLIFYME.
-				// else { edge_update[v].srcvid = INVALIDDATA; edge_update[v].dstvid = INVALIDDATA; }
-				
-				edge_update_type edge_update_ = URAM_edges[v][offset_p[v] + t];
-				if(t < count[v][p_[v]].size){ edge_update[v].srcvid = edge_update_.srcvid / EDGE_PACK_SIZE; edge_update[v].dstvid = edge_update_.dstvid / EDGE_PACK_SIZE; } 
-				else { edge_update[v].srcvid = INVALIDDATA; edge_update[v].dstvid = INVALIDDATA; }
-				
-				#ifdef _DEBUGMODE_KERNELPRINTS//4
-				if(t==0){ cout<<"save_fullyprepared_edgeupdates: llp_id: "<<llp_id<<", t:"<<t<<", edge_update["<<v<<"].srcvid: "<<edge_update[v].srcvid<<" ("<<edge_update[v].srcvid % EDGE_PACK_SIZE<<"), edge_update["<<v<<"].dstvid: "<<edge_update[v].dstvid<<" ("<<edge_update[v].dstvid % EDGE_PACK_SIZE<<")"<<endl; }
-				#endif 
-			}
-			
-			#ifdef ___RUNNING_FPGA_SYNTHESIS___
-				for(unsigned int v=0; v<EDGE_PACK_SIZE/2; v++){					
-				#pragma HLS UNROLL
-					HBM_channelA[offset + t].data[2*v] = edge_update[v].srcvid;
-					HBM_channelA[offset + t].data[2*v + 1] = edge_update[v].dstvid;
-				}
-				for(unsigned int v=0; v<EDGE_PACK_SIZE/2; v++){				
-				#pragma HLS UNROLL
-					HBM_channelB[offset + t].data[2*v] = edge_update[EDGE_PACK_SIZE/2 + v].srcvid;
-					HBM_channelB[offset + t].data[2*v + 1] = edge_update[EDGE_PACK_SIZE/2 + v].dstvid;
-				}
-			#else 
-			if(globalparams[GLOBALPARAMSCODE__COMMANDS__COMMAND0] == 0){ 
-				for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-					if(edge_update[v].srcvid != INVALIDDATA){ edge_update[v].srcvid = edge_update[v].srcvid; } else { edge_update[v].srcvid = INVALIDDATA_SRCVID; }
-					if(edge_update[v].dstvid != INVALIDDATA){ edge_update[v].dstvid = edge_update[v].dstvid; } else { edge_update[v].dstvid = INVALIDDATA_DESTVID; }
-					HBM_channelA[offset + t].data[v] = ((1 & MAXLOCALVALUE2_ACTPACK_EDGEID) << (MAXNUMBITS2_ACTPACK_DESTVID + MAXNUMBITS2_ACTPACK_SRCVID)) | ((edge_update[v].srcvid & MAXLOCALVALUE2_ACTPACK_SRCVID) << MAXNUMBITS2_ACTPACK_DESTVID) | (edge_update[v].dstvid & MAXLOCALVALUE2_ACTPACK_DESTVID);		
-					HBM_channelB[offset + t].data[v] = ((1 & MAXLOCALVALUE2_ACTPACK_EDGEID) << (MAXNUMBITS2_ACTPACK_DESTVID + MAXNUMBITS2_ACTPACK_SRCVID)) | ((edge_update[v].srcvid & MAXLOCALVALUE2_ACTPACK_SRCVID) << MAXNUMBITS2_ACTPACK_DESTVID) | (edge_update[v].dstvid & MAXLOCALVALUE2_ACTPACK_DESTVID);
-				}
-				#ifndef FPGA_IMPL
-				checkoutofbounds("acts_kernel::ERROR 221215::", offset + t, globalparams[GLOBALPARAMSCODE__BASEOFFSET__VDATAS], offset, t, NAp);
-				#endif 
-			} else {
-				for(unsigned int v=0; v<EDGE_PACK_SIZE/2; v++){				
-				#pragma HLS UNROLL
-					HBM_channelA[offset + t].data[2*v] = edge_update[v].srcvid;
-					HBM_channelA[offset + t].data[2*v + 1] = edge_update[v].dstvid;
-				}
-				for(unsigned int v=0; v<EDGE_PACK_SIZE/2; v++){				
-				#pragma HLS UNROLL
-					HBM_channelB[offset + t].data[2*v] = edge_update[EDGE_PACK_SIZE/2 + v].srcvid;
-					HBM_channelB[offset + t].data[2*v + 1] = edge_update[EDGE_PACK_SIZE/2 + v].dstvid;
-				}
-			}		
-			#endif
-			
-			update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___ECPROCESSEDGES___, 1);
-		}		
-		edgeupdate_maps[llp_id].size += max;	
-	}	
-}
-#endif 
 
 MY_IFDEF_SAVE_PARTIALLYPREPARED_EDGEUPDATES(){ 
 	edge_update_type edge_update_in[NUM_LLP_PER_LLPSET];	
@@ -2177,11 +2047,6 @@ MY_IFDEF_SAVE_PARTIALLYPREPARED_EDGEUPDATES(){
 }	
 
 MY_IFDEF_SAVE_FULLYPREPARED_EDGEUPDATES(){
-	// #ifndef ___RUNNING_FPGA_SYNTHESIS___
-	// unsigned int fpga_sel[NUM_FPGAS][EDGE_PACK_SIZE];
-	// for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ fpga_sel[fpga][v] = 0; }}
-	// #endif 
-	
 	unsigned int offset_p[EDGE_PACK_SIZE];
 	unsigned int p_[EDGE_PACK_SIZE];
 	edge_update_type edge_update[EDGE_PACK_SIZE];	
@@ -2236,7 +2101,8 @@ MY_IFDEF_SAVE_FULLYPREPARED_EDGEUPDATES(){
 					HBM_channelB[offset + t].data[v] = ((1 & MAXLOCALVALUE2_ACTPACK_EDGEID) << (MAXNUMBITS2_ACTPACK_DESTVID + MAXNUMBITS2_ACTPACK_SRCVID)) | ((edge_update[v].srcvid & MAXLOCALVALUE2_ACTPACK_SRCVID) << MAXNUMBITS2_ACTPACK_DESTVID) | (edge_update[v].dstvid & MAXLOCALVALUE2_ACTPACK_DESTVID);
 				}
 				#ifndef FPGA_IMPL
-				checkoutofbounds("acts_kernel::ERROR 221215::", offset + t, globalparams[GLOBALPARAMSCODE__BASEOFFSET__VDATAS], offset, t, NAp);
+				// checkoutofbounds("acts_kernel::ERROR 221215::", offset + t, globalparams[GLOBALPARAMSCODE__BASEOFFSET__VDATAS], offset, t, NAp);
+				checkoutofbounds("acts_kernel::ERROR 221215::", offset + t, HBM_CHANNEL_SIZE, offset, t, NAp);
 				#endif 
 			} else {
 				for(unsigned int v=0; v<EDGE_PACK_SIZE/2; v++){				
@@ -2263,15 +2129,7 @@ MY_IFDEF_SAVE_FULLYPREPARED_EDGEUPDATES(){
 			edgeupdate2_maps[fpga][llp_id].size += max_val; 
 		}
 		#endif 
-	}	
-	
-	// #ifdef _DEBUGMODE_KERNELPRINTS4
-	// for(unsigned int llp_id=0; llp_id<EDGE_PACK_SIZE; llp_id++){
-		// for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ 
-			// cout<<"finish: edgeupdate2_maps["<<fpga<<"]["<<llp_id<<"].size: "<<edgeupdate2_maps[fpga][llp_id].size<<endl;
-		// }
-	// }
-	// #endif	
+	}
 	// exit(EXIT_SUCCESS);
 }
 
@@ -2287,6 +2145,7 @@ MY_IFDEF_CREATE_ACTPACK(){
 	unsigned int temp_size[NUM_VALID_PEs];
 	unsigned int base_offset; 
 	unsigned int total_sz = 0;
+	unsigned int running_offset[NUM_VALID_PEs]; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ running_offset[n] = 0; }
 	
 	TOTALL___ = 0;
 	TOTALL_INVALIDS___ = 0;
@@ -2313,14 +2172,15 @@ MY_IFDEF_CREATE_ACTPACK(){
 	}
 	#endif 
 	
-	for(unsigned int p_u=0; p_u<globalparams[GLOBALPARAMSCODE__PARAM__NUM_UPARTITIONS]; p_u++){ 
+	CREATE_ACTPACK_BASELOOP1: for(unsigned int p_u=action.start_pu; p_u<action.start_pu + action.size_pu; p_u+=action.skip_pu){ 
+	// CREATE_ACTPACK_BASELOOP1: for(unsigned int p_u=0; p_u<globalparams[GLOBALPARAMSCODE__PARAM__NUM_UPARTITIONS]; p_u+=1){ // FIXME.
 		#ifndef ___RUNNING_FPGA_SYNTHESIS___
 		cout<<"### preparing edge updates in upartition "<<p_u<<": [PEs "; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<n<<", "; } cout<<"]"<<endl; 
 		#endif 
-		for(unsigned int llp_set=0; llp_set<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]; llp_set++){ 
-			// #ifndef ___RUNNING_FPGA_SYNTHESIS___
-			// cout<<">>> preparing edge updates in upartition "<<p_u<<", llp_set: "<<llp_set<<"...."<<endl; 
-			// #endif 
+		CREATE_ACTPACK_BASELOOP1B: for(unsigned int llp_set=0; llp_set<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]; llp_set++){ 
+			#ifndef ___RUNNING_FPGA_SYNTHESIS___XXX
+			cout<<">>> preparing edge updates in upartition "<<p_u<<", llp_set: "<<llp_set<<"...."<<endl; 
+			#endif 
 			for(unsigned int llp_id=0; llp_id<NUM_LLP_PER_LLPSET; llp_id++){ 
 				for(unsigned int n=0; n<NUM_VALID_PEs; n++){ 
 				#pragma HLS UNROLL
@@ -2357,6 +2217,9 @@ MY_IFDEF_CREATE_ACTPACK(){
 				#ifdef _DEBUGMODE_CHECKS3
 				if(c==1 && work_size > _MAX_BUFFER_SIZE){ cout<<"ALERT: c("<<c<<")==1 && work_size("<<work_size<<") > _MAX_BUFFER_SIZE("<<_MAX_BUFFER_SIZE<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }
 				#endif
+				
+				cout<<">>> acts_kernel::prepare-edge-updates:: c: "<<c<<", p_u: "<<p_u<<", llp_set: "<<llp_set<<", work_size: "<<work_size<<", final_edge_updates[0]["<<p_u<<"]["<<llp_set<<"].size(): "<<final_edge_updates[0][p_u][llp_set].size() / EDGE_PACK_SIZE<<endl; 
+				
 				
 				#ifdef _DEBUGMODE_KERNELPRINTS4_CREATEACTPACT
 				cout<<">>> acts_kernel::prepare-edge-updates:: c: "<<c<<", p_u: "<<p_u<<", llp_set: "<<llp_set<<", work_size: "<<work_size<<", final_edge_updates[0]["<<p_u<<"]["<<llp_set<<"].size(): "<<final_edge_updates[0][p_u][llp_set].size() / EDGE_PACK_SIZE<<endl; 
@@ -2520,6 +2383,15 @@ MY_IFDEF_CREATE_ACTPACK(){
 				// update edge maps
 				if(c == 1){ 
 					SAVE_EDGEMAPS_LOOP1: for(unsigned int llp_id=0; llp_id<NUM_LLP_PER_LLPSET; llp_id++){	
+						for(unsigned int n=0; n<NUM_VALID_PEs; n++){
+							edgeupdate_maps[n][llp_id].offset = running_offset[n]; // set offset
+							#ifdef _DEBUGMODE_KERNELPRINTS//4
+							cout<<"^^^^^^^^^^ prepare-edge-updates: edgeupdate_maps["<<n<<"]["<<llp_id<<"].offset: "<<edgeupdate_maps[n][llp_id].offset<<", edgeupdate_maps["<<n<<"]["<<llp_id<<"].size: "<<edgeupdate_maps[n][llp_id].size<<""<<endl; 
+							cout<<"---------- prepare-edge-updates: running_offset["<<n<<"]: "<<running_offset[n]<<""<<endl; 
+							#endif 
+							running_offset[n] += edgeupdate_maps[n][llp_id].size;
+						}
+						
 						map_t edge_map_vec[NUM_VALID_PEs];
 						for(unsigned int n=0; n<NUM_VALID_PEs; n++){
 						#pragma HLS UNROLL
@@ -2529,7 +2401,11 @@ MY_IFDEF_CREATE_ACTPACK(){
 						vupdates_map[p_u][llp_set].size += edgeupdate_maps[0][llp_id].size;
 						for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ vupdates2_map[p_u][fpga][llp_set].size += edgeupdate2_maps[0][fpga][llp_id].size; }
 						#endif 
+						
 						save_edgemaps((p_u * MAX_NUM_LLP_PER_UPARTITION) + (llp_set * NUM_LLP_PER_LLPSET) + llp_id, destedgeupdateptrs_baseoffset, edge_map_vec,  HBM_channelA0, HBM_channelB0);
+						#ifdef _DEBUGMODE_KERNELPRINTS4
+						for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<"prepare-edge-updates: edgeupdate_maps["<<n<<"]["<<llp_id<<"].offset: "<<edgeupdate_maps[n][llp_id].offset<<", edgeupdate_maps["<<n<<"]["<<llp_id<<"].size: "<<edgeupdate_maps[n][llp_id].size<<""<<endl; }
+						#endif
 					}
 				}
 				
@@ -2553,7 +2429,7 @@ MY_IFDEF_CREATE_ACTPACK(){
 		}
 		for(unsigned int p_u=0; p_u<globalparams[GLOBALPARAMSCODE__PARAM__NUM_UPARTITIONS]; p_u++){	
 			for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]; t++){ 
-				#ifdef _DEBUGMODE_KERNELPRINTS4
+				#ifdef _DEBUGMODE_KERNELPRINTS//4
 				cout<<"finish: vupdates_map["<<p_u<<"]["<<t<<"].size: "<<vupdates_map[p_u][t].size<<endl;
 				#endif 
 				vertex_updates_map[t].size += vupdates_map[p_u][t].size; 
@@ -2565,7 +2441,6 @@ MY_IFDEF_CREATE_ACTPACK(){
 		for(unsigned int t=1; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]+1; t++){	
 			vertex_updates_map[t].offset = vertex_updates_map[t-1].offset + vertex_updates_map[t-1].size;	
 		}	
-		
 		for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){		
 			for(unsigned int t=1; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]+1; t++){	
 				vertex_updates2_map[fpga][t].offset = vertex_updates2_map[fpga][t-1].offset + vertex_updates2_map[fpga][t-1].size;	
@@ -2573,7 +2448,6 @@ MY_IFDEF_CREATE_ACTPACK(){
 			unsigned int last_index = globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS] - 1;
 			vertex_updates2_map[fpga+1][0].offset = vertex_updates2_map[fpga][last_index].offset + vertex_updates2_map[fpga][last_index].size; 
 		}	
-		
 		for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]+1; t++){	
 			#ifdef _DEBUGMODE_KERNELPRINTS//4
 			cout<<"finish: vertex_updates_map["<<t<<"].offset: "<<vertex_updates_map[t].offset<<", vertex_updates_map["<<t<<"].size: "<<vertex_updates_map[t].size<<endl;
@@ -2589,21 +2463,14 @@ MY_IFDEF_CREATE_ACTPACK(){
 				#endif 
 			}
 		}	
-		
-		// exit(EXIT_SUCCESS); /////////////
 		for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){	
 			for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]+1; t++){	
 				vertex_updates_map[t].size = 0;	
 				vertex_updates2_map[fpga][t].size = 0;	
 			}
-		}
-		/* for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]+1; t++){	
-			// save_vupdate_map(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS], t, vertex_updates_map[t],  HBM_channelA0, HBM_channelB0);
-			for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){	
-				save_vupdate_map(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS], (fpga * MAX_NUM_LLPSETS) + t, vertex_updates_map[t],  HBM_channelA0, HBM_channelB0);
-			}
-		}	 */		
+		}	
 		for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){
+			// save_vupdate_map(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS], t, vertex_updates_map[t],  HBM_channelA0, HBM_channelB0);
 			for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]; t++){		
 				save_vupdate_map(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS], (fpga * MAX_NUM_LLPSETS) + t, vertex_updates2_map[fpga][t],  HBM_channelA0, HBM_channelB0);
 			}
@@ -2611,10 +2478,8 @@ MY_IFDEF_CREATE_ACTPACK(){
 	}
 	#endif	
 	
-	
-	
 	// load vertex-updates map 
-	map_t updatesptrs[NUM_FPGAS][MAX_NUM_LLPSETS];
+	/* map_t updatesptrs[NUM_FPGAS][MAX_NUM_LLPSETS];
 	LOAD_UPDATEPTRS_lOOP1: for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){
 		LOAD_UPDATEPTRS_lOOP1B: for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]; t++){	
 		#pragma HLS PIPELINE II=1
@@ -2623,9 +2488,10 @@ MY_IFDEF_CREATE_ACTPACK(){
 			cout<<"!!!!!!!!!!: updatesptrs["<<fpga<<"]["<<t<<"].offset: "<<updatesptrs[fpga][t].offset<<", updatesptrs["<<fpga<<"]["<<t<<"].size: "<<updatesptrs[fpga][t].size<<endl;
 			#endif 
 		}
-	}
+	} */
 	// cout<<"finish~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: TOTALL_INVALIDS___: "<<TOTALL_INVALIDS___<<", TOTALL___: "<<TOTALL___<<", TOTALL___ * EDGE_PACK_SIZE: "<<TOTALL___ * EDGE_PACK_SIZE<<endl;
-	exit(EXIT_SUCCESS);
+	// exit(EXIT_SUCCESS);
+	return running_offset[0];
 }
 // exit(EXIT_SUCCESS);
 
@@ -2758,10 +2624,12 @@ MY_IFDEF_TOPLEVELFUNC(){
 #pragma HLS INTERFACE s_axilite port = HBM_import_chkpt
 #pragma HLS INTERFACE s_axilite port = HBM_export_chkpt
 
+#pragma HLS INTERFACE s_axilite port = fpga
 #pragma HLS INTERFACE s_axilite port = module
 #pragma HLS INTERFACE s_axilite port = graph_iteration
 #pragma HLS INTERFACE s_axilite port = start_pu 
 #pragma HLS INTERFACE s_axilite port = size_pu
+#pragma HLS INTERFACE s_axilite port = skip_pu
 #pragma HLS INTERFACE s_axilite port = start_pv
 #pragma HLS INTERFACE s_axilite port = size_pv
 #pragma HLS INTERFACE s_axilite port = start_llpset
@@ -2778,18 +2646,20 @@ MY_IFDEF_TOPLEVELFUNC(){
 
 	#ifndef ___RUNNING_FPGA_SYNTHESIS___
 	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
-	if(status == 1) { cout<<"acts_kernel::run:: dynamic acts started "<<endl; }
+	if(status == 1) { cout<<"acts_kernel::run:: dynamic acts started: start_pu: "<<start_pu<<", size_pu: "<<size_pu<<", skip_pu: "<<skip_pu<<", start_pv: "<<start_pv<<", size_pv: "<<size_pv<<endl; }
 	#else 
-	if(status == 1) { cout<<"acts_kernel::run:: acts started "<<endl; }	
+	if(status == 1) { cout<<"acts_kernel::run:: acts started: start_pu: "<<start_pu<<", size_pu: "<<size_pu<<", skip_pu: "<<skip_pu<<", start_pv: "<<start_pv<<", size_pv: "<<size_pv<<endl; }	
 	#endif 
 	#endif 
 	
 	// commands from host
 	action_t action;
+	action.fpga = fpga; 
 	action.module = module; 
 	action.graph_iteration = graph_iteration; 
 	action.start_pu = start_pu; 
 	action.size_pu = size_pu; 
+	action.skip_pu = skip_pu; 
 	action.start_pv = start_pv;
 	action.size_pv = size_pv; 
 	action.start_llpset = start_llpset; 
@@ -3123,12 +2993,15 @@ for(unsigned int i=0; i<MAXNUMGRAPHITERATIONS; i++){ for(unsigned int t=0; t<MAX
 	
 	// load vertex-updates map 
 	LOAD_UPDATEPTRS_lOOP1: for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){
-		LOAD_UPDATEPTRS_lOOP1B: for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]+1; t++){	
+		#ifdef _DEBUGMODE_KERNELPRINTS4
+		cout<<"acts: offsets for fpga "<<fpga<<endl;
+		#endif 
+		LOAD_UPDATEPTRS_lOOP1B: for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]; t++){	
 		#pragma HLS PIPELINE II=1
 			updatesptrs[fpga][t] = load_vupdate_map(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS], (fpga * MAX_NUM_LLPSETS) + t,  HBM_channelA0, HBM_channelB0);	
 			if((action.module == ALL_MODULES || action.module == PROCESS_EDGES_MODULE) && action.start_pu == 0){ updatesptrs[fpga][t].size = 0; }		
 			#ifdef _DEBUGMODE_KERNELPRINTS4
-			cout<<"start: updatesptrs["<<fpga<<"]["<<t<<"].offset: "<<updatesptrs[fpga][t].offset<<", updatesptrs["<<fpga<<"]["<<t<<"].size: "<<updatesptrs[fpga][t].size<<endl;
+			cout<<"acts: updatesptrs["<<fpga<<"]["<<t<<"].offset: "<<updatesptrs[fpga][t].offset<<", updatesptrs["<<fpga<<"]["<<t<<"].size: "<<updatesptrs[fpga][t].size<<endl;
 			#endif 
 		}
 	}
@@ -3139,11 +3012,9 @@ for(unsigned int i=0; i<MAXNUMGRAPHITERATIONS; i++){ for(unsigned int t=0; t<MAX
 		edge_update_type * URAM_edges[NUM_VALID_PEs][EDGE_PACK_SIZE];
 		for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ URAM_edges[i][v] = new edge_update_type[EDGE_UPDATES_DRAMBUFFER_LONGSIZE]; }}
 		if(globalparams[GLOBALPARAMSCODE__COMMANDS__COMMAND0] == 0){ 
-			create_actpack(globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES], globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2], URAM_edges, EDGE_UPDATES_DRAMBUFFER_LONGSIZE, EDGE_UPDATES_DRAMBUFFER_LONGSIZE, globalparams,  HBM_channelA0, HBM_channelB0, final_edge_updates, _NUMCLOCKCYCLES_);		
-			return;
+			return create_actpack(action, globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES], globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2], URAM_edges, EDGE_UPDATES_DRAMBUFFER_LONGSIZE, EDGE_UPDATES_DRAMBUFFER_LONGSIZE, globalparams,  HBM_channelA0, HBM_channelB0, final_edge_updates, _NUMCLOCKCYCLES_);		
 		} else if(globalparams[GLOBALPARAMSCODE__COMMANDS__COMMAND0] == 1){	
-			create_actpack(globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES], globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS], URAM_edges, EDGE_UPDATES_DRAMBUFFER_SIZE, EDGE_UPDATES_WORKBUFFER_SIZE, globalparams,  HBM_channelA0, HBM_channelB0, final_edge_updates, _NUMCLOCKCYCLES_);	
-			return;
+			return create_actpack(action, globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES], globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS], URAM_edges, EDGE_UPDATES_DRAMBUFFER_SIZE, EDGE_UPDATES_WORKBUFFER_SIZE, globalparams,  HBM_channelA0, HBM_channelB0, final_edge_updates, _NUMCLOCKCYCLES_);	
 		}
 		#endif
 	}
@@ -3211,7 +3082,8 @@ for(unsigned int t=0; t<BLOCKRAM_SIZE; t++){
 			// process-edges and partition-updates
 			#ifdef ___ENABLE___PROCESSEDGES___
 			if(action.module == PROCESS_EDGES_MODULE || action.module == ALL_MODULES){
-			PROCESS_EDGES_MODULE_LOOP1B: for(unsigned int p_u=action.start_pu; p_u<action.start_pu + action.size_pu; p_u++){ 
+			PROCESS_EDGES_MODULE_LOOP1B: for(unsigned int p_u=action.start_pu; p_u<action.start_pu + action.size_pu; p_u+=action.skip_pu){ 
+			// PROCESS_EDGES_MODULE_LOOP1B: for(unsigned int p_u=0; p_u<globalparams[GLOBALPARAMSCODE__PARAM__NUM_UPARTITIONS]; p_u+=1){ // FIXME.
 				MASK_CODE_PE = ((1 + GraphIter) * MAX_NUM_UPARTITIONS) + p_u;
 				#ifdef _DEBUGMODE_KERNELPRINTS//4 
 				cout<<"$$$ processing edges in upartition "<<p_u<<": [PEs "; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<n<<", "; } cout<<"]"<<endl; 
@@ -3796,14 +3668,14 @@ unsigned int export_offset = id_export * action.size_import_export;
 
 EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_ACTIVE_LLPSETS; llp_set++){	// __NUM_APPLYPARTITIONS
 	EC_PROCESS_EDGES_LOOP1B: for(unsigned int llp_id=0; llp_id<NUM_LLP_PER_LLPSET; llp_id++){ 
-		#ifdef _DEBUGMODE_KERNELPRINTS//4
-		cout<<"------------------- process edges: ["<<p_u<<", "<<llp_set<<", "<<llp_id<<"] [importing and exporting "<<action.size_import_export<<" 32bit-integers] -------------------"<<endl; 
-		#endif 
-		
 		// load edges map
 		load_edgemaps((p_u * MAX_NUM_LLP_PER_UPARTITION) + (llp_set * NUM_LLP_PER_LLPSET) + llp_id, globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2], edge_maps,  HBM_channelA0, HBM_channelB0);
-		
 		for(unsigned int n=0; n<NUM_VALID_PEs; n++){ edge_maps[n].size = ((__PERCENTAGE_ACTIVE_EDGES * edge_maps[n].size) + (100-1)) / 100; } // FIXME.
+		
+		#ifdef _DEBUGMODE_KERNELPRINTS//4
+		cout<<"------------------- process edges: ["<<p_u<<", "<<llp_set<<", "<<llp_id<<", "<<edge_maps[0].size<<"] [importing and exporting "<<action.size_import_export<<" 32bit-integers] -------------------"<<endl; 
+		#endif 
+		
 		#ifdef _DEBUGMODE_KERNELPRINTS//4
 		for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<"process-edges: edge_maps["<<n<<"]["<<llp_id<<"].size: "<<edge_maps[n].size<<endl; }
 		#endif 
@@ -3878,7 +3750,6 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_ACTIVE_LLPSETS
 							unsigned int fpga = update_out[inst][v].key % NUM_FPGAS; // FIXME?
 							URAM_updates[inst][v][(fpga * batch_size) + offset_fpga[inst][v][fpga].size] = update_out[inst][v];
 							offset_fpga[inst][v][fpga].size += 1;
-							// if(p_u==0 && llp_set==0 && llp_id==0 && t<128){ cout<<"~~~ update_out["<<inst<<"]["<<v<<"].key: "<<update_out[inst][v].key<<", fpga: "<<fpga<<endl; }
 							#ifdef _DEBUGMODE_CHECKS3	
 							checkoutofbounds("acts_kernel::process-edges::ERROR 8873rrr::", offset_fpga[inst][v][fpga].size, 8192, NAp, offset_fpga[inst][v][fpga].offset, NAp); 
 							#endif
@@ -3985,10 +3856,6 @@ if(enable___collectactivedstvids == true){
 				#endif 
 				
 				if(vpartition_vertices[0][p_v].count > 0 || all_vertices_active_in_all_iterations == true){ 
-					#ifndef ___RUNNING_FPGA_SYNTHESIS___
-					if(en == true){ cout<<"### applying updates in vpartition "<<p_v<<"..."<<endl; }
-					#endif
-				
 					// read destination properties
 					#ifdef ___ENABLE___READ_DEST_PROPERTIES___
 					if(___ENABLE___READ_DEST_PROPERTIES___BOOL___ == 1){
@@ -4050,6 +3917,10 @@ uint512_vec_dt updates_vecs[NUM_VALID_PEs];
 unsigned int import_offset = id_import * action.size_import_export;
 unsigned int export_offset = id_export * action.size_import_export;
 max_limit = 0; for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ limits[inst] = updatesptrs[fpga][p_v].size; } for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ if(max_limit < limits[inst]){ max_limit = limits[inst]; }}
+
+#ifdef _DEBUGMODE_KERNELPRINTS4 
+if(en == true){ cout<<"### applying vertex updates in vpartition "<<p_v<<" (fpga "<<fpga<<"): [PEs "; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<n<<", "; } cout<<"]"<<endl; } 
+#endif 
 
 APPLY_UPDATES_LOOP1: for(unsigned int t=0; t<max_limit; t++){			
 #pragma HLS PIPELINE II=1
@@ -4500,6 +4371,6 @@ cout<< TIMINGRESULTSCOLOR << ">>> acts_kernel SUMMARY:: TIME ELAPSE: "<<time_lap
 	
 	}
 	#endif	
-	return;
+	return 0;
 }
 }		

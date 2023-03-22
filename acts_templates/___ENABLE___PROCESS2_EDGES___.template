@@ -19,14 +19,14 @@ unsigned int export_offset = id_export * action.size_import_export;
 
 EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_ACTIVE_LLPSETS; llp_set++){	// __NUM_APPLYPARTITIONS
 	EC_PROCESS_EDGES_LOOP1B: for(unsigned int llp_id=0; llp_id<NUM_LLP_PER_LLPSET; llp_id++){ 
-		#ifdef _DEBUGMODE_KERNELPRINTS//4
-		cout<<"------------------- process edges: ["<<p_u<<", "<<llp_set<<", "<<llp_id<<"] [importing and exporting "<<action.size_import_export<<" 32bit-integers] -------------------"<<endl; 
-		#endif 
-		
 		// load edges map
 		load_edgemaps((p_u * MAX_NUM_LLP_PER_UPARTITION) + (llp_set * NUM_LLP_PER_LLPSET) + llp_id, globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2], edge_maps, {% include '___HBM___ARGS___.template' %});
-		
 		for(unsigned int n=0; n<NUM_VALID_PEs; n++){ edge_maps[n].size = ((__PERCENTAGE_ACTIVE_EDGES * edge_maps[n].size) + (100-1)) / 100; } // FIXME.
+		
+		#ifdef _DEBUGMODE_KERNELPRINTS//4
+		cout<<"------------------- process edges: ["<<p_u<<", "<<llp_set<<", "<<llp_id<<", "<<edge_maps[0].size<<"] [importing and exporting "<<action.size_import_export<<" 32bit-integers] -------------------"<<endl; 
+		#endif 
+		
 		#ifdef _DEBUGMODE_KERNELPRINTS//4
 		for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<"process-edges: edge_maps["<<n<<"]["<<llp_id<<"].size: "<<edge_maps[n].size<<endl; }
 		#endif 
@@ -101,7 +101,6 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_ACTIVE_LLPSETS
 							unsigned int fpga = update_out[inst][v].key % NUM_FPGAS; // FIXME?
 							URAM_updates[inst][v][(fpga * batch_size) + offset_fpga[inst][v][fpga].size] = update_out[inst][v];
 							offset_fpga[inst][v][fpga].size += 1;
-							// if(p_u==0 && llp_set==0 && llp_id==0 && t<128){ cout<<"~~~ update_out["<<inst<<"]["<<v<<"].key: "<<update_out[inst][v].key<<", fpga: "<<fpga<<endl; }
 							#ifdef _DEBUGMODE_CHECKS3	
 							checkoutofbounds("acts_kernel::process-edges::ERROR 8873rrr::", offset_fpga[inst][v][fpga].size, 8192, NAp, offset_fpga[inst][v][fpga].offset, NAp); 
 							#endif
@@ -118,7 +117,7 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_ACTIVE_LLPSETS
 				cout<<"### saving "<<offset_fpga[0][0][fpga].size<<" vertex updates into fpga partition "<<fpga<<"..."<<endl; 
 				#endif 
 				SAVE_VERTEXUPDATES_MAINLOOP1B: for(unsigned int t=0; t<offset_fpga[0][0][fpga].size; t++){ 
-				#pragma HLS PIPELINE II=1
+				#pragma HLS PIPELINE II={{context['II_SAVE_VERTEXUPDATES_MAINLOOP1B']}}
 					for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 	
 					#pragma HLS UNROLL
 						for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
