@@ -74,7 +74,9 @@ acts_kernel::~acts_kernel(){}
 
 {% include '___ENABLE___ACCESSBRAM___.template' %}		
 
+#ifndef ___RUNNING_FPGA_SYNTHESIS___
 {% include '___ENABLE___CREATE_ACTPACK___.template' %}
+#endif 
 
 void import_frontiers(unsigned int chunk, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_import, action_t action, unsigned int _NUMCLOCKCYCLES_[2][32]){
 	#ifdef _DEBUGMODE_KERNELPRINTS4
@@ -174,9 +176,9 @@ MY_IFDEF_TOPLEVELFUNC(){
 
 	#ifndef ___RUNNING_FPGA_SYNTHESIS___
 	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
-	if(status == 1) { cout<<"acts_kernel::run:: dynamic acts started: start_pu: "<<start_pu<<", size_pu: "<<size_pu<<", skip_pu: "<<skip_pu<<", start_pv: "<<start_pv<<", size_pv: "<<size_pv<<endl; }
+	if(status == 1 || true) { cout<<"acts_kernel::run:: dynamic acts started: start_pu: "<<start_pu<<", size_pu: "<<size_pu<<", skip_pu: "<<skip_pu<<", start_pv: "<<start_pv<<", size_pv: "<<size_pv<<endl; }
 	#else 
-	if(status == 1) { cout<<"acts_kernel::run:: acts started: start_pu: "<<start_pu<<", size_pu: "<<size_pu<<", skip_pu: "<<skip_pu<<", start_pv: "<<start_pv<<", size_pv: "<<size_pv<<endl; }	
+	if(status == 1 || true) { cout<<"acts_kernel::run:: acts started: start_pu: "<<start_pu<<", size_pu: "<<size_pu<<", skip_pu: "<<skip_pu<<", start_pv: "<<start_pv<<", size_pv: "<<size_pv<<endl; }	
 	#endif 
 	#endif 
 	
@@ -324,7 +326,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 				#endif 
 				bool en = true; if(enable___collectactivedstvids == true){ if(vpartition_vertices[0][p_v].count > 0){ en=true; } else { en=false; }} else { en = true; }
 				unsigned int voffset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__VDATAS] + (p_v * MAX_APPLYPARTITION_VECSIZE);
-				#ifdef _DEBUGMODE_KERNELPRINTS//4
+				#ifdef _DEBUGMODE_KERNELPRINTS4
 				cout<<"APPLY_UPDATES_MODULE_LOOP: vpartition_vertices[0]["<<p_v<<"].count: "<<vpartition_vertices[0][p_v].count<<" "<<endl;
 				#endif 
 				
@@ -374,10 +376,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 						gather_frontiers({{i}}, p_v, cfrontier_dram___size, nfrontier_dram___size[{{i}}], upartition_vertices, HBM_channelA{{i}}, HBM_channelB{{i}}, HBM_centerA, HBM_centerB, globalparams, _NUMCLOCKCYCLES_);
 						{%endfor%}	
 					}
-					#endif		
-					// cout<<"---------------**********************+---------- cfrontier_dram___size[0]: "<<cfrontier_dram___size[0]<<endl;
-					// cout<<"---------------UUUUUUUUUUUUUUUUYYYYYYYU+---------- _NUMCLOCKCYCLES_[0][___CODE___GATHER_FRONTIERINFOS___]: "<<_NUMCLOCKCYCLES_[0][___CODE___GATHER_FRONTIERINFOS___]<<", NUM_SUBPARTITION_PER_PARTITION: "<<NUM_SUBPARTITION_PER_PARTITION<<", VDATA_SUBPARTITION_VECSIZE: "<<VDATA_SUBPARTITION_VECSIZE<<endl;
-					// exit(EXIT_SUCCESS);////////////////////
+					#endif
 				}
 			} 
 			}
@@ -409,6 +408,11 @@ MY_IFDEF_TOPLEVELFUNC(){
 		{% include '___ENABLE___SUMMARY___.template' %}	
 	}
 	#endif	
-	return 0;
+	
+	#ifdef ___RUNNING_FPGA_SYNTHESIS___
+	return;
+	#else 
+	return 0;	
+	#endif 
 }
 }

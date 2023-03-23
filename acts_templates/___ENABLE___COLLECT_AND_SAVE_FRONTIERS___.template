@@ -8,7 +8,7 @@ COLLECT_AND_SAVE_FRONTIERS_LOOP1: for(unsigned int local_subpartitionID=0; local
 	unsigned int save_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS] + (upartitionID * MAX_APPLYPARTITION_VECSIZE);
 	
 	COLLECT_FRONTIERS_LOOP: for(unsigned int t=0; t<VDATA_SUBPARTITION_VECSIZE; t++){
-	#pragma HLS PIPELINE II={{context['COLLECT_FRONTIERS_LOOP1B']}}
+	#pragma HLS PIPELINE II={{context['II_COLLECT_FRONTIERS_LOOP1B']}}
 		for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
 		#pragma HLS UNROLL
 			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
@@ -28,7 +28,7 @@ COLLECT_AND_SAVE_FRONTIERS_LOOP1: for(unsigned int local_subpartitionID=0; local
 	
 	// save frontier information [done]
 	SAVE_FRONTIERS_LOOP: for(unsigned int t=0; t<VDATA_SUBPARTITION_VECSIZE; t++){
-	#pragma HLS PIPELINE II={{context['SAVE_FRONTIERS_LOOP2B']}}
+	#pragma HLS PIPELINE II={{context['II_SAVE_FRONTIERS_LOOP2B']}}
 		for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
 		#pragma HLS UNROLL
 			retrievevec_nfrontierbuffer(t, frontier_data[inst], nfrontier_buffer[inst]); 

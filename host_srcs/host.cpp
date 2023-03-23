@@ -576,11 +576,11 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 	action.size_gv = NUM_VALID_PEs;
 	action.status = 1;
 	
-	unsigned int launch_type = 0; // 0:full run,1:segmented runs 
-	unsigned int num_launches = 1;
+	// unsigned int launch_type = 0; // 0:full run,1:segmented runs 
+	// unsigned int num_launches = 1;
 	
-	// unsigned int launch_type = 1; // 0:full run,1:segmented runs 
-	// unsigned int num_launches = universalparams.NUM_UPARTITIONS + universalparams.NUM_APPLYPARTITIONS;
+	unsigned int launch_type = 1; // 0:full run,1:segmented runs 
+	unsigned int num_launches = universalparams.NUM_UPARTITIONS + universalparams.NUM_APPLYPARTITIONS;
 	
 	#ifndef FPGA_IMPL
 	acts_kernel * acts = new acts_kernel(universalparams);
@@ -601,8 +601,10 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 				std::cout << "Setting Scalar Arguments..." << std::endl;
 				action_t action = _get_action(launch_idx, launch_type, fpga, universalparams);
 				action.graph_iteration = iteration_idx;
-				action.id_import = launch_idx; // FIXME.
-				action.id_export = launch_idx; // FIXME
+				// action.id_import = launch_idx; // FIXME.
+				// action.id_export = launch_idx; // FIXME
+				action.id_import = launch_idx % universalparams.NUM_UPARTITIONS; // FIXME.
+				action.id_export = launch_idx % universalparams.NUM_UPARTITIONS; // FIXME
 				action.size_import_export = IMPORT_EXPORT_GRANULARITY_VECSIZE; // 
 				
 				#ifdef FPGA_IMPL	

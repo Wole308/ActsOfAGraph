@@ -397,7 +397,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	for(unsigned int i=0; i<NUM_PEs; i++){ unsigned int index = 0, ind = 0; for(unsigned int vid=0; vid<universalparams.NUM_VERTICES; vid++){ if(vid % NUM_PEs == i){ 
 		if(max_degree < degrees[i][vid / NUM_PEs]){ max_degree = degrees[i][vid / NUM_PEs]; }
 		v_ptr[i][vid / NUM_PEs] = index; index += degrees[i][vid / NUM_PEs]; ind += 1; }}}			
-	for(unsigned int i=0; i<NUM_PEs; i++){ cout<<"csr-pack:: PE: 21: act_pack_edges["<<i<<"].size(): "<<csr_pack_edges[i].size()<<endl; }
+	for(unsigned int i=0; i<NUM_PEs; i++){ cout<<"csr-pack:: PE: 21: csr_pack_edges["<<i<<"].size(): "<<csr_pack_edges[i].size()<<endl; }
 	cout<<"app::csr-pack:: max_degree: "<<max_degree<<endl;
 	
 	checkpoint_t * HBM_import_chkpt = new checkpoint_t[MAX_NUM_UPARTITIONS];
@@ -562,8 +562,8 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__PARTIALLYPROCESSEDEDGEUPDATES] + globalparams[GLOBALPARAMSCODE__WWSIZE__PARTIALLYPROCESSEDEDGEUPDATES]; 
 	}
 	size_u32 = 0; 
-	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
 	unsigned int approx_actpacksz = (universalparams.NUM_EDGES / NUM_PEs / EDGE_PACK_SIZE) + (1024000 / EDGE_PACK_SIZE);
+	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
 	size_u32 += approx_actpacksz * EDGE_PACK_SIZE * 2;
 	#endif
 
@@ -616,7 +616,8 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	// load vertex properties
 	cout<<"loading vertex properties..."<<endl;
 	for(unsigned int i=0; i<NUM_PEs; i++){
-		globalparams[GLOBALPARAMSCODE__WWSIZE__VERTEXUPDATES] = globalparams[GLOBALPARAMSCODE__WWSIZE__ACTPACKEDGES] + (64 * 1024);
+		// globalparams[GLOBALPARAMSCODE__WWSIZE__VERTEXUPDATES] = globalparams[GLOBALPARAMSCODE__WWSIZE__ACTPACKEDGES] + (64 * 1024);
+		globalparams[GLOBALPARAMSCODE__WWSIZE__VERTEXUPDATES] = globalparams[GLOBALPARAMSCODE__WWSIZE__ACTPACKEDGES] + (128 * 1024);
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__VDATAS] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__VERTEXUPDATES] + globalparams[GLOBALPARAMSCODE__WWSIZE__VERTEXUPDATES]; 
 	}
 	size_u32 = 0;

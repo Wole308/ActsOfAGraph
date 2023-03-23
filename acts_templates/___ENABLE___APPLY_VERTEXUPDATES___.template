@@ -13,39 +13,44 @@ APPLY_UPDATES_LOOP1: for(unsigned int t=0; t<max_limit; t++){
 	dretrievemany_udatesdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__VERTEXUPDATES] + updatesptrs[fpga][p_v].offset, p_v, t, updates_vecs, {% include '___HBM___ARGS___.template' %}); // NEW
 	for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
 	#pragma HLS UNROLL
-		if(t < limits[inst]){
-			uint512_vec_dt updates_vec = updates_vecs[inst];
-			APPLY_UPDATES_LOOP1C: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-			#pragma HLS UNROLL
-				keyvalue_t update = updates_vec.data[v];
-				unsigned int dstvid_lp = update.key; 
-				unsigned int dstvid_lpv = update.key / EDGE_PACK_SIZE;
-				
-				if(update.key != INVALIDDATA && update.key < MAX_APPLYPARTITION_SIZE){
-					#ifdef _DEBUGMODE_CHECKS3
-					#ifndef ___FORCE_SUCCESS___
-					if(t < limits[inst] && ((dstvid_lp % EDGE_PACK_SIZE) != v)){ cout<<"acts_kernel 234:: dstvid_lp("<<dstvid_lp<<") % v("<<v<<") != 0. EXITING..."<<endl; exit(EXIT_FAILURE); }
-					#endif 
-					if(t < limits[inst]){ checkoutofbounds("acts_kernel::ERROR 727a::", dstvid_lp, MAX_APPLYPARTITION_SIZE, NAp, inst, update.key); checkoutofbounds("acts_kernel::ERROR 727b::", dstvid_lpv, MAX_APPLYPARTITION_VECSIZE, NAp, inst, update.key); }					
+		// if(t < limits[inst]){
+		uint512_vec_dt updates_vec = updates_vecs[inst];
+		for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
+		#pragma HLS UNROLL
+			keyvalue_t update = updates_vec.data[v];
+			unsigned int dstvid_lp = update.key; 
+			unsigned int dstvid_lpv = update.key / EDGE_PACK_SIZE;
+			
+			if(update.key < MAX_APPLYPARTITION_SIZE){
+				#ifdef _DEBUGMODE_CHECKS3
+				if(t < limits[inst]){ checkoutofbounds("acts_kernel::ERROR 727a::", dstvid_lp, MAX_APPLYPARTITION_SIZE, NAp, inst, update.key); checkoutofbounds("acts_kernel::ERROR 727b::", dstvid_lpv, MAX_APPLYPARTITION_VECSIZE, NAp, inst, update.key); }					
+				#endif
+				// vprop_t vprop =  retrieve_vdatabuffer(v, dstvid_lpv, URAM_vprop[inst]);
+				vprop_t vprop; vprop.prop = dstvid_lpv; // FIXME.
+				unsigned int new_vprop = reduce_funcG(vprop, update.value, globalparams[GLOBALPARAMSCODE__PARAM__ALGORITHM]);
+				if(t < limits[inst]){  // && (new_vprop != vprop.prop) // FIXME.
+					#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+					std::cout<<"APPLY (ACT-PACK) UPDATE SEEN @: t: "<<t<<", inst: ["<<inst<<"]: dstvid_lp: "<<dstvid_lp<<", dstvid_lpv: "<<dstvid_lpv<<", new_vprop: "<<new_vprop<<", vid: "<<update.key<<std::endl;
 					#endif
-					// vprop_t vprop =  retrieve_vdatabuffer(v, dstvid_lpv, URAM_vprop[inst]);
-					vprop_t vprop; vprop.prop = dstvid_lpv; // FIXME.
-					unsigned int new_vprop = reduce_funcG(vprop, update.value, globalparams[GLOBALPARAMSCODE__PARAM__ALGORITHM]);
-					if(t < limits[inst]){  // && (new_vprop != vprop.prop) // FIXME.
-						#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-						std::cout<<"APPLY (ACT-PACK) UPDATE SEEN @: t: "<<t<<", inst: ["<<inst<<"]: dstvid_lp: "<<dstvid_lp<<", dstvid_lpv: "<<dstvid_lpv<<", new_vprop: "<<new_vprop<<", vid: "<<update.key<<std::endl;
-						#endif
-						vprop_t newprop; newprop.prop = new_vprop; newprop.degree = MASK_CODE_AU;
-						insert_vdatabuffer(v, dstvid_lpv, newprop, URAM_vprop[inst]);
-						
-						if(inst==0 && v==0){ update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___APPLYUPDATES___, 1); }
-					}
+					vprop_t newprop; newprop.prop = new_vprop; newprop.degree = MASK_CODE_AU;
+					insert_vdatabuffer(v, dstvid_lpv, newprop, URAM_vprop[inst]);
+					
+					if(inst==0 && v==0){ update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___APPLYUPDATES___, 1); }
 				}
 			}
 		}
+		// }
 	}
 	
-	// import (Host -> FPGA)
+	// #ifdef _DEBUGMODE_CHECKS3
+	// checkoutofbounds("acts_kernel::apply-updates: ERROR 727a::", import_offset + t, HBM_CHANNEL_SIZE, import_offset, NAp, NAp);
+	// checkoutofbounds("acts_kernel::apply-updates: ERROR 727b::", export_offset + t, HBM_CHANNEL_SIZE, export_offset, NAp, NAp);		
+	// checkoutofbounds("acts_kernel::apply-updates: ERROR 727c::", t, IMPORT_EXPORT_GRANULARITY_VECSIZE, t, NAp, NAp);
+	// checkoutofbounds("acts_kernel::apply-updates: ERROR 727d::", t, IMPORT_EXPORT_GRANULARITY_VECSIZE, t, NAp, NAp);	
+	// checkoutofbounds("acts_kernel::apply-updates: ERROR 727e::", action.size_import_export, IMPORT_EXPORT_GRANULARITY_VECSIZE+1, t, NAp, NAp);	
+	// #endif 
+	
+	/* // import (Host -> FPGA)
 	if(action.id_import != INVALIDDATA && t<action.size_import_export){	
 		{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 		HBM_centerA[import_offset + t].data[{{v}}] = HBM_import[t].data[{{v}}];
@@ -57,8 +62,12 @@ APPLY_UPDATES_LOOP1: for(unsigned int t=0; t<max_limit; t++){
 		{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 		HBM_export[t].data[{{v}}] = HBM_centerB[export_offset + t].data[{{v}}];
 		{%endfor%}
-	}		
-}			
+	}	 */	
+}		
+
+// #ifdef _DEBUGMODE_KERNELPRINTS4 
+// if(en == true){ cout<<"### [---FINISH---] applying vertex updates in vpartition "<<p_v<<" (fpga "<<fpga<<"): [PEs "; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<n<<", "; } cout<<"]"<<endl; } 
+// #endif 	
 
 
 

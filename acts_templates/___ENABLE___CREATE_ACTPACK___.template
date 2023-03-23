@@ -412,6 +412,7 @@ MY_IFDEF_CREATE_ACTPACK(){
 							cout<<"---------- prepare-edge-updates: running_offset["<<n<<"]: "<<running_offset[n]<<""<<endl; 
 							#endif 
 							running_offset[n] += edgeupdate_maps[n][llp_id].size;
+							// for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ running_offset[n] += edgeupdate2_maps[n][fpga][llp_id].size; }
 						}
 						
 						map_t edge_map_vec[NUM_VALID_PEs];
@@ -423,7 +424,7 @@ MY_IFDEF_CREATE_ACTPACK(){
 						vupdates_map[p_u][llp_set].size += edgeupdate_maps[0][llp_id].size;
 						for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ vupdates2_map[p_u][fpga][llp_set].size += edgeupdate2_maps[0][fpga][llp_id].size; }
 						#endif 
-						
+					
 						save_edgemaps((p_u * MAX_NUM_LLP_PER_UPARTITION) + (llp_set * NUM_LLP_PER_LLPSET) + llp_id, destedgeupdateptrs_baseoffset, edge_map_vec, {% include '___HBM___ARGS___.template' %});
 						#ifdef _DEBUGMODE_KERNELPRINTS//4
 						for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<"prepare-edge-updates: edgeupdate_maps["<<n<<"]["<<llp_id<<"].offset: "<<edgeupdate_maps[n][llp_id].offset<<", edgeupdate_maps["<<n<<"]["<<llp_id<<"].size: "<<edgeupdate_maps[n][llp_id].size<<""<<endl; }
@@ -500,18 +501,6 @@ MY_IFDEF_CREATE_ACTPACK(){
 	}
 	#endif	
 	
-	// load vertex-updates map 
-	/* map_t updatesptrs[NUM_FPGAS][MAX_NUM_LLPSETS];
-	LOAD_UPDATEPTRS_lOOP1: for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){
-		LOAD_UPDATEPTRS_lOOP1B: for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]; t++){	
-		#pragma HLS PIPELINE II=1
-			updatesptrs[fpga][t] = load_vupdate_map(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS], (fpga * MAX_NUM_LLPSETS) + t, {% include '___HBM___ARGS___.template' %});	
-			#ifdef _DEBUGMODE_KERNELPRINTS4
-			cout<<"!!!!!!!!!!: updatesptrs["<<fpga<<"]["<<t<<"].offset: "<<updatesptrs[fpga][t].offset<<", updatesptrs["<<fpga<<"]["<<t<<"].size: "<<updatesptrs[fpga][t].size<<endl;
-			#endif 
-		}
-	} */
-	// cout<<"finish~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: TOTALL_INVALIDS___: "<<TOTALL_INVALIDS___<<", TOTALL___: "<<TOTALL___<<", TOTALL___ * EDGE_PACK_SIZE: "<<TOTALL___ * EDGE_PACK_SIZE<<endl;
 	// exit(EXIT_SUCCESS);
 	return running_offset[0];
 }

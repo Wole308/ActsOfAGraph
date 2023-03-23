@@ -116,7 +116,7 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_ACTIVE_LLPSETS
 				#ifdef _DEBUGMODE_KERNELPRINTS//4 
 				cout<<"### saving "<<offset_fpga[0][0][fpga].size<<" vertex updates into fpga partition "<<fpga<<"..."<<endl; 
 				#endif 
-				SAVE_VERTEXUPDATES_MAINLOOP1B: for(unsigned int t=0; t<offset_fpga[0][0][fpga].size; t++){ // FIXME? hanging issues?
+				SAVE_VERTEXUPDATES_MAINLOOP1B: for(unsigned int t=0; t<offset_fpga[0][0][fpga].size; t++){ // FIXME? // FIXHANG? hanging issues?
 				#pragma HLS PIPELINE II={{context['II_SAVE_VERTEXUPDATES_MAINLOOP1B']}}
 					for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 	
 					#pragma HLS UNROLL
