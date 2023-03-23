@@ -8,7 +8,7 @@ MY_LOOP170: for(unsigned int t=0; t<BLOCKRAM_SIZE; t++){
 			insert_statstmpbuffer(t, v, 0, statsbuffer_maskbased_tmp[inst]); 
 		}
 	}
-	update_bramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___READ_FRONTIER_PROPERTIES___, 1);
+	// update_bramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___READ_FRONTIER_PROPERTIES___, 1);
 }
 // reset updates tmpbuffer [done]
 MY_LOOP168: for(unsigned int j=0; j<NUM_VALID_PEs; j++){ 
@@ -17,6 +17,6 @@ MY_LOOP168: for(unsigned int j=0; j<NUM_VALID_PEs; j++){
 	#pragma HLS UNROLL
 		updates_tmpbuffer___size[i][j] = 0; 
 	} 
-	update_bramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___READ_FRONTIER_PROPERTIES___, 1);
+	// update_bramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___READ_FRONTIER_PROPERTIES___, 1);
 }
 

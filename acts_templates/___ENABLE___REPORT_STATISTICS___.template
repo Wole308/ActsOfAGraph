@@ -2,21 +2,7 @@
 
 #ifdef _DEBUGMODE_KERNELPRINTS4
 if(action.status == 1){ 
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"- RESETBUFFERSATSTART"<<endl;
-	cout<<"- READ_FRONTIER_PROPERTIES"<<endl; 
-	cout<<"- ECPROCESSEDGES"<<endl; 
-	cout<<"- READ_DEST_PROPERTIES"<<endl; 
-	cout<<"- APPLYUPDATES"<<endl; 
-	cout<<"- COLLECT_AND_SAVE_FRONTIER_PROPERTIES"<<endl; 
-	cout<<"- SAVE_DEST_PROPERTIES"<<endl; 
-	cout<<"- GATHER_FRONTIERINFOS"<<endl; 
-	cout<<"- NUMBER_OF_EDGEUPDATES_LOADED"<<endl; 
-	cout<<"- NUMBER_OF_EDGEUPDATES_APPLIED"<<endl; 
-	cout<<"- NUMBER_OF_NEW_EDGEUPDATES_ADDED"<<endl;
-	#endif 
-	
-	cout<<"[RESETBUFFERSATSTART, ";
+	cout<<"[acts: RESETBUFFERSATSTART, ";
 	cout<<"READ_FRONTIERS, "; 
 	cout<<"PROCESSEDGES, "; 
 	cout<<"READ_DESTS, "; 
@@ -24,15 +10,12 @@ if(action.status == 1){
 	cout<<"COLLECT_FRONTIERS, "; 
 	cout<<"SAVE_DEST, "; 
 	cout<<"GATHER_FRONTIERS] "; 
-	cout<<"[# EDGEUPDATES_LOADED, "; 
-	cout<<"# EDGEUPDATES_APPLIED, "; 
-	cout<<"# NEW_EDGEUPDATES_ADDED]";
 	cout<<endl;
 }																										
 
 cout<<">>> [";
 cout<<_NUMCLOCKCYCLES_[0][___CODE___RESETBUFFERSATSTART___]<<", ";
-cout<<_NUMCLOCKCYCLES_[0][___CODE___READ_FRONTIER_PROPERTIES___] * EDGE_PACK_SIZE * NUM_PEs<<", ";
+cout<<_NUMCLOCKCYCLES_[0][___CODE___READ_FRONTIER_PROPERTIES___] * EDGE_PACK_SIZE<<", ";
 cout<<_NUMCLOCKCYCLES_[0][___CODE___ECPROCESSEDGES___] * EDGE_PACK_SIZE<<", ";
 cout<<_NUMCLOCKCYCLES_[0][___CODE___READ_DEST_PROPERTIES___] * EDGE_PACK_SIZE * NUM_PEs<<", ";
 cout<<_NUMCLOCKCYCLES_[0][___CODE___APPLYUPDATES___] * EDGE_PACK_SIZE<<", ";
@@ -40,6 +23,15 @@ cout<<_NUMCLOCKCYCLES_[0][___CODE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES___] * E
 cout<<_NUMCLOCKCYCLES_[0][___CODE___SAVE_DEST_PROPERTIES___] * EDGE_PACK_SIZE * NUM_PEs<<", ";
 cout<<_NUMCLOCKCYCLES_[0][___CODE___GATHER_FRONTIERINFOS___] * EDGE_PACK_SIZE * NUM_PEs<<"";
 cout<<"]";
+cout<<endl;
+
+#ifdef _DEBUGMODE_KERNELPRINTS//4
+if(action.status == 1){ 
+	cout<<"[# EDGEUPDATES_LOADED, "; 
+	cout<<"# EDGEUPDATES_APPLIED, "; 
+	cout<<"# NEW_EDGEUPDATES_ADDED]";
+	cout<<endl;
+}	
 
 cout<<" [";
 cout<<_NUMCLOCKCYCLES_[0][___CODE___NUMBER_OF_EDGEUPDATES_LOADED___] * EDGE_PACK_SIZE<<", ";
@@ -47,7 +39,18 @@ cout<<_NUMCLOCKCYCLES_[0][___CODE___NUMBER_OF_EDGEUPDATES_APPLIED___] * EDGE_PAC
 cout<<_NUMCLOCKCYCLES_[0][___CODE___NUMBER_OF_NEW_EDGEUPDATES_ADDED___] * EDGE_PACK_SIZE<<"";
 cout<<"]";
 cout<<endl;
-// cout<<endl;
+#endif 
+
+report_statistics[___CODE___RESETBUFFERSATSTART___] += _NUMCLOCKCYCLES_[0][___CODE___RESETBUFFERSATSTART___];
+report_statistics[___CODE___READ_FRONTIER_PROPERTIES___] += _NUMCLOCKCYCLES_[0][___CODE___READ_FRONTIER_PROPERTIES___];
+report_statistics[___CODE___ECPROCESSEDGES___] += _NUMCLOCKCYCLES_[0][___CODE___ECPROCESSEDGES___];
+report_statistics[___CODE___READ_DEST_PROPERTIES___] += _NUMCLOCKCYCLES_[0][___CODE___READ_DEST_PROPERTIES___];
+report_statistics[___CODE___APPLYUPDATES___] += _NUMCLOCKCYCLES_[0][___CODE___APPLYUPDATES___];
+report_statistics[___CODE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES___] += _NUMCLOCKCYCLES_[0][___CODE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES___];
+report_statistics[___CODE___SAVE_DEST_PROPERTIES___] += _NUMCLOCKCYCLES_[0][___CODE___SAVE_DEST_PROPERTIES___];
+report_statistics[___CODE___GATHER_FRONTIERINFOS___] += _NUMCLOCKCYCLES_[0][___CODE___GATHER_FRONTIERINFOS___];
+
+// cout<<"~~~~~~~~~~~~~~ report_statistics[___CODE___READ_FRONTIER_PROPERTIES___]: "<<report_statistics[___CODE___READ_FRONTIER_PROPERTIES___]<<", _NUMCLOCKCYCLES_[0][___CODE___READ_FRONTIER_PROPERTIES___]: "<<_NUMCLOCKCYCLES_[0][___CODE___READ_FRONTIER_PROPERTIES___]<<endl;				
 #endif 
 
 #ifdef _DEBUGMODE_KERNELPRINTS//4

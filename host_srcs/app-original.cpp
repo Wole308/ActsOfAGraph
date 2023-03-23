@@ -304,16 +304,6 @@ unsigned int load_actpack_edges(HBM_channel_t * HBM_center, HBM_channel_t * HBM_
 	return max_lenght;
 }
 
-void write_to_hbmchannel(unsigned int fpga, unsigned int i, HBM_channel_t * HBM_channel, HBM_channelAXISW_t * HBM_axichannel[NUM_FPGAS][2][NUM_PEs], unsigned int offset, unsigned int index, unsigned int data){
-	HBM_channel[offset + (index / HBM_AXI_PACK_SIZE)].data[index % HBM_AXI_PACK_SIZE] = data; 
-	
-	// HBM_axichannel[0][offset + (index / HBM_AXI_PACK_SIZE)].data[index % HBM_AXI_PACK_SIZE] = data; 
-}
-
-void write2_to_hbmchannel(unsigned int fpga, unsigned int i, HBM_channel_t * HBM_channel, HBM_channelAXISW_t * HBM_axichannel[NUM_FPGAS][2][NUM_PEs], unsigned int offset, unsigned int v, unsigned int data){
-	HBM_channel[offset].data[v] = data; 
-}
-
 void app::run(std::string setup, std::string algo, unsigned int rootvid, string graph_path, int graphisundirected, unsigned int numiterations, std::string _binaryFile1){
 	cout<<"app::run:: app algo started. (algo: "<<algo<<", numiterations: "<<numiterations<<", rootvid: "<<rootvid<<", graph path: "<<graph_path<<", graph dir: "<<graphisundirected<<", _binaryFile1: "<<_binaryFile1<<")"<<endl;
 	// exit(EXIT_SUCCESS);
@@ -519,14 +509,8 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		unsigned int index = 0;
 		for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ 
 			for(unsigned int llp_set=0; llp_set<MAX_NUM_LLPSETS; llp_set++){ 
-				// HBM_channel[i][globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATESPTRS] + (index / HBM_AXI_PACK_SIZE)].data[index % HBM_AXI_PACK_SIZE] = final_edge_updates_offsets[i][(p_u * MAX_NUM_LLPSETS) + llp_set]; 
-				// HBM_channel[i][globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATESPTRS] + ((index + 1) / HBM_AXI_PACK_SIZE)].data[(index + 1) % HBM_AXI_PACK_SIZE] = final_edge_updates[i][p_u][llp_set].size() / EDGE_PACK_SIZE; 
-				
-				
-				write_to_hbmchannel(0, i, HBM_channel[i], HBM_axichannel, globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATESPTRS], index, final_edge_updates_offsets[i][(p_u * MAX_NUM_LLPSETS) + llp_set]);
-				write_to_hbmchannel(0, i, HBM_channel[i], HBM_axichannel, globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATESPTRS], index + 1, final_edge_updates[i][p_u][llp_set].size() / EDGE_PACK_SIZE);
-				
-				
+				HBM_channel[i][globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATESPTRS] + (index / HBM_AXI_PACK_SIZE)].data[index % HBM_AXI_PACK_SIZE] = final_edge_updates_offsets[i][(p_u * MAX_NUM_LLPSETS) + llp_set]; 
+				HBM_channel[i][globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATESPTRS] + ((index + 1) / HBM_AXI_PACK_SIZE)].data[(index + 1) % HBM_AXI_PACK_SIZE] = final_edge_updates[i][p_u][llp_set].size() / EDGE_PACK_SIZE; 
 				index += 2;
 				if(i==0){ size_u32 += 2; }
 			}
@@ -544,11 +528,8 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		unsigned int base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS];
 		for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ 
 			for(unsigned int t=0; t<MAX_NUM_LLP_PER_UPARTITION; t++){ 
-				// HBM_channel[i][base_offset + (index / HBM_AXI_PACK_SIZE)].data[index % HBM_AXI_PACK_SIZE] = act_pack_edgeupdates_map[i][p_u][t].offset; 
-				// HBM_channel[i][base_offset + ((index + 1) / HBM_AXI_PACK_SIZE)].data[(index + 1) % HBM_AXI_PACK_SIZE] = 0; 
-				write_to_hbmchannel(0, i, HBM_channel[i], HBM_axichannel, base_offset, index, act_pack_edgeupdates_map[i][p_u][t].offset);
-				write_to_hbmchannel(0, i, HBM_channel[i], HBM_axichannel, base_offset, index + 1, 0);
-				
+				HBM_channel[i][base_offset + (index / HBM_AXI_PACK_SIZE)].data[index % HBM_AXI_PACK_SIZE] = act_pack_edgeupdates_map[i][p_u][t].offset; 
+				HBM_channel[i][base_offset + ((index + 1) / HBM_AXI_PACK_SIZE)].data[(index + 1) % HBM_AXI_PACK_SIZE] = 0; 
 				index += 2;
 				if(i==0){ size_u32 += 2; }
 			}
@@ -583,10 +564,8 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		unsigned int base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS];
 		for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ 
 			for(unsigned int t=0; t<MAX_NUM_LLPSETS; t++){
-				// HBM_channel[i][base_offset + (index / HBM_AXI_PACK_SIZE)].data[index % HBM_AXI_PACK_SIZE] = act_pack_map[i][p_u][t].offset; 
-				// HBM_channel[i][base_offset + ((index + 1) / HBM_AXI_PACK_SIZE)].data[(index + 1) % HBM_AXI_PACK_SIZE] = act_pack_map[i][p_u][t].size; 
-				write_to_hbmchannel(0, i, HBM_channel[i], HBM_axichannel, base_offset, index, act_pack_map[i][p_u][t].offset);
-				write_to_hbmchannel(0, i, HBM_channel[i], HBM_axichannel, base_offset, index + 1, act_pack_map[i][p_u][t].size);
+				HBM_channel[i][base_offset + (index / HBM_AXI_PACK_SIZE)].data[index % HBM_AXI_PACK_SIZE] = act_pack_map[i][p_u][t].offset; 
+				HBM_channel[i][base_offset + ((index + 1) / HBM_AXI_PACK_SIZE)].data[(index + 1) % HBM_AXI_PACK_SIZE] = act_pack_map[i][p_u][t].size; 
 				index += 2;
 				if(i==0){ size_u32 += 2; }
 			}
@@ -604,10 +583,8 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		unsigned int base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2];
 		for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ 
 			for(unsigned int t=0; t<MAX_NUM_LLP_PER_UPARTITION; t++){
-				// HBM_channel[i][base_offset + (index / HBM_AXI_PACK_SIZE)].data[index % HBM_AXI_PACK_SIZE] = act_pack_map2[i][p_u][t].offset; 
-				// HBM_channel[i][base_offset + ((index + 1) / HBM_AXI_PACK_SIZE)].data[(index + 1) % HBM_AXI_PACK_SIZE] = 0; // act_pack_map2[i][p_u][t].size;
-				write_to_hbmchannel(0, i, HBM_channel[i], HBM_axichannel, base_offset, index, act_pack_map2[i][p_u][t].offset);
-				write_to_hbmchannel(0, i, HBM_channel[i], HBM_axichannel, base_offset, index + 1, 0);
+				HBM_channel[i][base_offset + (index / HBM_AXI_PACK_SIZE)].data[index % HBM_AXI_PACK_SIZE] = act_pack_map2[i][p_u][t].offset; 
+				HBM_channel[i][base_offset + ((index + 1) / HBM_AXI_PACK_SIZE)].data[(index + 1) % HBM_AXI_PACK_SIZE] = 0; // act_pack_map2[i][p_u][t].size;
 				index += 2;
 				if(i==0){ size_u32 += 2; }
 			}
@@ -642,17 +619,8 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 				for(unsigned int t=0; t<final_edge_updates[i][p_u][llp_set].size() / EDGE_PACK_SIZE; t++){ 
 					for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){	
 						utilityobj->checkoutofbounds("app::ERROR 23487::", globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES] + offset + t, HBM_CHANNEL_SIZE, globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES], offset, t);
-						// HBM_channel[i][globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES] + offset + t].data[2 * v] = final_edge_updates[i][p_u][llp_set][index].srcvid % MAX_UPARTITION_SIZE;
-						// HBM_channel[i][globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES] + offset + t].data[2 * v + 1] = final_edge_updates[i][p_u][llp_set][index].dstvid % MAX_UPARTITION_SIZE;
-						
-						write2_to_hbmchannel(0, i, HBM_channel[i], HBM_axichannel, globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES] + offset + t, 2 * v, final_edge_updates[i][p_u][llp_set][index].srcvid % MAX_UPARTITION_SIZE);
-						write2_to_hbmchannel(0, i, HBM_channel[i], HBM_axichannel globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES] + offset + t, 2 * v + 1, final_edge_updates[i][p_u][llp_set][index].dstvid % MAX_UPARTITION_SIZE);
-						
-						// void write2_to_hbmchannel(HBM_channel_t * HBM_channel, unsigned int offset, unsigned int v, unsigned int data){
-							// HBM_channel[offset].data[v] = data; 
-						// }
-						
-						
+						HBM_channel[i][globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES] + offset + t].data[2 * v] = final_edge_updates[i][p_u][llp_set][index].srcvid % MAX_UPARTITION_SIZE;
+						HBM_channel[i][globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES] + offset + t].data[2 * v + 1] = final_edge_updates[i][p_u][llp_set][index].dstvid % MAX_UPARTITION_SIZE;
 						index += 1;
 					}
 					if(i==0){ size_u32 += EDGE_PACK_SIZE * 2; }		
@@ -695,11 +663,8 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		unsigned int base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSREDGES];
 		for(unsigned int t=0; t<numww_csredges; t++){ 
 			for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
-				// HBM_channel[i][base_offset + t].data[2 * v] = csr_pack_edges[i][index].srcvid;
-				// HBM_channel[i][base_offset + t].data[2 * v + 1] = (csr_pack_edges[i][index].dstvid << 1) | csr_pack_edges[i][index].valid;	
-				write2_to_hbmchannel(0, i, HBM_channel[i], HBM_axichannel, base_offset + t, 2 * v, csr_pack_edges[i][index].srcvid);
-				write2_to_hbmchannel(0, i, HBM_channel[i], HBM_axichannel, base_offset + t, 2 * v + 1, (csr_pack_edges[i][index].dstvid << 1) | csr_pack_edges[i][index].valid);
-						
+				HBM_channel[i][base_offset + t].data[2 * v] = csr_pack_edges[i][index].srcvid;
+				HBM_channel[i][base_offset + t].data[2 * v + 1] = (csr_pack_edges[i][index].dstvid << 1) | csr_pack_edges[i][index].valid;	
 				index += 1;
 				if(i==0){ size_u32 += 2; }
 			}
@@ -751,10 +716,8 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 			for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE; t++){ 
 				for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 					unsigned int index = p*MAX_APPLYPARTITION_VECSIZE*EDGE_PACK_SIZE + t*EDGE_PACK_SIZE + v;
-					// HBM_channel[i][base_offset + (p * MAX_APPLYPARTITION_VECSIZE + t)].data[2 * v] = algorithmobj->vertex_initdata(universalparams.ALGORITHM, index);
-					// HBM_channel[i][base_offset + (p * MAX_APPLYPARTITION_VECSIZE + t)].data[2 * v + 1] = 0;
-					write2_to_hbmchannel(0, i, HBM_channel[i], HBM_axichannel, base_offset + (p * MAX_APPLYPARTITION_VECSIZE + t), 2 * v, algorithmobj->vertex_initdata(universalparams.ALGORITHM, index));
-					write2_to_hbmchannel(0, i, HBM_channel[i], HBM_axichannel, base_offset + (p * MAX_APPLYPARTITION_VECSIZE + t), 2 * v + 1, 0);
+					HBM_channel[i][base_offset + (p * MAX_APPLYPARTITION_VECSIZE + t)].data[2 * v] = algorithmobj->vertex_initdata(universalparams.ALGORITHM, index);
+					HBM_channel[i][base_offset + (p * MAX_APPLYPARTITION_VECSIZE + t)].data[2 * v + 1] = 0;
 					if(i==0){ size_u32 += 2; }
 				}
 			}

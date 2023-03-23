@@ -202,7 +202,7 @@ MY_IFDEF_CREATE_ACTPACK(){
 		cout<<"### preparing edge updates in upartition "<<p_u<<": [PEs "; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<n<<", "; } cout<<"]"<<endl; 
 		#endif 
 		CREATE_ACTPACK_BASELOOP1B: for(unsigned int llp_set=0; llp_set<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]; llp_set++){ 
-			#ifndef ___RUNNING_FPGA_SYNTHESIS___XXX
+			#ifdef _DEBUGMODE_KERNELPRINTS//4
 			cout<<">>> preparing edge updates in upartition "<<p_u<<", llp_set: "<<llp_set<<"...."<<endl; 
 			#endif 
 			for(unsigned int llp_id=0; llp_id<NUM_LLP_PER_LLPSET; llp_id++){ 
@@ -242,9 +242,7 @@ MY_IFDEF_CREATE_ACTPACK(){
 				if(c==1 && work_size > _MAX_BUFFER_SIZE){ cout<<"ALERT: c("<<c<<")==1 && work_size("<<work_size<<") > _MAX_BUFFER_SIZE("<<_MAX_BUFFER_SIZE<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }
 				#endif
 				
-				cout<<">>> acts_kernel::prepare-edge-updates:: c: "<<c<<", p_u: "<<p_u<<", llp_set: "<<llp_set<<", work_size: "<<work_size<<", final_edge_updates[0]["<<p_u<<"]["<<llp_set<<"].size(): "<<final_edge_updates[0][p_u][llp_set].size() / EDGE_PACK_SIZE<<endl; 
-				
-				
+				// cout<<">>> acts_kernel::prepare-edge-updates:: c: "<<c<<", p_u: "<<p_u<<", llp_set: "<<llp_set<<", work_size: "<<work_size<<", final_edge_updates[0]["<<p_u<<"]["<<llp_set<<"].size(): "<<final_edge_updates[0][p_u][llp_set].size() / EDGE_PACK_SIZE<<endl; 
 				#ifdef _DEBUGMODE_KERNELPRINTS4_CREATEACTPACT
 				cout<<">>> acts_kernel::prepare-edge-updates:: c: "<<c<<", p_u: "<<p_u<<", llp_set: "<<llp_set<<", work_size: "<<work_size<<", final_edge_updates[0]["<<p_u<<"]["<<llp_set<<"].size(): "<<final_edge_updates[0][p_u][llp_set].size() / EDGE_PACK_SIZE<<endl; 
 				cout<<"acts_kernel::prepare-edge-updates:: rawedges_maps: "; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<rawedge_maps[n].size<<", "; } cout<<endl;
@@ -427,7 +425,7 @@ MY_IFDEF_CREATE_ACTPACK(){
 						#endif 
 						
 						save_edgemaps((p_u * MAX_NUM_LLP_PER_UPARTITION) + (llp_set * NUM_LLP_PER_LLPSET) + llp_id, destedgeupdateptrs_baseoffset, edge_map_vec, {% include '___HBM___ARGS___.template' %});
-						#ifdef _DEBUGMODE_KERNELPRINTS4
+						#ifdef _DEBUGMODE_KERNELPRINTS//4
 						for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<"prepare-edge-updates: edgeupdate_maps["<<n<<"]["<<llp_id<<"].offset: "<<edgeupdate_maps[n][llp_id].offset<<", edgeupdate_maps["<<n<<"]["<<llp_id<<"].size: "<<edgeupdate_maps[n][llp_id].size<<""<<endl; }
 						#endif
 					}
@@ -478,11 +476,11 @@ MY_IFDEF_CREATE_ACTPACK(){
 			#endif
 		}	
 		for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){	
-			#ifdef _DEBUGMODE_KERNELPRINTS4
+			#ifdef _DEBUGMODE_KERNELPRINTS//4
 			cout<<"finish: offsets for fpga "<<fpga<<endl;
 			#endif 
 			for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]+1; t++){
-				#ifdef _DEBUGMODE_KERNELPRINTS4
+				#ifdef _DEBUGMODE_KERNELPRINTS//4
 				cout<<"finish: [vertex_updates2_map["<<fpga<<"]["<<t<<"].offset: "<<vertex_updates2_map[fpga][t].offset<<", vertex_updates2_map["<<fpga<<"]["<<t<<"].size: "<<vertex_updates2_map[fpga][t].size<<"]"<<endl;
 				#endif 
 			}
