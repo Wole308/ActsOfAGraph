@@ -142,7 +142,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 {%for i in context['NUM_VALID_HBM_CHANNELS_seq']%}
 #pragma HLS INTERFACE s_axilite port = HBM_channelA{{i}}
 #pragma HLS INTERFACE s_axilite port = HBM_channelB{{i}}
-{%endfor%}	
+{%endfor%}
 #pragma HLS INTERFACE s_axilite port = HBM_centerA
 #pragma HLS INTERFACE s_axilite port = HBM_centerB
 #pragma HLS INTERFACE s_axilite port = HBM_import

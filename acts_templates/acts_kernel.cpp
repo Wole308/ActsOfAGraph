@@ -2582,7 +2582,6 @@ MY_IFDEF_TOPLEVELFUNC(){
 
 #pragma HLS INTERFACE s_axilite port = HBM_channelA0
 #pragma HLS INTERFACE s_axilite port = HBM_channelB0
-	
 #pragma HLS INTERFACE s_axilite port = HBM_centerA
 #pragma HLS INTERFACE s_axilite port = HBM_centerB
 #pragma HLS INTERFACE s_axilite port = HBM_import

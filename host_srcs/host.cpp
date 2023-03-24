@@ -91,7 +91,7 @@ using std::vector;
 #define NUM_HBM_ARGS (NUM_VALID_HBM_CHANNELS * 2)
 #define NUM_HBMC_ARGS 2
 #define NUM_HBMIO_ARGS 2
-#define NUM_HBMIO_CHKPTS_ARGS 2
+#define NUM_HBMIO_CHKPTS_ARGS 0//2
 
 #define NUM_IMPORT_BUFFERS 16 // FIXME. AUTOMATE.
 #define NUM_EXPORT_BUFFERS 16
@@ -603,11 +603,9 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 	acts_kernel * acts = new acts_kernel(universalparams);
 	#endif 
 	
-	// run kernel
-	// unsigned int partition_exported = 0;
-	
 	action_t actions[NUM_FPGAS];
 	
+	// run kernel
 	std::chrono::steady_clock::time_point begin_time = std::chrono::steady_clock::now();
 	for (unsigned int iteration_idx = 0; iteration_idx < 1; iteration_idx++) {
 		for(unsigned int launch_idx=0; launch_idx<num_launches; launch_idx+=1){
@@ -741,7 +739,6 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 			}
 		}
     }
-	
 	double end_time = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin_time).count()) / 1000;	
 	std::cout << TIMINGRESULTSCOLOR <<">>> total kernel time elapsed for all iterations : "<<end_time<<" ms, "<<(end_time * 1000)<<" microsecs, "<< RESET << std::endl;
 	
