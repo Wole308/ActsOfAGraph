@@ -56,7 +56,6 @@ public:
 	
 	unsigned int top_function( HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, 	
 		HBM_channelAXI_t * HBM_import, HBM_channelAXI_t * HBM_export, 
-		checkpoint_t * import_checkpoint_dram, checkpoint_t * export_checkpoint_dram,	
 		unsigned int fpga, unsigned int module, unsigned int graph_iteration, unsigned int start_pu, unsigned int size_pu, unsigned int skip_pu, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_gv, unsigned int size_gv, unsigned int id_import, unsigned int id_export, unsigned int size_import_export, unsigned int finish				
 		#ifndef ___RUNNING_FPGA_SYNTHESIS___	
 		,vector<edge3_type> (&final_edge_updates)[NUM_PEs][MAX_NUM_UPARTITIONS][MAX_NUM_LLPSETS] ,unsigned int report_statistics[64]	

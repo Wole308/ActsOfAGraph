@@ -36,7 +36,6 @@ using namespace std;
 #define MY_IFDEF_VDATABUFFER() vprop_t URAM_vprop[EDGE_PACK_SIZE][MAXVALID_APPLYPARTITION_VECSIZE]
 #define MY_IFDEF_TOPLEVELFUNC() void top_function( HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, \
 	HBM_channelAXI_t * HBM_import, HBM_channelAXI_t * HBM_export, \
-	checkpoint_t * HBM_import_chkpt, checkpoint_t * HBM_export_chkpt, \
 	unsigned int fpga, unsigned int module, unsigned int graph_iteration, unsigned int start_pu, unsigned int size_pu, unsigned int skip_pu, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_gv, unsigned int size_gv, unsigned int id_import ,unsigned int id_export, unsigned int size_import_export, unsigned int status)
 #else
 #define MY_IFDEF_NFRONTIER() keyvalue_t * nfrontier_buffer[EDGE_PACK_SIZE]
@@ -52,7 +51,6 @@ using namespace std;
 #define MY_IFDEF_VDATABUFFER() vprop_t * URAM_vprop[EDGE_PACK_SIZE]
 #define MY_IFDEF_TOPLEVELFUNC() unsigned int acts_kernel::top_function( HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, \
 	HBM_channelAXI_t * HBM_import, HBM_channelAXI_t * HBM_export, \
-	checkpoint_t * HBM_import_chkpt, checkpoint_t * HBM_export_chkpt, \
 	unsigned int fpga, unsigned int module, unsigned int graph_iteration, unsigned int start_pu, unsigned int size_pu, unsigned int skip_pu, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_gv, unsigned int size_gv, unsigned int id_import ,unsigned int id_export, unsigned int size_import_export, unsigned int status, \
 	vector<edge3_type> (&final_edge_updates)[NUM_PEs][MAX_NUM_UPARTITIONS][MAX_NUM_LLPSETS], unsigned int report_statistics[64])					
 #endif
@@ -2581,8 +2579,6 @@ MY_IFDEF_TOPLEVELFUNC(){
 #pragma HLS INTERFACE m_axi port = HBM_centerB offset = slave bundle = gmem3
 #pragma HLS INTERFACE m_axi port = HBM_import offset = slave bundle = gmem4
 #pragma HLS INTERFACE m_axi port = HBM_export offset = slave bundle = gmem5
-#pragma HLS INTERFACE m_axi port = HBM_import_chkpt offset = slave bundle = gmem6
-#pragma HLS INTERFACE m_axi port = HBM_export_chkpt offset = slave bundle = gmem6
 
 #pragma HLS INTERFACE s_axilite port = HBM_channelA0
 #pragma HLS INTERFACE s_axilite port = HBM_channelB0
@@ -2591,8 +2587,6 @@ MY_IFDEF_TOPLEVELFUNC(){
 #pragma HLS INTERFACE s_axilite port = HBM_centerB
 #pragma HLS INTERFACE s_axilite port = HBM_import
 #pragma HLS INTERFACE s_axilite port = HBM_export
-#pragma HLS INTERFACE s_axilite port = HBM_import_chkpt
-#pragma HLS INTERFACE s_axilite port = HBM_export_chkpt
 
 #pragma HLS INTERFACE s_axilite port = fpga
 #pragma HLS INTERFACE s_axilite port = module
@@ -2616,9 +2610,9 @@ MY_IFDEF_TOPLEVELFUNC(){
 
 	#ifndef ___RUNNING_FPGA_SYNTHESIS___
 	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
-	if(status == 1 || true) { cout<<"acts_kernel::run:: dynamic acts started: start_pu: "<<start_pu<<", size_pu: "<<size_pu<<", skip_pu: "<<skip_pu<<", start_pv: "<<start_pv<<", size_pv: "<<size_pv<<endl; }
+	if(status == 1 || true) { cout<<"acts_kernel::run:: dynamic acts started: fpga: "<<fpga<<", start_pu: "<<start_pu<<", size_pu: "<<size_pu<<", skip_pu: "<<skip_pu<<", start_pv: "<<start_pv<<", size_pv: "<<size_pv<<endl; }
 	#else 
-	if(status == 1 || true) { cout<<"acts_kernel::run:: acts started: start_pu: "<<start_pu<<", size_pu: "<<size_pu<<", skip_pu: "<<skip_pu<<", start_pv: "<<start_pv<<", size_pv: "<<size_pv<<endl; }	
+	if(status == 1 || true) { cout<<"acts_kernel::run:: acts started: fpga: "<<fpga<<", start_pu: "<<start_pu<<", size_pu: "<<size_pu<<", skip_pu: "<<skip_pu<<", start_pv: "<<start_pv<<", size_pv: "<<size_pv<<endl; }	
 	#endif 
 	#endif 
 	

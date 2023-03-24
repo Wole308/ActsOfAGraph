@@ -212,7 +212,7 @@ unsigned int load_globalparams2(HBM_channelAXISW_t * HBM_axichannel[NUM_FPGAS][2
 }
 
 unsigned int load_actpack_edges(HBM_channelAXISW_t * HBM_axicenter[NUM_FPGAS][2], HBM_channelAXISW_t * HBM_axichannel[NUM_FPGAS][2][NUM_PEs], 
-		HBM_channelAXISW_t * HBM_import_export[NUM_FPGAS][2], checkpoint_t * HBM_import_chkpt, checkpoint_t * HBM_export_chkpt, 
+		HBM_channelAXISW_t * HBM_import_export[NUM_FPGAS][2], 
 		vector<edge3_type> (&final_edge_updates)[NUM_PEs][MAX_NUM_UPARTITIONS][MAX_NUM_LLPSETS],
 		unsigned int rootvid, unsigned int max_degree,
 		utility * utilityobj, universalparams_t universalparams, unsigned int globalparams[1024]){
@@ -274,7 +274,6 @@ unsigned int load_actpack_edges(HBM_channelAXISW_t * HBM_axicenter[NUM_FPGAS][2]
 				#endif
 				,(HBM_channelAXI_t *)HBM_axicenter[fpga][0], (HBM_channelAXI_t *)HBM_axicenter[fpga][1]
 				,(HBM_channelAXI_t *)HBM_import_export[fpga][0], (HBM_channelAXI_t *)HBM_import_export[fpga][1]
-				,HBM_import_chkpt ,HBM_export_chkpt
 				,fpga ,action.module ,0 ,action.start_pu ,action.size_pu ,action.skip_pu ,action.start_pv ,action.size_pv ,action.start_llpset ,action.size_llpset ,action.start_llpid ,action.size_llpid ,action.start_gv ,action.size_gv ,action.id_import, action.id_export ,action.size_import_export ,action.status, final_edge_updates ,report_statistics					
 				); 
 		}
@@ -400,13 +399,6 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	for(unsigned int i=0; i<NUM_PEs; i++){ cout<<"csr-pack:: PE: 21: csr_pack_edges["<<i<<"].size(): "<<csr_pack_edges[i].size()<<endl; }
 	cout<<"app::csr-pack:: max_degree: "<<max_degree<<endl;
 	
-	checkpoint_t * HBM_import_chkpt = new checkpoint_t[MAX_NUM_UPARTITIONS];
-	checkpoint_t * HBM_export_chkpt = new checkpoint_t[MAX_NUM_UPARTITIONS];
-	for(unsigned int t=0; t<MAX_NUM_UPARTITIONS; t++){
-		HBM_import_chkpt[t].msg = 0;
-		HBM_export_chkpt[t].msg = 0;
-	}
-
 	// load globalparams: {vptrs, edges, updatesptrs, updates, vertexprops, frontiers}
 	cout<<"app: loading global addresses: {vptrs, edges, updates, vertexprops, frontiers}..."<<endl;
 	unsigned int numcsredges = 0; for(unsigned int i=0; i<NUM_PEs; i++){ if(numcsredges < csr_pack_edges[i].size()){ numcsredges = csr_pack_edges[i].size(); }} 
@@ -600,7 +592,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	
 	// load edges and edge updates 
 	unsigned int max_lenght = load_actpack_edges(HBM_axicenter, HBM_axichannel, 
-		HBM_import_export, HBM_import_chkpt, HBM_export_chkpt, 
+		HBM_import_export,
 		final_edge_updates,
 		rootvid, max_degree,
 		utilityobj, universalparams, globalparams);
