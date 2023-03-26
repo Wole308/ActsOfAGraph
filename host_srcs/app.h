@@ -21,6 +21,7 @@
 #include <iomanip>
 #include "utility.h"
 #include "act_pack.h"
+#include "create_act_pack.h"
 #include "prepare_graph.h"
 #include "make_graph.h"
 #include "algorithm.h"

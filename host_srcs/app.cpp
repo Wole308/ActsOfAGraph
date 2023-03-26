@@ -213,10 +213,10 @@ unsigned int load_globalparams2(HBM_channelAXISW_t * HBM_axichannel[NUM_FPGAS][2
 
 unsigned int load_actpack_edges(HBM_channelAXISW_t * HBM_axicenter[NUM_FPGAS][2], HBM_channelAXISW_t * HBM_axichannel[NUM_FPGAS][2][NUM_PEs], 
 		HBM_channelAXISW_t * HBM_import_export[NUM_FPGAS][2], 
-		vector<edge3_type> (&final_edge_updates)[NUM_PEs][MAX_NUM_UPARTITIONS][MAX_NUM_LLPSETS],
+		vector<edge3_type> (&partitioned_edges)[NUM_PEs][MAX_NUM_UPARTITIONS][MAX_NUM_LLPSETS],
 		unsigned int rootvid, unsigned int max_degree,
 		utility * utilityobj, universalparams_t universalparams, unsigned int globalparams[1024]){
-			
+	
 	unsigned int report_statistics[64]; for(unsigned int t=0; t<64; t++){ report_statistics[t] = 0; }
 			
 	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
@@ -229,30 +229,100 @@ unsigned int load_actpack_edges(HBM_channelAXISW_t * HBM_axicenter[NUM_FPGAS][2]
 	
 	unsigned int lastww_addr2 = load_globalparams2(HBM_axichannel, globalparams, universalparams, rootvid, max_degree, utilityobj);
 	print_globalparams(globalparams, universalparams, utilityobj);
+	
+	map_t * edge_maps[NUM_FPGAS][NUM_PEs]; for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ for(unsigned int i=0; i<NUM_PEs; i++){ edge_maps[fpga][i] = new map_t[MAX_NUM_UPARTITIONS * MAX_NUM_LLP_PER_UPARTITION]; }}
+	map_t * vu_map[NUM_FPGAS][NUM_PEs]; for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ for(unsigned int i=0; i<NUM_PEs; i++){ vu_map[fpga][i] = new map_t[NUM_FPGAS * MAX_NUM_LLPSETS]; }}
 
 	for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ 
-		action_t action;
-		action.module = ALL_MODULES;
-		action.graph_iteration = 0;
-		action.start_pu = fpga; 
-		action.size_pu = universalparams.NUM_UPARTITIONS; 
-		action.skip_pu = NUM_FPGAS; 
-		action.start_pv = 0;
-		action.size_pv = universalparams.NUM_APPLYPARTITIONS; 
-		action.start_llpset = 0; 
-		action.size_llpset = universalparams.NUM_APPLYPARTITIONS; 
-		action.start_llpid = 0; 
-		action.size_llpid = EDGE_PACK_SIZE; 
-		action.start_gv = 0; 
-		action.size_gv = NUM_VALID_PEs;
-		action.id_import = 0;
-		action.id_export = 0;
-		action.size_import_export = IMPORT_EXPORT_GRANULARITY_VECSIZE;
-		action.status = 1;
+		// action_t action;
+		// action.module = ALL_MODULES;
+		// action.graph_iteration = 0;
+		// action.start_pu = fpga; 
+		// action.size_pu = universalparams.NUM_UPARTITIONS; 
+		// action.skip_pu = NUM_FPGAS; 
+		// action.start_pv = 0;
+		// action.size_pv = universalparams.NUM_APPLYPARTITIONS; 
+		// action.start_llpset = 0; 
+		// action.size_llpset = universalparams.NUM_APPLYPARTITIONS; 
+		// action.start_llpid = 0; 
+		// action.size_llpid = EDGE_PACK_SIZE; 
+		// action.start_gv = 0; 
+		// action.size_gv = NUM_VALID_PEs;
+		// action.id_import = 0;
+		// action.id_export = 0;
+		// action.size_import_export = IMPORT_EXPORT_GRANULARITY_VECSIZE;
+		// action.status = 1;
 		for(unsigned int c=0; c<num_its; c++){ 
-			for(unsigned int i=0; i<NUM_PEs; i++){ HBM_axichannel[fpga][0][i][GLOBALPARAMSCODE__COMMANDS__COMMAND0].data[0] = c; action.module = PREPROCESSING_MODULE; }
+			// for(unsigned int i=0; i<NUM_PEs; i++){ HBM_axichannel[fpga][0][i][GLOBALPARAMSCODE__COMMANDS__COMMAND0].data[0] = c; action.module = PREPROCESSING_MODULE; }
 			cout<<"##################################################################################### populating act-pack edges using acts kernel...."<<endl;
-			lenght[fpga] = acts->top_function(
+			
+			// create_act_pack * create_act_pack_obj = new create_act_pack(universalparams);
+			// edge_update_type * URAM_edges[NUM_VALID_PEs][EDGE_PACK_SIZE];	
+			// for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ URAM_edges[i][v] = new edge_update_type[EDGE_UPDATES_DRAMBUFFER_LONGSIZE]; }}
+			// if(globalparams[GLOBALPARAMSCODE__COMMANDS__COMMAND0] == 0){ 
+				// lenght[fpga] = create_act_pack_obj->create_actpack(action, partitioned_edges, globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES], globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2], URAM_edges, EDGE_UPDATES_DRAMBUFFER_LONGSIZE, EDGE_UPDATES_DRAMBUFFER_LONGSIZE, globalparams, HBM_axichannel[fpga][0], HBM_axichannel[fpga][1]);		
+			// } else if(globalparams[GLOBALPARAMSCODE__COMMANDS__COMMAND0] == 1){	
+				// lenght[fpga] = create_act_pack_obj->create_actpack(action, partitioned_edges, globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES], globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS], URAM_edges, EDGE_UPDATES_DRAMBUFFER_SIZE, EDGE_UPDATES_WORKBUFFER_SIZE, globalparams, HBM_axichannel[fpga][0], HBM_axichannel[fpga][1]);	
+			// }
+			
+			unsigned int start_pu = fpga; 
+			unsigned int size_pu = universalparams.NUM_UPARTITIONS; 
+			unsigned int skip_pu = NUM_FPGAS; 
+			
+			unsigned int offset_src;
+			unsigned int offset_dest; 
+			unsigned int offset_destptrs; 
+			unsigned int offset_updatesptrs; 
+			unsigned int offset_tmpdest;
+			offset_src = globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES];
+			if(globalparams[GLOBALPARAMSCODE__COMMANDS__COMMAND0] == 0){
+				offset_dest = globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES]; 
+				offset_destptrs = globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKVPTRS2]; 
+			} else {
+				offset_dest = globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES]; 
+				offset_destptrs = globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATESPTRS]; 
+			}
+			offset_updatesptrs = globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS]; 
+			offset_tmpdest = globalparams[GLOBALPARAMSCODE__BASEOFFSET__PARTIALLYPROCESSEDEDGEUPDATES];
+			
+			create_act_pack * create_act_pack_obj = new create_act_pack(universalparams);
+			lenght[fpga] = create_act_pack_obj->create_actpack(
+				globalparams[GLOBALPARAMSCODE__COMMANDS__COMMAND0], 
+				partitioned_edges, 
+				HBM_axichannel[fpga][0], HBM_axichannel[fpga][1], edge_maps[fpga], vu_map[fpga],
+				offset_src, offset_dest, offset_destptrs, offset_updatesptrs, offset_tmpdest, 
+				universalparams.NUM_UPARTITIONS, universalparams.NUM_APPLYPARTITIONS,
+				// start_pu, size_pu, skip_pu
+				fpga, universalparams.NUM_UPARTITIONS, NUM_FPGAS
+				);
+				
+			for(unsigned int p_u=start_pu; p_u<start_pu + size_pu; p_u+=skip_pu){
+			// for(unsigned int p_u=action.start_pu; p_u<action.start_pu + action.size_pu; p_u+=action.skip_pu){
+				for(unsigned int llp_set=0; llp_set<universalparams.NUM_APPLYPARTITIONS; llp_set++){ 
+					for(unsigned int llp_id=0; llp_id<NUM_LLP_PER_LLPSET; llp_id++){
+						unsigned int index = ((p_u * MAX_NUM_LLP_PER_UPARTITION) + (llp_set * NUM_LLP_PER_LLPSET) + llp_id) * 2; // '*2' because data is dual: i.e., offset and size
+						for(unsigned int i=0; i<NUM_VALID_PEs; i++){
+							map_t edge_map = edge_maps[fpga][i][p_u*MAX_NUM_LLP_PER_UPARTITION + llp_set*NUM_LLP_PER_LLPSET + llp_id];
+							HBM_axichannel[fpga][0][i][offset_destptrs + (index / HBM_AXI_PACK_SIZE)].data[(index % HBM_AXI_PACK_SIZE)] = edge_map.offset;
+							HBM_axichannel[fpga][0][i][offset_destptrs + ((index + 1) / HBM_AXI_PACK_SIZE)].data[((index + 1) % HBM_AXI_PACK_SIZE)] = edge_map.size;
+						}
+					}
+				}
+			}
+			
+			for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){
+				for(unsigned int t=0; t<universalparams.NUM_APPLYPARTITIONS; t++){		
+					unsigned int index = (fpga * MAX_NUM_LLPSETS) + t;
+					for(unsigned int i=0; i<NUM_PEs; i++){
+						HBM_axichannel[fpga][0][i][offset_updatesptrs + index].data[0] = vu_map[fpga][i][index].offset;
+						HBM_axichannel[fpga][0][i][offset_updatesptrs + index].data[1] = vu_map[fpga][i][index].size;
+					}
+				}
+			}
+			
+			
+			
+			/* lenght[fpga] = acts->top_function(
 				(HBM_channelAXI_t *)HBM_axichannel[fpga][0][0], (HBM_channelAXI_t *)HBM_axichannel[fpga][1][0]
 				#if NUM_VALID_HBM_CHANNELS>1
 				,(HBM_channelAXI_t *)HBM_axichannel[fpga][0][1], (HBM_channelAXI_t *)HBM_axichannel[fpga][1][1] 
@@ -274,8 +344,8 @@ unsigned int load_actpack_edges(HBM_channelAXISW_t * HBM_axicenter[NUM_FPGAS][2]
 				#endif
 				,(HBM_channelAXI_t *)HBM_axicenter[fpga][0], (HBM_channelAXI_t *)HBM_axicenter[fpga][1]
 				,(HBM_channelAXI_t *)HBM_import_export[fpga][0], (HBM_channelAXI_t *)HBM_import_export[fpga][1]
-				,fpga ,action.module ,0 ,action.start_pu ,action.size_pu ,action.skip_pu ,action.start_pv ,action.size_pv ,action.start_llpset ,action.size_llpset ,action.start_llpid ,action.size_llpid ,action.start_gv ,action.size_gv ,action.id_import, action.id_export ,action.size_import_export ,action.status, final_edge_updates ,report_statistics					
-				); 
+				,fpga ,action.module ,0 ,action.start_pu ,action.size_pu ,action.skip_pu ,action.start_pv ,action.size_pv ,action.start_llpset ,action.size_llpset ,action.start_llpid ,action.size_llpid ,action.start_gv ,action.size_gv ,action.id_import, action.id_export ,action.size_import_export ,action.status, partitioned_edges ,report_statistics					
+				);  */
 		}
 	}
 	unsigned int max_lenght = 0; for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ if(max_lenght < lenght[fpga]){ max_lenght = lenght[fpga]; }}
@@ -445,14 +515,14 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATESPTRS] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTIONS] + globalparams[GLOBALPARAMSCODE__WWSIZE__ACTIONS]; 
 	}
 	size_u32 = 0;
-	vector<edge3_type> final_edge_updates[NUM_PEs][MAX_NUM_UPARTITIONS][MAX_NUM_LLPSETS];
+	vector<edge3_type> partitioned_edges[NUM_PEs][MAX_NUM_UPARTITIONS][MAX_NUM_LLPSETS];
 	unsigned int * final_edge_updates_offsets[NUM_PEs]; for(unsigned int i=0; i<NUM_PEs; i++){ final_edge_updates_offsets[i] = new unsigned int[MAX_NUM_UPARTITIONS * MAX_NUM_LLPSETS]; for(unsigned int t=0; t<MAX_NUM_UPARTITIONS * MAX_NUM_LLPSETS; t++){ final_edge_updates_offsets[i][t] = 0; } }
 	act_pack * pack = new act_pack(universalparams);
-	pack->load_edgeupdates(vertexptrbuffer, edgedatabuffer, final_edge_updates);	
+	pack->load_edgeupdates(vertexptrbuffer, edgedatabuffer, partitioned_edges);	
 	for(unsigned int i=0; i<NUM_PEs; i++){
 		for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ 
 			for(unsigned int llp_set=0; llp_set<MAX_NUM_LLPSETS; llp_set++){ 
-				if(p_u*MAX_NUM_LLPSETS + llp_set > 0){ final_edge_updates_offsets[i][p_u*MAX_NUM_LLPSETS + llp_set] = final_edge_updates_offsets[i][p_u*MAX_NUM_LLPSETS + llp_set - 1] + (final_edge_updates[i][p_u][llp_set].size() / EDGE_PACK_SIZE); }
+				if(p_u*MAX_NUM_LLPSETS + llp_set > 0){ final_edge_updates_offsets[i][p_u*MAX_NUM_LLPSETS + llp_set] = final_edge_updates_offsets[i][p_u*MAX_NUM_LLPSETS + llp_set - 1] + (partitioned_edges[i][p_u][llp_set].size() / EDGE_PACK_SIZE); }
 			}
 		}
 	}
@@ -461,7 +531,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ 
 			for(unsigned int llp_set=0; llp_set<MAX_NUM_LLPSETS; llp_set++){ 
 				write_to_hbmchannel(i, HBM_axichannel, globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATESPTRS], index, final_edge_updates_offsets[i][(p_u * MAX_NUM_LLPSETS) + llp_set]);
-				write_to_hbmchannel(i, HBM_axichannel, globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATESPTRS], index + 1, final_edge_updates[i][p_u][llp_set].size() / EDGE_PACK_SIZE);
+				write_to_hbmchannel(i, HBM_axichannel, globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATESPTRS], index + 1, partitioned_edges[i][p_u][llp_set].size() / EDGE_PACK_SIZE);
 				index += 2;
 				if(i==0){ size_u32 += 2; }
 			}
@@ -524,11 +594,11 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 			for(unsigned int llp_set=0; llp_set<universalparams.NUM_APPLYPARTITIONS; llp_set++){
 				unsigned int index = 0;
 				unsigned int offset = final_edge_updates_offsets[i][p_u*MAX_NUM_LLPSETS + llp_set];
-				for(unsigned int t=0; t<final_edge_updates[i][p_u][llp_set].size() / EDGE_PACK_SIZE; t++){ 
+				for(unsigned int t=0; t<partitioned_edges[i][p_u][llp_set].size() / EDGE_PACK_SIZE; t++){ 
 					for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){	
 						utilityobj->checkoutofbounds("app::ERROR 23487::", globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES] + offset + t, HBM_CHANNEL_SIZE, globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES], offset, t);
-						write2_to_hbmchannel(i, HBM_axichannel, globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES] + offset + t, 2 * v, final_edge_updates[i][p_u][llp_set][index].srcvid % MAX_UPARTITION_SIZE);
-						write2_to_hbmchannel(i, HBM_axichannel globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES] + offset + t, 2 * v + 1, final_edge_updates[i][p_u][llp_set][index].dstvid % MAX_UPARTITION_SIZE);
+						write2_to_hbmchannel(i, HBM_axichannel, globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES] + offset + t, 2 * v, partitioned_edges[i][p_u][llp_set][index].srcvid % MAX_UPARTITION_SIZE);
+						write2_to_hbmchannel(i, HBM_axichannel globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES] + offset + t, 2 * v + 1, partitioned_edges[i][p_u][llp_set][index].dstvid % MAX_UPARTITION_SIZE);
 						index += 1;
 					}
 					if(i==0){ size_u32 += EDGE_PACK_SIZE * 2; }		
@@ -593,7 +663,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	// load edges and edge updates 
 	unsigned int max_lenght = load_actpack_edges(HBM_axicenter, HBM_axichannel, 
 		HBM_import_export,
-		final_edge_updates,
+		partitioned_edges,
 		rootvid, max_degree,
 		utilityobj, universalparams, globalparams);
 	size_u32 = (max_lenght * EDGE_PACK_SIZE * 2) + (1024 * EDGE_PACK_SIZE * 2); 
@@ -651,9 +721,9 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	// exit(EXIT_SUCCESS); 
 
 	host * hostobj = new host(universalparams);
-	hostobj->runapp(binaryFile, HBM_axichannel, HBM_axicenter, HBM_CHANNEL_SIZE, globalparams, universalparams, final_edge_updates);
+	hostobj->runapp(binaryFile, HBM_axichannel, HBM_axicenter, HBM_CHANNEL_SIZE, globalparams, universalparams, partitioned_edges);
 	
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ for(unsigned int llp_set=0; llp_set<MAX_NUM_LLPSETS; llp_set++){ final_edge_updates[i][p_u][llp_set].clear(); }}}
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int p_u=0; p_u<MAX_NUM_UPARTITIONS; p_u++){ for(unsigned int llp_set=0; llp_set<MAX_NUM_LLPSETS; llp_set++){ partitioned_edges[i][p_u][llp_set].clear(); }}}
 	return;
 }
 

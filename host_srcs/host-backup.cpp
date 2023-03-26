@@ -56,7 +56,7 @@
   commands on memory objects or user events created using clCreateUserEvent.
 
   Events can be used to synchronize operations between the host thread and the
-  device or between two operations in the same contexts. You can also use events
+  device or between two operations in the same context. You can also use events
   to time a particular operation if the command queue was created using the
   CL_QUEUE_PROFILING_ENABLE flag.
 
@@ -65,7 +65,7 @@
   clGetEventInfo function to get the status of a particular operation.
 
   Many functions also accept event lists that can be used to enforce ordering in
-  an OpenCL contexts. These events lists are especially important in the contexts
+  an OpenCL context. These events lists are especially important in the context
   of out of order command queues as they are the only way specify dependency.
   Normal in-order command queues do not need this because dependency is enforced
   in the order the operation was enqueued. See the concurrent execution example
@@ -171,25 +171,25 @@ void set_callback(cl::Event event, const char* queue_name) {
     OCL_CHECK(err, err = event.setCallback(CL_COMPLETE, event_cb, (void*)queue_name));
 }
 
-void _set_args___actions(cl::Kernel * kernels, action_t action, cl_int err){
-	OCL_CHECK(err, err = kernels->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS, int(action.fpga)));
-	OCL_CHECK(err, err = kernels->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS + 1, int(action.module)));
-	OCL_CHECK(err, err = kernels->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS + 2, int(action.graph_iteration)));
-	OCL_CHECK(err, err = kernels->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS + 3, int(action.start_pu)));
-	OCL_CHECK(err, err = kernels->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS + 4, int(action.size_pu)));
-	OCL_CHECK(err, err = kernels->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS + 5, int(action.skip_pu)));
-	OCL_CHECK(err, err = kernels->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS + 6, int(action.start_pv)));
-	OCL_CHECK(err, err = kernels->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS + 7, int(action.size_pv)));
-	OCL_CHECK(err, err = kernels->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS + 8, int(action.start_llpset)));
-	OCL_CHECK(err, err = kernels->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS + 9, int(action.size_llpset)));
-	OCL_CHECK(err, err = kernels->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS + 10, int(action.start_llpid)));
-	OCL_CHECK(err, err = kernels->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS + 11, int(action.size_llpid)));
-	OCL_CHECK(err, err = kernels->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS + 12, int(action.start_gv)));
-	OCL_CHECK(err, err = kernels->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS + 13, int(action.size_gv)));
-	OCL_CHECK(err, err = kernels->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS + 14, int(action.id_import)));
-	OCL_CHECK(err, err = kernels->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS + 15, int(action.id_export)));
-	OCL_CHECK(err, err = kernels->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS + 16, int(action.size_import_export)));
-	OCL_CHECK(err, err = kernels->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS + 17, int(action.status)));
+void _set_args___actions(cl::Kernel * krnl_vadd, action_t action, cl_int err){
+	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS, int(action.fpga)));
+	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS + 1, int(action.module)));
+	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS + 2, int(action.graph_iteration)));
+	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS + 3, int(action.start_pu)));
+	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS + 4, int(action.size_pu)));
+	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS + 5, int(action.skip_pu)));
+	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS + 6, int(action.start_pv)));
+	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS + 7, int(action.size_pv)));
+	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS + 8, int(action.start_llpset)));
+	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS + 9, int(action.size_llpset)));
+	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS + 10, int(action.start_llpid)));
+	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS + 11, int(action.size_llpid)));
+	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS + 12, int(action.start_gv)));
+	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS + 13, int(action.size_gv)));
+	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS + 14, int(action.id_import)));
+	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS + 15, int(action.id_export)));
+	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS + 16, int(action.size_import_export)));
+	OCL_CHECK(err, err = krnl_vadd->setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + NUM_HBMIO_ARGS + NUM_HBMIO_CHKPTS_ARGS + 17, int(action.status)));
 }
 #endif 
 
@@ -410,13 +410,9 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
     // auto binaryFile = argv[1];
 	std::string binaryFile = binaryFile__[0]; 
     cl_int err;
-	
-	unsigned int device_count = NUM_FPGAS;
-	vector<cl::Context> contexts(device_count);
-    vector<cl::Program> programs(device_count);
-    vector<cl::Kernel> kernels(device_count);
-    vector<cl::CommandQueue> q(device_count);
-    vector<std::string> device_name(device_count);
+    cl::CommandQueue q;
+    cl::Context context;
+    cl::Kernel krnl_vadd;
 
     // OPENCL HOST CODE AREA START
     // get_xil_devices() is a utility API which will find the xilinx
@@ -429,30 +425,27 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
     auto fileBuf = xcl::read_binary_file(binaryFile);
     cl::Program::Binaries bins{{fileBuf.data(), fileBuf.size()}};
     bool valid_device = false;
-    // for (unsigned int d = 0; d < devices.size(); d++) {
-	for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){
-        auto device = devices[fpga];
+    for (unsigned int i = 0; i < devices.size(); i++) {
+        auto device = devices[i];
         // Creating Context and Command Queue for selected Device
-        OCL_CHECK(err, contexts[fpga] = cl::Context(device, nullptr, nullptr, nullptr, &err));
+        OCL_CHECK(err, context = cl::Context(device, nullptr, nullptr, nullptr, &err));
         // This example will use an out of order command queue. The default command
         // queue created by cl::CommandQueue is an inorder command queue.
-        // OCL_CHECK(err, q = cl::CommandQueue(contexts[fpga], device, CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE, &err));
-		// OCL_CHECK(err, q = cl::CommandQueue(contexts[fpga], device, CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE | CL_QUEUE_PROFILING_ENABLE, &err)); 
+        // OCL_CHECK(err, q = cl::CommandQueue(context, device, CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE, &err));
+		// OCL_CHECK(err, q = cl::CommandQueue(context, device, CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE | CL_QUEUE_PROFILING_ENABLE, &err)); 
 		#ifdef ___SYNC___
-		OCL_CHECK(err, q[fpga] = cl::CommandQueue(contexts[fpga], device, CL_QUEUE_PROFILING_ENABLE, &err)); ////////// FIXME.
+		OCL_CHECK(err, q = cl::CommandQueue(context, device, CL_QUEUE_PROFILING_ENABLE, &err)); ////////// FIXME.
 		#else 
-		OCL_CHECK(err, q[fpga] = cl::CommandQueue(contexts[fpga], device, CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE, &err));	
+		OCL_CHECK(err, q = cl::CommandQueue(context, device, CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE, &err));	
 		#endif 
 
-        std::cout << "Trying to program device[" << fpga << "]: " << device.getInfo<CL_DEVICE_NAME>() << std::endl;
-        cl::Program program(contexts[fpga], {device}, bins, nullptr, &err);
-		programs[fpga] = program;
-		// programs[fpga] = load_cl2_binary(bins[fpga], devices[fpga], contexts[fpga]); // NEWCHANGE
+        std::cout << "Trying to program device[" << i << "]: " << device.getInfo<CL_DEVICE_NAME>() << std::endl;
+        cl::Program program(context, {device}, bins, nullptr, &err);
         if (err != CL_SUCCESS) {
-            std::cout << "Failed to program device[" << fpga << "] with xclbin file!\n";
+            std::cout << "Failed to program device[" << i << "] with xclbin file!\n";
         } else {
-            std::cout << "Device[" << fpga << "]: program successful!\n";
-            OCL_CHECK(err, kernels[fpga] = cl::Kernel(programs[fpga], "top_function", &err));
+            std::cout << "Device[" << i << "]: program successful!\n";
+            OCL_CHECK(err, krnl_vadd = cl::Kernel(program, "top_function", &err));
             valid_device = true;
             break; // we break because we found a valid device
         }
@@ -544,7 +537,7 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 	for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ 
 		for (int i = 0; i < NUM_HBM_ARGS; i++) {
 			std::cout << "Creating Buffer "<<i<<"..." << std::endl;
-			OCL_CHECK(err, buffer_hbm[fpga*NUM_FPGAS + i] = cl::Buffer(contexts[fpga], CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+			OCL_CHECK(err, buffer_hbm[fpga*NUM_FPGAS + i] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
 											bytes_per_iteration, &inBufExt[fpga*NUM_FPGAS + i], &err));
 		}
 	}
@@ -553,7 +546,7 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 	for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ 
 		for (int i = 0; i < NUM_HBMC_ARGS; i++) {
 			std::cout << "Creating Center Buffer "<<i<<"..." << std::endl;
-			OCL_CHECK(err, buffer_hbmc[fpga*NUM_FPGAS + i] = cl::Buffer(contexts[fpga], CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
+			OCL_CHECK(err, buffer_hbmc[fpga*NUM_FPGAS + i] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR,
 											bytes_per_iteration, &inBufExt_c[fpga*NUM_FPGAS + i], &err)); 
 		}
 	}
@@ -562,35 +555,31 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 	// Set Kernel Arguments
 	#ifdef FPGA_IMPL
 	std::cout << "Setting Kernel Arguments..." << std::endl;
-	for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ 
-		for (int i = 0; i < NUM_HBM_ARGS; i++) {
-			std::cout << "Setting the k_vadd Argument for argument "<<i<<"..." << std::endl;
-			OCL_CHECK(err, err = kernels[fpga].setArg(i, buffer_hbm[fpga*NUM_FPGAS + i]));
-		}
+	for (int i = 0; i < NUM_HBM_ARGS; i++) {
+		std::cout << "Setting the k_vadd Argument for argument "<<i<<"..." << std::endl;
+		OCL_CHECK(err, err = krnl_vadd.setArg(i, buffer_hbm[i]));
 	}
 	std::cout << "Setting Kernel Arguments (center HBM)..." << std::endl;
-	for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ 
-		for (int i = 0; i < NUM_HBMC_ARGS; i++) {
-			std::cout << "Setting Kernel Argument for argument "<<NUM_HBM_ARGS + i<<"..." << std::endl;
-			OCL_CHECK(err, err = kernels[fpga].setArg(NUM_HBM_ARGS + i, buffer_hbmc[fpga*NUM_FPGAS + i]));
-		}
+	for (int i = 0; i < NUM_HBMC_ARGS; i++) {
+		std::cout << "Setting Kernel Argument for argument "<<NUM_HBM_ARGS + i<<"..." << std::endl;
+		OCL_CHECK(err, err = krnl_vadd.setArg(NUM_HBM_ARGS + i, buffer_hbmc[i]));
 	}
 	#endif 
 	
 	// Copy input data to device global memory
 	#ifdef FPGA_IMPL
-	for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ _migrate_host_to_device(&q[fpga], err, fpga, buffer_hbm, buffer_hbmc); }
+	for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ _migrate_host_to_device(&q, err, fpga, buffer_hbm, buffer_hbmc); }
 	#else 
 	_migrate_host_to_device();	
 	#endif 
 	
 	// exit(EXIT_SUCCESS);/////////////////
 	
-	unsigned int launch_type = 0; // 0:full run,1:segmented runs 
-	unsigned int num_launches = 1;
+	// unsigned int launch_type = 0; // 0:full run,1:segmented runs 
+	// unsigned int num_launches = 1;
 	
-	// unsigned int launch_type = 1; // 0:full run,1:segmented runs 
-	// unsigned int num_launches = (universalparams.NUM_UPARTITIONS / NUM_FPGAS) + universalparams.NUM_APPLYPARTITIONS;
+	unsigned int launch_type = 1; // 0:full run,1:segmented runs 
+	unsigned int num_launches = (universalparams.NUM_UPARTITIONS / NUM_FPGAS) + universalparams.NUM_APPLYPARTITIONS;
 	
 	#ifndef FPGA_IMPL
 	acts_kernel * acts = new acts_kernel(universalparams);
@@ -627,11 +616,11 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 				// Device-to-host communication
 				#ifdef FPGA_IMPL	
 				std::cout << "Creating Import Buffers..." << std::endl;
-				OCL_CHECK(err, buffer_import[flag] = cl::Buffer(contexts[fpga], CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR,
+				OCL_CHECK(err, buffer_import[flag] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR,
 												import_export_bytes_per_iteration, &HBM_import[fpga][actions[fpga].id_import][0], &err)); // REMOVEME 'i%6'
 			
 				std::cout << "Creating Export Buffers..." << std::endl;
-				OCL_CHECK(err, buffer_export[flag] = cl::Buffer(contexts[fpga], CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR,
+				OCL_CHECK(err, buffer_export[flag] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR,
 												import_export_bytes_per_iteration, &HBM_export[fpga][actions[fpga].id_export][0], &err)); // REMOVEME 'i%6'
 				#endif 	
 				
@@ -641,13 +630,13 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 												   
 				std::cout << "Setting Import/Export Arguments..." << std::endl;
 				#ifdef FPGA_IMPL
-				OCL_CHECK(err, err = kernels[fpga].setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS, buffer_import[flag]));
-				OCL_CHECK(err, err = kernels[fpga].setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + 1, buffer_export[flag]));
+				OCL_CHECK(err, err = krnl_vadd.setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS, buffer_import[flag]));
+				OCL_CHECK(err, err = krnl_vadd.setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + 1, buffer_export[flag]));
 				#endif 
 				
 				// set scalar arguments
 				#ifdef FPGA_IMPL
-				_set_args___actions(&kernels[fpga], actions[fpga], err);
+				_set_args___actions(&krnl_vadd, actions[fpga], err);
 				#endif 
 				
 				// import 
@@ -656,7 +645,7 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 				std::cout << "Host to FPGA Transfer..." << std::endl;
 				std::chrono::steady_clock::time_point begin_time2 = std::chrono::steady_clock::now();
 				for(unsigned int t=0; t<1; t++){
-					OCL_CHECK(err, err = q[fpga].enqueueMigrateMemObjects({buffer_import[flag]}, 0, nullptr, &write_event[0]));
+					OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_import[flag]}, 0, nullptr, &write_event[0]));
 					set_callback(write_event[0], "ooo_queue");
 					#ifdef ___SYNC___
 					OCL_CHECK(err, err = write_event[0].wait()); 
@@ -672,13 +661,13 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 				cout<<"$$$ host: running acts... [import target: partition "<<actions[fpga].id_import<<"][export target: partition "<<actions[fpga].id_export<<"] "<<endl;
 				#ifdef FPGA_IMPL
 					#ifdef ___SYNC___
-					OCL_CHECK(err, err = q[fpga].enqueueNDRangeKernel(kernels[fpga], 0, 1, 1, NULL, &kernel_events[flag]));
+					OCL_CHECK(err, err = q.enqueueNDRangeKernel(krnl_vadd, 0, 1, 1, NULL, &kernel_events[flag]));
 					set_callback(kernel_events[flag], "ooo_queue");
 					OCL_CHECK(err, err = kernel_events[flag].wait()); ////////////////////////////////////
 					#else 
 					std::vector<cl::Event> waitList;
 					waitList.push_back(write_event[0]);
-					OCL_CHECK(err, err = q[fpga].enqueueNDRangeKernel(kernels[fpga], 0, 1, 1, &waitList, &kernel_events[flag]));
+					OCL_CHECK(err, err = q.enqueueNDRangeKernel(krnl_vadd, 0, 1, 1, &waitList, &kernel_events[flag]));
 					set_callback(kernel_events[flag], "ooo_queue");
 					#endif 			
 				#else 
@@ -719,7 +708,7 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 				std::vector<cl::Event> eventList;
 				eventList.push_back(kernel_events[flag]);
 				for(unsigned int t=0; t<1; t++){
-					OCL_CHECK(err, err = q[fpga].enqueueMigrateMemObjects({buffer_export[flag]}, CL_MIGRATE_MEM_OBJECT_HOST, &eventList,
+					OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_export[flag]}, CL_MIGRATE_MEM_OBJECT_HOST, &eventList,
 															&read_events[flag]));
 					set_callback(read_events[flag], "ooo_queue");
 					#ifdef ___SYNC___
@@ -738,10 +727,8 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 	// Wait for all of the OpenCL operations to complete
     printf("Waiting...\n");
 	#ifdef FPGA_IMPL
-	for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){
-		OCL_CHECK(err, err = q[fpga].flush());
-		OCL_CHECK(err, err = q[fpga].finish());
-	}
+    OCL_CHECK(err, err = q.flush());
+    OCL_CHECK(err, err = q.finish());
 	#endif 
 	
 	cout<<"[host: RESETBUFFERSATSTART, READ_FRONTIERS, PROCESSEDGES, READ_DESTS, APPLYUPDATES, COLLECT_FRONTIERS, SAVE_DEST, GATHER_FRONTIERS]"<<endl;																									
@@ -758,7 +745,7 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 
 	// Copy Result from Device Global Memory to Host Local Memory
 	#ifdef FPGA_IMPL
-	for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ _migrate_device_to_host(&q[fpga], err, fpga, buffer_hbm, buffer_hbmc); }
+	for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ _migrate_device_to_host(&q, err, fpga, buffer_hbm, buffer_hbmc); }
 	#else 
 	_migrate_device_to_host();	
 	#endif 
@@ -766,10 +753,8 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 	// Wait for all of the OpenCL operations to complete
 	#ifdef FPGA_IMPL
     printf("Waiting...\n");
-	for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){
-		OCL_CHECK(err, err = q[fpga].flush());
-		OCL_CHECK(err, err = q[fpga].finish());
-	}
+    OCL_CHECK(err, err = q.flush());
+    OCL_CHECK(err, err = q.finish());
 	#endif 
     // OPENCL HOST CODE AREA ENDS
 
