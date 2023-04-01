@@ -93,8 +93,7 @@ using std::vector;
 #define NUM_HBMIO_ARGS 2
 #define NUM_HBMIO_CHKPTS_ARGS 0//2
 
-#define NUM_IMPORT_BUFFERS 16 // FIXME. AUTOMATE.
-#define NUM_EXPORT_BUFFERS 16
+#define SSSSSSSSSSSSSSSSSSSS
 
 // #define ___SYNC___
 
@@ -300,6 +299,101 @@ action_t _get_action2(unsigned int launch_idx, unsigned int launch_type, unsigne
 	}
 	action.size_import_export = IMPORT_EXPORT_GRANULARITY_VECSIZE;
 	return action;
+}
+
+void load_actions1(unsigned int launch_type, unsigned int fpga, action_t actions[NUM_FPGAS][1024], universalparams_t universalparams){
+	action_t action;
+	
+	action.module = ALL_MODULES;
+	action.graph_iteration = NAp;
+	
+	action.start_pu = fpga; 
+	action.size_pu = universalparams.NUM_UPARTITIONS; 
+	action.skip_pu = NUM_FPGAS; 
+	
+	action.start_pv = 0;
+	action.size_pv = universalparams.NUM_APPLYPARTITIONS; 
+	action.start_gv = 0; 
+	action.size_gv = NUM_VALID_PEs;
+	
+	action.start_llpset = 0; 
+	action.size_llpset = universalparams.NUM_APPLYPARTITIONS; 
+	action.start_llpid = 0; 
+	action.size_llpid = EDGE_PACK_SIZE; 
+	
+	action.id_process = 0;
+	action.id_import = 0;
+	action.id_export = 0;
+	action.size_import_export = IMPORT_EXPORT_GRANULARITY_VECSIZE;
+	action.status = 1;
+	
+	actions[fpga][0] = action;
+	return;
+}
+void load_actions2(unsigned int launch_type, unsigned int fpga, action_t actions[NUM_FPGAS][1024], universalparams_t universalparams){
+	unsigned int num_source_intervals = universalparams.NUM_UPARTITIONS / NUM_FPGAS;
+	unsigned int index = 0;
+	
+	for(unsigned int t=0; t<num_source_intervals; t++){
+		action_t action;
+		
+		action.module = PROCESS_EDGES_MODULE;
+		action.graph_iteration = NAp;
+		
+		action.start_pu = (t * NUM_FPGAS) + fpga; 
+		action.size_pu = 1; 
+		action.skip_pu = 1;
+		
+		action.start_pv = NAp;
+		action.size_pv = NAp; 
+		action.start_gv = NAp; 
+		action.size_gv = NAp;
+		
+		action.start_llpset = NAp; 
+		action.size_llpset = NAp; 
+		action.start_llpid = NAp; 
+		action.size_llpid = NAp; 
+		
+		action.id_process = 0;
+		action.id_import = 0;
+		action.id_export = 0;
+		action.size_import_export = IMPORT_EXPORT_GRANULARITY_VECSIZE;
+		action.status = 0;
+		
+		actions[fpga][index] = action;
+		index += 1;
+	}
+	
+	for(unsigned int t=0; t<universalparams.NUM_APPLYPARTITIONS; t++){
+		action_t action;
+		
+		action.module = APPLY_UPDATES_MODULE___AND___GATHER_DSTPROPERTIES_MODULE;
+		action.graph_iteration = NAp;
+		
+		action.start_pu = NAp; 
+		action.size_pu = NAp; 
+		action.skip_pu = NAp;
+		
+		action.start_pv = t; 
+		action.size_pv = 1; 
+		action.start_gv = t; 
+		action.size_gv = 1;
+		
+		action.start_llpset = NAp; 
+		action.size_llpset = NAp; 
+		action.start_llpid = NAp; 
+		action.size_llpid = NAp;  
+		
+		action.id_process = 0;
+		action.id_import = 0;
+		action.id_export = 0;
+		action.size_import_export = IMPORT_EXPORT_GRANULARITY_VECSIZE;
+		action.status = 0;
+		
+		actions[fpga][index] = action;
+		index += 1;
+	}
+	return;
 }
 
 MIGRATE_HOST_TO_DEVICE(){
@@ -586,35 +680,96 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 	
 	// exit(EXIT_SUCCESS);/////////////////
 	
-	unsigned int launch_type = 0; // 0:full run,1:segmented runs 
-	unsigned int num_launches = 1;
+	// unsigned int launch_type = 0; // 0:full run,1:segmented runs
+	// unsigned int num_launches = 1;
 	
-	// unsigned int launch_type = 1; // 0:full run,1:segmented runs 
-	// unsigned int num_launches = (universalparams.NUM_UPARTITIONS / NUM_FPGAS) + universalparams.NUM_APPLYPARTITIONS;
+	unsigned int launch_type = 1; // 0:full run,1:segmented runs 
+	unsigned int num_launches = (universalparams.NUM_UPARTITIONS / NUM_FPGAS) + universalparams.NUM_APPLYPARTITIONS;
 	
 	#ifndef FPGA_IMPL
 	acts_kernel * acts = new acts_kernel(universalparams);
 	#endif 
 	
-	action_t actions[NUM_FPGAS];
+	unsigned int process_pointer = 0;
+	unsigned int import_pointer = 0;
+	unsigned int export_pointer = 0;
+	gas_t gas[MAX_NUM_UPARTITIONS]; 
+	gas_import_t gas_import[MAX_NUM_UPARTITIONS]; 
+	gas_process_t gas_process[MAX_NUM_UPARTITIONS]; 
+	gas_export_t gas_export[MAX_NUM_UPARTITIONS]; 
+	for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS; t++){ 
+		gas[t].status = NAp;
+		gas[t].ready_for_import = 1;
+		gas[t].ready_for_export = 0;
+		gas[t].ready_for_process = 0;
+		gas[t].iteration = 0;
+	}
+	for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS; t++){ 
+		gas_import[t].ready_for_import = 1;
+		gas_import[t].iteration = 0;
+		gas_process[t].ready_for_process = 0;
+		gas_process[t].iteration = 0;
+		gas_export[t].ready_for_export = 0;
+		gas_export[t].iteration = 0;
+	}
+	
+	action_t actions[NUM_FPGAS][1024]; // for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ for(unsigned int t = 0; t<1024; t++){ actions[fpga][t] = 0; }}
+	for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ 
+		if(launch_type == 0){ load_actions1(launch_type, fpga, actions, universalparams); }
+		else { load_actions2(launch_type, fpga, actions, universalparams); }
+	}
 	
 	// run kernel
 	std::chrono::steady_clock::time_point begin_time = std::chrono::steady_clock::now();
-	for (unsigned int iteration_idx = 0; iteration_idx < 1; iteration_idx++) {
+	for (unsigned int iteration_idx = 0; iteration_idx < 2; iteration_idx++) {
 		for(unsigned int launch_idx=0; launch_idx<num_launches; launch_idx+=1){
 			for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ // NUM_FPGAS
 				std::cout << endl << TIMINGRESULTSCOLOR <<"-------------------------------- host: GAS iteration: "<<iteration_idx<<", launch_idx "<<launch_idx<<", fpga: "<<fpga<<" started... --------------------------------"<< RESET << std::endl;
+				
+				action_t action = actions[fpga][launch_idx];
 				
 				int flag = ((iteration_idx * num_launches) + launch_idx) % 2;
 				flag = fpga*NUM_FPGAS + flag;
 				
 				// set scalar arguments
-				std::cout << "Setting Scalar Arguments..." << std::endl;
-				actions[fpga] = _get_action2(launch_idx, launch_type, fpga, universalparams);
-				actions[fpga].graph_iteration = iteration_idx;
-				actions[fpga].id_import = launch_idx % universalparams.NUM_UPARTITIONS; // FIXME.
-				actions[fpga].id_export = launch_idx % universalparams.NUM_UPARTITIONS; // FIXME
-				actions[fpga].size_import_export = IMPORT_EXPORT_GRANULARITY_VECSIZE; // 
+				action.graph_iteration = iteration_idx;
+				action.id_import = launch_idx % universalparams.NUM_UPARTITIONS; // FIXME.
+				action.id_export = launch_idx % universalparams.NUM_UPARTITIONS; // FIXME
+				action.size_import_export = IMPORT_EXPORT_GRANULARITY_VECSIZE; // 
+				
+				// pre-run
+				#ifdef SSSSSSSSSSSSSSSSSSSS
+				import_pointer = LAST_IOBUFFER_ID;//88;
+				action.id_import = import_pointer;
+				for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS; t++){
+					if(gas_import[t].ready_for_import == 1 && gas_import[t].iteration == iteration_idx){ 	
+						import_pointer = t;
+						action.id_import = import_pointer; 
+						break; 
+					}
+				}
+				
+				process_pointer = 88;
+				action.id_process = process_pointer;
+				for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS; t++){
+					if(gas_process[t].ready_for_process == 1){ 	
+						process_pointer = t;
+						action.id_process = process_pointer; 
+						break; 
+					}
+				}
+				action.start_pu = process_pointer;
+				
+				export_pointer = LAST_IOBUFFER_ID;//88;
+				action.id_export = export_pointer;
+				for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS; t++){
+					if(gas_export[t].ready_for_export == 1){
+						export_pointer = t;
+						action.id_export = export_pointer; 
+						break; 
+					}
+				}
+				#endif 
 				
 				#ifdef FPGA_IMPL	
 				if (launch_idx >= 2) {
@@ -628,26 +783,27 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 				#ifdef FPGA_IMPL	
 				std::cout << "Creating Import Buffers..." << std::endl;
 				OCL_CHECK(err, buffer_import[flag] = cl::Buffer(contexts[fpga], CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR,
-												import_export_bytes_per_iteration, &HBM_import[fpga][actions[fpga].id_import][0], &err)); // REMOVEME 'i%6'
+												import_export_bytes_per_iteration, &HBM_import[fpga][action.id_import][0], &err)); // REMOVEME 'i%6'
 			
 				std::cout << "Creating Export Buffers..." << std::endl;
 				OCL_CHECK(err, buffer_export[flag] = cl::Buffer(contexts[fpga], CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR,
-												import_export_bytes_per_iteration, &HBM_export[fpga][actions[fpga].id_export][0], &err)); // REMOVEME 'i%6'
+												import_export_bytes_per_iteration, &HBM_export[fpga][action.id_export][0], &err)); // REMOVEME 'i%6'
 				#endif 	
 				
 				#ifdef FPGA_IMPL
 				vector<cl::Event> write_event(1);
 				#endif 
-												   
-				std::cout << "Setting Import/Export Arguments..." << std::endl;
+				
 				#ifdef FPGA_IMPL
+				std::cout << "Setting Import/Export Arguments..." << std::endl;
 				OCL_CHECK(err, err = kernels[fpga].setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS, buffer_import[flag]));
 				OCL_CHECK(err, err = kernels[fpga].setArg(NUM_HBM_ARGS + NUM_HBMC_ARGS + 1, buffer_export[flag]));
 				#endif 
 				
 				// set scalar arguments
 				#ifdef FPGA_IMPL
-				_set_args___actions(&kernels[fpga], actions[fpga], err);
+				std::cout << "Setting Scalar Arguments..." << std::endl;
+				_set_args___actions(&kernels[fpga], action, err);
 				#endif 
 				
 				// import 
@@ -667,9 +823,14 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 				#endif
 				
 				// run kernel 
+				#ifdef FPGA_IMPL
 				printf("Enqueueing NDRange kernel.\n");
+				cout<<"$$$ host: running acts... [import target: partition "<<action.id_import<<"][export target: partition "<<action.id_export<<"] "<<endl;
+				#endif 
 				std::chrono::steady_clock::time_point begin_time1 = std::chrono::steady_clock::now();
-				cout<<"$$$ host: running acts... [import target: partition "<<actions[fpga].id_import<<"][export target: partition "<<actions[fpga].id_export<<"] "<<endl;
+				// std::cout<<">>> host:: action.id_import: "<<action.id_import<<", action.id_process: "<<action.id_process<<", action.id_export: "<<action.id_export<<std::endl;
+				// std::cout<<">>> host:: gas["<<import_pointer<<"].status: "<<gas[import_pointer].status<<", gas["<<process_pointer<<"].status: "<<gas[process_pointer].status<<", gas["<<export_pointer<<"].status: "<<gas[export_pointer].status<<std::endl;
+				// cout<<"$$$ host: running acts... [import target: partition "<<action.id_import<<"][export target: partition "<<action.id_export<<"] "<<endl;
 				#ifdef FPGA_IMPL
 					#ifdef ___SYNC___
 					OCL_CHECK(err, err = q[fpga].enqueueNDRangeKernel(kernels[fpga], 0, 1, 1, NULL, &kernel_events[flag]));
@@ -703,12 +864,31 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 						#endif 
 						#endif
 						,(HBM_channelAXI_t *)HBM_axicenter[fpga][0], (HBM_channelAXI_t *)HBM_axicenter[fpga][1]
-						,(HBM_channelAXI_t *)HBM_import[fpga][actions[fpga].id_import], (HBM_channelAXI_t *)HBM_export[fpga][actions[fpga].id_export]
-						,fpga ,actions[fpga].module ,actions[fpga].graph_iteration ,actions[fpga].start_pu ,actions[fpga].size_pu ,actions[fpga].skip_pu ,actions[fpga].start_pv ,actions[fpga].size_pv ,actions[fpga].start_llpset ,actions[fpga].size_llpset ,actions[fpga].start_llpid ,actions[fpga].size_llpid ,actions[fpga].start_gv ,actions[fpga].size_gv ,actions[fpga].id_import ,actions[fpga].id_export ,actions[fpga].size_import_export ,actions[fpga].status ,final_edge_updates ,report_statistics				
+						,(HBM_channelAXI_t *)HBM_import[fpga][action.id_import], (HBM_channelAXI_t *)HBM_export[fpga][action.id_export]
+						,fpga ,action.module ,action.graph_iteration ,action.start_pu ,action.size_pu ,action.skip_pu ,action.start_pv ,action.size_pv ,action.start_llpset ,action.size_llpset ,action.start_llpid ,action.size_llpid ,action.start_gv ,action.size_gv ,action.id_process ,action.id_import ,action.id_export ,action.size_import_export ,action.status ,final_edge_updates ,report_statistics				
 						);		
 				#endif 
 				double end_time1 = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin_time1).count()) / 1000;	
 				std::cout << TIMINGRESULTSCOLOR << ">>> kernel time elapsed for iteration "<<iteration_idx<<", launch_idx "<<launch_idx<<" : "<<end_time1<<" ms, "<<(end_time1 * 1000)<<" microsecs, "<< RESET <<std::endl;
+				
+				// post-run 
+				#ifdef SSSSSSSSSSSSSSSSSSSS
+				gas_import[import_pointer].iteration += 1; 
+				gas_process[import_pointer].ready_for_process = 1; 
+				
+				gas_process[process_pointer].ready_for_process = 0; 
+				if(action.module == APPLY_UPDATES_MODULE___AND___GATHER_DSTPROPERTIES_MODULE){
+					for(unsigned int t=0; t<NUM_SUBPARTITION_PER_PARTITION; t++){
+						unsigned int HGH = ((universalparams.NUM_UPARTITIONS + NUM_SUBPARTITION_PER_PARTITION - 1) / NUM_SUBPARTITION_PER_PARTITION) * NUM_SUBPARTITION_PER_PARTITION;
+						if((action.start_pv * NUM_SUBPARTITION_PER_PARTITION) + t >= HGH){ cout<<"host: ERROR 23: (action.start_pv * NUM_SUBPARTITION_PER_PARTITION)(="<<(action.start_pv * NUM_SUBPARTITION_PER_PARTITION)<<") + t(="<<t<<") > HGH("<<HGH<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }
+						gas_export[(action.start_pv * NUM_SUBPARTITION_PER_PARTITION) + t].ready_for_export = 1;
+						gas_export[(action.start_pv * NUM_SUBPARTITION_PER_PARTITION) + t].iteration = iteration_idx;
+					}
+				}
+				
+				gas_export[export_pointer].ready_for_export = 0; 
+				#endif 
+				// exit(EXIT_SUCCESS);
 				
 				// export
 				#ifdef FPGA_IMPL

@@ -1,3 +1,6 @@
+unsigned int import_offset = id_import * action.size_import_export;
+unsigned int export_offset = id_export * action.size_import_export;
+
 READ_DEST_PROPERTIES_LOOP1: for(unsigned int n=0; n<NUM_VALID_PEs; n++){ offsets[n] = 0; }
 if(stats_buffer___size[0][p_v] < threshold___activedstvids && enable___collectactivedstvids == true){
 	#ifdef ___ENABLE___COLLECTACTIVEDSTVIDS___
@@ -36,6 +39,21 @@ if(stats_buffer___size[0][p_v] < threshold___activedstvids && enable___collectac
 		#pragma HLS UNROLL
 			insertvec_vdatabuffer(t, datas[inst], URAM_vprop[inst]);
 		}
+		
+		// import (Host -> FPGA)
+		if(action.id_import != INVALIDDATA && t<action.size_import_export){	
+			{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
+			HBM_centerA[import_offset + t].data[{{v}}] = HBM_import[t].data[{{v}}];
+			{%endfor%}	
+		}		
+		
+		// export (FPGA -> Host)
+		if(action.id_export != INVALIDDATA && t<action.size_import_export){	
+			{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
+			HBM_export[t].data[{{v}}] = HBM_centerB[export_offset + t].data[{{v}}];
+			{%endfor%}
+		}
+		
 		update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___READ_DEST_PROPERTIES___, 1);
 	}
 }

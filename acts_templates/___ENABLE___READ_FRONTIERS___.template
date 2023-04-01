@@ -1,13 +1,17 @@
 // broadcast active frontiers [done]
 unsigned int uoffset_vecsz = p_u * MAX_UPARTITION_VECSIZE; 
-MY_LOOP178: for(unsigned int n=0; n<NUM_VALID_PEs; n++){ offsets[n] = 0; }
+unsigned int data[HBM_CHANNEL_PACK_SIZE];
+#pragma HLS ARRAY_PARTITION variable=data complete
+unsigned int offset_c = globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP];
+
+for(unsigned int n=0; n<NUM_VALID_PEs; n++){ offsets[n] = 0; }
 #ifdef _DEBUGMODE_CHECKS3
 checkoutofbounds("acts_kernel::ERROR 12073::", cfrontier_dram___size[p_u], MAX_APPLYPARTITION_VECSIZE+1, NAp, NAp, NAp);
 #endif 
 
-unsigned int data[HBM_CHANNEL_PACK_SIZE];
-#pragma HLS ARRAY_PARTITION variable=data complete
-unsigned int offset_c = globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP];
+unsigned int import_offset = id_import * action.size_import_export;
+unsigned int export_offset = id_export * action.size_import_export;
+
 READ_FRONTIER_INFO_LOOP1: for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t++){ 
 #pragma HLS PIPELINE II=1	
 	{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
@@ -26,7 +30,19 @@ READ_FRONTIER_INFO_LOOP1: for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t+
 	{%endfor%}
 	{%endfor%}
 	
-	// update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___READ_FRONTIER_PROPERTIES___, 1);
+	// import (Host -> FPGA)
+	if(action.id_import != INVALIDDATA && t<action.size_import_export){	
+		{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
+		HBM_centerA[import_offset + t].data[{{v}}] = HBM_import[t].data[{{v}}];
+		{%endfor%}	
+	}		
+	
+	// export (FPGA -> Host)
+	if(action.id_export != INVALIDDATA && t<action.size_import_export){	
+		{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
+		HBM_export[t].data[{{v}}] = HBM_centerB[export_offset + t].data[{{v}}];
+		{%endfor%}
+	}
 }
 
 // parallel-read and map active frontiers [done]

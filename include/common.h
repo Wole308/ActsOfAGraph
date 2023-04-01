@@ -144,6 +144,9 @@
 // #define INVALIDDATA_MINI 0xFFFF
 #define INVALIDMASK 0 
 
+#define UNIDENTIFIED_STAGE 0
+// #define __UNIDENTIFIED__STATUS__ 0
+
 #define MAXNUMBITS2_ACTPACK_SRCVID 14
 #define MAXNUMBITS2_ACTPACK_DESTVID 14
 #define MAXNUMBITS2_ACTPACK_EDGEID 4
@@ -163,6 +166,9 @@
 #define VDATA_SUBSUBPARTITION_VECSIZE (1 << 4)
 #define NUM_SUBPARTITION_PER_PARTITION NUM_PEs
 
+#define NUM_IMPORT_BUFFERS 16 // FIXME. AUTOMATE.
+#define NUM_EXPORT_BUFFERS 16
+#define LAST_IOBUFFER_ID (NUM_IMPORT_BUFFERS - 1)
 #define IMPORT_EXPORT_GRANULARITY_VECSIZE 8192
 // #define IMPORT_EXPORT_GRANULARITY_VECSIZE 64 // (0 * 8192)
 // #define IMPORT_EXPORT_GRANULARITY_VECSIZE (256 * 8192)
@@ -271,6 +277,12 @@
 #define RESET   "\033[0m"
 #define BOLDWHITE   "\033[1m\033[37m"
 #define TIMINGRESULTSCOLOR BOLDWHITE
+
+#define __READY__FOR__IMPORT__ 1
+#define __READY__FOR__PROCESS__ 2
+#define __READY__FOR__EXPORT__ 3
+#define __READY__FOR__TRANSPORT__ 4
+#define __UNIDENTIFIED__STATUS__ 0
 
 typedef unsigned int vertex_t;
 typedef unsigned int edge_t;
@@ -406,11 +418,35 @@ typedef struct {
 	unsigned int size_llpid; 
 	unsigned int start_gv; 
 	unsigned int size_gv;
+	unsigned int id_process;
 	unsigned int id_import;
 	unsigned int id_export;
 	unsigned int size_import_export;
 	unsigned int status;
-} action_t;
+} action_t; 
+
+typedef struct {
+	unsigned int status;
+	unsigned int ready_for_import;
+	unsigned int ready_for_export;
+	unsigned int ready_for_process;
+	unsigned int iteration;
+} gas_t;
+
+typedef struct {
+	unsigned int ready_for_import;
+	unsigned int iteration;
+} gas_import_t;
+
+typedef struct {
+	unsigned int ready_for_process;
+	unsigned int iteration;
+} gas_process_t;
+
+typedef struct {
+	unsigned int ready_for_export;
+	unsigned int iteration;
+} gas_export_t;
 
 // HBM: {vptrs, edges, updatesptrs, updates, vertexprops, frontiers}
 typedef uint512_ivec_dt HBM_channel_t;

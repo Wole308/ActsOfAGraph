@@ -30,7 +30,7 @@
 #define MY_IFDEF_VDATABUFFER() vprop_t URAM_vprop[EDGE_PACK_SIZE][MAXVALID_APPLYPARTITION_VECSIZE]
 #define MY_IFDEF_TOPLEVELFUNC() void top_function({% include '___HBM___PARAMS___.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, \
 	HBM_channelAXI_t * HBM_import, HBM_channelAXI_t * HBM_export, \
-	unsigned int fpga, unsigned int module, unsigned int graph_iteration, unsigned int start_pu, unsigned int size_pu, unsigned int skip_pu, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_gv, unsigned int size_gv, unsigned int id_import ,unsigned int id_export, unsigned int size_import_export, unsigned int status)
+	unsigned int fpga, unsigned int module, unsigned int graph_iteration, unsigned int start_pu, unsigned int size_pu, unsigned int skip_pu, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_gv, unsigned int size_gv, unsigned int id_process, unsigned int id_import, unsigned int id_export, unsigned int size_import_export, unsigned int status)
 #else
 #define MY_IFDEF_NFRONTIER() keyvalue_t * nfrontier_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_CFRONTIER_TMP() keyvalue_t * URAM_frontiers[EDGE_PACK_SIZE]
@@ -45,7 +45,7 @@
 #define MY_IFDEF_VDATABUFFER() vprop_t * URAM_vprop[EDGE_PACK_SIZE]
 #define MY_IFDEF_TOPLEVELFUNC() unsigned int acts_kernel::top_function({% include '___HBM___PARAMS___.template' %}, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, \
 	HBM_channelAXI_t * HBM_import, HBM_channelAXI_t * HBM_export, \
-	unsigned int fpga, unsigned int module, unsigned int graph_iteration, unsigned int start_pu, unsigned int size_pu, unsigned int skip_pu, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_gv, unsigned int size_gv, unsigned int id_import ,unsigned int id_export, unsigned int size_import_export, unsigned int status, \
+	unsigned int fpga, unsigned int module, unsigned int graph_iteration, unsigned int start_pu, unsigned int size_pu, unsigned int skip_pu, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_gv, unsigned int size_gv, unsigned int id_process, unsigned int id_import, unsigned int id_export, unsigned int size_import_export, unsigned int status, \
 	vector<edge3_type> (&final_edge_updates)[NUM_PEs][MAX_NUM_UPARTITIONS][MAX_NUM_LLPSETS], unsigned int report_statistics[64])					
 #endif
 
@@ -162,6 +162,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 #pragma HLS INTERFACE s_axilite port = size_llpid
 #pragma HLS INTERFACE s_axilite port = start_gv
 #pragma HLS INTERFACE s_axilite port = size_gv
+#pragma HLS INTERFACE s_axilite port = id_process
 #pragma HLS INTERFACE s_axilite port = id_import
 #pragma HLS INTERFACE s_axilite port = id_export
 #pragma HLS INTERFACE s_axilite port = size_import_export
@@ -192,10 +193,26 @@ MY_IFDEF_TOPLEVELFUNC(){
 	action.size_llpid = size_llpid; 
 	action.start_gv = start_gv; 
 	action.size_gv = size_gv;
+	action.id_process = id_process;
 	action.id_import = id_import;
 	action.id_export = id_export;
 	action.size_import_export = size_import_export;
 	action.status = status;
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS4					
+	if(action.id_import != LAST_IOBUFFER_ID){ cout<< TIMINGRESULTSCOLOR << "--> importing upartition: "<<action.id_import<<"..."<< RESET <<endl; }	
+	if(action.id_export != LAST_IOBUFFER_ID){ cout<< TIMINGRESULTSCOLOR << "<-- exporting vpartition: "<<action.id_export<<"..."<< RESET <<endl; }					
+	#endif 
+	
+	#ifdef ___RUNNING_FPGA_SYNTHESIS___
+	if(action.id_process == 88){ return; }
+	#else 
+	if(action.id_process == 88){ return 0; }
+	#endif 
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS4				
+	cout<< TIMINGRESULTSCOLOR << "--- processing upartition: "<<action.id_process<<"..."<< RESET <<endl; 				
+	#endif 
 	
 	// declarations
 	{% include '___ENABLE___DECLARATIONS___.template' %}	
@@ -219,7 +236,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 		#pragma HLS PIPELINE II=1
 			updatesptrs[fpga][t] = load_vupdate_map(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS], (fpga * MAX_NUM_LLPSETS) + t, {% include '___HBM___ARGS___.template' %});	
 			if((action.module == ALL_MODULES || action.module == PROCESS_EDGES_MODULE) && action.start_pu == 0){ updatesptrs[fpga][t].size = 0; }		
-			#ifdef _DEBUGMODE_KERNELPRINTS4
+			#ifdef _DEBUGMODE_KERNELPRINTS//4
 			if(action.module == ALL_MODULES){ cout<<"acts: updatesptrs["<<fpga<<"]["<<t<<"].offset: "<<updatesptrs[fpga][t].offset<<", updatesptrs["<<fpga<<"]["<<t<<"].size: "<<updatesptrs[fpga][t].size<<endl; }
 			#endif 
 		}
@@ -283,9 +300,10 @@ MY_IFDEF_TOPLEVELFUNC(){
 				}
 				#endif
 				
-				#ifdef _DEBUGMODE_KERNELPRINTS4	
-				if(action.id_import != INVALIDDATA){ cout<< TIMINGRESULTSCOLOR << "<-- exporting vpartition: "<<action.id_import<<"..."<< RESET <<endl; }	 
+				#ifdef _DEBUGMODE_KERNELPRINTS4_XXXXXXXXXX				
 				if(action.id_export != INVALIDDATA){ cout<< TIMINGRESULTSCOLOR << "--> importing upartition: "<<action.id_export<<"..."<< RESET <<endl; }	
+				cout<< TIMINGRESULTSCOLOR << "--- processing upartition: "<<action.id_process<<"..."<< RESET <<endl; 	
+				if(action.id_import != INVALIDDATA){ cout<< TIMINGRESULTSCOLOR << "<-- exporting vpartition: "<<action.id_import<<"..."<< RESET <<endl; }					
 				#endif 
 				
 				// process-edges and partition-updates
@@ -332,7 +350,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 					}
 					#endif 
 					
-					#ifdef _DEBUGMODE_KERNELPRINTS4
+					#ifdef _DEBUGMODE_KERNELPRINTS4_XXXXXXXXXX
 					if(action.id_import != INVALIDDATA){ cout<< TIMINGRESULTSCOLOR << "<-- exporting vpartition: "<<action.id_import<<"..."<< RESET <<endl; }	 
 					if(action.id_export != INVALIDDATA){ cout<< TIMINGRESULTSCOLOR << "--> importing upartition: "<<action.id_export<<"..."<< RESET <<endl; }	
 					#endif 
