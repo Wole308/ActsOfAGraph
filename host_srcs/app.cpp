@@ -283,7 +283,7 @@ unsigned int load_actpack_edges(HBM_channelAXISW_t * HBM_axicenter[NUM_FPGAS][2]
 		}
 	}
 	unsigned int max_lenght = 0; for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ if(max_lenght < lenght[fpga]){ max_lenght = lenght[fpga]; }}
-	cout<<"------------------------ max_lenght: "<<max_lenght<<endl;
+	cout<<"------------------------ max_lenght: "<<max_lenght<<", max_lenght * EDGE_PACK_SIZE: "<<max_lenght * EDGE_PACK_SIZE<<endl;
 	return max_lenght;
 }
 

@@ -2608,12 +2608,14 @@ MY_IFDEF_TOPLEVELFUNC(){
 #pragma HLS INTERFACE s_axilite port = status
 #pragma HLS INTERFACE s_axilite port = return
 
-	#ifndef ___RUNNING_FPGA_SYNTHESIS___
-	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
-	if(status == 1 || true) { cout<<"acts_kernel::run:: dynamic acts started: fpga: "<<fpga<<", start_pu: "<<start_pu<<", start_pv: "<<start_pv<<endl; }
-	#else 
-	if(status == 1 || true) { cout<<"acts_kernel::run:: acts started: fpga: "<<fpga<<", start_pu: "<<start_pu<<", start_pv: "<<start_pv<<endl; }	
-	#endif 
+	#ifndef ___RUNNING_FPGA_SYNTHESIS___	
+	// #ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
+	// if(status == 1 || true) { cout<<"acts_kernel::run:: dynamic acts started"<<endl; }
+	// #else 
+	// if(status == 1 || true) { cout<<"acts_kernel::run:: acts started"<<endl; }	
+	// #endif 	
+	if(start_pv == NAp) { cout<<"acts_kernel::run:: acts started [processing stage]: fpga: "<<fpga<<", start_pu: "<<start_pu<<", start_pv: "<<start_pv<<endl; }
+	if(start_pu == NAp) { cout<<"acts_kernel::run:: acts started [applying stage]: fpga: "<<fpga<<", start_pu: "<<start_pu<<", start_pv: "<<start_pv<<endl; }
 	#endif 
 	
 	// commands from host
@@ -2981,7 +2983,12 @@ for(unsigned int i=0; i<MAXNUMGRAPHITERATIONS; i++){ for(unsigned int t=0; t<MAX
 		LOAD_UPDATEPTRS_lOOP1B: for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]; t++){	
 		#pragma HLS PIPELINE II=1
 			updatesptrs[fpga][t] = load_vupdate_map(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS], (fpga * MAX_NUM_LLPSETS) + t,  HBM_channelA0, HBM_channelB0);	
-			if((action.module == ALL_MODULES || action.module == PROCESS_EDGES_MODULE) && action.start_pu == 0){ updatesptrs[fpga][t].size = 0; }		
+			// if((action.module == ALL_MODULES || action.module == PROCESS_EDGES_MODULE) && action.start_pu == 0){ updatesptrs[fpga][t].size = 0; }	
+			if((action.module == ALL_MODULES || action.module == PROCESS_EDGES_MODULE) && ((action.start_pu - action.fpga) == 0)){ 
+				#ifdef _DEBUGMODE_KERNELPRINTS4
+				cout << "acts: resetting updates space..." <<endl;
+				#endif 
+				updatesptrs[fpga][t].size = 0; }				
 			#ifdef _DEBUGMODE_KERNELPRINTS//4
 			if(action.module == ALL_MODULES){ cout<<"acts: updatesptrs["<<fpga<<"]["<<t<<"].offset: "<<updatesptrs[fpga][t].offset<<", updatesptrs["<<fpga<<"]["<<t<<"].size: "<<updatesptrs[fpga][t].size<<endl; }
 			#endif 
@@ -3065,7 +3072,6 @@ for(unsigned int t=0; t<BLOCKRAM_SIZE; t++){
 			#ifdef ___ENABLE___PROCESSEDGES___
 			if(action.module == PROCESS_EDGES_MODULE || action.module == ALL_MODULES){
 			PROCESS_EDGES_MODULE_LOOP1B: for(unsigned int p_u=action.start_pu; p_u<action.start_pu + action.size_pu; p_u+=action.skip_pu){ 
-			// PROCESS_EDGES_MODULE_LOOP1B: for(unsigned int p_u=0; p_u<globalparams[GLOBALPARAMSCODE__PARAM__NUM_UPARTITIONS]; p_u+=1){ // FIXME.
 				MASK_CODE_PE = ((1 + GraphIter) * MAX_NUM_UPARTITIONS) + p_u;
 				#ifdef _DEBUGMODE_KERNELPRINTS//4 
 				cout<<"$$$ processing edges in upartition "<<p_u<<": [PEs "; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<n<<", "; } cout<<"]"<<endl; 

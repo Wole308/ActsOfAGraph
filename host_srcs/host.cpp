@@ -260,9 +260,9 @@ void load_actions2(unsigned int launch_type, unsigned int fpga, action_t * actio
 		action.start_llpid = NAp; 
 		action.size_llpid = NAp; 
 		
-		action.id_process = 0;
-		action.id_import = 0;
-		action.id_export = 0;
+		action.id_process = 88;
+		action.id_import = INVALID_IOBUFFER_ID;
+		action.id_export = INVALID_IOBUFFER_ID;
 		action.size_import_export = IMPORT_EXPORT_GRANULARITY_VECSIZE;
 		action.status = 0;
 		
@@ -290,9 +290,9 @@ void load_actions2(unsigned int launch_type, unsigned int fpga, action_t * actio
 		action.start_llpid = NAp; 
 		action.size_llpid = NAp;  
 		
-		action.id_process = 0;
-		action.id_import = 0;
-		action.id_export = 0;
+		action.id_process = 88;
+		action.id_import = INVALID_IOBUFFER_ID;
+		action.id_export = INVALID_IOBUFFER_ID;
 		action.size_import_export = IMPORT_EXPORT_GRANULARITY_VECSIZE;
 		action.status = 0;
 		
@@ -492,7 +492,7 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 		}
 	}
 	#else 
-	HBM_channelAXISW_t * HBM_import[NUM_FPGAS][NUM_EXPORT_BUFFERS]; 
+	HBM_channelAXISW_t * HBM_import[NUM_FPGAS][NUM_IMPORT_BUFFERS]; 
 	HBM_channelAXISW_t * HBM_export[NUM_FPGAS][NUM_EXPORT_BUFFERS]; 
 	for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){
 		for(unsigned int n=0; n<NUM_IMPORT_BUFFERS; n++){
@@ -670,20 +670,21 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 				
 				process_pointer = 88;
 				action.id_process = process_pointer;
-				for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS; t++){
-					if(t % NUM_FPGAS != fpga){ continue; }
-					if(gas_process[fpga][t].ready_for_process == 1){ 	
-						process_pointer = t;
-						action.id_process = process_pointer; 
-						action.start_pu = process_pointer; ////////////
-						break; 
+				if(action.module != APPLY_UPDATES_MODULE___AND___GATHER_DSTPROPERTIES_MODULE){
+					for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS; t++){
+						if(t % NUM_FPGAS != fpga){ continue; }
+						if(gas_process[fpga][t].ready_for_process == 1){ 	
+							process_pointer = t;
+							action.id_process = process_pointer; 
+							action.start_pu = process_pointer; ////////////
+							break; 
+						}
 					}
 				}
 				
 				export_pointer = INVALID_IOBUFFER_ID;//88;
 				action.id_export = export_pointer;
 				for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS; t++){
-					// if(t % NUM_FPGAS != fpga){ 
 					if(mapping[fpga][t].fpga != INVALIDDATA){
 						if(gas_export[fpga][t].ready_for_export == 1){
 							export_pointer = t;
