@@ -9,7 +9,7 @@
 #ifndef ___RUNNING_FPGA_SYNTHESIS___
 	#define ___CREATE_ACTPACK_FROM_VECTOR___
 #endif 
-#define NUM_FPGAS 1 // 1, 2*, 4
+#define NUM_FPGAS 2 // 1, 2*, 4
 
 #define ALL_MODULES 222
 // #define PREPARE_EDGEUPDATES_MODULE 2220
@@ -447,6 +447,11 @@ typedef struct {
 	unsigned int ready_for_export;
 	unsigned int iteration;
 } gas_export_t;
+
+typedef struct {
+	unsigned int fpga;
+	unsigned int io_id;
+} mapping_t;
 
 // HBM: {vptrs, edges, updatesptrs, updates, vertexprops, frontiers}
 typedef uint512_ivec_dt HBM_channel_t;

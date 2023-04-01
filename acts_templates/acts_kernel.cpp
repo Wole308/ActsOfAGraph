@@ -2610,9 +2610,9 @@ MY_IFDEF_TOPLEVELFUNC(){
 
 	#ifndef ___RUNNING_FPGA_SYNTHESIS___
 	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
-	if(status == 1 || true) { cout<<"acts_kernel::run:: dynamic acts started: fpga: "<<fpga<<", start_pu: "<<start_pu<<", size_pu: "<<size_pu<<", skip_pu: "<<skip_pu<<", start_pv: "<<start_pv<<", size_pv: "<<size_pv<<endl; }
+	if(status == 1 || true) { cout<<"acts_kernel::run:: dynamic acts started: fpga: "<<fpga<<", start_pu: "<<start_pu<<", start_pv: "<<start_pv<<endl; }
 	#else 
-	if(status == 1 || true) { cout<<"acts_kernel::run:: acts started: fpga: "<<fpga<<", start_pu: "<<start_pu<<", size_pu: "<<size_pu<<", skip_pu: "<<skip_pu<<", start_pv: "<<start_pv<<", size_pv: "<<size_pv<<endl; }	
+	if(status == 1 || true) { cout<<"acts_kernel::run:: acts started: fpga: "<<fpga<<", start_pu: "<<start_pu<<", start_pv: "<<start_pv<<endl; }	
 	#endif 
 	#endif 
 	
@@ -2639,8 +2639,8 @@ MY_IFDEF_TOPLEVELFUNC(){
 	action.status = status;
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS4					
-	if(action.id_import != LAST_IOBUFFER_ID){ cout<< TIMINGRESULTSCOLOR << "--> importing upartition: "<<action.id_import<<"..."<< RESET <<endl; }	
-	if(action.id_export != LAST_IOBUFFER_ID){ cout<< TIMINGRESULTSCOLOR << "<-- exporting vpartition: "<<action.id_export<<"..."<< RESET <<endl; }					
+	if(action.id_import != INVALID_IOBUFFER_ID){ cout<< TIMINGRESULTSCOLOR << "--> importing upartition: "<<action.id_import<<"..."<< RESET <<endl; }	
+	if(action.id_export != INVALID_IOBUFFER_ID){ cout<< TIMINGRESULTSCOLOR << "<-- exporting vpartition: "<<action.id_export<<"..."<< RESET <<endl; }					
 	#endif 
 	
 	#ifdef ___RUNNING_FPGA_SYNTHESIS___
@@ -3855,7 +3855,7 @@ if(enable___collectactivedstvids == true){
 				#endif 
 				bool en = true; if(enable___collectactivedstvids == true){ if(vpartition_vertices[0][p_v].count > 0){ en=true; } else { en=false; }} else { en = true; }
 				unsigned int voffset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__VDATAS] + (p_v * MAX_APPLYPARTITION_VECSIZE);
-				#ifdef _DEBUGMODE_KERNELPRINTS4
+				#ifdef _DEBUGMODE_KERNELPRINTS//4
 				cout<<"APPLY_UPDATES_MODULE_LOOP: vpartition_vertices[0]["<<p_v<<"].count: "<<vpartition_vertices[0][p_v].count<<" "<<endl;
 				#endif 
 				

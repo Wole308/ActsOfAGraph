@@ -93,7 +93,10 @@ using std::vector;
 #define NUM_HBMIO_ARGS 2
 #define NUM_HBMIO_CHKPTS_ARGS 0//2
 
-#define SSSSSSSSSSSSSSSSSSSS
+#if NUM_FPGAS>1
+#define ___PRE_RUN___
+#define ___POST_RUN___
+#endif 
 
 // #define ___SYNC___
 
@@ -204,104 +207,7 @@ void _set_args___actions(cl::Kernel * kernels, action_t action, cl_int err){
 #define EXPORT_DEVICE_TO_HOST() void _export_device_to_host()
 #endif
 
-action_t _get_action(unsigned int launch_idx, unsigned int launch_type, unsigned int fpga, universalparams_t universalparams){
-	action_t action;
-	action.fpga = fpga;
-	if(launch_type == 0){
-		unsigned int num_upartitions_per_fpga = (universalparams.NUM_UPARTITIONS + NUM_FPGAS - 1) / NUM_FPGAS;
-		action.module = ALL_MODULES;
-		action.start_pu = fpga; 
-		action.size_pu = universalparams.NUM_UPARTITIONS; // num_upartitions_per_fpga; 
-		action.skip_pu = NUM_FPGAS; 
-		action.start_pv = 0;
-		action.size_pv = universalparams.NUM_APPLYPARTITIONS; 
-		action.start_llpset = 0; 
-		action.size_llpset = universalparams.NUM_APPLYPARTITIONS; 
-		action.start_llpid = 0; 
-		action.size_llpid = EDGE_PACK_SIZE; 
-		action.start_gv = 0; 
-		action.size_gv = NUM_VALID_PEs;
-		action.status = 1;
-		
-	} else {		
-		if(launch_idx >= 0 && launch_idx < universalparams.NUM_UPARTITIONS){ 
-			// scatter <===> transport
-			action.module = PROCESS_EDGES_MODULE;
-			action.start_pu = launch_idx; 
-			action.size_pu = 1; 
-			action.skip_pu = NUM_FPGAS; 
-			action.status = 0;
-		} else if(launch_idx >= universalparams.NUM_UPARTITIONS && launch_idx < universalparams.NUM_UPARTITIONS + universalparams.NUM_APPLYPARTITIONS){
-			// apply and gatherDSTs <===> transport
-			action.module = APPLY_UPDATES_MODULE___AND___GATHER_DSTPROPERTIES_MODULE;
-			action.start_pv = launch_idx - universalparams.NUM_UPARTITIONS; 
-			action.size_pv = 1; 
-			action.start_gv = launch_idx - universalparams.NUM_UPARTITIONS; 
-			action.size_gv = 1;
-			action.status = 0;
-		} else {
-			cout<<"ERROR 234. launch_idx is out-of-range. EXITING... "<<endl;
-			exit(EXIT_FAILURE);
-		}
-	}
-	action.size_import_export = IMPORT_EXPORT_GRANULARITY_VECSIZE;
-	return action;
-}
-action_t _get_action2(unsigned int launch_idx, unsigned int launch_type, unsigned int fpga, universalparams_t universalparams){
-	action_t action;
-	action.fpga = fpga;
-	if(launch_type == 0){
-		unsigned int num_upartitions_per_fpga = (universalparams.NUM_UPARTITIONS + NUM_FPGAS - 1) / NUM_FPGAS;
-		action.module = ALL_MODULES;
-		action.start_pu = fpga; 
-		action.size_pu = universalparams.NUM_UPARTITIONS; // num_upartitions_per_fpga; 
-		action.skip_pu = NUM_FPGAS; 
-		action.start_pv = 0;
-		action.size_pv = universalparams.NUM_APPLYPARTITIONS; 
-		action.start_llpset = 0; 
-		action.size_llpset = universalparams.NUM_APPLYPARTITIONS; 
-		action.start_llpid = 0; 
-		action.size_llpid = EDGE_PACK_SIZE; 
-		action.start_gv = 0; 
-		action.size_gv = NUM_VALID_PEs;
-		action.status = 1;
-		
-	} else {		
-		if(launch_idx >= 0 && launch_idx < universalparams.NUM_UPARTITIONS){ 
-			// scatter <===> transport
-			action.module = PROCESS_EDGES_MODULE;
-			action.start_pu = (launch_idx * NUM_FPGAS) + fpga; 
-			action.size_pu = 1; 
-			action.skip_pu = 1; // NUM_FPGAS; 
-			
-			action.start_pv = NAp;
-			action.size_pv = NAp; 
-			action.start_llpset = NAp; 
-			action.size_llpset = NAp; 
-			action.start_llpid = NAp; 
-			action.size_llpid = NAp; 
-			action.start_gv = NAp; 
-			action.size_gv = NAp;
-		
-			action.status = 0;
-		} else if(launch_idx >= universalparams.NUM_UPARTITIONS && launch_idx < universalparams.NUM_UPARTITIONS + universalparams.NUM_APPLYPARTITIONS){
-			// apply and gatherDSTs <===> transport
-			action.module = APPLY_UPDATES_MODULE___AND___GATHER_DSTPROPERTIES_MODULE;
-			action.start_pv = launch_idx - universalparams.NUM_UPARTITIONS; 
-			action.size_pv = 1; 
-			action.start_gv = launch_idx - universalparams.NUM_UPARTITIONS; 
-			action.size_gv = 1;
-			action.status = 0;
-		} else {
-			cout<<"ERROR 234. launch_idx is out-of-range. EXITING... "<<endl;
-			exit(EXIT_FAILURE);
-		}
-	}
-	action.size_import_export = IMPORT_EXPORT_GRANULARITY_VECSIZE;
-	return action;
-}
-
-void load_actions1(unsigned int launch_type, unsigned int fpga, action_t actions[NUM_FPGAS][1024], universalparams_t universalparams){
+void load_actions1(unsigned int launch_type, unsigned int fpga, action_t * actions[NUM_FPGAS], universalparams_t universalparams){
 	action_t action;
 	
 	action.module = ALL_MODULES;
@@ -330,7 +236,7 @@ void load_actions1(unsigned int launch_type, unsigned int fpga, action_t actions
 	actions[fpga][0] = action;
 	return;
 }
-void load_actions2(unsigned int launch_type, unsigned int fpga, action_t actions[NUM_FPGAS][1024], universalparams_t universalparams){
+void load_actions2(unsigned int launch_type, unsigned int fpga, action_t * actions[NUM_FPGAS], universalparams_t universalparams){
 	unsigned int num_source_intervals = universalparams.NUM_UPARTITIONS / NUM_FPGAS;
 	unsigned int index = 0;
 	
@@ -694,26 +600,37 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 	unsigned int import_pointer = 0;
 	unsigned int export_pointer = 0;
 	gas_t gas[MAX_NUM_UPARTITIONS]; 
-	gas_import_t gas_import[MAX_NUM_UPARTITIONS]; 
-	gas_process_t gas_process[MAX_NUM_UPARTITIONS]; 
-	gas_export_t gas_export[MAX_NUM_UPARTITIONS]; 
-	for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS; t++){ 
-		gas[t].status = NAp;
-		gas[t].ready_for_import = 1;
-		gas[t].ready_for_export = 0;
-		gas[t].ready_for_process = 0;
-		gas[t].iteration = 0;
-	}
-	for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS; t++){ 
-		gas_import[t].ready_for_import = 1;
-		gas_import[t].iteration = 0;
-		gas_process[t].ready_for_process = 0;
-		gas_process[t].iteration = 0;
-		gas_export[t].ready_for_export = 0;
-		gas_export[t].iteration = 0;
+	gas_import_t gas_import[NUM_FPGAS][MAX_NUM_UPARTITIONS]; 
+	gas_process_t gas_process[NUM_FPGAS][MAX_NUM_UPARTITIONS]; 
+	gas_export_t gas_export[NUM_FPGAS][MAX_NUM_UPARTITIONS]; 
+	for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){
+		for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS; t++){ 
+			gas_import[fpga][t].ready_for_import = 1;
+			gas_import[fpga][t].iteration = 0;
+			gas_process[fpga][t].ready_for_process = 0;
+			gas_process[fpga][t].iteration = 0;
+			gas_export[fpga][t].ready_for_export = 0;
+			gas_export[fpga][t].iteration = 0;
+		}
 	}
 	
-	action_t actions[NUM_FPGAS][1024]; // for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ for(unsigned int t = 0; t<1024; t++){ actions[fpga][t] = 0; }}
+	mapping_t * mapping[NUM_FPGAS]; for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ mapping[fpga] = new mapping_t[MAX_NUM_UPARTITIONS]; }
+	for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){
+		for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS; t+=1){
+			if(t % NUM_FPGAS != fpga){ 
+				mapping[fpga][t].fpga = (fpga + 1) % NUM_FPGAS;
+				mapping[fpga][t].io_id = ((t / NUM_FPGAS) * NUM_FPGAS) + mapping[fpga][t].fpga;
+				cout<<"$$$ host: mapping["<<fpga<<"]["<<t<<"].fpga: "<<mapping[fpga][t].fpga<<", mapping["<<fpga<<"]["<<t<<"].io_id: "<<mapping[fpga][t].io_id<<endl;
+			} else {
+				mapping[fpga][t].fpga = INVALIDDATA;
+				mapping[fpga][t].io_id = INVALIDDATA; 
+				cout<<"$$$ host: mapping["<<fpga<<"]["<<t<<"].fpga: -, mapping["<<fpga<<"]["<<t<<"].io_id: -"<<endl;
+			}
+		}
+	}
+	// exit(EXIT_SUCCESS);
+	
+	action_t * actions[NUM_FPGAS]; for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ actions[fpga] = new action_t[1024]; }
 	for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ 
 		if(launch_type == 0){ load_actions1(launch_type, fpga, actions, universalparams); }
 		else { load_actions2(launch_type, fpga, actions, universalparams); }
@@ -722,6 +639,7 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 	// run kernel
 	std::chrono::steady_clock::time_point begin_time = std::chrono::steady_clock::now();
 	for (unsigned int iteration_idx = 0; iteration_idx < 2; iteration_idx++) {
+		std::cout << endl << TIMINGRESULTSCOLOR <<"#################################################################### GAS iteration: "<<iteration_idx<< " ####################################################################"<< RESET << std::endl;
 		for(unsigned int launch_idx=0; launch_idx<num_launches; launch_idx+=1){
 			for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ // NUM_FPGAS
 				std::cout << endl << TIMINGRESULTSCOLOR <<"-------------------------------- host: GAS iteration: "<<iteration_idx<<", launch_idx "<<launch_idx<<", fpga: "<<fpga<<" started... --------------------------------"<< RESET << std::endl;
@@ -733,16 +651,17 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 				
 				// set scalar arguments
 				action.graph_iteration = iteration_idx;
-				action.id_import = launch_idx % universalparams.NUM_UPARTITIONS; // FIXME.
-				action.id_export = launch_idx % universalparams.NUM_UPARTITIONS; // FIXME
+				action.id_import = 0; 
+				action.id_export = 0; 
 				action.size_import_export = IMPORT_EXPORT_GRANULARITY_VECSIZE; // 
 				
 				// pre-run
-				#ifdef SSSSSSSSSSSSSSSSSSSS
-				import_pointer = LAST_IOBUFFER_ID;//88;
+				#ifdef ___PRE_RUN___
+				import_pointer = INVALID_IOBUFFER_ID;//88;
 				action.id_import = import_pointer;
 				for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS; t++){
-					if(gas_import[t].ready_for_import == 1 && gas_import[t].iteration == iteration_idx){ 	
+					if(t % NUM_FPGAS != fpga){ continue; }
+					if(gas_import[fpga][t].ready_for_import == 1){
 						import_pointer = t;
 						action.id_import = import_pointer; 
 						break; 
@@ -752,21 +671,25 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 				process_pointer = 88;
 				action.id_process = process_pointer;
 				for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS; t++){
-					if(gas_process[t].ready_for_process == 1){ 	
+					if(t % NUM_FPGAS != fpga){ continue; }
+					if(gas_process[fpga][t].ready_for_process == 1){ 	
 						process_pointer = t;
 						action.id_process = process_pointer; 
+						action.start_pu = process_pointer; ////////////
 						break; 
 					}
 				}
-				action.start_pu = process_pointer;
 				
-				export_pointer = LAST_IOBUFFER_ID;//88;
+				export_pointer = INVALID_IOBUFFER_ID;//88;
 				action.id_export = export_pointer;
 				for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS; t++){
-					if(gas_export[t].ready_for_export == 1){
-						export_pointer = t;
-						action.id_export = export_pointer; 
-						break; 
+					// if(t % NUM_FPGAS != fpga){ 
+					if(mapping[fpga][t].fpga != INVALIDDATA){
+						if(gas_export[fpga][t].ready_for_export == 1){
+							export_pointer = t;
+							action.id_export = export_pointer; 
+							break; 
+						}
 					}
 				}
 				#endif 
@@ -828,9 +751,6 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 				cout<<"$$$ host: running acts... [import target: partition "<<action.id_import<<"][export target: partition "<<action.id_export<<"] "<<endl;
 				#endif 
 				std::chrono::steady_clock::time_point begin_time1 = std::chrono::steady_clock::now();
-				// std::cout<<">>> host:: action.id_import: "<<action.id_import<<", action.id_process: "<<action.id_process<<", action.id_export: "<<action.id_export<<std::endl;
-				// std::cout<<">>> host:: gas["<<import_pointer<<"].status: "<<gas[import_pointer].status<<", gas["<<process_pointer<<"].status: "<<gas[process_pointer].status<<", gas["<<export_pointer<<"].status: "<<gas[export_pointer].status<<std::endl;
-				// cout<<"$$$ host: running acts... [import target: partition "<<action.id_import<<"][export target: partition "<<action.id_export<<"] "<<endl;
 				#ifdef FPGA_IMPL
 					#ifdef ___SYNC___
 					OCL_CHECK(err, err = q[fpga].enqueueNDRangeKernel(kernels[fpga], 0, 1, 1, NULL, &kernel_events[flag]));
@@ -869,24 +789,38 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 						);		
 				#endif 
 				double end_time1 = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin_time1).count()) / 1000;	
+				#ifdef FPGA_IMPL
 				std::cout << TIMINGRESULTSCOLOR << ">>> kernel time elapsed for iteration "<<iteration_idx<<", launch_idx "<<launch_idx<<" : "<<end_time1<<" ms, "<<(end_time1 * 1000)<<" microsecs, "<< RESET <<std::endl;
+				#endif 
 				
-				// post-run 
-				#ifdef SSSSSSSSSSSSSSSSSSSS
-				gas_import[import_pointer].iteration += 1; 
-				gas_process[import_pointer].ready_for_process = 1; 
+				// post run (export->import transfers)
+				#ifdef ___POST_RUN___//XXX
+				if(action.id_export != INVALID_IOBUFFER_ID){
+					unsigned int id_mapped_import = mapping[fpga][action.id_export].io_id; 
+					unsigned int mapped_fpga = mapping[fpga][action.id_export].fpga; 
+					cout<< TIMINGRESULTSCOLOR << "<--> mapping exported vpartition: from (fpga: "<<fpga<<", id_export: "<<action.id_export<<") --- to (mapped_fpga: "<<mapped_fpga<<", id_mapped_import: "<<id_mapped_import<<")"<< RESET <<endl;
+					for(unsigned int t=0; t<IMPORT_EXPORT_GRANULARITY_VECSIZE; t++){
+						HBM_import[mapped_fpga][id_mapped_import] = HBM_export[fpga][action.id_export];
+					}
+					gas_import[mapped_fpga][id_mapped_import].ready_for_import = 1; 
+				}
+				#endif 
 				
-				gas_process[process_pointer].ready_for_process = 0; 
+				// post-run
+				#ifdef ___POST_RUN___
+				gas_import[fpga][import_pointer].ready_for_import = 0; 
+				gas_process[fpga][import_pointer].ready_for_process = 1; 
+				
+				gas_process[fpga][process_pointer].ready_for_process = 0; 
 				if(action.module == APPLY_UPDATES_MODULE___AND___GATHER_DSTPROPERTIES_MODULE){
 					for(unsigned int t=0; t<NUM_SUBPARTITION_PER_PARTITION; t++){
 						unsigned int HGH = ((universalparams.NUM_UPARTITIONS + NUM_SUBPARTITION_PER_PARTITION - 1) / NUM_SUBPARTITION_PER_PARTITION) * NUM_SUBPARTITION_PER_PARTITION;
 						if((action.start_pv * NUM_SUBPARTITION_PER_PARTITION) + t >= HGH){ cout<<"host: ERROR 23: (action.start_pv * NUM_SUBPARTITION_PER_PARTITION)(="<<(action.start_pv * NUM_SUBPARTITION_PER_PARTITION)<<") + t(="<<t<<") > HGH("<<HGH<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }
-						gas_export[(action.start_pv * NUM_SUBPARTITION_PER_PARTITION) + t].ready_for_export = 1;
-						gas_export[(action.start_pv * NUM_SUBPARTITION_PER_PARTITION) + t].iteration = iteration_idx;
+						gas_export[fpga][(action.start_pv * NUM_SUBPARTITION_PER_PARTITION) + t].ready_for_export = 1;
 					}
 				}
 				
-				gas_export[export_pointer].ready_for_export = 0; 
+				gas_export[fpga][export_pointer].ready_for_export = 0; 
 				#endif 
 				// exit(EXIT_SUCCESS);
 				
