@@ -2608,15 +2608,19 @@ MY_IFDEF_TOPLEVELFUNC(){
 #pragma HLS INTERFACE s_axilite port = status
 #pragma HLS INTERFACE s_axilite port = return
 
+	// cout<<"acts_kernel::run:: ---------------[BEFORE]: fpga: "<<fpga<<", start_pu: "<<start_pu<<", start_pv: "<<start_pv<<endl;
+	// if(id_process != INVALID_IOBUFFER_ID){ id_process = (id_process * NUM_FPGAS) + fpga; start_pu = id_process; }
+	// if(id_import != INVALID_IOBUFFER_ID){ id_import = (id_import * NUM_FPGAS) + fpga; }	
+	// if(action.id_export != INVALID_IOBUFFER_ID){ cout<< TIMINGRESULTSCOLOR << "<-- exporting vpartition: "<<action.id_export<<"..."<< RESET <<endl; }					
+	
 	#ifndef ___RUNNING_FPGA_SYNTHESIS___	
-	// #ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
-	// if(status == 1 || true) { cout<<"acts_kernel::run:: dynamic acts started"<<endl; }
-	// #else 
-	// if(status == 1 || true) { cout<<"acts_kernel::run:: acts started"<<endl; }	
-	// #endif 	
 	if(start_pv == NAp) { cout<<"acts_kernel::run:: acts started [processing stage]: fpga: "<<fpga<<", start_pu: "<<start_pu<<", start_pv: "<<start_pv<<endl; }
 	if(start_pu == NAp) { cout<<"acts_kernel::run:: acts started [applying stage]: fpga: "<<fpga<<", start_pu: "<<start_pu<<", start_pv: "<<start_pv<<endl; }
 	#endif 
+	
+	// cout<<"acts_kernel::run:: ---------------[AFTER]: fpga: "<<fpga<<", start_pu: "<<start_pu<<", start_pv: "<<start_pv<<endl;
+	
+	// if(start_pu != NAp){ start_pu = (start_pu * NUM_FPGAS) + fpga; }
 	
 	// commands from host
 	action_t action;
@@ -2645,15 +2649,21 @@ MY_IFDEF_TOPLEVELFUNC(){
 	if(action.id_export != INVALID_IOBUFFER_ID){ cout<< TIMINGRESULTSCOLOR << "<-- exporting vpartition: "<<action.id_export<<"..."<< RESET <<endl; }					
 	#endif 
 	
-	#ifdef ___RUNNING_FPGA_SYNTHESIS___
-	if(action.id_process == 88){ return; }
-	#else 
-	if(action.id_process == 88){ return 0; }
+	if(action.id_process == INVALID_IOBUFFER_ID && action.module != APPLY_UPDATES_MODULE___AND___GATHER_DSTPROPERTIES_MODULE){ 
+		#ifdef ___RUNNING_FPGA_SYNTHESIS___
+		return; 
+		#else 
+		return 0;	
+		#endif 
+	}
+
+	#ifdef _DEBUGMODE_KERNELPRINTS4				
+	if(action.module == PROCESS_EDGES_MODULE){ cout<< TIMINGRESULTSCOLOR << "--- processing upartition: "<<action.id_process<<"..."<< RESET <<endl; }
+	else { cout<< TIMINGRESULTSCOLOR << "--- applying vpartition: "<<action.start_pv<<"..."<< RESET <<endl; }	
 	#endif 
 	
-	#ifdef _DEBUGMODE_KERNELPRINTS4				
-	cout<< TIMINGRESULTSCOLOR << "--- processing upartition: "<<action.id_process<<"..."<< RESET <<endl; 				
-	#endif 
+	if(action.id_process != INVALID_IOBUFFER_ID){ action.id_process = (action.id_process * NUM_FPGAS) + fpga; action.start_pu = action.id_process; }
+	if(action.id_import != INVALID_IOBUFFER_ID){ action.id_import = (action.id_import * NUM_FPGAS) + fpga; }	
 	
 	// declarations
 // declaration of BRAM variables
@@ -2983,10 +2993,9 @@ for(unsigned int i=0; i<MAXNUMGRAPHITERATIONS; i++){ for(unsigned int t=0; t<MAX
 		LOAD_UPDATEPTRS_lOOP1B: for(unsigned int t=0; t<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]; t++){	
 		#pragma HLS PIPELINE II=1
 			updatesptrs[fpga][t] = load_vupdate_map(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS], (fpga * MAX_NUM_LLPSETS) + t,  HBM_channelA0, HBM_channelB0);	
-			// if((action.module == ALL_MODULES || action.module == PROCESS_EDGES_MODULE) && action.start_pu == 0){ updatesptrs[fpga][t].size = 0; }	
-			if((action.module == ALL_MODULES || action.module == PROCESS_EDGES_MODULE) && ((action.start_pu - action.fpga) == 0)){ 
+			if((action.module == ALL_MODULES || action.module == PROCESS_EDGES_MODULE) && (action.start_pu / NUM_FPGAS == 0)){ 
 				#ifdef _DEBUGMODE_KERNELPRINTS4
-				cout << "acts: resetting updates space..." <<endl;
+				if(t==0){ cout << "acts: resetting updates space..." <<endl; }
 				#endif 
 				updatesptrs[fpga][t].size = 0; }				
 			#ifdef _DEBUGMODE_KERNELPRINTS//4

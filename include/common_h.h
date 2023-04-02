@@ -449,6 +449,7 @@ typedef struct {
 typedef struct {
 	unsigned int fpga;
 	unsigned int io_id;
+	// bool data_transferred;
 } mapping_t;
 
 // HBM: {vptrs, edges, updatesptrs, updates, vertexprops, frontiers}
