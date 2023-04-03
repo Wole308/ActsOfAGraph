@@ -9,7 +9,7 @@
 #ifndef ___RUNNING_FPGA_SYNTHESIS___
 	#define ___CREATE_ACTPACK_FROM_VECTOR___
 #endif 
-#define NUM_FPGAS 4 // 1, 2*, 4
+#define NUM_FPGAS 2 // 1, 2*, 4
 
 #define ALL_MODULES 222
 // #define PREPARE_EDGEUPDATES_MODULE 2220
@@ -408,6 +408,7 @@ typedef struct {
 	unsigned int start_pu; 
 	unsigned int size_pu; 
 	unsigned int skip_pu; 
+	unsigned int start_pv_fpga;
 	unsigned int start_pv;
 	unsigned int size_pv; 
 	unsigned int start_llpset; 
