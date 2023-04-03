@@ -1,16 +1,16 @@
 uint512_vec_dt updates_vecs[NUM_VALID_PEs];
 unsigned int import_offset = id_import * action.size_import_export;
 unsigned int export_offset = id_export * action.size_import_export;
-max_limit = 0; for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ limits[inst] = updatesptrs[fpga][p_v].size; } for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ if(max_limit < limits[inst]){ max_limit = limits[inst]; }}
+max_limit = 0; for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ limits[inst] = updatesptrs[action.start_pv_fpga][p_v].size; } for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ if(max_limit < limits[inst]){ max_limit = limits[inst]; }}
 
 #ifdef _DEBUGMODE_KERNELPRINTS4 
-if(en == true){ cout<<"### applying vertex updates in vpartition "<<p_v<<" (fpga "<<fpga<<"): [PEs "; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<n<<", "; } cout<<"]"<<endl; } 
+if(en == true){ cout<<"### applying vertex updates in vpartition "<<p_v<<" (fpga "<<action.start_pv_fpga<<"): [PEs "; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<n<<", "; } cout<<"]"<<endl; } 
 #endif 
 
-APPLY_UPDATES_LOOP1: for(unsigned int t=0; t<max_limit; t++){			
-#pragma HLS PIPELINE II={{context['II_APPLY_UPDATES_LOOP1']}}
-// #pragma HLS dependence variable=URAM_vprop type=inter false
-	dretrievemany_udatesdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__VERTEXUPDATES] + updatesptrs[fpga][p_v].offset, p_v, t, updates_vecs, {% include '___HBM___ARGS___.template' %}); // NEW
+APPLY_UPDATES_LOOP1: for(unsigned int t=0; t<max_limit; t++){				
+#pragma HLS PIPELINE II={{context['II_APPLY_UPDATES_LOOP1']}}	
+// #pragma HLS dependence variable=URAM_vprop type=inter false	
+	dretrievemany_udatesdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__VERTEXUPDATES] + updatesptrs[start_pv_fpga][p_v].offset, p_v, t, updates_vecs, {% include '___HBM___ARGS___.template' %}); // NEW
 	for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
 	#pragma HLS UNROLL
 		// if(t < limits[inst]){
@@ -39,35 +39,10 @@ APPLY_UPDATES_LOOP1: for(unsigned int t=0; t<max_limit; t++){
 				}
 			}
 		}
-		// }
 	}
-	
-	// #ifdef _DEBUGMODE_CHECKS3
-	// checkoutofbounds("acts_kernel::apply-updates: ERROR 727a::", import_offset + t, HBM_CHANNEL_SIZE, import_offset, NAp, NAp);
-	// checkoutofbounds("acts_kernel::apply-updates: ERROR 727b::", export_offset + t, HBM_CHANNEL_SIZE, export_offset, NAp, NAp);		
-	// checkoutofbounds("acts_kernel::apply-updates: ERROR 727c::", t, IMPORT_EXPORT_GRANULARITY_VECSIZE, t, NAp, NAp);
-	// checkoutofbounds("acts_kernel::apply-updates: ERROR 727d::", t, IMPORT_EXPORT_GRANULARITY_VECSIZE, t, NAp, NAp);	
-	// checkoutofbounds("acts_kernel::apply-updates: ERROR 727e::", action.size_import_export, IMPORT_EXPORT_GRANULARITY_VECSIZE+1, t, NAp, NAp);	
-	// #endif 
-	
-	/* // import (Host -> FPGA)
-	if(action.id_import != INVALIDDATA && t<action.size_import_export){	
-		{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
-		HBM_centerA[import_offset + t].data[{{v}}] = HBM_import[t].data[{{v}}];
-		{%endfor%}	
-	}				
-	
-	// export (FPGA -> Host)
-	if(action.id_export != INVALIDDATA && t<action.size_import_export){	
-		{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
-		HBM_export[t].data[{{v}}] = HBM_centerB[export_offset + t].data[{{v}}];
-		{%endfor%}
-	}	 */	
 }		
 
-// #ifdef _DEBUGMODE_KERNELPRINTS4 
-// if(en == true){ cout<<"### [---FINISH---] applying vertex updates in vpartition "<<p_v<<" (fpga "<<fpga<<"): [PEs "; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<n<<", "; } cout<<"]"<<endl; } 
-// #endif 	
+
 
 
 

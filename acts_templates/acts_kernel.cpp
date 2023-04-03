@@ -36,7 +36,7 @@ using namespace std;
 #define MY_IFDEF_VDATABUFFER() vprop_t URAM_vprop[EDGE_PACK_SIZE][MAXVALID_APPLYPARTITION_VECSIZE]
 #define MY_IFDEF_TOPLEVELFUNC() void top_function( HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, \
 	HBM_channelAXI_t * HBM_import, HBM_channelAXI_t * HBM_export, \
-	unsigned int fpga, unsigned int module, unsigned int graph_iteration, unsigned int start_pu, unsigned int size_pu, unsigned int skip_pu, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_gv, unsigned int size_gv, unsigned int id_process, unsigned int id_import, unsigned int id_export, unsigned int size_import_export, unsigned int status)
+	unsigned int fpga, unsigned int module, unsigned int graph_iteration, unsigned int start_pu, unsigned int size_pu, unsigned int skip_pu, unsigned int start_pv_fpga, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_gv, unsigned int size_gv, unsigned int id_process, unsigned int id_import, unsigned int id_export, unsigned int size_import_export, unsigned int status)
 #else
 #define MY_IFDEF_NFRONTIER() keyvalue_t * nfrontier_buffer[EDGE_PACK_SIZE]
 #define MY_IFDEF_CFRONTIER_TMP() keyvalue_t * URAM_frontiers[EDGE_PACK_SIZE]
@@ -51,7 +51,7 @@ using namespace std;
 #define MY_IFDEF_VDATABUFFER() vprop_t * URAM_vprop[EDGE_PACK_SIZE]
 #define MY_IFDEF_TOPLEVELFUNC() unsigned int acts_kernel::top_function( HBM_channelAXI_t * HBM_channelA0, HBM_channelAXI_t * HBM_channelB0, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, \
 	HBM_channelAXI_t * HBM_import, HBM_channelAXI_t * HBM_export, \
-	unsigned int fpga, unsigned int module, unsigned int graph_iteration, unsigned int start_pu, unsigned int size_pu, unsigned int skip_pu, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_gv, unsigned int size_gv, unsigned int id_process, unsigned int id_import, unsigned int id_export, unsigned int size_import_export, unsigned int status, \
+	unsigned int fpga, unsigned int module, unsigned int graph_iteration, unsigned int start_pu, unsigned int size_pu, unsigned int skip_pu, unsigned int start_pv_fpga, unsigned int start_pv, unsigned int size_pv, unsigned int start_llpset, unsigned int size_llpset, unsigned int start_llpid, unsigned int size_llpid, unsigned int start_gv, unsigned int size_gv, unsigned int id_process, unsigned int id_import, unsigned int id_export, unsigned int size_import_export, unsigned int status, \
 	vector<edge3_type> (&final_edge_updates)[NUM_PEs][MAX_NUM_UPARTITIONS][MAX_NUM_LLPSETS], unsigned int report_statistics[64])					
 #endif
 
@@ -2464,6 +2464,10 @@ MY_IFDEF_CREATE_ACTPACK(){
 // exit(EXIT_SUCCESS);
 #endif 
 
+unsigned int owner_fpga(unsigned int dstvid){
+	return dstvid % NUM_FPGAS;
+}
+
 void import_frontiers(unsigned int chunk, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_import, action_t action, unsigned int _NUMCLOCKCYCLES_[2][32]){
 	#ifdef _DEBUGMODE_KERNELPRINTS4
 	cout<<"acts_kernel::run:: importing "<<action.size_import_export<<" 32bit-integers (Host -> FPGA)..."<<endl;
@@ -2571,6 +2575,53 @@ void gather_frontiers(unsigned int inst, unsigned int p_v, unsigned int * cfront
 	return;
 }	
 
+void gather_frontiers2(unsigned int inst, unsigned int upartitionID, unsigned int * cfrontier_dram___size, unsigned int * nfrontier_dram___size, offset_t * upartition_vertices, HBM_channelAXI_t * HBM_channelA, HBM_channelAXI_t * HBM_channelB, HBM_channelAXI_t * HBM_centerA, HBM_channelAXI_t * HBM_centerB, unsigned int globalparams[GLOBALBUFFER_SIZE], unsigned int _NUMCLOCKCYCLES_[2][32]){	
+	unsigned int offset_centerhbm = (upartitionID * MAX_UPARTITION_VECSIZE) + cfrontier_dram___size[upartitionID]; 
+	unsigned int offset_channelhbm = globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS] + (upartitionID * VDATA_SUBPARTITION_VECSIZE);
+	
+	GATHER_FRONTIERS_LOOP1B: for(unsigned int t=0; t<nfrontier_dram___size[upartitionID]; t++){
+	#pragma HLS PIPELINE II=1
+		HBM_centerA[offset_centerhbm + t].data[0] = HBM_channelA[offset_channelhbm + t].data[0];
+		HBM_centerA[offset_centerhbm + t].data[1] = HBM_channelA[offset_channelhbm + t].data[1];
+		HBM_centerA[offset_centerhbm + t].data[2] = HBM_channelA[offset_channelhbm + t].data[2];
+		HBM_centerA[offset_centerhbm + t].data[3] = HBM_channelA[offset_channelhbm + t].data[3];
+		HBM_centerA[offset_centerhbm + t].data[4] = HBM_channelA[offset_channelhbm + t].data[4];
+		HBM_centerA[offset_centerhbm + t].data[5] = HBM_channelA[offset_channelhbm + t].data[5];
+		HBM_centerA[offset_centerhbm + t].data[6] = HBM_channelA[offset_channelhbm + t].data[6];
+		HBM_centerA[offset_centerhbm + t].data[7] = HBM_channelA[offset_channelhbm + t].data[7];
+		HBM_centerA[offset_centerhbm + t].data[8] = HBM_channelA[offset_channelhbm + t].data[8];
+		HBM_centerA[offset_centerhbm + t].data[9] = HBM_channelA[offset_channelhbm + t].data[9];
+		HBM_centerA[offset_centerhbm + t].data[10] = HBM_channelA[offset_channelhbm + t].data[10];
+		HBM_centerA[offset_centerhbm + t].data[11] = HBM_channelA[offset_channelhbm + t].data[11];
+		HBM_centerA[offset_centerhbm + t].data[12] = HBM_channelA[offset_channelhbm + t].data[12];
+		HBM_centerA[offset_centerhbm + t].data[13] = HBM_channelA[offset_channelhbm + t].data[13];
+		HBM_centerA[offset_centerhbm + t].data[14] = HBM_channelA[offset_channelhbm + t].data[14];
+		HBM_centerA[offset_centerhbm + t].data[15] = HBM_channelA[offset_channelhbm + t].data[15];
+		HBM_centerB[offset_centerhbm + t].data[0] = HBM_channelB[offset_channelhbm + t].data[0];
+		HBM_centerB[offset_centerhbm + t].data[1] = HBM_channelB[offset_channelhbm + t].data[1];
+		HBM_centerB[offset_centerhbm + t].data[2] = HBM_channelB[offset_channelhbm + t].data[2];
+		HBM_centerB[offset_centerhbm + t].data[3] = HBM_channelB[offset_channelhbm + t].data[3];
+		HBM_centerB[offset_centerhbm + t].data[4] = HBM_channelB[offset_channelhbm + t].data[4];
+		HBM_centerB[offset_centerhbm + t].data[5] = HBM_channelB[offset_channelhbm + t].data[5];
+		HBM_centerB[offset_centerhbm + t].data[6] = HBM_channelB[offset_channelhbm + t].data[6];
+		HBM_centerB[offset_centerhbm + t].data[7] = HBM_channelB[offset_channelhbm + t].data[7];
+		HBM_centerB[offset_centerhbm + t].data[8] = HBM_channelB[offset_channelhbm + t].data[8];
+		HBM_centerB[offset_centerhbm + t].data[9] = HBM_channelB[offset_channelhbm + t].data[9];
+		HBM_centerB[offset_centerhbm + t].data[10] = HBM_channelB[offset_channelhbm + t].data[10];
+		HBM_centerB[offset_centerhbm + t].data[11] = HBM_channelB[offset_channelhbm + t].data[11];
+		HBM_centerB[offset_centerhbm + t].data[12] = HBM_channelB[offset_channelhbm + t].data[12];
+		HBM_centerB[offset_centerhbm + t].data[13] = HBM_channelB[offset_channelhbm + t].data[13];
+		HBM_centerB[offset_centerhbm + t].data[14] = HBM_channelB[offset_channelhbm + t].data[14];
+		HBM_centerB[offset_centerhbm + t].data[15] = HBM_channelB[offset_channelhbm + t].data[15];
+	
+		if(inst==0){ update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___GATHER_FRONTIERINFOS___, 1); }
+	}
+	
+	upartition_vertices[upartitionID].count += nfrontier_dram___size[upartitionID]; 
+	cfrontier_dram___size[upartitionID] += nfrontier_dram___size[upartitionID];
+	return;
+}
+
 extern "C" {	
 MY_IFDEF_TOPLEVELFUNC(){		
 #pragma HLS INTERFACE m_axi port = HBM_channelA0 offset = slave bundle = gmem0
@@ -2593,10 +2644,11 @@ MY_IFDEF_TOPLEVELFUNC(){
 #pragma HLS INTERFACE s_axilite port = start_pu 
 #pragma HLS INTERFACE s_axilite port = size_pu
 #pragma HLS INTERFACE s_axilite port = skip_pu
+#pragma HLS INTERFACE s_axilite port = start_pv_fpga
 #pragma HLS INTERFACE s_axilite port = start_pv
 #pragma HLS INTERFACE s_axilite port = size_pv
 #pragma HLS INTERFACE s_axilite port = start_llpset
-#pragma HLS INTERFACE s_axilite port = size_llpset
+#pragma HLS INTERFACE s_axilite port = size_llpset 
 #pragma HLS INTERFACE s_axilite port = start_llpid
 #pragma HLS INTERFACE s_axilite port = size_llpid
 #pragma HLS INTERFACE s_axilite port = start_gv
@@ -2608,19 +2660,10 @@ MY_IFDEF_TOPLEVELFUNC(){
 #pragma HLS INTERFACE s_axilite port = status
 #pragma HLS INTERFACE s_axilite port = return
 
-	// cout<<"acts_kernel::run:: ---------------[BEFORE]: fpga: "<<fpga<<", start_pu: "<<start_pu<<", start_pv: "<<start_pv<<endl;
-	// if(id_process != INVALID_IOBUFFER_ID){ id_process = (id_process * NUM_FPGAS) + fpga; start_pu = id_process; }
-	// if(id_import != INVALID_IOBUFFER_ID){ id_import = (id_import * NUM_FPGAS) + fpga; }	
-	// if(action.id_export != INVALID_IOBUFFER_ID){ cout<< TIMINGRESULTSCOLOR << "<-- exporting vpartition: "<<action.id_export<<"..."<< RESET <<endl; }					
-	
 	#ifndef ___RUNNING_FPGA_SYNTHESIS___	
-	if(start_pv == NAp) { cout<<"acts_kernel::run:: acts started [processing stage]: fpga: "<<fpga<<", start_pu: "<<start_pu<<", start_pv: "<<start_pv<<endl; }
-	if(start_pu == NAp) { cout<<"acts_kernel::run:: acts started [applying stage]: fpga: "<<fpga<<", start_pu: "<<start_pu<<", start_pv: "<<start_pv<<endl; }
+	if(start_pv == NAp) { cout<<"acts_kernel::run:: acts started [processing stage]: fpga: "<<fpga<<", start_pu: "<<start_pu<<", start_pv_fpga: "<<start_pv_fpga<<", start_pv: "<<start_pv<<", start_gv: "<<start_gv<<endl; }
+	if(start_pu == NAp) { cout<<"acts_kernel::run:: acts started [applying stage]: fpga: "<<fpga<<", start_pu: "<<start_pu<<", start_pv_fpga: "<<start_pv_fpga<<", start_pv: "<<start_pv<<", start_gv: "<<start_gv<<endl; }
 	#endif 
-	
-	// cout<<"acts_kernel::run:: ---------------[AFTER]: fpga: "<<fpga<<", start_pu: "<<start_pu<<", start_pv: "<<start_pv<<endl;
-	
-	// if(start_pu != NAp){ start_pu = (start_pu * NUM_FPGAS) + fpga; }
 	
 	// commands from host
 	action_t action;
@@ -2630,6 +2673,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 	action.start_pu = start_pu; 
 	action.size_pu = size_pu; 
 	action.skip_pu = skip_pu; 
+	action.start_pv_fpga = start_pv_fpga;
 	action.start_pv = start_pv;
 	action.size_pv = size_pv; 
 	action.start_llpset = start_llpset; 
@@ -2649,7 +2693,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 	if(action.id_export != INVALID_IOBUFFER_ID){ cout<< TIMINGRESULTSCOLOR << "<-- exporting vpartition: "<<action.id_export<<"..."<< RESET <<endl; }					
 	#endif 
 	
-	if(action.id_process == INVALID_IOBUFFER_ID && action.module != APPLY_UPDATES_MODULE___AND___GATHER_DSTPROPERTIES_MODULE){ 
+	if(action.id_process == INVALID_IOBUFFER_ID && action.module != APPLY_UPDATES_MODULE && action.module != GATHER_FRONTIERS_MODULE){ 
 		#ifdef ___RUNNING_FPGA_SYNTHESIS___
 		return; 
 		#else 
@@ -2659,7 +2703,9 @@ MY_IFDEF_TOPLEVELFUNC(){
 
 	#ifdef _DEBUGMODE_KERNELPRINTS4				
 	if(action.module == PROCESS_EDGES_MODULE){ cout<< TIMINGRESULTSCOLOR << "--- processing upartition: "<<action.id_process<<"..."<< RESET <<endl; }
-	else { cout<< TIMINGRESULTSCOLOR << "--- applying vpartition: "<<action.start_pv<<"..."<< RESET <<endl; }	
+	else if(action.module == APPLY_UPDATES_MODULE){ cout<< TIMINGRESULTSCOLOR << "--- applying vpartition: "<<action.start_pv<<"..."<< RESET <<endl; }	
+	else if(action.module == GATHER_FRONTIERS_MODULE){ cout<< TIMINGRESULTSCOLOR << "--- gathering frontiers for upartition: "<<action.start_gv<<"..."<< RESET <<endl; }
+	else { cout<<"acts: ERROR 232. EXITING..."<<endl; exit(EXIT_FAILURE); }
 	#endif 
 	
 	if(action.id_process != INVALID_IOBUFFER_ID){ action.id_process = (action.id_process * NUM_FPGAS) + fpga; action.start_pu = action.id_process; }
@@ -3501,7 +3547,6 @@ EC_PROCESS_EDGEUPDATES_LOOP1: for(unsigned int llp_set=0; llp_set<globalparams[G
 								
 				}	
 				#endif	
-				// exit(EXIT_SUCCESS);
 				
 				// read & map frontier properties 
 				#ifdef ___ENABLE___READ_FRONTIER_PROPERTIES___
@@ -3657,12 +3702,6 @@ MY_LOOP175_DEBUG: for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t++){
 				}
 				#endif
 				
-				#ifdef _DEBUGMODE_KERNELPRINTS4_XXXXXXXXXX				
-				if(action.id_export != INVALIDDATA){ cout<< TIMINGRESULTSCOLOR << "--> importing upartition: "<<action.id_export<<"..."<< RESET <<endl; }	
-				cout<< TIMINGRESULTSCOLOR << "--- processing upartition: "<<action.id_process<<"..."<< RESET <<endl; 	
-				if(action.id_import != INVALIDDATA){ cout<< TIMINGRESULTSCOLOR << "<-- exporting vpartition: "<<action.id_import<<"..."<< RESET <<endl; }					
-				#endif 
-				
 				// process-edges and partition-updates
 				#ifdef ___ENABLE___ECPROCESSEDGES___II1___		
 				if(___ENABLE___PROCESSEDGES___BOOL___ == 1){ 
@@ -3766,7 +3805,8 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<__NUM_ACTIVE_LLPSETS
 					for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 					#pragma HLS UNROLL
 						if(update_out[inst][v].key != INVALIDDATA){
-							unsigned int fpga = update_out[inst][v].key % NUM_FPGAS; // FIXME?
+							// unsigned int fpga = owner_fpga(update_out[inst][v].key); // update_out[inst][v].key % NUM_FPGAS; // FIXME?
+							unsigned int fpga = t % NUM_FPGAS;
 							URAM_updates[inst][v][(fpga * batch_size) + offset_fpga[inst][v][fpga].size] = update_out[inst][v];
 							offset_fpga[inst][v][fpga].size += 1;
 							#ifdef _DEBUGMODE_CHECKS3	
@@ -3863,15 +3903,16 @@ if(enable___collectactivedstvids == true){
 
 			// apply updates 
 			#ifdef ___ENABLE___APPLYUPDATESMODULE___
-			if(action.module == APPLY_UPDATES_MODULE || action.module == APPLY_UPDATES_MODULE___AND___GATHER_DSTPROPERTIES_MODULE || action.module == ALL_MODULES){
+			if(action.module == APPLY_UPDATES_MODULE || action.module == ALL_MODULES){
 			APPLY_UPDATES_MODULE_LOOP: for(unsigned int p_v=action.start_pv; p_v<action.start_pv + action.size_pv; p_v++){
 				#ifndef FPGA_IMPL
-				checkoutofbounds("acts_kernel::ERROR 862::", p_v, globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS], p_v, globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS], NAp);
+				checkoutofbounds("acts_kernel::ERROR 862::", p_v, globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS] * NUM_FPGAS, p_v, globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS], NAp);
 				#endif 
 				bool en = true; if(enable___collectactivedstvids == true){ if(vpartition_vertices[0][p_v].count > 0){ en=true; } else { en=false; }} else { en = true; }
 				unsigned int voffset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__VDATAS] + (p_v * MAX_APPLYPARTITION_VECSIZE);
-				#ifdef _DEBUGMODE_KERNELPRINTS//4
-				cout<<"APPLY_UPDATES_MODULE_LOOP: vpartition_vertices[0]["<<p_v<<"].count: "<<vpartition_vertices[0][p_v].count<<" "<<endl;
+				#ifdef _DEBUGMODE_KERNELPRINTS4
+				// cout<<")))))))))))))))))))))))) APPLY_UPDATES_MODULE_LOOP: action.start_pv_fpga: "<<action.start_pv_fpga<<", vpartition_vertices[0]["<<p_v<<"].count: "<<vpartition_vertices[0][p_v].count<<" "<<endl;
+				// cout<<")))))))))))))))))))))))) APPLY_UPDATES_MODULE_LOOP: action.start_pv_fpga: "<<action.start_pv_fpga<<", updatesptrs["<<action.start_pv_fpga<<"]["<<p_v<<"].size: "<<updatesptrs[action.start_pv_fpga][p_v].size<<" "<<endl;
 				#endif 
 				
 				if(vpartition_vertices[0][p_v].count > 0 || all_vertices_active_in_all_iterations == true){ 
@@ -3881,41 +3922,67 @@ if(enable___collectactivedstvids == true){
 unsigned int import_offset = id_import * action.size_import_export;
 unsigned int export_offset = id_export * action.size_import_export;
 
-READ_DEST_PROPERTIES_LOOP1: for(unsigned int n=0; n<NUM_VALID_PEs; n++){ offsets[n] = 0; }
-if(stats_buffer___size[0][p_v] < threshold___activedstvids && enable___collectactivedstvids == true){
-	#ifdef ___ENABLE___COLLECTACTIVEDSTVIDS___
-	if(___ENABLE___COLLECTACTIVEDSTVIDS___BOOL___ == 1){
-	max_limit = 0; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ if(max_limit < statsbuffer_idbased___size[n][p_v]){ max_limit = statsbuffer_idbased___size[n][p_v]; }}
-	READ_DEST_PROPERTIES_LOOP1B: for(unsigned int k=0; k<max_limit; k++){
-		for(unsigned int n=0; n<NUM_VALID_PEs; n++){ 
-		#pragma HLS UNROLL
-			if(k < statsbuffer_idbased___size[n][p_v]){
-				offsets[n] = retrieve_stats2buffer(k, p_v, statsbuffer_idbased[n]) * ACTVUPDATESBLOCK_VECSIZE;
-				#ifndef FPGA_IMPL
-				checkoutofbounds("acts_kernel::ERROR 117::", offsets[n], MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
-				#endif 
-			}
-		}
-		update_bramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___READ_DEST_PROPERTIES___, 1);
-		READ_DEST_PROPERTIES_LOOP1C: for(unsigned int t=0; t<ACTVUPDATESBLOCK_VECSIZE; t++){
-		#pragma HLS PIPELINE II=1
-			dretrievemany_vdatadram(voffset, offsets, t, datas,  HBM_channelA0, HBM_channelB0);
-			for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
-			#pragma HLS UNROLL
-				if((k < statsbuffer_idbased___size[inst][p_v]) && (offsets[inst] + t < MAX_APPLYPARTITION_VECSIZE)){ 
-					insertvec_vdatabuffer(offsets[inst] + t, datas[inst], URAM_vprop[inst]);
-				}
-			}
-			update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___READ_DEST_PROPERTIES___, 1);
-		}
+for(unsigned int n=0; n<NUM_VALID_PEs; n++){ offsets[n] = 0; }
+
+#if NUM_FPGAS == 1
+READ_DEST_PROPERTIES_LOOP2B: for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE; t++){
+#pragma HLS PIPELINE II=1
+	dretrievemany_vdatadram(voffset, offsets, t, datas,  HBM_channelA0, HBM_channelB0);
+	READ_DEST_PROPERTIES_LOOP2C: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
+	#pragma HLS UNROLL
+		insertvec_vdatabuffer(t, datas[inst], URAM_vprop[inst]);
 	}
+	
+	// import (Host -> FPGA)
+	if(action.id_import != INVALIDDATA && t<action.size_import_export){	
+		HBM_centerA[import_offset + t].data[0] = HBM_import[t].data[0];
+		HBM_centerA[import_offset + t].data[1] = HBM_import[t].data[1];
+		HBM_centerA[import_offset + t].data[2] = HBM_import[t].data[2];
+		HBM_centerA[import_offset + t].data[3] = HBM_import[t].data[3];
+		HBM_centerA[import_offset + t].data[4] = HBM_import[t].data[4];
+		HBM_centerA[import_offset + t].data[5] = HBM_import[t].data[5];
+		HBM_centerA[import_offset + t].data[6] = HBM_import[t].data[6];
+		HBM_centerA[import_offset + t].data[7] = HBM_import[t].data[7];
+		HBM_centerA[import_offset + t].data[8] = HBM_import[t].data[8];
+		HBM_centerA[import_offset + t].data[9] = HBM_import[t].data[9];
+		HBM_centerA[import_offset + t].data[10] = HBM_import[t].data[10];
+		HBM_centerA[import_offset + t].data[11] = HBM_import[t].data[11];
+		HBM_centerA[import_offset + t].data[12] = HBM_import[t].data[12];
+		HBM_centerA[import_offset + t].data[13] = HBM_import[t].data[13];
+		HBM_centerA[import_offset + t].data[14] = HBM_import[t].data[14];
+		HBM_centerA[import_offset + t].data[15] = HBM_import[t].data[15];
+	
+	}		
+	
+	// export (FPGA -> Host)
+	if(action.id_export != INVALIDDATA && t<action.size_import_export){	
+		HBM_export[t].data[0] = HBM_centerB[export_offset + t].data[0];
+		HBM_export[t].data[1] = HBM_centerB[export_offset + t].data[1];
+		HBM_export[t].data[2] = HBM_centerB[export_offset + t].data[2];
+		HBM_export[t].data[3] = HBM_centerB[export_offset + t].data[3];
+		HBM_export[t].data[4] = HBM_centerB[export_offset + t].data[4];
+		HBM_export[t].data[5] = HBM_centerB[export_offset + t].data[5];
+		HBM_export[t].data[6] = HBM_centerB[export_offset + t].data[6];
+		HBM_export[t].data[7] = HBM_centerB[export_offset + t].data[7];
+		HBM_export[t].data[8] = HBM_centerB[export_offset + t].data[8];
+		HBM_export[t].data[9] = HBM_centerB[export_offset + t].data[9];
+		HBM_export[t].data[10] = HBM_centerB[export_offset + t].data[10];
+		HBM_export[t].data[11] = HBM_centerB[export_offset + t].data[11];
+		HBM_export[t].data[12] = HBM_centerB[export_offset + t].data[12];
+		HBM_export[t].data[13] = HBM_centerB[export_offset + t].data[13];
+		HBM_export[t].data[14] = HBM_centerB[export_offset + t].data[14];
+		HBM_export[t].data[15] = HBM_centerB[export_offset + t].data[15];
 	}
-	#endif 
-} else {
-	READ_DEST_PROPERTIES_LOOP2B: for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE; t++){
+	
+	update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___READ_DEST_PROPERTIES___, 1);
+}
+#else 	
+READ_DEST_PROPERTIES_LOOP2: for(unsigned int local_subpartitionID=action.start_pv_fpga; local_subpartitionID<NUM_SUBPARTITION_PER_PARTITION; local_subpartitionID+=NUM_FPGAS){
+	unsigned int offset = local_subpartitionID * VDATA_SUBPARTITION_VECSIZE;
+	READ_DEST_PROPERTIES_LOOP2B: for(unsigned int t=0; t<VDATA_SUBPARTITION_VECSIZE; t++){
 	#pragma HLS PIPELINE II=1
-		dretrievemany_vdatadram(voffset, offsets, t, datas,  HBM_channelA0, HBM_channelB0);
-		READ_DEST_PROPERTIES_LOOP2C: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
+		dretrievemany_vdatadram(voffset + offset, offsets, t, datas,  HBM_channelA0, HBM_channelB0);
+		for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
 		#pragma HLS UNROLL
 			insertvec_vdatabuffer(t, datas[inst], URAM_vprop[inst]);
 		}
@@ -3964,32 +4031,30 @@ if(stats_buffer___size[0][p_v] < threshold___activedstvids && enable___collectac
 		update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___READ_DEST_PROPERTIES___, 1);
 	}
 }
+#endif 
+
+
+
 					
 					}
-					#endif 
+					#endif
 					
-					#ifdef _DEBUGMODE_KERNELPRINTS4_XXXXXXXXXX
-					if(action.id_import != INVALIDDATA){ cout<< TIMINGRESULTSCOLOR << "<-- exporting vpartition: "<<action.id_import<<"..."<< RESET <<endl; }	 
-					if(action.id_export != INVALIDDATA){ cout<< TIMINGRESULTSCOLOR << "--> importing upartition: "<<action.id_export<<"..."<< RESET <<endl; }	
-					#endif 
-					
-					// apply updates [done]
+					// apply updates
 					#ifdef ___ENABLE___APPLYUPDATES___II1___ 
-					if(___ENABLE___APPLYUPDATES___BOOL___ == 1){
-						for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){
+					if(___ENABLE___APPLYUPDATES___BOOL___ == 1){			
 uint512_vec_dt updates_vecs[NUM_VALID_PEs];
 unsigned int import_offset = id_import * action.size_import_export;
 unsigned int export_offset = id_export * action.size_import_export;
-max_limit = 0; for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ limits[inst] = updatesptrs[fpga][p_v].size; } for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ if(max_limit < limits[inst]){ max_limit = limits[inst]; }}
+max_limit = 0; for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ limits[inst] = updatesptrs[action.start_pv_fpga][p_v].size; } for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ if(max_limit < limits[inst]){ max_limit = limits[inst]; }}
 
 #ifdef _DEBUGMODE_KERNELPRINTS4 
-if(en == true){ cout<<"### applying vertex updates in vpartition "<<p_v<<" (fpga "<<fpga<<"): [PEs "; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<n<<", "; } cout<<"]"<<endl; } 
+if(en == true){ cout<<"### applying vertex updates in vpartition "<<p_v<<" (fpga "<<action.start_pv_fpga<<"): [PEs "; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<n<<", "; } cout<<"]"<<endl; } 
 #endif 
 
-APPLY_UPDATES_LOOP1: for(unsigned int t=0; t<max_limit; t++){			
-#pragma HLS PIPELINE II=1
-// #pragma HLS dependence variable=URAM_vprop type=inter false
-	dretrievemany_udatesdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__VERTEXUPDATES] + updatesptrs[fpga][p_v].offset, p_v, t, updates_vecs,  HBM_channelA0, HBM_channelB0); // NEW
+APPLY_UPDATES_LOOP1: for(unsigned int t=0; t<max_limit; t++){				
+#pragma HLS PIPELINE II=1	
+// #pragma HLS dependence variable=URAM_vprop type=inter false	
+	dretrievemany_udatesdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__VERTEXUPDATES] + updatesptrs[start_pv_fpga][p_v].offset, p_v, t, updates_vecs,  HBM_channelA0, HBM_channelB0); // NEW
 	for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
 	#pragma HLS UNROLL
 		// if(t < limits[inst]){
@@ -4018,79 +4083,25 @@ APPLY_UPDATES_LOOP1: for(unsigned int t=0; t<max_limit; t++){
 				}
 			}
 		}
-		// }
 	}
-	
-	// #ifdef _DEBUGMODE_CHECKS3
-	// checkoutofbounds("acts_kernel::apply-updates: ERROR 727a::", import_offset + t, HBM_CHANNEL_SIZE, import_offset, NAp, NAp);
-	// checkoutofbounds("acts_kernel::apply-updates: ERROR 727b::", export_offset + t, HBM_CHANNEL_SIZE, export_offset, NAp, NAp);		
-	// checkoutofbounds("acts_kernel::apply-updates: ERROR 727c::", t, IMPORT_EXPORT_GRANULARITY_VECSIZE, t, NAp, NAp);
-	// checkoutofbounds("acts_kernel::apply-updates: ERROR 727d::", t, IMPORT_EXPORT_GRANULARITY_VECSIZE, t, NAp, NAp);	
-	// checkoutofbounds("acts_kernel::apply-updates: ERROR 727e::", action.size_import_export, IMPORT_EXPORT_GRANULARITY_VECSIZE+1, t, NAp, NAp);	
-	// #endif 
-	
-	/* // import (Host -> FPGA)
-	if(action.id_import != INVALIDDATA && t<action.size_import_export){	
-		HBM_centerA[import_offset + t].data[0] = HBM_import[t].data[0];
-		HBM_centerA[import_offset + t].data[1] = HBM_import[t].data[1];
-		HBM_centerA[import_offset + t].data[2] = HBM_import[t].data[2];
-		HBM_centerA[import_offset + t].data[3] = HBM_import[t].data[3];
-		HBM_centerA[import_offset + t].data[4] = HBM_import[t].data[4];
-		HBM_centerA[import_offset + t].data[5] = HBM_import[t].data[5];
-		HBM_centerA[import_offset + t].data[6] = HBM_import[t].data[6];
-		HBM_centerA[import_offset + t].data[7] = HBM_import[t].data[7];
-		HBM_centerA[import_offset + t].data[8] = HBM_import[t].data[8];
-		HBM_centerA[import_offset + t].data[9] = HBM_import[t].data[9];
-		HBM_centerA[import_offset + t].data[10] = HBM_import[t].data[10];
-		HBM_centerA[import_offset + t].data[11] = HBM_import[t].data[11];
-		HBM_centerA[import_offset + t].data[12] = HBM_import[t].data[12];
-		HBM_centerA[import_offset + t].data[13] = HBM_import[t].data[13];
-		HBM_centerA[import_offset + t].data[14] = HBM_import[t].data[14];
-		HBM_centerA[import_offset + t].data[15] = HBM_import[t].data[15];
-	
-	}				
-	
-	// export (FPGA -> Host)
-	if(action.id_export != INVALIDDATA && t<action.size_import_export){	
-		HBM_export[t].data[0] = HBM_centerB[export_offset + t].data[0];
-		HBM_export[t].data[1] = HBM_centerB[export_offset + t].data[1];
-		HBM_export[t].data[2] = HBM_centerB[export_offset + t].data[2];
-		HBM_export[t].data[3] = HBM_centerB[export_offset + t].data[3];
-		HBM_export[t].data[4] = HBM_centerB[export_offset + t].data[4];
-		HBM_export[t].data[5] = HBM_centerB[export_offset + t].data[5];
-		HBM_export[t].data[6] = HBM_centerB[export_offset + t].data[6];
-		HBM_export[t].data[7] = HBM_centerB[export_offset + t].data[7];
-		HBM_export[t].data[8] = HBM_centerB[export_offset + t].data[8];
-		HBM_export[t].data[9] = HBM_centerB[export_offset + t].data[9];
-		HBM_export[t].data[10] = HBM_centerB[export_offset + t].data[10];
-		HBM_export[t].data[11] = HBM_centerB[export_offset + t].data[11];
-		HBM_export[t].data[12] = HBM_centerB[export_offset + t].data[12];
-		HBM_export[t].data[13] = HBM_centerB[export_offset + t].data[13];
-		HBM_export[t].data[14] = HBM_centerB[export_offset + t].data[14];
-		HBM_export[t].data[15] = HBM_centerB[export_offset + t].data[15];
-	}	 */	
 }		
 
-// #ifdef _DEBUGMODE_KERNELPRINTS4 
-// if(en == true){ cout<<"### [---FINISH---] applying vertex updates in vpartition "<<p_v<<" (fpga "<<fpga<<"): [PEs "; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<n<<", "; } cout<<"]"<<endl; } 
-// #endif 	
 
 
 
-	
-						}						
-					}
+
+						
+					}	
 					#endif 
 					
-					// collect and save frontier information
+					// collect and save frontiers
 					#ifdef ___ENABLE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES___
 					if(___ENABLE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES___BOOL___ == 1){
 keyvalue_t invalidkv; invalidkv.key = INVALIDDATA; invalidkv.value = INVALIDDATA;
 keyvalue_t frontier_data[NUM_VALID_PEs][EDGE_PACK_SIZE];
 #pragma HLS ARRAY_PARTITION variable = frontier_data complete dim=0
 
-COLLECT_AND_SAVE_FRONTIERS_LOOP1: for(unsigned int local_subpartitionID=0; local_subpartitionID<NUM_SUBPARTITION_PER_PARTITION; local_subpartitionID++){
-	
+COLLECT_AND_SAVE_FRONTIERS_LOOP1: for(unsigned int local_subpartitionID=action.start_pv_fpga; local_subpartitionID<NUM_SUBPARTITION_PER_PARTITION; local_subpartitionID+=NUM_FPGAS){
 	unsigned int upartitionID = (p_v * NUM_SUBPARTITION_PER_PARTITION) + local_subpartitionID;
 	unsigned int save_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS] + (upartitionID * MAX_APPLYPARTITION_VECSIZE);
 	
@@ -4113,7 +4124,6 @@ COLLECT_AND_SAVE_FRONTIERS_LOOP1: for(unsigned int local_subpartitionID=0; local
 		update_bramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES___, 1);
 	}
 	
-	// save frontier information [done]
 	SAVE_FRONTIERS_LOOP: for(unsigned int t=0; t<VDATA_SUBPARTITION_VECSIZE; t++){
 	#pragma HLS PIPELINE II=1
 		for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
@@ -4125,7 +4135,6 @@ COLLECT_AND_SAVE_FRONTIERS_LOOP1: for(unsigned int local_subpartitionID=0; local
 			offsets2[inst] = save_offset + t;
 		}
 		dinsertmany_nfrontierdram(save_offset, upartitionID, offsets2, t, frontier_data, ens,  HBM_channelA0, HBM_channelB0);
-		// update_bramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES___, 1);
 	}
 	
 	for(unsigned int n=0; n<NUM_VALID_PEs; n++){
@@ -4140,49 +4149,29 @@ COLLECT_AND_SAVE_FRONTIERS_LOOP1: for(unsigned int local_subpartitionID=0; local
 					// save destination properties
 					#ifdef ___ENABLE___SAVE_DEST_PROPERTIES___
 					if(___ENABLE___SAVE_DEST_PROPERTIES___BOOL___ == 1){	
-MY_LOOP211: for(unsigned int n=0; n<NUM_VALID_PEs; n++){ offsets[n] = 0; }
-if(stats_buffer___size[0][p_v] < threshold___activedstvids && enable___collectactivedstvids == true){
-	#ifdef ___ENABLE___COLLECTACTIVEDSTVIDS___
-	if(___ENABLE___COLLECTACTIVEDSTVIDS___BOOL___ == 1){
-	max_limit = 0; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ if(max_limit < statsbuffer_idbased___size[n][p_v]){ max_limit = statsbuffer_idbased___size[n][p_v]; }}
-	SAVE_DEST_PROPERTIES_LOOP1: for(unsigned int k=0; k<max_limit; k++){	
-		SAVE_DEST_PROPERTIES_LOOP1B: for(unsigned int n=0; n<NUM_VALID_PEs; n++){ 
-		#pragma HLS UNROLL
-			if(k < statsbuffer_idbased___size[n][p_v]){
-				offsets[n] = retrieve_stats2buffer(k, p_v, statsbuffer_idbased[n]) * ACTVUPDATESBLOCK_VECSIZE;
-				#ifndef FPGA_IMPL
-				checkoutofbounds("acts_kernel::ERROR 1167::", k, BLOCKRAM_SIZE, NAp, NAp, NAp);
-				checkoutofbounds("acts_kernel::ERROR 1171::", offsets[n], MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
-				#endif 
-			}
-		}
-		update_bramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___SAVE_DEST_PROPERTIES___, 1);
-		SAVE_DEST_PROPERTIES_LOOP1C: for(unsigned int t=0; t<ACTVUPDATESBLOCK_VECSIZE; t++){
-		#pragma HLS PIPELINE II=1
-			for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
-			#pragma HLS UNROLL
-				if((k < statsbuffer_idbased___size[inst][p_v]) && (offsets[inst] + t < MAX_APPLYPARTITION_VECSIZE)){ 
-					retrievevec_vdatabuffer(offsets[inst] + t, datas[inst], URAM_vprop[inst]);
-					MY_LOOP215: for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){ 
-					#pragma HLS UNROLL
-						datas[inst][v].mask = INVALIDMASK; // clear mask
-					} 
-				}
-			}
-			MY_LOOP10302: for(unsigned int n=0; n<NUM_VALID_PEs; n++){
-			#pragma HLS UNROLL
-				offsets2[n] = voffset + offsets[n] + t;
-			}
-			dinsertmany_vdatadram(voffset, offsets2, t, datas,  HBM_channelA0, HBM_channelB0);
-			update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___SAVE_DEST_PROPERTIES___, 1);
-		}
+for(unsigned int n=0; n<NUM_VALID_PEs; n++){ offsets[n] = 0; }
+		
+#if NUM_FPGAS == 1
+SAVE_DEST_PROPERTIES_LOOP2: for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE; t++){
+#pragma HLS PIPELINE II=1
+	SAVE_DEST_PROPERTIES_LOOP2B: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
+	#pragma HLS UNROLL
+		retrieveandresetvec_vdatabuffer(t, datas[inst], URAM_vprop[inst]);
 	}
+	MY_LOOP10202: for(unsigned int n=0; n<NUM_VALID_PEs; n++){ 
+	#pragma HLS UNROLL
+		offsets2[n] = voffset + offsets[n] + t; 
 	}
-	#endif 
-} else {
-	SAVE_DEST_PROPERTIES_LOOP2: for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE; t++){
+	dinsertmany_vdatadram(voffset, offsets2, t, datas,  HBM_channelA0, HBM_channelB0);
+	
+	update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___SAVE_DEST_PROPERTIES___, 1);
+}
+#else 	
+SAVE_DEST_PROPERTIES_LOOP2B: for(unsigned int local_subpartitionID=action.start_pv_fpga; local_subpartitionID<NUM_SUBPARTITION_PER_PARTITION; local_subpartitionID+=NUM_FPGAS){
+	unsigned int offset = local_subpartitionID * VDATA_SUBPARTITION_VECSIZE;
+	SAVE_DEST_PROPERTIES_LOOP2: for(unsigned int t=0; t<VDATA_SUBPARTITION_VECSIZE; t++){
 	#pragma HLS PIPELINE II=1
-		SAVE_DEST_PROPERTIES_LOOP2B: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
+		for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
 		#pragma HLS UNROLL
 			retrieveandresetvec_vdatabuffer(t, datas[inst], URAM_vprop[inst]);
 		}
@@ -4190,29 +4179,37 @@ if(stats_buffer___size[0][p_v] < threshold___activedstvids && enable___collectac
 		#pragma HLS UNROLL
 			offsets2[n] = voffset + offsets[n] + t; 
 		}
-		dinsertmany_vdatadram(voffset, offsets2, t, datas,  HBM_channelA0, HBM_channelB0);
+		dinsertmany_vdatadram(voffset + offset, offsets2, t, datas,  HBM_channelA0, HBM_channelB0);
+
 		update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___SAVE_DEST_PROPERTIES___, 1);
 	}
-}
-				
+}	
+#endif 	
 					}
 					#endif 
-					
-					// gather frontiers to center hbm
-					#ifdef ___ENABLE___GATHER_FRONTIERINFOS___
-					if(___ENABLE___EXCHANGEFRONTIERINFOS___BOOL___ == 1){	
-	
-						#ifndef ___RUNNING_FPGA_SYNTHESIS___
-						cout<<"### gathering dst vertex properties for vpartition "<<p_v<<": [PEs "; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<n<<", "; } cout<<"]"<<endl; 
-						#endif 
-						gather_frontiers(0, p_v, cfrontier_dram___size, nfrontier_dram___size[0], upartition_vertices, HBM_channelA0, HBM_channelB0, HBM_centerA, HBM_centerB, globalparams, _NUMCLOCKCYCLES_);
-	
-					}
-					#endif
 				}
 			} 
 			}
 			#endif
+			
+			// transport dest to center and ddr (for export to remote fpga)
+			#ifdef ___ENABLE___GATHER_FRONTIERINFOS___
+			if(action.module == GATHER_FRONTIERS_MODULE || action.module == ALL_MODULES){
+				GATHER_FRONTIERS_MODULE_LOOP: for(unsigned int upartitionID=action.start_gv; upartitionID<action.start_gv + action.size_gv; upartitionID++){
+					for(unsigned int n=0; n<NUM_VALID_PEs; n++){
+					#pragma HLS UNROLL
+						nfrontier_dram___size[n][upartitionID] = VDATA_SUBPARTITION_VECSIZE; 
+					}
+				
+	
+					#ifndef ___RUNNING_FPGA_SYNTHESIS___
+					cout<<"### gathering frontiers for upartitionID "<<upartitionID<<": [PEs "; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<n<<", "; } cout<<"]"<<endl; 
+					#endif 	
+					gather_frontiers2(0, upartitionID, cfrontier_dram___size, nfrontier_dram___size[0], upartition_vertices, HBM_channelA0, HBM_channelB0, HBM_centerA, HBM_centerB, globalparams, _NUMCLOCKCYCLES_);
+	
+				}
+			}
+			#endif 
 			
 			#ifdef ___ENABLE___REPORT_STATISTICS___
 #ifdef _DEBUGMODE_CHECKS3 

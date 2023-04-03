@@ -253,7 +253,9 @@ unsigned int load_actpack_edges(HBM_channelAXISW_t * HBM_axicenter[NUM_FPGAS][2]
 			create_act_pack * create_act_pack_obj = new create_act_pack(universalparams);
 			lenght[fpga] = create_act_pack_obj->create_actpack(
 				partitioned_edges, HBM_axichannel[fpga][0], HBM_axichannel[fpga][1], edge_maps[fpga], vu_map[fpga], offset_dest,
-				universalparams.NUM_UPARTITIONS, universalparams.NUM_APPLYPARTITIONS, fpga, universalparams.NUM_UPARTITIONS, NUM_FPGAS, globalparams[GLOBALPARAMSCODE__COMMANDS__COMMAND0]
+					universalparams.NUM_UPARTITIONS, universalparams.NUM_APPLYPARTITIONS, 
+						fpga, universalparams.NUM_UPARTITIONS, NUM_FPGAS, 
+							globalparams[GLOBALPARAMSCODE__COMMANDS__COMMAND0]
 				);
 				
 			// load edge map 

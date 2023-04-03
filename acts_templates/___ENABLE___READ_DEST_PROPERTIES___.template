@@ -1,41 +1,40 @@
 unsigned int import_offset = id_import * action.size_import_export;
 unsigned int export_offset = id_export * action.size_import_export;
 
-READ_DEST_PROPERTIES_LOOP1: for(unsigned int n=0; n<NUM_VALID_PEs; n++){ offsets[n] = 0; }
-if(stats_buffer___size[0][p_v] < threshold___activedstvids && enable___collectactivedstvids == true){
-	#ifdef ___ENABLE___COLLECTACTIVEDSTVIDS___
-	if(___ENABLE___COLLECTACTIVEDSTVIDS___BOOL___ == 1){
-	max_limit = 0; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ if(max_limit < statsbuffer_idbased___size[n][p_v]){ max_limit = statsbuffer_idbased___size[n][p_v]; }}
-	READ_DEST_PROPERTIES_LOOP1B: for(unsigned int k=0; k<max_limit; k++){
-		for(unsigned int n=0; n<NUM_VALID_PEs; n++){ 
-		#pragma HLS UNROLL
-			if(k < statsbuffer_idbased___size[n][p_v]){
-				offsets[n] = retrieve_stats2buffer(k, p_v, statsbuffer_idbased[n]) * ACTVUPDATESBLOCK_VECSIZE;
-				#ifndef FPGA_IMPL
-				checkoutofbounds("acts_kernel::ERROR 117::", offsets[n], MAX_APPLYPARTITION_VECSIZE, NAp, NAp, NAp);
-				#endif 
-			}
-		}
-		update_bramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___READ_DEST_PROPERTIES___, 1);
-		READ_DEST_PROPERTIES_LOOP1C: for(unsigned int t=0; t<ACTVUPDATESBLOCK_VECSIZE; t++){
-		#pragma HLS PIPELINE II={{context['II_READ_DEST_PROPERTIES_LOOP2B']}}
-			dretrievemany_vdatadram(voffset, offsets, t, datas, {% include '___HBM___ARGS___.template' %});
-			for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){
-			#pragma HLS UNROLL
-				if((k < statsbuffer_idbased___size[inst][p_v]) && (offsets[inst] + t < MAX_APPLYPARTITION_VECSIZE)){ 
-					insertvec_vdatabuffer(offsets[inst] + t, datas[inst], URAM_vprop[inst]);
-				}
-			}
-			update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___READ_DEST_PROPERTIES___, 1);
-		}
+for(unsigned int n=0; n<NUM_VALID_PEs; n++){ offsets[n] = 0; }
+
+#if NUM_FPGAS == 1
+READ_DEST_PROPERTIES_LOOP2B: for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE; t++){
+#pragma HLS PIPELINE II={{context['II_READ_DEST_PROPERTIES_LOOP2B']}}
+	dretrievemany_vdatadram(voffset, offsets, t, datas, {% include '___HBM___ARGS___.template' %});
+	READ_DEST_PROPERTIES_LOOP2C: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
+	#pragma HLS UNROLL
+		insertvec_vdatabuffer(t, datas[inst], URAM_vprop[inst]);
 	}
+	
+	// import (Host -> FPGA)
+	if(action.id_import != INVALIDDATA && t<action.size_import_export){	
+		{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
+		HBM_centerA[import_offset + t].data[{{v}}] = HBM_import[t].data[{{v}}];
+		{%endfor%}	
+	}		
+	
+	// export (FPGA -> Host)
+	if(action.id_export != INVALIDDATA && t<action.size_import_export){	
+		{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
+		HBM_export[t].data[{{v}}] = HBM_centerB[export_offset + t].data[{{v}}];
+		{%endfor%}
 	}
-	#endif 
-} else {
-	READ_DEST_PROPERTIES_LOOP2B: for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE; t++){
+	
+	update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___READ_DEST_PROPERTIES___, 1);
+}
+#else 	
+READ_DEST_PROPERTIES_LOOP2: for(unsigned int local_subpartitionID=action.start_pv_fpga; local_subpartitionID<NUM_SUBPARTITION_PER_PARTITION; local_subpartitionID+=NUM_FPGAS){
+	unsigned int offset = local_subpartitionID * VDATA_SUBPARTITION_VECSIZE;
+	READ_DEST_PROPERTIES_LOOP2B: for(unsigned int t=0; t<VDATA_SUBPARTITION_VECSIZE; t++){
 	#pragma HLS PIPELINE II={{context['II_READ_DEST_PROPERTIES_LOOP2B']}}
-		dretrievemany_vdatadram(voffset, offsets, t, datas, {% include '___HBM___ARGS___.template' %});
-		READ_DEST_PROPERTIES_LOOP2C: for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
+		dretrievemany_vdatadram(voffset + offset, offsets, t, datas, {% include '___HBM___ARGS___.template' %});
+		for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
 		#pragma HLS UNROLL
 			insertvec_vdatabuffer(t, datas[inst], URAM_vprop[inst]);
 		}
@@ -57,4 +56,8 @@ if(stats_buffer___size[0][p_v] < threshold___activedstvids && enable___collectac
 		update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___READ_DEST_PROPERTIES___, 1);
 	}
 }
+#endif 
+
+
+
 				
