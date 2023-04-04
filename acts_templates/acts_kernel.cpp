@@ -2661,8 +2661,11 @@ MY_IFDEF_TOPLEVELFUNC(){
 #pragma HLS INTERFACE s_axilite port = return
 
 	#ifndef ___RUNNING_FPGA_SYNTHESIS___	
-	if(start_pv == NAp) { cout<<"acts_kernel::run:: acts started [processing stage]: fpga: "<<fpga<<", start_pu: "<<start_pu<<", start_pv_fpga: "<<start_pv_fpga<<", start_pv: "<<start_pv<<", start_gv: "<<start_gv<<endl; }
-	if(start_pu == NAp) { cout<<"acts_kernel::run:: acts started [applying stage]: fpga: "<<fpga<<", start_pu: "<<start_pu<<", start_pv_fpga: "<<start_pv_fpga<<", start_pv: "<<start_pv<<", start_gv: "<<start_gv<<endl; }
+	// if(start_pv == NAp) { cout<<"acts_kernel::run:: acts started [processing stage]: fpga: "<<fpga<<", start_pu: "<<start_pu<<", start_pv_fpga: "<<start_pv_fpga<<", start_pv: "<<start_pv<<", start_gv: "<<start_gv<<endl; }
+	// if(start_pu == NAp) { cout<<"acts_kernel::run:: acts started [applying stage]: fpga: "<<fpga<<", start_pu: "<<start_pu<<", start_pv_fpga: "<<start_pv_fpga<<", start_pv: "<<start_pv<<", start_gv: "<<start_gv<<endl; }
+	if(start_pu != NAp) { cout<<"acts_kernel::run:: acts started [processing stage]: fpga: "<<fpga<<", start_pu: "<<start_pu<<", start_pv_fpga: "<<start_pv_fpga<<", start_pv: "<<start_pv<<", start_gv: "<<start_gv<<endl; }
+	if(start_pv != NAp) { cout<<"acts_kernel::run:: acts started [applying stage]: fpga: "<<fpga<<", start_pu: "<<start_pu<<", start_pv_fpga: "<<start_pv_fpga<<", start_pv: "<<start_pv<<", start_gv: "<<start_gv<<endl; }
+	if(start_gv != NAp) { cout<<"acts_kernel::run:: acts started [gathering stage]: fpga: "<<fpga<<", start_pu: "<<start_pu<<", start_pv_fpga: "<<start_pv_fpga<<", start_pv: "<<start_pv<<", start_gv: "<<start_gv<<endl; }
 	#endif 
 	
 	// commands from host

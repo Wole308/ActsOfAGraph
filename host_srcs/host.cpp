@@ -93,10 +93,8 @@ using std::vector;
 #define NUM_HBMIO_ARGS 2
 #define NUM_HBMIO_CHKPTS_ARGS 0//2
 
-// #if NUM_FPGAS>1
 #define ___PRE_RUN___
 #define ___POST_RUN___
-// #endif 
 
 // #define NUM_UPARTITIONS_GATHERERD_PER_LAUNCH  1
 
@@ -211,6 +209,9 @@ void _set_args___actions(cl::Kernel * kernels, action_t action, cl_int err){
 #define EXPORT_DEVICE_TO_HOST() void _export_device_to_host()
 #endif
 
+#define AAAAAAAAA
+// #define BBBBBBBBB
+
 void load_actions1(unsigned int launch_type, unsigned int fpga, action_t * actions[NUM_FPGAS], universalparams_t universalparams){
 	action_t action;
 	
@@ -225,6 +226,7 @@ void load_actions1(unsigned int launch_type, unsigned int fpga, action_t * actio
 	action.start_pv = 0;
 	action.size_pv = universalparams.NUM_APPLYPARTITIONS; 
 	
+	action.start_gv_fpga = 0;
 	action.start_gv = 0; 
 	action.size_gv = universalparams.NUM_UPARTITIONS; // NUM_VALID_PEs;
 	
@@ -259,6 +261,7 @@ void load_actions2(unsigned int launch_type, unsigned int fpga, action_t * actio
 		action.start_pv = NAp;
 		action.size_pv = NAp; 
 		
+		action.start_gv_fpga = NAp;
 		action.start_gv = NAp; 
 		action.size_gv = NAp;
 		
@@ -292,6 +295,7 @@ void load_actions2(unsigned int launch_type, unsigned int fpga, action_t * actio
 			action.start_pv = t; 
 			action.size_pv = 1; 
 			
+			action.start_gv_fpga = NAp;
 			action.start_gv = NAp; 
 			action.size_gv = NAp;
 			
@@ -325,6 +329,7 @@ void load_actions2(unsigned int launch_type, unsigned int fpga, action_t * actio
 		action.start_pv = NAp; 
 		action.size_pv = NAp;
 		
+		action.start_gv_fpga = fpga;
 		action.start_gv = t * num_upartitions_gathered_per_launch; 
 		action.size_gv = num_upartitions_gathered_per_launch;
 		
@@ -342,6 +347,189 @@ void load_actions2(unsigned int launch_type, unsigned int fpga, action_t * actio
 		actions[fpga][index] = action;
 		index += 1;
 	}
+	return;
+}
+void load_actions3(unsigned int launch_type, unsigned int fpga, action_t * actions[NUM_FPGAS], unsigned int num_upartitions_gathered_per_launch, universalparams_t universalparams){
+	unsigned int index = 0;
+	
+	for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS / NUM_FPGAS; t++){
+		action_t action;
+		
+		action.module = PROCESS_EDGES_MODULE;
+		action.graph_iteration = NAp;
+		
+		action.start_pu = t;
+		action.size_pu = 1; 
+		action.skip_pu = 1;
+		
+		action.start_pv_fpga = NAp;
+		action.start_pv = NAp;
+		action.size_pv = NAp; 
+		
+		action.start_gv_fpga = NAp;
+		action.start_gv = NAp; 
+		action.size_gv = NAp;
+		
+		action.start_llpset = NAp; 
+		action.size_llpset = NAp; 
+		action.start_llpid = NAp; 
+		action.size_llpid = NAp; 
+		
+		action.id_process = INVALID_IOBUFFER_ID;
+		action.id_import = INVALID_IOBUFFER_ID;
+		action.id_export = INVALID_IOBUFFER_ID;
+		action.size_import_export = IMPORT_EXPORT_GRANULARITY_VECSIZE;
+		action.status = 0;
+		
+		actions[fpga][index] = action;
+		index += 1;
+	}
+	
+	// remote fpgas applied first
+	for(unsigned int t=0; t<universalparams.NUM_APPLYPARTITIONS; t++){ 
+		// apply for remote
+		for(unsigned int mmm_fpga=0; mmm_fpga<NUM_FPGAS; mmm_fpga++){
+			if(mmm_fpga != fpga){
+				action_t action;
+				
+				action.module = APPLY_UPDATES_MODULE;
+				action.graph_iteration = NAp;
+				
+				action.start_pu = NAp; 
+				action.size_pu = NAp; 
+				action.skip_pu = NAp;
+				
+				action.start_pv_fpga = mmm_fpga;
+				action.start_pv = t; 
+				action.size_pv = 1; 
+				
+				action.start_gv_fpga = NAp;
+				action.start_gv = NAp; 
+				action.size_gv = NAp;
+				
+				action.start_llpset = NAp; 
+				action.size_llpset = NAp; 
+				action.start_llpid = NAp; 
+				action.size_llpid = NAp;  
+				
+				action.id_process = INVALID_IOBUFFER_ID;
+				action.id_import = INVALID_IOBUFFER_ID;
+				action.id_export = INVALID_IOBUFFER_ID;
+				action.size_import_export = IMPORT_EXPORT_GRANULARITY_VECSIZE;
+				action.status = 0;
+				
+				actions[fpga][index] = action;
+				index += 1;
+			}
+		}
+		// gather for remote 
+		unsigned int nums = 1;
+		for(unsigned int t=0; t<NUM_SUBPARTITION_PER_PARTITION / NUM_FPGAS / nums; t++){
+			for(unsigned int mmm_fpga=0; mmm_fpga<NUM_FPGAS; mmm_fpga++){
+				action_t action;
+				
+				action.module = GATHER_FRONTIERS_MODULE;
+				action.graph_iteration = NAp;
+				
+				action.start_pu = NAp; 
+				action.size_pu = NAp; 
+				action.skip_pu = NAp;
+				
+				action.start_pv_fpga = NAp;
+				action.start_pv = NAp; 
+				action.size_pv = NAp;
+				
+				action.start_gv_fpga = mmm_fpga;
+				action.start_gv = t; 
+				action.size_gv = nums;
+				
+				action.start_llpset = NAp; 
+				action.size_llpset = NAp; 
+				action.start_llpid = NAp; 
+				action.size_llpid = NAp;  
+				
+				action.id_process = INVALID_IOBUFFER_ID;
+				action.id_import = INVALID_IOBUFFER_ID;
+				action.id_export = INVALID_IOBUFFER_ID;
+				action.size_import_export = IMPORT_EXPORT_GRANULARITY_VECSIZE;
+				action.status = 0;
+				
+				actions[fpga][index] = action;
+				index += 1;
+			}
+		}
+	}
+	
+	#ifdef GGGGGG
+	// local fpga applied last
+	for(unsigned int t=0; t<1; t++){ 
+		// apply for remote
+		action_t action;
+				
+		action.module = APPLY_UPDATES_MODULE;
+		action.graph_iteration = NAp;
+		
+		action.start_pu = NAp; 
+		action.size_pu = NAp; 
+		action.skip_pu = NAp;
+		
+		action.start_pv_fpga = fpga;
+		action.start_pv = t; 
+		action.size_pv = 1; 
+		
+		action.start_gv_fpga = NAp;
+		action.start_gv = NAp; 
+		action.size_gv = NAp;
+		
+		action.start_llpset = NAp; 
+		action.size_llpset = NAp; 
+		action.start_llpid = NAp; 
+		action.size_llpid = NAp;  
+		
+		action.id_process = INVALID_IOBUFFER_ID;
+		action.id_import = INVALID_IOBUFFER_ID;
+		action.id_export = INVALID_IOBUFFER_ID;
+		action.size_import_export = IMPORT_EXPORT_GRANULARITY_VECSIZE;
+		action.status = 0;
+		
+		actions[fpga][index] = action;
+		index += 1;
+		
+		// gather 
+		for(unsigned int t=0; t<NUM_SUBPARTITION_PER_PARTITION / NUM_FPGAS / nums; t++){
+			action_t action;
+					
+			action.module = GATHER_FRONTIERS_MODULE;
+			action.graph_iteration = NAp;
+			
+			action.start_pu = NAp; 
+			action.size_pu = NAp; 
+			action.skip_pu = NAp;
+			
+			action.start_pv_fpga = NAp;
+			action.start_pv = NAp; 
+			action.size_pv = NAp;
+			
+			action.start_gv_fpga = fpga;
+			action.start_gv = t; 
+			action.size_gv = nums;
+			
+			action.start_llpset = NAp; 
+			action.size_llpset = NAp; 
+			action.start_llpid = NAp; 
+			action.size_llpid = NAp;  
+			
+			action.id_process = INVALID_IOBUFFER_ID;
+			action.id_import = INVALID_IOBUFFER_ID;
+			action.id_export = INVALID_IOBUFFER_ID;
+			action.size_import_export = IMPORT_EXPORT_GRANULARITY_VECSIZE;
+			action.status = 0;
+			
+			actions[fpga][index] = action;
+			index += 1;
+		}
+	}
+	#endif 
 	return;
 }
 
@@ -419,7 +607,7 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 	vector<edge3_type> (&final_edge_updates)[NUM_PEs][MAX_NUM_UPARTITIONS][MAX_NUM_LLPSETS]){					
 	unsigned int ARRAY_SIZE = hbm_channel_wwsize * HBM_AXI_PACK_SIZE; // REMOVEME.
 	unsigned int IO_ARRAY_SIZE = IMPORT_EXPORT_GRANULARITY_VECSIZE * HBM_AXI_PACK_SIZE; // REMOVEME.
-	unsigned int num_upartitions_gathered_per_launch = NUM_FPGAS; // 1, NUM_FPGAS, universalparams.NUM_UPARTITIONS
+	unsigned int num_upartitions_gathered_per_launch = 1; // 1, NUM_FPGAS, universalparams.NUM_UPARTITIONS
 	
 	unsigned int report_statistics[64]; for(unsigned int t=0; t<64; t++){ report_statistics[t] = 0; }
 	
@@ -691,7 +879,7 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 	action_t * actions[NUM_FPGAS]; for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ actions[fpga] = new action_t[1024]; }
 	for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ 
 		if(launch_type == 0){ load_actions1(launch_type, fpga, actions, universalparams); }
-		else { load_actions2(launch_type, fpga, actions, num_upartitions_gathered_per_launch, universalparams); }
+		else { load_actions3(launch_type, fpga, actions, num_upartitions_gathered_per_launch, universalparams); }
 	}
 	
 	// run kernel
@@ -718,7 +906,9 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 				action[fpga].size_import_export = IMPORT_EXPORT_GRANULARITY_VECSIZE; // 
 			}
 			
+			#ifdef _DEBUGMODE_HOSTPRINTS//4
 			for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ std::cout<<"imports @ fpga "<<fpga<<": "; for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS / NUM_FPGAS; t++){ std::cout<<gas_import[fpga][t].ready_for_import<<", "; } cout<<endl; }
+			#endif 
 			
 			// pre-run
 			#ifdef ___PRE_RUN___
