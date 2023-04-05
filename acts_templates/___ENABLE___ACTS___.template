@@ -196,9 +196,9 @@ MY_IFDEF_TOPLEVELFUNC(){
 #pragma HLS INTERFACE s_axilite port = return
 
 	#ifndef ___RUNNING_FPGA_SYNTHESIS___	
-	if(start_pu != NAp) { cout<<"acts_kernel::run:: acts started [processing stage]: fpga: "<<fpga<<", start_pu: "<<start_pu<<", start_pv_fpga: "<<start_pv_fpga<<", start_pv: "<<start_pv<<", start_gv: "<<start_gv<<endl; }
-	if(start_pv != NAp) { cout<<"acts_kernel::run:: acts started [applying stage]: fpga: "<<fpga<<", start_pu: "<<start_pu<<", start_pv_fpga: "<<start_pv_fpga<<", start_pv: "<<start_pv<<", start_gv: "<<start_gv<<endl; }
-	if(start_gv != NAp) { cout<<"acts_kernel::run:: acts started [gathering stage]: fpga: "<<fpga<<", start_pu: "<<start_pu<<", start_pv_fpga: "<<start_pv_fpga<<", start_pv: "<<start_pv<<", start_gv: "<<start_gv<<endl; }
+	if(start_pu != NAp) { cout<<"acts_kernel::run:: acts started [processing stage]: fpga: "<<fpga<<", start_pu: "<<start_pu<<", start_pv_fpga: "<<start_pv_fpga<<", start_pv: "<<start_pv<<", start_gv_fpga: "<<start_gv_fpga<<", start_gv: "<<start_gv<<endl; }
+	if(start_pv != NAp) { cout<<"acts_kernel::run:: acts started [applying stage]: fpga: "<<fpga<<", start_pu: "<<start_pu<<", start_pv_fpga: "<<start_pv_fpga<<", start_pv: "<<start_pv<<", start_gv_fpga: "<<start_gv_fpga<<", start_gv: "<<start_gv<<endl; }
+	if(start_gv != NAp) { cout<<"acts_kernel::run:: acts started [gathering stage]: fpga: "<<fpga<<", start_pu: "<<start_pu<<", start_pv_fpga: "<<start_pv_fpga<<", start_pv: "<<start_pv<<", start_gv_fpga: "<<start_gv_fpga<<", start_gv: "<<start_gv<<endl; }
 	#endif 
 	
 	// commands from host
@@ -245,6 +245,10 @@ MY_IFDEF_TOPLEVELFUNC(){
 	else { cout<<"acts: ERROR 232. EXITING..."<<endl; exit(EXIT_FAILURE); }
 	#endif 
 	
+	// if(action.module == GATHER_FRONTIERS_MODULE){ action.start_gv = ; }
+	// GATHER_FRONTIERS_MODULE_LOOP: for(unsigned int upartitionID=action.start_gv; upartitionID<action.start_gv + action.size_gv; upartitionID++)
+	
+	// convert
 	if(action.id_process != INVALID_IOBUFFER_ID){ action.id_process = (action.id_process * NUM_FPGAS) + fpga; action.start_pu = action.id_process; }
 	if(action.id_import != INVALID_IOBUFFER_ID){ action.id_import = (action.id_import * NUM_FPGAS) + fpga; }	
 	
@@ -370,7 +374,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 				unsigned int voffset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__VDATAS] + (p_v * MAX_APPLYPARTITION_VECSIZE);
 				#ifdef _DEBUGMODE_KERNELPRINTS4
 				// cout<<")))))))))))))))))))))))) APPLY_UPDATES_MODULE_LOOP: action.start_pv_fpga: "<<action.start_pv_fpga<<", vpartition_vertices[0]["<<p_v<<"].count: "<<vpartition_vertices[0][p_v].count<<" "<<endl;
-				// cout<<")))))))))))))))))))))))) APPLY_UPDATES_MODULE_LOOP: action.start_pv_fpga: "<<action.start_pv_fpga<<", updatesptrs["<<action.start_pv_fpga<<"]["<<p_v<<"].size: "<<updatesptrs[action.start_pv_fpga][p_v].size<<" "<<endl;
+				cout<<")))))))))))))))))))))))) APPLY_UPDATES_MODULE_LOOP: action.start_pv_fpga: "<<action.start_pv_fpga<<", updatesptrs["<<action.start_pv_fpga<<"]["<<p_v<<"].size: "<<updatesptrs[action.start_pv_fpga][p_v].size<<" "<<endl;
 				#endif 
 				
 				if(vpartition_vertices[0][p_v].count > 0 || all_vertices_active_in_all_iterations == true){ 
@@ -412,7 +416,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 				GATHER_FRONTIERS_MODULE_LOOP: for(unsigned int upartitionID=action.start_gv; upartitionID<action.start_gv + action.size_gv; upartitionID++){
 					for(unsigned int n=0; n<NUM_VALID_PEs; n++){
 					#pragma HLS UNROLL
-						nfrontier_dram___size[n][upartitionID] = VDATA_SUBPARTITION_VECSIZE; 
+						nfrontier_dram___size[n][upartitionID] = VDATA_SUBPARTITION_VECSIZE / NUM_FPGAS; 
 					}
 				
 					{%for i in context['NUM_VALID_PEs_seq']%}	

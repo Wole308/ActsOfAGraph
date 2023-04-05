@@ -415,6 +415,7 @@ typedef struct {
 	unsigned int size_llpset; 
 	unsigned int start_llpid; 
 	unsigned int size_llpid; 
+	unsigned int start_gv_fpga;
 	unsigned int start_gv; 
 	unsigned int size_gv;
 	unsigned int id_process;
