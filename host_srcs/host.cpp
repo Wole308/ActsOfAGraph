@@ -94,7 +94,9 @@ using std::vector;
 #define NUM_HBMIO_CHKPTS_ARGS 0//2
 
 #define ___PRE_RUN___
+// #if NUM_FPGAS > 1
 #define ___POST_RUN___
+// #endif 
 
 // #define NUM_UPARTITIONS_GATHERERD_PER_LAUNCH  1
 
@@ -350,6 +352,7 @@ unsigned int load_actions3(unsigned int launch_type, unsigned int fpga, action_t
 	unsigned int index = 0;
 	// unsigned int nums = 1;
 	unsigned int nums = 3; 
+	unsigned int num_fpgas = NUM_FPGAS;
 	// unsigned int nums = (NUM_SUBPARTITION_PER_PARTITION / NUM_FPGAS); 
 	
 	for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS / NUM_FPGAS; t++){ // universalparams.NUM_UPARTITIONS / NUM_FPGAS
@@ -383,10 +386,11 @@ unsigned int load_actions3(unsigned int launch_type, unsigned int fpga, action_t
 		
 		actions[fpga][index] = action;
 		index += 1;
+		// cout<<"process******************* index: "<<index<<endl;
 	}
 	
 	// remote fpgas applied first
-	// #ifdef GGGGGG
+	#if NUM_FPGAS>1
 	for(unsigned int apply_id=0; apply_id<universalparams.NUM_APPLYPARTITIONS; apply_id++){ 
 		// apply for remote
 		for(unsigned int mmm_fpga=0; mmm_fpga<NUM_FPGAS; mmm_fpga++){
@@ -421,6 +425,7 @@ unsigned int load_actions3(unsigned int launch_type, unsigned int fpga, action_t
 				
 				actions[fpga][index] = action;
 				index += 1;
+				// cout<<"apply******************* index: "<<index<<endl;
 			}
 		}
 		
@@ -442,7 +447,6 @@ unsigned int load_actions3(unsigned int launch_type, unsigned int fpga, action_t
 					action.size_pv = NAp;
 					
 					action.start_gv_fpga = mmm_fpga;
-					// action.start_gv = (apply_id * NUM_SUBPARTITION_PER_PARTITION) + t; 
 					action.start_gv = (apply_id * (NUM_SUBPARTITION_PER_PARTITION / NUM_FPGAS)) + t; 
 					action.size_gv = nums;
 					
@@ -459,11 +463,12 @@ unsigned int load_actions3(unsigned int launch_type, unsigned int fpga, action_t
 					
 					actions[fpga][index] = action;
 					index += 1;
+					// cout<<"gather******************* index: "<<index<<endl;
 				}
 			}
 		}
 	}
-	// #endif 
+	#endif 
 	
 	// local fpga applied last
 	// #ifdef GGGGGG
@@ -536,6 +541,26 @@ unsigned int load_actions3(unsigned int launch_type, unsigned int fpga, action_t
 	}
 	// #endif 
 	return index;
+}
+
+void initialize_gas(gas_import_t gas_import[NUM_FPGAS][MAX_NUM_UPARTITIONS], gas_process_t gas_process[NUM_FPGAS][MAX_NUM_UPARTITIONS], gas_export_t gas_export[NUM_FPGAS][MAX_NUM_UPARTITIONS], universalparams_t universalparams){
+	for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){
+		for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS; t++){ 
+			#if NUM_FPGAS==1
+			gas_import[fpga][t].ready_for_import = 1;
+			gas_process[fpga][t].ready_for_process = 1;
+			gas_export[fpga][t].ready_for_export = 1;
+			#else 
+			gas_import[fpga][t].ready_for_import = 0;
+			gas_process[fpga][t].ready_for_process = 1;
+			gas_export[fpga][t].ready_for_export = 0;
+			#endif 
+			
+			gas_import[fpga][t].iteration = 0;
+			gas_process[fpga][t].iteration = 0;
+			gas_export[fpga][t].iteration = 0;
+		}
+	}
 }
 
 MIGRATE_HOST_TO_DEVICE(){
@@ -835,32 +860,11 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 	acts_kernel * acts = new acts_kernel(universalparams);
 	#endif 
 	
-	gas_t gas[MAX_NUM_UPARTITIONS]; 
 	gas_import_t gas_import[NUM_FPGAS][MAX_NUM_UPARTITIONS]; 
 	gas_process_t gas_process[NUM_FPGAS][MAX_NUM_UPARTITIONS]; 
 	gas_export_t gas_export[NUM_FPGAS][MAX_NUM_UPARTITIONS]; 
-	for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){
-		for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS; t++){ 
-			// gas_import[fpga][t].ready_for_import = 1;
-			// gas_import[fpga][t].iteration = 0;
-			// gas_process[fpga][t].ready_for_process = 0;
-			// gas_process[fpga][t].iteration = 0;
-			// gas_export[fpga][t].ready_for_export = 0;
-			// gas_export[fpga][t].iteration = 0;
-			
-			gas_import[fpga][t].ready_for_import = 0;
-			gas_import[fpga][t].iteration = 0;
-			gas_process[fpga][t].ready_for_process = 1;
-			gas_process[fpga][t].iteration = 0;
-			gas_export[fpga][t].ready_for_export = 0;
-			gas_export[fpga][t].iteration = 0;
-			
-			// gas_import[fpga][t].ready_for_import = 1;
-			// gas_process[fpga][t].ready_for_process = 1;
-			// gas_export[fpga][t].ready_for_export = 1;
-		}
-	}
-	
+	initialize_gas(gas_import, gas_process, gas_export, universalparams);
+
 	mapping_t * mapping[NUM_FPGAS]; for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ mapping[fpga] = new mapping_t[MAX_NUM_UPARTITIONS]; }
 	for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){
 		for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS; t+=1){
@@ -892,6 +896,11 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 	std::chrono::steady_clock::time_point begin_time = std::chrono::steady_clock::now();
 	for (unsigned int iteration_idx = 0; iteration_idx < 1; iteration_idx++) {
 		std::cout << endl << TIMINGRESULTSCOLOR <<"#################################################################### GAS iteration: "<<iteration_idx<< " ####################################################################"<< RESET << std::endl;
+		
+		#if NUM_FPGAS==1
+		initialize_gas(gas_import, gas_process, gas_export, universalparams);
+		#endif 
+		
 		for(unsigned int launch_idx=0; launch_idx<num_launches; launch_idx+=1){
 			std::cout << endl << TIMINGRESULTSCOLOR <<"-------------------------------- host: GAS iteration: "<<iteration_idx<<", launch_idx "<<launch_idx<<" (of "<<num_launches<<"), fpgas [0 - "<<NUM_FPGAS-1<<"] started... --------------------------------"<< RESET << std::endl; 
 			
@@ -1020,7 +1029,6 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 				printf("Enqueueing NDRange kernel.\n");
 				cout<<"$$$ host: running acts... [import target: partition "<<action[fpga].id_import<<"][export target: partition "<<action[fpga].id_export<<"] "<<endl;
 				#endif 
-				// cout<<"$$$ host: running acts.&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&.. fpga "<<fpga<<"] "<<endl;
 				std::chrono::steady_clock::time_point begin_time1 = std::chrono::steady_clock::now();
 				#ifdef FPGA_IMPL
 					#ifdef ___SYNC___
@@ -1085,8 +1093,15 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 			std::cout << TIMINGRESULTSCOLOR << ">>> FPGA to Host Transfer time elapsed : "<<end_time3<<" ms, "<<(end_time3 * 1000)<<" microsecs, "<< RESET << std::endl;
 			#endif
 			
+			// post-run for 1 fpga 
+			#if defined(___POST_RUN___) && (NUM_FPGAS==1)
+			for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ 
+				gas_process[fpga][process_pointer[fpga]].ready_for_process = 0; 
+			}
+			#endif 
+			
 			// post-run
-			#ifdef ___POST_RUN___//XXX
+			#if defined(___POST_RUN___) && (NUM_FPGAS>1)
 			for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ 
 				gas_import[fpga][import_pointer[fpga]].ready_for_import = 0; 
 				gas_process[fpga][import_pointer[fpga]].ready_for_process = 1;
@@ -1096,9 +1111,7 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 				gas_process[fpga][process_pointer[fpga]].ready_for_process = 0; 
 				if(action[fpga].module == GATHER_FRONTIERS_MODULE){
 					for(unsigned int t=0; t<action[fpga].size_gv; t+=1){
-					// for(unsigned int t=0; t<action[fpga].size_gv; t+=NUM_FPGAS){
-						unsigned int local_upartition = action[fpga].start_gv + t;
-						unsigned int global_upartition = (local_upartition * NUM_FPGAS) + action[fpga].start_gv_fpga; // fpga;
+						unsigned int global_upartition = (action[fpga].start_gv * NUM_FPGAS) + (t * NUM_FPGAS) + action[fpga].start_gv_fpga;
 						cout << TIMINGRESULTSCOLOR << "^^^ activating fpga: "<<fpga<<", vpartition "<<global_upartition<<" for export..." << RESET <<endl;
 						if(global_upartition >= (universalparams.NUM_APPLYPARTITIONS * NUM_PEs)){ cout<<"host: ERROR 23: (action["<<fpga<<"].start_gv (="<<action[fpga].start_gv<<") + t ("<<t<<") > universalparams.NUM_UPARTITIONS("<<universalparams.NUM_UPARTITIONS<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }
 						gas_export[fpga][global_upartition].ready_for_export = 1;
@@ -1112,7 +1125,7 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 			#endif 
 			
 			// post run (export->import transfers)
-			#ifdef ___POST_RUN___//XXX
+			#if defined(___POST_RUN___) && (NUM_FPGAS>1)
 			for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ 
 				if(action[fpga].id_export != INVALID_IOBUFFER_ID){				
 					mapping_t map = mapping[fpga][action[fpga].id_export];
@@ -1152,7 +1165,8 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 	cout<<report_statistics[___CODE___APPLYUPDATES___] * EDGE_PACK_SIZE<<", ";
 	cout<<report_statistics[___CODE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES___] * EDGE_PACK_SIZE * NUM_PEs<<", ";
 	cout<<report_statistics[___CODE___SAVE_DEST_PROPERTIES___] * EDGE_PACK_SIZE * NUM_PEs<<", ";
-	cout<<report_statistics[___CODE___GATHER_FRONTIERINFOS___] * EDGE_PACK_SIZE * NUM_PEs<<"";
+	// cout<<report_statistics[___CODE___GATHER_FRONTIERINFOS___] * EDGE_PACK_SIZE * NUM_PEs<<"";
+	cout<<report_statistics[___CODE___GATHER_FRONTIERINFOS___] * EDGE_PACK_SIZE<<"";
 	cout<<"]"<<endl;
 
 	// Copy Result from Device Global Memory to Host Local Memory

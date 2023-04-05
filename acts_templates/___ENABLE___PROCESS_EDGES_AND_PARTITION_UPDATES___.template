@@ -105,7 +105,7 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<globalparams[GLOBALP
 						if(update_out[inst][v].key != INVALIDDATA){
 							// unsigned int fpga = owner_fpga(update_out[inst][v].key); // update_out[inst][v].key % NUM_FPGAS; // FIXME?
 							unsigned int fpga = t % NUM_FPGAS;
-							URAM_updates[inst][v][(fpga * batch_size) + offset_fpga[inst][v][fpga].size] = update_out[inst][v];
+							URAM_updates[inst][v][(fpga * 512) + offset_fpga[inst][v][fpga].size] = update_out[inst][v];
 							offset_fpga[inst][v][fpga].size += 1;
 							#ifdef _DEBUGMODE_CHECKS3	
 							checkoutofbounds("acts_kernel::process-edges::ERROR 8873rrr::", offset_fpga[inst][v][fpga].size, 8192, NAp, offset_fpga[inst][v][fpga].offset, NAp); 

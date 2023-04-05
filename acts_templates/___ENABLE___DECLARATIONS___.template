@@ -44,7 +44,7 @@
 	#pragma HLS ARRAY_PARTITION variable=URAM_map complete dim=2	
 	
 	// #ifdef NUM_FPGAS>1	
-	keyvalue_t URAM_updates[NUM_VALID_PEs][EDGE_PACK_SIZE][8192];	
+	keyvalue_t URAM_updates[NUM_VALID_PEs][EDGE_PACK_SIZE][VERTEXUPDATES_BUFFER_SIZE];	// VERTEXUPDATES_BUFFER_SIZE // 8192
 	#pragma HLS resource variable=URAM_updates core=XPM_MEMORY uram 
 	#pragma HLS ARRAY_PARTITION variable=URAM_updates complete dim=1	
 	#pragma HLS ARRAY_PARTITION variable=URAM_updates complete dim=2		
