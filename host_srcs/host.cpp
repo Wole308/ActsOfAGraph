@@ -348,10 +348,11 @@ unsigned int load_actions2(unsigned int launch_type, unsigned int fpga, action_t
 }
 unsigned int load_actions3(unsigned int launch_type, unsigned int fpga, action_t * actions[NUM_FPGAS], unsigned int num_upartitions_gathered_per_launch, universalparams_t universalparams){
 	unsigned int index = 0;
-	unsigned int nums = 1; // 1, 
-	// unsigned int nums = (NUM_SUBPARTITION_PER_PARTITION / NUM_FPGAS);
+	// unsigned int nums = 1;
+	unsigned int nums = 3; 
+	// unsigned int nums = (NUM_SUBPARTITION_PER_PARTITION / NUM_FPGAS); 
 	
-	for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS / NUM_FPGAS; t++){
+	for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS / NUM_FPGAS; t++){ // universalparams.NUM_UPARTITIONS / NUM_FPGAS
 		action_t action;
 		
 		action.module = PROCESS_EDGES_MODULE;
@@ -385,7 +386,8 @@ unsigned int load_actions3(unsigned int launch_type, unsigned int fpga, action_t
 	}
 	
 	// remote fpgas applied first
-	for(unsigned int t=0; t<universalparams.NUM_APPLYPARTITIONS; t++){ 
+	// #ifdef GGGGGG
+	for(unsigned int apply_id=0; apply_id<universalparams.NUM_APPLYPARTITIONS; apply_id++){ 
 		// apply for remote
 		for(unsigned int mmm_fpga=0; mmm_fpga<NUM_FPGAS; mmm_fpga++){
 			if(mmm_fpga != fpga){
@@ -399,7 +401,7 @@ unsigned int load_actions3(unsigned int launch_type, unsigned int fpga, action_t
 				action.skip_pu = NAp;
 				
 				action.start_pv_fpga = mmm_fpga;
-				action.start_pv = t; 
+				action.start_pv = apply_id; 
 				action.size_pv = 1; 
 				
 				action.start_gv_fpga = NAp;
@@ -421,9 +423,9 @@ unsigned int load_actions3(unsigned int launch_type, unsigned int fpga, action_t
 				index += 1;
 			}
 		}
+		
 		// gather for remote 
-		// #ifdef GGGGGG
-		for(unsigned int t=0; t<(NUM_SUBPARTITION_PER_PARTITION / NUM_FPGAS) / nums; t++){
+		for(unsigned int t=0; t<(NUM_SUBPARTITION_PER_PARTITION / NUM_FPGAS); t+=nums){
 			for(unsigned int mmm_fpga=0; mmm_fpga<NUM_FPGAS; mmm_fpga++){
 				if(mmm_fpga != fpga){
 					action_t action;
@@ -440,7 +442,8 @@ unsigned int load_actions3(unsigned int launch_type, unsigned int fpga, action_t
 					action.size_pv = NAp;
 					
 					action.start_gv_fpga = mmm_fpga;
-					action.start_gv = t; 
+					// action.start_gv = (apply_id * NUM_SUBPARTITION_PER_PARTITION) + t; 
+					action.start_gv = (apply_id * (NUM_SUBPARTITION_PER_PARTITION / NUM_FPGAS)) + t; 
 					action.size_gv = nums;
 					
 					action.start_llpset = NAp; 
@@ -459,12 +462,12 @@ unsigned int load_actions3(unsigned int launch_type, unsigned int fpga, action_t
 				}
 			}
 		}
-		// #endif 
 	}
+	// #endif 
 	
 	// local fpga applied last
 	// #ifdef GGGGGG
-	for(unsigned int t=0; t<1; t++){ 
+	for(unsigned int apply_id=0; apply_id<universalparams.NUM_APPLYPARTITIONS; apply_id++){
 		// apply for remote
 		action_t action;
 				
@@ -476,7 +479,7 @@ unsigned int load_actions3(unsigned int launch_type, unsigned int fpga, action_t
 		action.skip_pu = NAp;
 		
 		action.start_pv_fpga = fpga;
-		action.start_pv = t; 
+		action.start_pv = apply_id;  
 		action.size_pv = 1; 
 		
 		action.start_gv_fpga = NAp;
@@ -498,7 +501,7 @@ unsigned int load_actions3(unsigned int launch_type, unsigned int fpga, action_t
 		index += 1;
 		
 		// gather 
-		for(unsigned int t=0; t<(NUM_SUBPARTITION_PER_PARTITION / NUM_FPGAS) / nums; t++){
+		for(unsigned int t=0; t<(NUM_SUBPARTITION_PER_PARTITION / NUM_FPGAS) / nums; t+=nums){
 			action_t action;
 					
 			action.module = GATHER_FRONTIERS_MODULE;
@@ -513,7 +516,7 @@ unsigned int load_actions3(unsigned int launch_type, unsigned int fpga, action_t
 			action.size_pv = NAp;
 			
 			action.start_gv_fpga = fpga;
-			action.start_gv = t; 
+			action.start_gv = (apply_id * (NUM_SUBPARTITION_PER_PARTITION / NUM_FPGAS)) + t; 
 			action.size_gv = nums;
 			
 			action.start_llpset = NAp; 
@@ -1092,11 +1095,11 @@ long double host::runapp(std::string binaryFile__[2], HBM_channelAXISW_t * HBM_a
 			for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ 
 				gas_process[fpga][process_pointer[fpga]].ready_for_process = 0; 
 				if(action[fpga].module == GATHER_FRONTIERS_MODULE){
-					for(unsigned int t=0; t<action[fpga].size_gv; t++){
+					for(unsigned int t=0; t<action[fpga].size_gv; t+=1){
+					// for(unsigned int t=0; t<action[fpga].size_gv; t+=NUM_FPGAS){
 						unsigned int local_upartition = action[fpga].start_gv + t;
 						unsigned int global_upartition = (local_upartition * NUM_FPGAS) + action[fpga].start_gv_fpga; // fpga;
 						cout << TIMINGRESULTSCOLOR << "^^^ activating fpga: "<<fpga<<", vpartition "<<global_upartition<<" for export..." << RESET <<endl;
-						// if(global_upartition >= universalparams.NUM_UPARTITIONS){ cout<<"host: ERROR 23: (action["<<fpga<<"].start_gv (="<<action[fpga].start_gv<<") + t ("<<t<<") > universalparams.NUM_UPARTITIONS("<<universalparams.NUM_UPARTITIONS<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }
 						if(global_upartition >= (universalparams.NUM_APPLYPARTITIONS * NUM_PEs)){ cout<<"host: ERROR 23: (action["<<fpga<<"].start_gv (="<<action[fpga].start_gv<<") + t ("<<t<<") > universalparams.NUM_UPARTITIONS("<<universalparams.NUM_UPARTITIONS<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }
 						gas_export[fpga][global_upartition].ready_for_export = 1;
 					}
