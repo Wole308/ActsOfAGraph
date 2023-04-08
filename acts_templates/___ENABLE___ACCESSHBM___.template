@@ -157,8 +157,13 @@ map_t load_vupdate_map(unsigned int offset, unsigned int index, {% include '___H
 }
 void save_vupdate_map(unsigned int offset, unsigned int index, map_t data, {% include '___HBM___PARAMS___.template' %}){
 #pragma HLS INLINE
-	HBM_channelA0[offset + index].data[0] = data.offset;
-	HBM_channelA0[offset + index].data[1] = data.size;
+	// HBM_channelA0[offset + index].data[0] = data.offset;
+	// HBM_channelA0[offset + index].data[1] = data.size;
+	
+	{%for v in context['8_seq']%} 
+	HBM_channelA0[offset + index].data[{{2*v}}] = data.offset;
+	HBM_channelA0[offset + index].data[{{2*v+1}}] = data.size;
+	{%endfor%}	
 	return;
 }
 

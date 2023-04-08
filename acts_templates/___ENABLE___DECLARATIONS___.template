@@ -172,6 +172,7 @@ unsigned int vid_first1[NUM_VALID_PEs];
 #pragma HLS ARRAY_PARTITION variable = vid_first1 complete
 unsigned int globalparams[GLOBALBUFFER_SIZE];
 map_t updatesptrs[NUM_FPGAS][MAX_NUM_LLPSETS];
+#pragma HLS ARRAY_PARTITION variable = updatesptrs complete dim=0
 unsigned int limits[NUM_VALID_PEs];
 #pragma HLS ARRAY_PARTITION variable = limits complete
 unsigned int max_limits[NUM_VALID_PEs];

@@ -10,7 +10,7 @@ keyvalue_t update_in[NUM_VALID_PEs][EDGE_PACK_SIZE];
 keyvalue_t update_out[NUM_VALID_PEs][EDGE_PACK_SIZE];
 #pragma HLS ARRAY_PARTITION variable = update_out complete dim=0
 
-#ifdef _DEBUGMODE_KERNELPRINTS4 
+#ifdef _DEBUGMODE_KERNELPRINTS//4 
 cout<<"### processing edges in upartition "<<p_u<<": [PEs "; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<n<<", "; } cout<<"]"<<endl; 
 #endif 
 
