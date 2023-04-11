@@ -1,4 +1,8 @@
 for(unsigned int n=0; n<NUM_VALID_PEs; n++){ offsets[n] = 0; }
+
+unsigned int start_local_subpartitionID = 0; unsigned int skip_local_subpartitionID = 0;
+if(action.start_pv_fpga == NAp){ start_local_subpartitionID = 0; skip_local_subpartitionID = 1; }
+else { start_local_subpartitionID = action.start_pv_fpga; skip_local_subpartitionID = NUM_FPGAS; }
 		
 #if NUM_FPGAS == 1
 SAVE_DEST_PROPERTIES_LOOP2: for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE; t++){
@@ -16,7 +20,7 @@ SAVE_DEST_PROPERTIES_LOOP2: for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE; 
 	update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___SAVE_DEST_PROPERTIES___, 1);
 }
 #else 	
-SAVE_DEST_PROPERTIES_LOOP2B: for(unsigned int local_subpartitionID=action.start_pv_fpga; local_subpartitionID<NUM_SUBPARTITION_PER_PARTITION; local_subpartitionID+=NUM_FPGAS){
+SAVE_DEST_PROPERTIES_LOOP2B: for(unsigned int local_subpartitionID=start_local_subpartitionID; local_subpartitionID<NUM_SUBPARTITION_PER_PARTITION; local_subpartitionID+=skip_local_subpartitionID){				
 	unsigned int offset = local_subpartitionID * VDATA_SUBPARTITION_VECSIZE;
 	SAVE_DEST_PROPERTIES_LOOP2: for(unsigned int t=0; t<VDATA_SUBPARTITION_VECSIZE; t++){
 	#pragma HLS PIPELINE II={{context['II_READ_DEST_PROPERTIES_LOOP2B']}}

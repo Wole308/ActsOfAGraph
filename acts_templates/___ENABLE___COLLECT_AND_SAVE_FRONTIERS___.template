@@ -2,7 +2,12 @@ keyvalue_t invalidkv; invalidkv.key = INVALIDDATA; invalidkv.value = INVALIDDATA
 keyvalue_t frontier_data[NUM_VALID_PEs][EDGE_PACK_SIZE];
 #pragma HLS ARRAY_PARTITION variable = frontier_data complete dim=0
 
-COLLECT_AND_SAVE_FRONTIERS_LOOP1: for(unsigned int local_subpartitionID=action.start_pv_fpga; local_subpartitionID<NUM_SUBPARTITION_PER_PARTITION; local_subpartitionID+=NUM_FPGAS){
+unsigned int start_local_subpartitionID = 0; unsigned int skip_local_subpartitionID = 0;
+if(action.start_pv_fpga == NAp){ start_local_subpartitionID = 0; skip_local_subpartitionID = 1; }
+else { start_local_subpartitionID = action.start_pv_fpga; skip_local_subpartitionID = NUM_FPGAS; }
+
+// COLLECT_AND_SAVE_FRONTIERS_LOOP1: for(unsigned int local_subpartitionID=action.start_pv_fpga; local_subpartitionID<NUM_SUBPARTITION_PER_PARTITION; local_subpartitionID+=NUM_FPGAS){
+COLLECT_AND_SAVE_FRONTIERS_LOOP1: for(unsigned int local_subpartitionID=start_local_subpartitionID; local_subpartitionID<NUM_SUBPARTITION_PER_PARTITION; local_subpartitionID+=skip_local_subpartitionID){
 	unsigned int upartitionID = (p_v * NUM_SUBPARTITION_PER_PARTITION) + local_subpartitionID;
 	unsigned int save_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS] + (upartitionID * MAX_APPLYPARTITION_VECSIZE);
 	

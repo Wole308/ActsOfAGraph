@@ -3,6 +3,10 @@ unsigned int export_offset = id_export * action.size_import_export;
 
 for(unsigned int n=0; n<NUM_VALID_PEs; n++){ offsets[n] = 0; }
 
+unsigned int start_local_subpartitionID = 0; unsigned int skip_local_subpartitionID = 0;
+if(action.start_pv_fpga == NAp){ start_local_subpartitionID = 0; skip_local_subpartitionID = 1; }
+else { start_local_subpartitionID = action.start_pv_fpga; skip_local_subpartitionID = NUM_FPGAS; }
+
 #if NUM_FPGAS == 1
 READ_DEST_PROPERTIES_LOOP2B: for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE; t++){
 #pragma HLS PIPELINE II={{context['II_READ_DEST_PROPERTIES_LOOP2B']}}
@@ -12,7 +16,8 @@ READ_DEST_PROPERTIES_LOOP2B: for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE;
 		insertvec_vdatabuffer(t, datas[inst], URAM_vprop[inst]);
 	}
 	
-	/* // import (Host -> FPGA)
+	#ifdef ___NOT_YET_IMPLEMENTED___
+	// import (Host -> FPGA)
 	if(action.id_import != INVALIDDATA && t<action.size_import_export){	
 		{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 		HBM_centerA[import_offset + t].data[{{v}}] = HBM_import[t].data[{{v}}];
@@ -24,12 +29,13 @@ READ_DEST_PROPERTIES_LOOP2B: for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE;
 		{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 		HBM_export[t].data[{{v}}] = HBM_centerB[export_offset + t].data[{{v}}];
 		{%endfor%}
-	} */
+	}
+	#endif 
 	
 	update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___READ_DEST_PROPERTIES___, 1);
 }
 #else 	
-READ_DEST_PROPERTIES_LOOP2: for(unsigned int local_subpartitionID=action.start_pv_fpga; local_subpartitionID<NUM_SUBPARTITION_PER_PARTITION; local_subpartitionID+=NUM_FPGAS){
+READ_DEST_PROPERTIES_LOOP2: for(unsigned int local_subpartitionID=start_local_subpartitionID; local_subpartitionID<NUM_SUBPARTITION_PER_PARTITION; local_subpartitionID+=skip_local_subpartitionID){	
 	unsigned int offset = local_subpartitionID * VDATA_SUBPARTITION_VECSIZE;
 	READ_DEST_PROPERTIES_LOOP2B: for(unsigned int t=0; t<VDATA_SUBPARTITION_VECSIZE; t++){
 	#pragma HLS PIPELINE II={{context['II_READ_DEST_PROPERTIES_LOOP2B']}}
@@ -39,7 +45,8 @@ READ_DEST_PROPERTIES_LOOP2: for(unsigned int local_subpartitionID=action.start_p
 			insertvec_vdatabuffer(t, datas[inst], URAM_vprop[inst]);
 		}
 		
-		/* // import (Host -> FPGA)
+		#ifdef ___NOT_YET_IMPLEMENTED___
+		// import (Host -> FPGA)
 		if(action.id_import != INVALIDDATA && t<action.size_import_export){	
 			{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 			HBM_centerA[import_offset + t].data[{{v}}] = HBM_import[t].data[{{v}}];
@@ -51,7 +58,8 @@ READ_DEST_PROPERTIES_LOOP2: for(unsigned int local_subpartitionID=action.start_p
 			{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 			HBM_export[t].data[{{v}}] = HBM_centerB[export_offset + t].data[{{v}}];
 			{%endfor%}
-		} */
+		}
+		#endif 
 		
 		update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___READ_DEST_PROPERTIES___, 1);
 	}
