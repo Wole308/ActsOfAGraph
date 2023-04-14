@@ -2,6 +2,12 @@
 #define COMMON_H
 #include <string.h> 
 #include <cmath>
+#include <ap_int.h>
+// #include "ap_fixed.h"	
+#include <vector> 
+#include<hls_vector.h> 
+#include<hls_stream.h> 
+#include <iostream>
  
 
  
@@ -42,7 +48,7 @@
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
-#define SW // SWEMU, HW, *SW
+#define HW // SWEMU, HW, *SW
 #if (defined(SWEMU) || defined(HW))
 #define FPGA_IMPL
 #endif 
@@ -101,11 +107,15 @@
 
 ////////////////
 
-#define PE_BATCH_SIZE 4 //1 4* 16 // FIXME.
+#define K0 1 // <lowerlimit:1, upperlimit:GF_BATCH_SIZE>
+#define K1 NUM_FPGAS // <lowerlimit:1, upperlimit:NUM_FPGAS>
 #define AU_BATCH_SIZE 2
-#define GF_BATCH_SIZE (AU_BATCH_SIZE * (NUM_SUBPARTITION_PER_PARTITION / NUM_FPGAS)) // 6 (i.e., 24 upartitions read per launch)
-#define IMPORT_BATCH_SIZE PE_BATCH_SIZE
-#define EXPORT_BATCH_SIZE (NUM_FPGAS * GF_BATCH_SIZE) // 24
+#define GF_BATCH_SIZE (AU_BATCH_SIZE * (NUM_SUBPARTITION_PER_PARTITION / NUM_FPGAS)) // 6 (i.e., 24 upartitions)
+#define IMPORT_BATCH_SIZE (GF_BATCH_SIZE / K0) // 6
+#define PE_BATCH_SIZE IMPORT_BATCH_SIZE // 6
+#define EXPORT_BATCH_SIZE (GF_BATCH_SIZE * K1) // 24
+#define IMPORT_EXPORT_GRANULARITY_VECSIZE (IMPORT_BATCH_SIZE * 8192) // NEWCHANGE. 
+// #define IMPORT_EXPORT_GRANULARITY_VECSIZE 1 // FIXME.
 
 ////////////////
 
@@ -129,7 +139,7 @@
 
 //////////////// 
 
-#define NUM_PROCS 2
+// #define NUM_PROCS 2
 #define NUM_PEs 12
 #define NUM_VALID_PEs 1
 #define NUM_VALID_HBM_CHANNELS 1
@@ -155,7 +165,7 @@
 #define INVALIDMASK 0 
 
 #define UNIDENTIFIED_STAGE 0
-// #define __UNIDENTIFIED__STATUS__ 0
+// #define __UNIDENTIFIED__STATUS__ 0 
 
 #define MAXNUMBITS2_ACTPACK_SRCVID 14
 #define MAXNUMBITS2_ACTPACK_DESTVID 14
@@ -179,8 +189,6 @@
 #define NUM_IMPORT_BUFFERS MAX_NUM_UPARTITIONS // MAX_NUM_UPARTITIONS // 32 // FIXME. AUTOMATE. 
 #define NUM_EXPORT_BUFFERS MAX_NUM_UPARTITIONS // MAX_NUM_UPARTITIONS //32 
 #define INVALID_IOBUFFER_ID (NUM_IMPORT_BUFFERS - 1) // 511
-#define IMPORT_EXPORT_GRANULARITY_VECSIZE 8192 
-// #define IMPORT_EXPORT_GRANULARITY_VECSIZE 1 // FIXME.
 
 #define UPDATES_BUFFER_PACK_SIZE MAX(EDGE_PACK_SIZE, NUM_PEs)
 

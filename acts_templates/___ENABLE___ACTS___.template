@@ -331,7 +331,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 				
 				#ifdef _DEBUGMODE_KERNELPRINTS4 
 				if(en == true && action.fpga < num_prints){ cout<<"### applying vertex updates in vpartition "<<p_v<<": [PEs "; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<n<<", "; } cout<<"] [target FPGAs "; for(unsigned int n=0; n<NUM_FPGAS; n++){ cout<<n<<", "; } cout<<"] [max "<<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]<<"]"<<endl; } 
-				if(action.fpga < num_prints){ cout<<"))))))))))))))))))))))) APPLY_UPDATES_MODULE_LOOP: action.start_pv_fpga: "<<action.start_pv_fpga<<", updatesptrs["<<0<<"]["<<p_v<<"].size: "<<updatesptrs[0][p_v].size<<" ((((((((((((((((((((((( "<<endl; }
+				if(false && action.fpga < num_prints){ cout<<"))))))))))))))))))))))) APPLY_UPDATES_MODULE_LOOP: action.start_pv_fpga: "<<action.start_pv_fpga<<", updatesptrs["<<0<<"]["<<p_v<<"].size: "<<updatesptrs[0][p_v].size<<" ((((((((((((((((((((((( "<<endl; }
 				#endif 
 				
 				if(vpartition_vertices[0][p_v].count > 0 || all_vertices_active_in_all_iterations == true){ 
