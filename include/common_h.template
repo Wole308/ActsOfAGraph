@@ -19,7 +19,7 @@
 	#define ___CREATE_ACTPACK_FROM_VECTOR___
 #endif 
 
-#define NUM_FPGAS 8 // 1, 2*, 4, 8
+#define NUM_FPGAS {{context['NUM_FPGAs']}} // 8 // 1, 2*, 4, 8
 #define NUM_SUBKERNELS_IN_KERNEL {{context['NUM_PEs'] / 3}}
 
 #define ALL_MODULES 222
@@ -212,8 +212,7 @@
 
 #define VERTEXUPDATES_BUFFER_SIZE (512 * NUM_PEs)
 
-// #define EDGE_UPDATES_BRAMBUFFER_SIZE 1024
-#define EDGE_UPDATES_DRAMBUFFER_LONGSIZE 8192 * 16 // used for cpu implementation only
+#define EDGE_UPDATES_DRAMBUFFER_LONGSIZE (8192 * 16) // used for cpu implementation only
 // #define EDGE_UPDATES_WORKBUFFER_LONGSIZE (EDGE_UPDATES_DRAMBUFFER_LONGSIZE - 1000)
 #define EDGE_UPDATES_DRAMBUFFER_SIZE 8192
 #define EDGE_UPDATES_WORKBUFFER_SIZE 7000 // 7200

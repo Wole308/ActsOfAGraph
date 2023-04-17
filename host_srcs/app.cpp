@@ -245,6 +245,7 @@ unsigned int load_actpack_edges(HBM_channelAXISW_t * HBM_axicenter[NUM_FPGAS][2]
 		}
 	}	
 	
+	unsigned int returned_volume_size[NUM_FPGAS]; for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ returned_volume_size[fpga] = 0; }
 	for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ 
 		for(unsigned int c=0; c<num_its; c++){ 
 			unsigned int start_pu = fpga; 
@@ -269,6 +270,7 @@ unsigned int load_actpack_edges(HBM_channelAXISW_t * HBM_axicenter[NUM_FPGAS][2]
 						fpga, universalparams.NUM_UPARTITIONS, NUM_FPGAS, 
 							globalparams[GLOBALPARAMSCODE__COMMANDS__COMMAND0]
 				);
+				// exit(EXIT_SUCCESS);
 				
 			// load edge map 
 			for(unsigned int p_u=start_pu; p_u<start_pu + size_pu; p_u+=skip_pu){
@@ -290,7 +292,9 @@ unsigned int load_actpack_edges(HBM_channelAXISW_t * HBM_axicenter[NUM_FPGAS][2]
 					for(unsigned int p_u=start_pu; p_u<start_pu + size_pu; p_u+=skip_pu){
 						for(unsigned int llp_set=0; llp_set<universalparams.NUM_APPLYPARTITIONS; llp_set++){ 
 							for(unsigned int llp_id=0; llp_id<NUM_LLP_PER_LLPSET; llp_id++){
-								edge_maps_large[fpga][i][p_u*MAX_NUM_LLPSETS + llp_set].size += edge_maps[fpga][i][p_u*MAX_NUM_LLP_PER_UPARTITION + llp_set*NUM_LLP_PER_LLPSET + llp_id].size;
+								unsigned int sz = edge_maps[fpga][i][p_u*MAX_NUM_LLP_PER_UPARTITION + llp_set*NUM_LLP_PER_LLPSET + llp_id].size;
+								edge_maps_large[fpga][i][p_u*MAX_NUM_LLPSETS + llp_set].size += sz;
+								if(i==0){ returned_volume_size[fpga] += sz; }
 							}
 						}
 					}
@@ -301,12 +305,12 @@ unsigned int load_actpack_edges(HBM_channelAXISW_t * HBM_axicenter[NUM_FPGAS][2]
 						edge_maps_large[fpga][i][t].offset = edge_maps_large[fpga][i][t - 1].offset + edge_maps_large[fpga][i][t - 1].size;
 					}
 				}
-				#ifdef _DEBUGMODE_HOSTPRINTS//4
+				#ifdef _DEBUGMODE_HOSTPRINTS4
 				for(unsigned int i=0; i<NUM_VALID_PEs; i++){ 
 					for(unsigned int k=0; k<universalparams.NUM_UPARTITIONS; k++){
 						for(unsigned int t=0; t<universalparams.NUM_APPLYPARTITIONS; t++){ // MAX_NUM_LLPSETS
 							unsigned int t1 = k*MAX_NUM_LLPSETS + t;
-							cout<<"~~~ edge_maps_large["<<fpga<<"]["<<i<<"]["<<t1<<"].offset: "<<edge_maps_large[fpga][i][t1].offset<<", edge_maps_large["<<fpga<<"]["<<i<<"]["<<t1<<"].size: "<<edge_maps_large[fpga][i][t1].size<<endl; 
+							if(false && fpga==0){ cout<<"~~~ edge_maps_large["<<fpga<<"]["<<i<<"]["<<t1<<"].offset: "<<edge_maps_large[fpga][i][t1].offset<<", edge_maps_large["<<fpga<<"]["<<i<<"]["<<t1<<"].size: "<<edge_maps_large[fpga][i][t1].size<<endl; }
 						}
 					}
 				}
@@ -323,8 +327,7 @@ unsigned int load_actpack_edges(HBM_channelAXISW_t * HBM_axicenter[NUM_FPGAS][2]
 				}
 			}
 			
-			// load vertex map
-			// for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){
+			// load vertex map	
 			for(unsigned int t=0; t<universalparams.NUM_APPLYPARTITIONS; t++){		
 				unsigned int index = (fpga * MAX_NUM_LLPSETS) + t;
 				for(unsigned int i=0; i<NUM_PEs; i++){
@@ -332,11 +335,15 @@ unsigned int load_actpack_edges(HBM_channelAXISW_t * HBM_axicenter[NUM_FPGAS][2]
 					HBM_axichannel[fpga][0][i][offset_updatesptrs + index].data[1] = vu_map[fpga][i][index].size;
 				}
 			}
-			// }
 		}
 	}
-	unsigned int max_lenght = 0; for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ if(max_lenght < lenght[fpga]){ max_lenght = lenght[fpga]; }}
-	cout<<"------------------------ max_lenght: "<<max_lenght<<", max_lenght * EDGE_PACK_SIZE: "<<max_lenght * EDGE_PACK_SIZE<<endl;
+	unsigned int max_lenght = 0; 
+	for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ 
+		cout<<"------------------------ app: lenght["<<fpga<<"]: "<<lenght[fpga]<<", lenght["<<fpga<<"] * EDGE_PACK_SIZE: "<<lenght[fpga] * EDGE_PACK_SIZE<<" ------------------------"<<endl;
+		cout<<"------------------------ app: returned_volume_size["<<fpga<<"]: "<<returned_volume_size[fpga]<<", returned_volume_size["<<fpga<<"] * EDGE_PACK_SIZE: "<<returned_volume_size[fpga] * EDGE_PACK_SIZE<<" ------------------------"<<endl;
+		if(max_lenght < lenght[fpga]){ max_lenght = lenght[fpga]; }
+	}
+	cout<<"------------------------ app: max_lenght: "<<max_lenght<<", max_lenght * EDGE_PACK_SIZE: "<<max_lenght * EDGE_PACK_SIZE<<" ------------------------"<<endl;
 	// exit(EXIT_SUCCESS);
 	return max_lenght;
 }
@@ -444,7 +451,13 @@ unsigned int traverse2_graph(unsigned int root, vector<edge_t> &vertexptrbuffer,
 
 void app::run(std::string setup, std::string algo, unsigned int rootvid, string graph_path, int graphisundirected, unsigned int numiterations, std::string _binaryFile1){
 	cout<<"app::run:: app algo started. (algo: "<<algo<<", numiterations: "<<numiterations<<", rootvid: "<<rootvid<<", graph path: "<<graph_path<<", graph dir: "<<graphisundirected<<", _binaryFile1: "<<_binaryFile1<<")"<<endl;
-	// exit(EXIT_SUCCESS);
+	
+	cout<<"app::run::  NUM_FPGAS: "<<NUM_FPGAS<<endl;
+	cout<<"app::run::  PE_BATCH_SIZE: "<<PE_BATCH_SIZE<<endl;
+	cout<<"app::run::  GF_BATCH_SIZE: "<<GF_BATCH_SIZE<<endl;
+	cout<<"app::run::  AU_BATCH_SIZE: "<<AU_BATCH_SIZE<<endl;
+	cout<<"app::run::  EXPORT_BATCH_SIZE: "<<EXPORT_BATCH_SIZE<<endl;
+	cout<<"app::run::  IMPORT_EXPORT_GRANULARITY_VECSIZE: "<<IMPORT_EXPORT_GRANULARITY_VECSIZE<<endl;
 	
 	std::string binaryFile[2]; binaryFile[0] = _binaryFile1;
 	std::cout << std::setprecision(2) << std::fixed;
@@ -667,7 +680,8 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__RAWEDGEUPDATES] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS] + globalparams[GLOBALPARAMSCODE__WWSIZE__UPDATESPTRS]; 
 	}
 	size_u32 = 0; 
-	#ifndef ___CREATE_ACTPACK_FROM_VECTOR___
+	// #ifndef ___CREATE_ACTPACK_FROM_VECTOR___
+	#ifdef ___NOT_YET_IMPLEMENTED___ // FIXME.
 	for(unsigned int i=0; i<NUM_PEs; i++){
 		unsigned int index_i = 0;
 		for(unsigned int p_u=0; p_u<universalparams.NUM_UPARTITIONS; p_u++){
@@ -748,7 +762,8 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		partitioned_edges,
 		rootvid, max_degree,
 		utilityobj, universalparams, globalparams);
-	size_u32 = (max_lenght * EDGE_PACK_SIZE * 2) + (1024 * EDGE_PACK_SIZE * 2); 
+	size_u32 = (max_lenght * EDGE_PACK_SIZE * 2) + (1024 * EDGE_PACK_SIZE * 2); // 'NOTE: second value ('1024') is padding'
+	// exit(EXIT_SUCCESS);
 	
 	// load vertex updates 
 	cout<<"loading vertex updates..."<<endl;

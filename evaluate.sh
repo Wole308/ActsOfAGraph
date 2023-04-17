@@ -19,9 +19,15 @@ TESTKERNEL="RK"
 if [ $1 -eq 0 ]; then
      echo -------------------------------------------------- EVALUATE.SH: SOFTWARE ACTS APPLICATION RUNNING --------------------------------------------------
 	 XWARE="SW"
+	 RUNNING_SYNTHESIS=0
 elif [ $1 -eq 1 ]; then
      echo -------------------------------------------------- EVALUATE.SH: HARDWARE ACTS APPLICATION RUNNING --------------------------------------------------
 	 XWARE="HW" 
+	 RUNNING_SYNTHESIS=0
+elif [ $1 -eq 2 ]; then
+     echo -------------------------------------------------- EVALUATE.SH: HARDWARE ACTS SYNTHESIS RUNNING --------------------------------------------------
+	 XWARE="HW" 
+	 RUNNING_SYNTHESIS=1
 else
      echo -------------------------------------------------- EVALUATE.SH: CMD ARGS NOT DEFINED. EXITING.... --------------------------------------------------
 	 quit
@@ -37,7 +43,7 @@ evaluation_type=EV_PERFORMANCEOFALGORITHM
 #evaluation_type=EV_IMPACTOF__ACTS_PLUS_MEMLAYOUT_PLUS_PARTITIONFUNC_PLUS_REPARTITIONFUNC_PLUS_HYBRIDFUNC
 
 # make generatesrcs XWARE=$XWARE EVALUATION_TYPE=$evaluation_type NUM_PEs=1 TESTKERNEL=$TESTKERNEL
-make generatesrcs XWARE=$XWARE EVALUATION_TYPE=$evaluation_type NUM_PEs=12 TESTKERNEL=$TESTKERNEL
+make generatesrcs XWARE=$XWARE RUNNING_SYNTHESIS=$RUNNING_SYNTHESIS EVALUATION_TYPE=$evaluation_type NUM_PEs=12 NUM_FPGAs=$2 TESTKERNEL=$TESTKERNEL
 # make generatesrcs XWARE=$XWARE EVALUATION_TYPE=$evaluation_type NUM_PEs=24 TESTKERNEL=$TESTKERNEL										
 
 echo 'finished: successfully finished all processing'

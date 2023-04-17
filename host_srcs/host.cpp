@@ -766,7 +766,7 @@ long double host::runapp(std::string binaryFile__[2],
 	// exit(EXIT_SUCCESS);
 	
 	// Run kernel
-	unsigned int num_iterations = 20; if(all_vertices_active_in_all_iterations == false){ num_iterations = GraphIter; }
+	unsigned int num_iterations = 1; if(all_vertices_active_in_all_iterations == false){ num_iterations = GraphIter; }
 	unsigned int run_idx = 0;
 	std::chrono::steady_clock::time_point begin_time = std::chrono::steady_clock::now();
 	for (unsigned int iteration_idx = 0; iteration_idx < num_iterations; iteration_idx++) {
@@ -969,7 +969,7 @@ long double host::runapp(std::string binaryFile__[2],
 						}
 					}					
 				#else 
-					for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ // NUM_FPGAS
+					for(unsigned int fpga=0; fpga<1; fpga++){ // NUM_FPGAS // FIXME.
 						for(unsigned int sub_kernel=0; sub_kernel<1; sub_kernel++){ // NUM_SUBKERNELS_IN_KERNEL
 							acts->top_function(
 								(HBM_channelAXI_t *)HBM_axichannel[fpga][0][0], (HBM_channelAXI_t *)HBM_axichannel[fpga][1][0]
@@ -994,7 +994,7 @@ long double host::runapp(std::string binaryFile__[2],
 								#endif
 								#endif 
 								,(HBM_channelAXI_t *)HBM_axicenter[fpga][0], (HBM_channelAXI_t *)HBM_axicenter[fpga][1]
-								,(HBM_channelAXI_t *)HBM_export[HBM_xxx_ptr[fpga][action[fpga].id_import].fpga][HBM_xxx_ptr[fpga][action[fpga].id_import].io_id], (HBM_channelAXI_t *)HBM_export[fpga][action[fpga].id_export]
+								,(HBM_channelAXI_t *)HBM_import[action[fpga].id_import], (HBM_channelAXI_t *)HBM_export[fpga][action[fpga].id_export]
 								,fpga ,action[fpga].module ,action[fpga].graph_iteration ,action[fpga].start_pu ,action[fpga].size_pu ,action[fpga].skip_pu ,action[fpga].start_pv_fpga ,action[fpga].start_pv ,action[fpga].size_pv ,action[fpga].start_llpset ,action[fpga].size_llpset ,action[fpga].start_llpid ,action[fpga].size_llpid ,action[fpga].start_gv_fpga ,action[fpga].start_gv ,action[fpga].size_gv ,action[fpga].id_process ,action[fpga].id_import ,action[fpga].id_export ,action[fpga].size_import_export ,action[fpga].status ,final_edge_updates ,report_statistics				
 								);	
 						}
@@ -1072,7 +1072,7 @@ long double host::runapp(std::string binaryFile__[2],
 				#endif 
 				
 				// transfer export to imports
-				/* #if (NUM_BBBBBB_FPGAS>1)
+				#if (NUM_BBBBBB_FPGAS>1)
 				if(action[0].id_export != INVALID_IOBUFFER_ID){							
 					for(unsigned int k=0; k<EXPORT_BATCH_SIZE; k++){ 
 					unsigned int exp_id = action[0].id_export + k;
@@ -1091,9 +1091,9 @@ long double host::runapp(std::string binaryFile__[2],
 					}
 					}
 				}
-				#endif  */
+				#endif 
 				
-				// transfer export to imports
+				/* // transfer export to imports
 				#if (NUM_BBBBBB_FPGAS>1)
 				for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ 
 					if(action[fpga].id_export != INVALID_IOBUFFER_ID){	
@@ -1111,7 +1111,7 @@ long double host::runapp(std::string binaryFile__[2],
 						}
 					}
 				}
-				#endif 
+				#endif  */
 				#endif 
 				double end_time8 = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin_time8).count()) / 1000;	
 				if(profiling1_timing == true){ std::cout << TIMINGRESULTSCOLOR << ">>> host::post-process time elapsed : "<<end_time8<<" ms, "<<(end_time8 * 1000)<<" microsecs, "<< RESET << std::endl; }

@@ -3,46 +3,77 @@ import xml.etree.ElementTree as ET
 import os
 from jinja2 import Environment, FileSystemLoader
 import math
-import sys
+import sys 
 import array as arr 
 
 context = {}
 print ('ACTGraph (Courtesy: Jinja 2.0)...')
 
 context['XWARE'] = sys.argv[1]
-context['EVALUATION_TYPE'] = sys.argv[2]
-context['NUM_PEs'] = int(sys.argv[3])
-context['TESTKERNEL'] = sys.argv[4]
+context['RUNNING_SYNTHESIS'] = sys.argv[2]
+context['EVALUATION_TYPE'] = sys.argv[3]
+context['NUM_PEs'] = int(sys.argv[4])
+context['NUM_FPGAs'] = int(sys.argv[5])
+context['TESTKERNEL'] = sys.argv[6]
 
 context['FPGA_IMPL'] = 0
-context['NUM_VALID_PEs'] = 1 #1 #6* #12 #context['NUM_PEs'] # 4 NUM_VALID_PEs = 8 AXI interfaces
-context['NUM_VALID_HBM_CHANNELS'] = 1 # context['NUM_PEs'] #6, context['NUM_PEs']*
+context['NUM_VALID_PEs'] = 1      
+# context['NUM_VALID_PEs'] = 4        
+# context['NUM_VALID_PEs'] = context['NUM_PEs']
+context['NUM_VALID_HBM_CHANNELS'] = context['NUM_VALID_PEs'] # context['NUM_PEs'] #6, context['NUM_PEs']*
 context['EDGE_PACK_SIZE_POW'] = 4 
 context['EDGE_PACK_SIZE'] = 2**context['EDGE_PACK_SIZE_POW']
 context['HBM_AXI_PACK_SIZE'] = context['EDGE_PACK_SIZE'] 
 
 print ('Generating sources... ')
 print ('XWARE: ' + str(context['XWARE']))
+print ('RUNNING_SYNTHESIS: ' + str(context['RUNNING_SYNTHESIS']))
+print ('EVALUATION_TYPE: ' + str(context['EVALUATION_TYPE']))
 print ('NUM_PEs: ' + str(context['NUM_PEs']))
+print ('NUM_FPGAs: ' + str(context['NUM_FPGAs']))
+print ('TESTKERNEL: ' + str(context['TESTKERNEL']))
 print ('NUM_VALID_PEs: ' + str(context['NUM_VALID_PEs']))
 print ('NUM_VALID_HBM_CHANNELS: ' + str(context['NUM_VALID_HBM_CHANNELS']))
 print ('EDGE_PACK_SIZE: ' + str(context['EDGE_PACK_SIZE']))
 print ('HBM_AXI_PACK_SIZE: ' + str(context['HBM_AXI_PACK_SIZE']))
 
-context['II_PREPARE_EDGEUPDATES_LOOP1'] = 2
-context['II_PREPARE_EDGEUPDATES_LOOP2'] = 2
-context['II_LOAD_EDGEUPDATES_LOOP1'] = 1
-context['II_PROCESS_EDGEUPDATES_MAINLOOP1D'] = 3
+context['II_CREATE_ACTPACK_LOOP1'] = 2
+context['II_CREATE_ACTPACK_LOOP2'] = 2
+context['II_LOAD_EDGEUPDATES_LOOP1'] = 4 
+context['II_COLLECTSTATS_EDGEUPDATES_LOOP1'] = 2 
+context['II_COLLECTSTATS_EDGEUPDATES_LOOP2'] = 2
+context['II_APPLY_EDGEUPDATES_MAINLOOP1D'] = 2
+context['II_SAVEMISSES_EDGEUPDATES_MAINLOOP1'] = 1
+context['II_SAVEMISSES_EDGES_MAINLOOP1'] = 1
+context['II_APPLY_EDGEUPDATES_RESETURAMBUFFERS_MAINLOOP1'] = 2
 context['II_PROCESS_EDGES_MAINLOOP1D'] = 1
+context['II_SAVE_VERTEXUPDATES_MAINLOOP1B'] = 1
 context['II_READ_DEST_PROPERTIES_LOOP2B'] = 1
-context['II_APPLY_UPDATES_LOOP1'] = 1
+context['II_APPLY_UPDATES_LOOP1'] = 3 #1
 context['II_SAVE_DEST_PROPERTIES_LOOP2'] = 1
-context['COLLECT_FRONTIER_INFO_LOOP1B'] = 1
-context['SAVE_FRONTIER_INFO_LOOP2B'] = 1
+context['II_COLLECT_FRONTIERS_LOOP1B'] = 1
+context['II_SAVE_FRONTIERS_LOOP2B'] = 1
 context['II_TRANSPORT_FRONTIER_PROPERTIES_LOOP1B'] = 1
-context['YYYYYYYYYYYYYYYY'] = 1
+context['II_READ_FRONTIERS'] = 1
 
-# LOAD_EDGEUPDATES_LOOP1
+# context['II_CREATE_ACTPACK_LOOP1'] = 16
+# context['II_CREATE_ACTPACK_LOOP2'] = 16
+# context['II_LOAD_EDGEUPDATES_LOOP1'] = 16 
+# context['II_COLLECTSTATS_EDGEUPDATES_LOOP1'] = 16 
+# context['II_COLLECTSTATS_EDGEUPDATES_LOOP2'] = 16
+# context['II_APPLY_EDGEUPDATES_MAINLOOP1D'] = 16
+# context['II_SAVEMISSES_EDGEUPDATES_MAINLOOP1'] = 16
+# context['II_SAVEMISSES_EDGES_MAINLOOP1'] = 16
+# context['II_APPLY_EDGEUPDATES_RESETURAMBUFFERS_MAINLOOP1'] = 16
+# context['II_PROCESS_EDGES_MAINLOOP1D'] = 16
+# context['II_SAVE_VERTEXUPDATES_MAINLOOP1B'] = 16
+# context['II_READ_DEST_PROPERTIES_LOOP2B'] = 16
+# context['II_APPLY_UPDATES_LOOP1'] = 16
+# context['II_SAVE_DEST_PROPERTIES_LOOP2'] = 16
+# context['II_COLLECT_FRONTIERS_LOOP1B'] = 16
+# context['II_SAVE_FRONTIERS_LOOP2B'] = 16
+# context['II_TRANSPORT_FRONTIER_PROPERTIES_LOOP1B'] = 16
+# context['II_READ_FRONTIERS'] = 16
 
 ###
 
@@ -89,6 +120,27 @@ templ_path10=relref+"include/"
 context['1_seq'] = []
 for i in range (0,1):
 		context['1_seq'].append(i)
+        
+context['4_seq'] = []
+for i in range (0,4):
+		context['4_seq'].append(i)
+ 
+# context['HBM_FANOUT'] = 4
+context['HBM_FANOUT'] = context['NUM_VALID_HBM_CHANNELS'] # 4 
+# context['HBM_FANOUT_CHANNELS'] = 1
+# context['HBM_FANOUT_CHANNELS'] = 4
+context['HBM_FANOUT_CHANNELS'] = 64
+# context['HBM_FANOUT_seq'] = []
+# for i in range (0,context['HBM_FANOUT']):
+		# context['HBM_FANOUT_seq'].append(i)          
+
+context['8_seq'] = []
+for i in range (0,8):
+		context['8_seq'].append(i)
+        
+context['NUM_PEs_seq'] = []
+for i in range (0,(context['NUM_PEs'])):
+		context['NUM_PEs_seq'].append(i)
         
 context['NUM_VALID_PEs_seq'] = []
 for i in range (0,(context['NUM_VALID_PEs'])):
