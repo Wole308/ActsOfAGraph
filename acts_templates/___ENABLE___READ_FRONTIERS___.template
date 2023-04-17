@@ -5,16 +5,14 @@ unsigned int data[HBM_CHANNEL_PACK_SIZE];
 unsigned int ens34[NUM_VALID_PEs];
 #pragma HLS ARRAY_PARTITION variable=ens34 complete
 unsigned int offset_c = globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP];
-// unsigned int offsets[NUM_VALID_PEs]
-// #pragma HLS ARRAY_PARTITION variable=data complete
 
 for(unsigned int n=0; n<NUM_VALID_PEs; n++){ offsets[n] = 0; }
 #ifdef _DEBUGMODE_CHECKS3
 checkoutofbounds("acts_kernel::ERROR 12073::", cfrontier_dram___size[p_u], MAX_APPLYPARTITION_VECSIZE+1, NAp, NAp, NAp);
 #endif 
 
-unsigned int import_offset = id_import * action.size_import_export;
-unsigned int export_offset = id_export * action.size_import_export;
+// unsigned int import_offset = id_import * action.size_import_export;
+// unsigned int export_offset = id_export * action.size_import_export;
 
 READ_FRONTIERS_LOOP1: for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t++){ 
 #pragma HLS PIPELINE II={{context['II_READ_FRONTIERS']}}	
@@ -34,16 +32,22 @@ READ_FRONTIERS_LOOP1: for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t++){
 	{%endfor%}
 	{%endfor%}	
 	
+	#ifdef ___ENABLE___IMPORT_EXPORT___//XXX
 	// import (Host -> FPGA)
-	#ifdef ___NOT_YET_IMPLEMENTED___
-	if(action.id_import != INVALIDDATA && t<action.size_import_export){	
+	if((action.id_import != INVALID_IOBUFFER_ID) && (t < action.size_import_export) && (import_offset + t < HBM_CHANNEL_SIZE)){	
+		#ifdef _DEBUGMODE_CHECKS3
+		checkoutofbounds("acts_kernel::ERROR 7602::", import_offset + t, HBM_CHANNEL_SIZE, import_offset, t, action.id_import);
+		#endif 
 		{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 		HBM_centerA[import_offset + t].data[{{v}}] = HBM_import[t].data[{{v}}];
 		{%endfor%}	
 	}		
 	
 	// export (FPGA -> Host)
-	if(action.id_export != INVALIDDATA && t<action.size_import_export){	
+	if((action.id_export != INVALID_IOBUFFER_ID) && (t < action.size_import_export) && (export_offset + t < HBM_CHANNEL_SIZE)){	
+		#ifdef _DEBUGMODE_CHECKS3
+		checkoutofbounds("acts_kernel::ERROR 7612::", export_offset + t, HBM_CHANNEL_SIZE, export_offset, t, action.id_export);
+		#endif 
 		{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
 		HBM_export[t].data[{{v}}] = HBM_centerB[export_offset + t].data[{{v}}];
 		{%endfor%}

@@ -11,16 +11,3 @@ CLEAR_COUNTERS_LOOP1: for(unsigned int p_v=0; p_v<__NUM_APPLYPARTITIONS; p_v++){
 		}
 	}
 }	
-
-#ifdef ___ENABLE___COLLECTACTIVEDSTVIDS___
-for(unsigned int t=0; t<BLOCKRAM_SIZE; t++){ 
-#pragma HLS PIPELINE II=1
-	for(unsigned int p_v=0; p_v<__NUM_APPLYPARTITIONS; p_v++){ 
-		#pragma HLS UNROLL
-		for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
-			#pragma HLS UNROLL
-			insert_statsbuffer(t, p_v, 0, statsbuffer_maskbased[inst]); 
-		}
-	}
-}
-#endif 

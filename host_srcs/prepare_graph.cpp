@@ -70,7 +70,7 @@ void prepare_graph::start(string graphpath, vector<edge3_type> &edgesbuffer_dup,
 				cout<<"prepare_graph:: dataset header: num_vertices: "<<num_vertices<<", num_vertices2: "<<num_vertices2<<", num_edges: "<<num_edges<<endl;
 				// exit(EXIT_SUCCESS);
 				linecount++; continue; }	
-			// if (linecount % 10000000 == 0){ cout<<"prepare_graph: loading edges "<<linecount<<endl; } 
+			if (linecount % 100000000 == 0){ cout<<"prepare_graph: loading edges "<<linecount<<endl; } 
 			
 			sscanf(line.c_str(), "%i %i", &dstv, &srcv);
 			if(srcv > max_vertex){ max_vertex = srcv; }

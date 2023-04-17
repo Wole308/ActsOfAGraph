@@ -354,7 +354,7 @@ void write2_to_hbmchannel(unsigned int i, HBM_channelAXISW_t * HBM_axichannel[NU
 		} else {
 			HBM_axichannel[fpga][1][i][offset].data[v - EDGE_PACK_SIZE] = data; 
 		}
-	}
+	} 
 }
 
 unsigned int traverse2_graph(unsigned int root, vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedatabuffer, long double vertices_processed[128], long double edges_processed[128], universalparams_t universalparams){						
@@ -501,7 +501,9 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	// #ifdef ___NOT_YET_IMPLEMENTED___
 	long double edges_processed[128];
 	long double vertices_processed[128];
+	#ifdef _DEBUGMODE_CHECKS//3
 	traverse2_graph(0, vertexptrbuffer, edgedatabuffer, vertices_processed, edges_processed, universalparams);
+	#endif 
 	// #endif 
 	// exit(EXIT_SUCCESS);
 
@@ -708,11 +710,12 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 	#endif
 
 	// load edges (csr format)
-	cout<<"loading load csr edges..."<<endl;
+	cout<<"loading csr edges..."<<endl;
 	for(unsigned int i=0; i<NUM_PEs; i++){ 
 		globalparams[GLOBALPARAMSCODE__WWSIZE__EDGEUPDATES] = (size_u32 / HBM_CHANNEL_PACK_SIZE) + 16;
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSREDGES] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__EDGEUPDATES] + globalparams[GLOBALPARAMSCODE__WWSIZE__EDGEUPDATES]; 
 	}
+	cout<<"checkpoint: loading csr edges: globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSREDGES]: "<<globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSREDGES]<<" (of "<<HBM_CHANNEL_SIZE<<")"<<endl;
 	size_u32 = 0; 
 	#ifdef TRAVERSAL_ALGORITHM_TYPE
 	for(unsigned int i=0; i<NUM_PEs; i++){ 
@@ -735,6 +738,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		globalparams[GLOBALPARAMSCODE__WWSIZE__CSREDGES] = (size_u32 / HBM_CHANNEL_PACK_SIZE) + 16;
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__CSREDGES] + globalparams[GLOBALPARAMSCODE__WWSIZE__CSREDGES]; 
 	}
+	cout<<"checkpoint: loading act-pack edges: globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES]: "<<globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES]<<" (of "<<HBM_CHANNEL_SIZE<<")"<<endl;
 	size_u32 = 0; unsigned int sourceid = 0; unsigned int destid = 0; unsigned int weight = 0;
 	size_u32 = approx_actpacksz * EDGE_PACK_SIZE * 2; 
 	
@@ -752,14 +756,15 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		globalparams[GLOBALPARAMSCODE__WWSIZE__ACTPACKEDGES] = (size_u32 / HBM_CHANNEL_PACK_SIZE) + 16;
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__VERTEXUPDATES] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__ACTPACKEDGES] + 0; // act-pack edges occupy 1/2 of hbmchannel
 	}
+	cout<<"checkpoint: loading vertex updates: globalparams[GLOBALPARAMSCODE__BASEOFFSET__VERTEXUPDATES]: "<<globalparams[GLOBALPARAMSCODE__BASEOFFSET__VERTEXUPDATES]<<" (of "<<HBM_CHANNEL_SIZE<<")"<<endl;
 	
 	// load vertex properties
 	cout<<"loading vertex properties..."<<endl;
 	for(unsigned int i=0; i<NUM_PEs; i++){
-		// globalparams[GLOBALPARAMSCODE__WWSIZE__VERTEXUPDATES] = globalparams[GLOBALPARAMSCODE__WWSIZE__ACTPACKEDGES] + (64 * 1024);
 		globalparams[GLOBALPARAMSCODE__WWSIZE__VERTEXUPDATES] = globalparams[GLOBALPARAMSCODE__WWSIZE__ACTPACKEDGES] + (128 * 1024);
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__VDATAS] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__VERTEXUPDATES] + globalparams[GLOBALPARAMSCODE__WWSIZE__VERTEXUPDATES]; 
 	}
+	cout<<"checkpoint: loading vertex properties: globalparams[GLOBALPARAMSCODE__BASEOFFSET__VDATAS]: "<<globalparams[GLOBALPARAMSCODE__BASEOFFSET__VDATAS]<<" (of "<<HBM_CHANNEL_SIZE<<")"<<endl;
 	size_u32 = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){
 		unsigned int base_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__VDATAS];
@@ -767,6 +772,7 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 			for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE; t++){ 
 				for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 					unsigned int index = p*MAX_APPLYPARTITION_VECSIZE*EDGE_PACK_SIZE + t*EDGE_PACK_SIZE + v;
+					utilityobj->checkoutofbounds("app::ERROR 21211::", base_offset + (p * MAX_APPLYPARTITION_VECSIZE + t), HBM_CHANNEL_SIZE, NAp, NAp, NAp);
 					write2_to_hbmchannel(i, HBM_axichannel, base_offset + (p * MAX_APPLYPARTITION_VECSIZE + t), 2 * v, algorithmobj->vertex_initdata(universalparams.ALGORITHM, index));
 					write2_to_hbmchannel(i, HBM_axichannel, base_offset + (p * MAX_APPLYPARTITION_VECSIZE + t), 2 * v + 1, 0);
 					if(i==0){ size_u32 += 2; }
@@ -781,6 +787,8 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		globalparams[GLOBALPARAMSCODE__WWSIZE__VDATAS] = (vdatasz_u32 / HBM_CHANNEL_PACK_SIZE) + 16;
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__VDATAS] + globalparams[GLOBALPARAMSCODE__WWSIZE__VDATAS]; 
 	}
+	cout<<"checkpoint: loading cfrontier: globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP]: "<<globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP]<<" (of "<<HBM_CHANNEL_SIZE<<")"<<endl;
+	
 	// nfrontier
 	cout<<"loading nfrontier..."<<endl;
 	for(unsigned int i=0; i<NUM_PEs; i++){ 
@@ -788,7 +796,8 @@ void app::run(std::string setup, std::string algo, unsigned int rootvid, string 
 		globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS] = globalparams[GLOBALPARAMSCODE__BASEOFFSET__CFRONTIERSTMP] + globalparams[GLOBALPARAMSCODE__WWSIZE__CFRONTIERSTMP]; 
 		globalparams[GLOBALPARAMSCODE__WWSIZE__NFRONTIERS] = (nfrontiersz_u32 / (HBM_CHANNEL_PACK_SIZE / 2)) + 16;
 	}	
-
+	cout<<"loading nfrontier: globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS]: "<<globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS]<<" (of "<<HBM_CHANNEL_SIZE<<")"<<endl;
+	
 	unsigned int lastww_addr2 = load_globalparams2(HBM_axichannel, globalparams, universalparams, rootvid, max_degree, utilityobj);
 	print_globalparams(globalparams, universalparams, utilityobj);
 

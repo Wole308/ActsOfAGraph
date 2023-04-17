@@ -18,23 +18,6 @@ unsigned int get_local2(unsigned int vid){
 	return lvid;
 }
 
-// unsigned int get_H2(unsigned int vid){ // NEWCHANGE. FIXME.
-	// return vid % NUM_PEs;
-// }
-// unsigned int get_local2(unsigned int vid){
-	// return vid / NUM_PEs;
-// }
-
-/* unsigned int get_global2(unsigned int lvid, unsigned int H){
-	unsigned int W = (FOLD_SIZE * EDGE_PACK_SIZE) * NUM_PEs;
-	unsigned int y2 = lvid / (FOLD_SIZE * EDGE_PACK_SIZE);
-	unsigned int x2 = lvid % (FOLD_SIZE * EDGE_PACK_SIZE);		
-	unsigned int vid = (y2 * W) + (H * (FOLD_SIZE * EDGE_PACK_SIZE)) + x2;
-	return vid;
-	// return (lvid * NUM_PEs) + H;
-	// return utilityobj->get_global(lvid, H);
-} */
-
 unsigned int get_local_to_upartitionn(unsigned int lvid){
 	return lvid % MAX_UPARTITION_SIZE;
 }
@@ -414,12 +397,7 @@ void act_pack::load_edgeupdates(vector<edge_t> &vertexptrbuffer, vector<edge3_ty
 				edge3_type edge = edgesin_srcvp[v_p][t];
 				unsigned int local_dstvid = get_local2(edge.dstvid);
 				unsigned int llp_set = local_dstvid / MAX_APPLYPARTITION_SIZE;
-				edge.dstvid = local_dstvid; //////////////////////////////////////////
-				if(edge.dstvid != INVALIDDATA){
-					if(i==0 && edge.dstvid % NUM_FPGAS == 1){ //////////////////////
-						// cout<<"---------------- load_edgeupdates: v_p: "<<v_p<<", edge.dstvid("<<edge.dstvid<<") % NUM_FPGAs == 1. EXITING..."<<endl; exit(EXIT_SUCCESS);
-					}
-				}
+				edge.dstvid = local_dstvid; 
 				final_edge_updates[i][v_p][llp_set].push_back(edge);
 			}
 			if(false){ cout<<"act_pack[STAGE 2 check]:: {srcvid, dstvid}"<<endl; }

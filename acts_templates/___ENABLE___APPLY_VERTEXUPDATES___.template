@@ -13,7 +13,6 @@ APPLY_UPDATES_LOOP1: for(unsigned int t=0; t<max_limit; t++){
 	dretrievemany_udatesdram(globalparams[GLOBALPARAMSCODE__BASEOFFSET__VERTEXUPDATES] + updatesptrs[p_v_fpga][p_v].offset, p_v, t, updates_vecs, {% include '___HBM___ARGS___.template' %}); // NEW
 	for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
 	#pragma HLS UNROLL
-		// if(t < limits[inst]){
 		uint512_vec_dt updates_vec = updates_vecs[inst];
 		for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 		#pragma HLS UNROLL
