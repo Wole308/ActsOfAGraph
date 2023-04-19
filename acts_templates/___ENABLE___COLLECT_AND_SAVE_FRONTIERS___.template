@@ -2,15 +2,13 @@ keyvalue_t invalidkv; invalidkv.key = INVALIDDATA; invalidkv.value = INVALIDDATA
 keyvalue_t frontier_data[NUM_VALID_PEs][EDGE_PACK_SIZE];
 #pragma HLS ARRAY_PARTITION variable = frontier_data complete dim=0
 
-unsigned int start_local_subpartitionID = 0; unsigned int skip_local_subpartitionID = 0;
-if(action.start_pv_fpga == NAp){ start_local_subpartitionID = 0; skip_local_subpartitionID = 1; }
-else { start_local_subpartitionID = action.start_pv_fpga; skip_local_subpartitionID = NUM_FPGAS; }
+unsigned int start_local_subpartitionID = 0; unsigned int skip_local_subpartitionID = 1;
 
-// COLLECT_AND_SAVE_FRONTIERS_LOOP1: for(unsigned int local_subpartitionID=action.start_pv_fpga; local_subpartitionID<NUM_SUBPARTITION_PER_PARTITION; local_subpartitionID+=NUM_FPGAS){
 COLLECT_AND_SAVE_FRONTIERS_LOOP1: for(unsigned int local_subpartitionID=start_local_subpartitionID; local_subpartitionID<NUM_SUBPARTITION_PER_PARTITION; local_subpartitionID+=skip_local_subpartitionID){
 	unsigned int upartitionID = (p_v * NUM_SUBPARTITION_PER_PARTITION) + local_subpartitionID;
-	unsigned int save_offset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS] + (upartitionID * MAX_APPLYPARTITION_VECSIZE);
-	
+	unsigned int foffset = globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS] + (p_v * MAX_APPLYPARTITION_VECSIZE);
+	unsigned int offset = local_subpartitionID * VDATA_SUBPARTITION_VECSIZE;
+
 	COLLECT_FRONTIERS_LOOP: for(unsigned int t=0; t<VDATA_SUBPARTITION_VECSIZE; t++){
 	#pragma HLS PIPELINE II={{context['II_COLLECT_FRONTIERS_LOOP1B']}}
 		for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
@@ -38,9 +36,9 @@ COLLECT_AND_SAVE_FRONTIERS_LOOP1: for(unsigned int local_subpartitionID=start_lo
 		}
 		for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
 		#pragma HLS UNROLL
-			offsets2[inst] = save_offset + t;
+			offsets2[inst] = foffset + offset + t;
 		}
-		dinsertmany_nfrontierdram(save_offset, upartitionID, offsets2, t, frontier_data, ens, {% include '___HBM___ARGS___.template' %});
+		dinsertmany_nfrontierdram(offsets2, t, frontier_data, ens, {% include '___HBM___ARGS___.template' %});
 	}
 	
 	for(unsigned int n=0; n<NUM_VALID_PEs; n++){

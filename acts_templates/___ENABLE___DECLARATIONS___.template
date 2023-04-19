@@ -29,7 +29,7 @@
 	#pragma HLS resource variable=URAM_vprop core=XPM_MEMORY uram 
 	#pragma HLS ARRAY_PARTITION variable=URAM_vprop complete dim=1
 	#pragma HLS ARRAY_PARTITION variable=URAM_vprop complete dim=2 
-	#pragma HLS aggregate variable=URAM_vprop 
+	// #pragma HLS aggregate variable=URAM_vprop 
 
 	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
 	edge_update_type URAM_edgeupdates[NUM_VALID_PEs][EDGE_PACK_SIZE][EDGE_UPDATES_DRAMBUFFER_SIZE];	

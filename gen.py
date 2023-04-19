@@ -11,10 +11,8 @@ print ('ACTGraph (Courtesy: Jinja 2.0)...')
 
 context['XWARE'] = sys.argv[1]
 context['RUNNING_SYNTHESIS'] = sys.argv[2]
-context['EVALUATION_TYPE'] = sys.argv[3]
-context['NUM_PEs'] = int(sys.argv[4])
-context['NUM_FPGAs'] = int(sys.argv[5])
-context['TESTKERNEL'] = sys.argv[6]
+context['NUM_PEs'] = int(sys.argv[3])
+context['NUM_FPGAs'] = int(sys.argv[4])
 
 context['FPGA_IMPL'] = 0
 context['NUM_VALID_PEs'] = 1      
@@ -28,10 +26,8 @@ context['HBM_AXI_PACK_SIZE'] = context['EDGE_PACK_SIZE']
 print ('Generating sources... ')
 print ('XWARE: ' + str(context['XWARE']))
 print ('RUNNING_SYNTHESIS: ' + str(context['RUNNING_SYNTHESIS']))
-print ('EVALUATION_TYPE: ' + str(context['EVALUATION_TYPE']))
 print ('NUM_PEs: ' + str(context['NUM_PEs']))
 print ('NUM_FPGAs: ' + str(context['NUM_FPGAs']))
-print ('TESTKERNEL: ' + str(context['TESTKERNEL']))
 print ('NUM_VALID_PEs: ' + str(context['NUM_VALID_PEs']))
 print ('NUM_VALID_HBM_CHANNELS: ' + str(context['NUM_VALID_HBM_CHANNELS']))
 print ('EDGE_PACK_SIZE: ' + str(context['EDGE_PACK_SIZE']))

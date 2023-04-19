@@ -357,26 +357,26 @@ unsigned int load_actions_fine(unsigned int launch_type, unsigned int fpga, acti
 	return index;
 }
 
-void initialize_gas(gas_import_t gas_import[NUM_FPGAS][MAX_NUM_UPARTITIONS], gas_process_t gas_process[NUM_FPGAS][MAX_NUM_UPARTITIONS], gas_export_t gas_export[NUM_FPGAS][MAX_NUM_UPARTITIONS], universalparams_t universalparams){
+void initialize_gas(bool all_vertices_active_in_all_iterations, gas_import_t import_Queue[NUM_FPGAS][MAX_NUM_UPARTITIONS], gas_process_t process_Queue[NUM_FPGAS][MAX_NUM_UPARTITIONS], gas_export_t export_Queue[NUM_FPGAS][MAX_NUM_UPARTITIONS], universalparams_t universalparams){
 	for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){
 		for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS; t++){ 
 			#if NUM_FPGAS==1
-			gas_import[fpga][t].ready_for_import = 1;
-			gas_process[fpga][t].ready_for_process = 1;// NUM_FPGAS; // 1;
-			gas_export[fpga][t].ready_for_export = 1;
+			import_Queue[fpga][t].ready_for_import = 1;
+			process_Queue[fpga][t].ready_for_process = 1;// NUM_FPGAS; // 1;
+			export_Queue[fpga][t].ready_for_export = 1;
 			#else 
-			gas_import[fpga][t].ready_for_import = 0;
-			gas_process[fpga][t].ready_for_process = 1;//NUM_FPGAS; // 1;
-			gas_export[fpga][t].ready_for_export = 0;
+			import_Queue[fpga][t].ready_for_import = 0;
+			if(all_vertices_active_in_all_iterations == true){ process_Queue[fpga][t].ready_for_process = 1; } else { process_Queue[fpga][t].ready_for_process = 0; }
+			export_Queue[fpga][t].ready_for_export = 0;
 			#endif 
 			
-			gas_import[fpga][t].tmp_state = 0;
-			gas_process[fpga][t].tmp_state = 0;
-			gas_export[fpga][t].tmp_state = 0;
+			import_Queue[fpga][t].tmp_state = 0;
+			process_Queue[fpga][t].tmp_state = 0;
+			export_Queue[fpga][t].tmp_state = 0;
 			
-			gas_import[fpga][t].iteration = 0;
-			gas_process[fpga][t].iteration = 0;
-			gas_export[fpga][t].iteration = 0;
+			import_Queue[fpga][t].iteration = 0;
+			process_Queue[fpga][t].iteration = 0;
+			export_Queue[fpga][t].iteration = 0;
 		}
 	}
 }
@@ -433,7 +433,7 @@ MIGRATE_DEVICE_TO_HOST(){
 	return;
 }
 
-void traverse_graph_in_iteration(unsigned int GraphIter, vector<value_t> &actvvs, vector<value_t> &actvvs_nextit, vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedatabuffer, unsigned int * vdatas, tuple_t * vpartition_stats, long double vertices_processed[128], long double edges_processed[128], universalparams_t universalparams){						
+void run_traversal_algorithm_in_software(unsigned int GraphIter, vector<value_t> &actvvs, vector<value_t> &actvvs_nextit, vector<edge_t> &vertexptrbuffer, vector<edge3_type> &edgedatabuffer, unsigned int * vdatas, unsigned int * vertex_properties_map, tuple_t * vpartition_stats, long double vertices_processed[128], long double edges_processed[128], universalparams_t universalparams){						
 	for(unsigned int i=0; i<actvvs.size(); i++){
 		unsigned int vid = actvvs[i];
 		if(false){ cout<<"host: vid: "<<vid<<", edges_size "<<vertexptrbuffer[vid+1] - vertexptrbuffer[vid]<<""<<endl; }
@@ -453,6 +453,9 @@ void traverse_graph_in_iteration(unsigned int GraphIter, vector<value_t> &actvvs
 			unsigned int dstvid = edgedatabuffer[vptr_begin + k].dstvid;
 			unsigned int res = vdatas[vid] + 1;
 			value_t vprop = vdatas[dstvid];
+			
+			// vertex_properties[vid / ]
+			
 			value_t vtemp = min(vprop, res);
 			vdatas[dstvid] = vtemp;
 			if(vtemp != vprop){ 
@@ -460,6 +463,7 @@ void traverse_graph_in_iteration(unsigned int GraphIter, vector<value_t> &actvvs
 				#ifdef _DEBUGMODE_CHECKS3
 				if(dstvid / MAX_UPARTITION_SIZE >= universalparams.NUM_UPARTITIONS){ cout<<"ERROR 232. dstvid ("<<dstvid<<") / MAX_UPARTITION_SIZE ("<<MAX_UPARTITION_SIZE<<") >= universalparams.NUM_UPARTITIONS ("<<universalparams.NUM_UPARTITIONS<<"). vid: "<<vid<<". EXITING..."<<endl; exit(EXIT_FAILURE); }	
 				#endif 
+				vertex_properties_map[dstvid / MAX_UPARTITION_SIZE] = 1;
 			}
 			edges_processed[GraphIter] += 1; 
 		}
@@ -486,8 +490,8 @@ long double host::runapp(std::string binaryFile__[2],
 	unsigned int * vdatas = new unsigned int[universalparams.NUM_VERTICES];
 	for(unsigned int i=0; i<universalparams.NUM_VERTICES; i++){ vdatas[i] = 0xFFFFFFFF; }
 	for(unsigned int i=0; i<actvvs.size(); i++){ vdatas[actvvs[i]] = 0; }
-	tuple_t * vpartition_stats = new tuple_t[universalparams.NUM_UPARTITIONS];
-	for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS; t++){ vpartition_stats[t].A = 0; vpartition_stats[t].B = 0; }
+	tuple_t * vpartition_stats = new tuple_t[MAX_NUM_UPARTITIONS];
+	for(unsigned int t=0; t<MAX_NUM_UPARTITIONS; t++){ vpartition_stats[t].A = 0; vpartition_stats[t].B = 0; }
 	bool __stop_sw_run__ = false;
 	float ___hybrid___engine___vertex___threshold___ = (0.7 * universalparams.NUM_VERTICES) / 100; 
 	
@@ -592,30 +596,27 @@ long double host::runapp(std::string binaryFile__[2],
 	}
 	#endif 
 	
+	unsigned int * vertex_properties_map[MAXNUMGRAPHITERATIONS]; for(unsigned int t=0; t<MAXNUMGRAPHITERATIONS; t++){ vertex_properties_map[t] = new unsigned int[MAX_NUM_UPARTITIONS]; }
 	#ifdef FPGA_IMPL
-	std::vector<int, aligned_allocator<int> > HBM_import[NUM_IMPORT_BUFFERS]; 
-	std::vector<int, aligned_allocator<int> > HBM_export[NUM_FPGAS][NUM_EXPORT_BUFFERS]; 
+	std::vector<int, aligned_allocator<int> > vertex_properties = std::vector<int, aligned_allocator<int> >((MAX_NUM_UPARTITIONS * MAX_UPARTITION_SIZE)); // universalparams.NUM_UPARTITIONS  
+	std::vector<int, aligned_allocator<int> > vertex_properties_mirror[NUM_FPGAS]; 
 	#else 
-	HBM_channelAXISW_t * HBM_import[NUM_IMPORT_BUFFERS]; 
-	HBM_channelAXISW_t * HBM_export[NUM_FPGAS][NUM_EXPORT_BUFFERS]; 
-	#endif 
-	for(unsigned int i=0; i<NUM_IMPORT_BUFFERS; i++){ 
+	value_t * vertex_properties = new value_t[MAX_NUM_UPARTITIONS * MAX_UPARTITION_SIZE]; // universalparams.NUM_UPARTITIONS 
+	value_t * vertex_properties_mirror[NUM_FPGAS]; 
+	#endif
+	
+	for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ 		
 		#ifdef FPGA_IMPL
-		HBM_import[i] = std::vector<int, aligned_allocator<int> >((IMPORT_EXPORT_GRANULARITY_VECSIZE * HBM_AXI_PACK_SIZE)); 
+		vertex_properties_mirror[fpga] = std::vector<int, aligned_allocator<int> >((MAX_NUM_UPARTITIONS * MAX_UPARTITION_SIZE)); // universalparams.NUM_UPARTITIONS 
 		#else 
-		HBM_import[i] = new HBM_channelAXISW_t[IMPORT_EXPORT_GRANULARITY_VECSIZE]; 
+		vertex_properties_mirror[fpga] = new value_t[MAX_NUM_UPARTITIONS * MAX_UPARTITION_SIZE]; // universalparams.NUM_UPARTITIONS 	
 		#endif 
-	}
-	for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ 
-		for(unsigned int i=0; i<NUM_IMPORT_BUFFERS; i++){ 
-			#ifdef FPGA_IMPL
-			HBM_export[fpga][i] = std::vector<int, aligned_allocator<int> >((IMPORT_EXPORT_GRANULARITY_VECSIZE * HBM_AXI_PACK_SIZE)); 
-			#else 
-			HBM_export[fpga][i] = new HBM_channelAXISW_t[IMPORT_EXPORT_GRANULARITY_VECSIZE]; 	
-			#endif 
-		}
-	}
-		
+	}	
+	
+	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){ for(unsigned int t=0; t<MAX_NUM_UPARTITIONS; t++){ vertex_properties_map[iter][t] = 0; }}
+	for(unsigned int t=0; t<MAX_NUM_UPARTITIONS * MAX_UPARTITION_SIZE; t++){ vertex_properties[t] = 0xFFFFFFFF; }
+	for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ for(unsigned int t=0; t<MAX_NUM_UPARTITIONS * MAX_UPARTITION_SIZE; t++){ vertex_properties_mirror[fpga][t] = 0xFFFFFFFF; } }
+	
     // declare buffers and ext_ptrs
 	#ifdef FPGA_IMPL
     vector<cl::Event> kernel_events(2 * NUM_FPGAS);
@@ -697,27 +698,13 @@ long double host::runapp(std::string binaryFile__[2],
 	acts_kernel * acts = new acts_kernel(universalparams);
 	#endif 
 	
-	gas_import_t gas_import[NUM_FPGAS][MAX_NUM_UPARTITIONS]; 
-	gas_process_t gas_process[NUM_FPGAS][MAX_NUM_UPARTITIONS]; 
-	gas_export_t gas_export[NUM_FPGAS][MAX_NUM_UPARTITIONS]; 
-	initialize_gas(gas_import, gas_process, gas_export, universalparams);
+	gas_import_t import_Queue[NUM_FPGAS][MAX_NUM_UPARTITIONS]; 
+	gas_process_t process_Queue[NUM_FPGAS][MAX_NUM_UPARTITIONS]; 
+	gas_export_t export_Queue[NUM_FPGAS][MAX_NUM_UPARTITIONS]; 
+	initialize_gas(all_vertices_active_in_all_iterations, import_Queue, process_Queue, export_Queue, universalparams);
 
-	// set mappings (export -> import)
-	// #ifdef ___NOT_YET_IMPLEMENTED___
-	mapping_t * mapping[NUM_FPGAS]; for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ mapping[fpga] = new mapping_t[MAX_NUM_UPARTITIONS]; }
-	for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){
-		for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS; t+=1){
-			mapping[fpga][t].fpga = t % NUM_FPGAS;
-			mapping[fpga][t].io_id = t / NUM_FPGAS;			
-			#ifdef _DEBUGMODE_HOSTPRINTS//4
-			if(t<16){ cout<<"$$$ host: [fpga: "<<fpga<<", io_id: "<<t<<"] mapped to [fpga: "<<mapping[fpga][t].fpga<<", io_id: "<<mapping[fpga][t].io_id<<"]"<<endl; }
-			#endif 
-		}
-	}
-	// #endif 
-	
-	mapping_t * HBM_xxx_ptr[NUM_FPGAS]; for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ HBM_xxx_ptr[fpga] = new mapping_t[NUM_IMPORT_BUFFERS]; }
-	for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ for(unsigned int t=0; t<NUM_IMPORT_BUFFERS; t+=1){ HBM_xxx_ptr[fpga][t].fpga = 0; HBM_xxx_ptr[fpga][t].io_id = 0; }}
+	mapping_t * HBM_xxx_ptr[NUM_FPGAS]; for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ HBM_xxx_ptr[fpga] = new mapping_t[MAX_NUM_UPARTITIONS]; }
+	for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ for(unsigned int t=0; t<MAX_NUM_UPARTITIONS; t+=1){ HBM_xxx_ptr[fpga][t].fpga = 0; HBM_xxx_ptr[fpga][t].io_id = 0; }}
 	// exit(EXIT_SUCCESS);
 	
 	unsigned int launch_type = LAUNCH_TYPE;
@@ -736,7 +723,7 @@ long double host::runapp(std::string binaryFile__[2],
 	for(unsigned int i=0; i<128; i++){ vertices_processed[i] = 0; edges_processed[i] = 0; } 
 	for(unsigned int i=0; i<universalparams.NUM_VERTICES; i++){ vdatas[i] = 0xFFFFFFFF; }
 	for(unsigned int i=0; i<actvvs.size(); i++){ vdatas[actvvs[i]] = 0; }
-	for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS; t++){ vpartition_stats[t].A = 0; vpartition_stats[t].B = 0; }
+	for(unsigned int t=0; t<MAX_NUM_UPARTITIONS; t++){ vpartition_stats[t].A = 0; vpartition_stats[t].B = 0; }
 	tuple_t active_vertices_in_iteration[2][128]; for(unsigned int i=0; i<128; i++){ active_vertices_in_iteration[0][i].A = 0; active_vertices_in_iteration[0][i].B = 0; active_vertices_in_iteration[1][i].A = 0; active_vertices_in_iteration[1][i].B = 0; } 
 	active_vertices_in_iteration[0][0].A = 1;
 	unsigned int GraphIter;
@@ -744,7 +731,7 @@ long double host::runapp(std::string binaryFile__[2],
 		std::chrono::steady_clock::time_point begin_time0 = std::chrono::steady_clock::now();
 		
 		for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS; t++){ vpartition_stats[t].A = 0; vpartition_stats[t].B = 0; }
-		traverse_graph_in_iteration(GraphIter, actvvs, actvvs_nextit, vertexptrbuffer, edgedatabuffer, vdatas, vpartition_stats, vertices_processed, edges_processed, universalparams);
+		run_traversal_algorithm_in_software(GraphIter, actvvs, actvvs_nextit, vertexptrbuffer, edgedatabuffer, vdatas, vertex_properties_map[GraphIter], vpartition_stats, vertices_processed, edges_processed, universalparams);
 		
 		active_vertices_in_iteration[0][GraphIter + 1].A = actvvs_nextit.size();
 		unsigned int num_actv_edges = 0; for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS; t++){ num_actv_edges += vpartition_stats[t].B; }
@@ -756,13 +743,8 @@ long double host::runapp(std::string binaryFile__[2],
 		active_vertices_in_iteration[0][GraphIter].B = end_time0;
 		
 		actvvs_nextit.clear();
-	}	
-	// for(unsigned int t=0; t<GraphIter; t++){ 
-		// cout<<"--- host: "<<active_vertices_in_iteration[0][t].A<<" active vertices processed in iteration "<<t<<" in "<<active_vertices_in_iteration[0][t].B<<" ms"; 
-		// if(active_vertices_in_iteration[0][t].A < ___hybrid___engine___vertex___threshold___){ cout<<" [SW]"<<endl; } else { cout<<" [FPGA]"<<endl; }
-	// } 
+	}
 	#endif 
-	// return EXIT_SUCCESS;
 	// exit(EXIT_SUCCESS);
 	
 	// Run kernel
@@ -779,7 +761,7 @@ long double host::runapp(std::string binaryFile__[2],
 		if(__run__iteration__in__FPGA__mode__ == true){ std::cout << endl << TIMINGRESULTSCOLOR <<"#################################################################### GAS iteration: "<<iteration_idx<< " [FPGA mode] ####################################################################"<< RESET << std::endl; }
 		
 		#if NUM_FPGAS==1
-		initialize_gas(gas_import, gas_process, gas_export, universalparams);
+		initialize_gas(all_vertices_active_in_all_iterations, import_Queue, process_Queue, export_Queue, universalparams);
 		#endif 
 		
 		// sw kernel 
@@ -788,7 +770,7 @@ long double host::runapp(std::string binaryFile__[2],
 			std::chrono::steady_clock::time_point begin_time0 = std::chrono::steady_clock::now();
 			
 			for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS; t++){ vpartition_stats[t].A = 0; vpartition_stats[t].B = 0; }
-			traverse_graph_in_iteration(iteration_idx, actvvs, actvvs_nextit, vertexptrbuffer, edgedatabuffer, vdatas, vpartition_stats, vertices_processed, edges_processed, universalparams);
+			run_traversal_algorithm_in_software(iteration_idx, actvvs, actvvs_nextit, vertexptrbuffer, edgedatabuffer, vertex_properties, vertex_properties_map[iteration_idx], vpartition_stats, vertices_processed, edges_processed, universalparams);
 			unsigned int num_actv_edges = 0; for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS; t++){ num_actv_edges += vpartition_stats[t].B; }
 			cout<<"host: end of iteration "<<iteration_idx<<": ("<<actvvs_nextit.size()<<" active vertices generated, "<<num_actv_edges<<" edges processed)"<<endl;
 			if(actvvs_nextit.size() == 0){ cout<<"no more activer vertices to process. breaking out... "<<endl; __stop_sw_run__ = true; }
@@ -823,9 +805,9 @@ long double host::runapp(std::string binaryFile__[2],
 				
 				#ifdef _DEBUGMODE_HOSTPRINTS//4
 				if(profiling0 == true){ 
-					for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ std::cout<<">>> "<<universalparams.NUM_UPARTITIONS / NUM_FPGAS<<" imports queue @ fpga "<<fpga<<": "; for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS / NUM_FPGAS; t++){ std::cout<<gas_import[fpga][t].ready_for_import<<", "; } cout<<endl; }
-					for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ std::cout<<">>> "<<universalparams.NUM_UPARTITIONS<<" exports queue @ fpga "<<fpga<<": "; for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS; t++){ std::cout<<gas_export[fpga][t].ready_for_export<<", "; } cout<<endl; }
-					for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ std::cout<<">>> "<<universalparams.NUM_UPARTITIONS / NUM_FPGAS<<" process queue @ fpga "<<fpga<<": "; for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS / NUM_FPGAS; t++){ std::cout<<gas_process[fpga][t].ready_for_process<<", "; } cout<<endl; }
+					for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ std::cout<<">>> "<<universalparams.NUM_UPARTITIONS / NUM_FPGAS<<" imports queue @ fpga "<<fpga<<": "; for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS / NUM_FPGAS; t++){ std::cout<<import_Queue[fpga][t].ready_for_import<<", "; } cout<<endl; }
+					for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ std::cout<<">>> "<<universalparams.NUM_UPARTITIONS<<" exports queue @ fpga "<<fpga<<": "; for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS; t++){ std::cout<<export_Queue[fpga][t].ready_for_export<<", "; } cout<<endl; }
+					for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ std::cout<<">>> "<<universalparams.NUM_UPARTITIONS / NUM_FPGAS<<" process queue @ fpga "<<fpga<<": "; for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS / NUM_FPGAS; t++){ std::cout<<process_Queue[fpga][t].ready_for_process<<", "; } cout<<endl; }
 				}
 				#endif
 				
@@ -839,7 +821,7 @@ long double host::runapp(std::string binaryFile__[2],
 				}
 				
 				#ifdef _DEBUGMODE_HOSTPRINTS//4
-				for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ std::cout<<"imports @ fpga "<<fpga<<": "; for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS / NUM_FPGAS; t++){ std::cout<<gas_import[fpga][t].ready_for_import<<", "; } cout<<endl; }
+				for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ std::cout<<"imports @ fpga "<<fpga<<": "; for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS / NUM_FPGAS; t++){ std::cout<<import_Queue[fpga][t].ready_for_import<<", "; } cout<<endl; }
 				#endif 
 				
 				// pre-run
@@ -856,8 +838,8 @@ long double host::runapp(std::string binaryFile__[2],
 					import_pointer[fpga] = INVALID_IOBUFFER_ID;
 					action[fpga].id_import = import_pointer[fpga];
 					for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS / NUM_FPGAS; t+=IMPORT_BATCH_SIZE){
-						utilityobj->checkoutofbounds("host::ERROR 2111::", gas_import[fpga][t].ready_for_import, MAX_NUM_UPARTITIONS, fpga, t, NAp);
-						bool en = true; if(gas_import[fpga][t].ready_for_import == 0){ en = false; } // 'NB: must have something to import' 'NB: checking first one in set suffices.'
+						utilityobj->checkoutofbounds("host::ERROR 2111::", import_Queue[fpga][t].ready_for_import, MAX_NUM_UPARTITIONS, fpga, t, NAp);
+						bool en = true; if(import_Queue[fpga][t].ready_for_import == 0){ en = false; } // 'NB: must have something to import' 'NB: checking first one in set suffices.'
 						if(en == true){ 
 							import_pointer[fpga] = t;
 							action[fpga].id_import = import_pointer[fpga]; 
@@ -869,7 +851,7 @@ long double host::runapp(std::string binaryFile__[2],
 					action[fpga].id_process = process_pointer[fpga];
 					if(action[fpga].module != APPLY_UPDATES_MODULE && action[fpga].module != GATHER_FRONTIERS_MODULE){
 						for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS / NUM_FPGAS; t+=PE_BATCH_SIZE){
-							bool en = true; if(gas_process[fpga][t].ready_for_process == 0){ en = false; } // 'NB: all remote FPGAs must add their contributions before partition is ready to process' 'NB: checking first one in set suffices.'
+							bool en = true; if(process_Queue[fpga][t].ready_for_process == 0){ en = false; } // 'NB: all remote FPGAs must add their contributions before partition is ready to process' 'NB: checking first one in set suffices.'
 							if(en == true){
 								process_pointer[fpga] = t;
 								action[fpga].id_process = process_pointer[fpga]; 
@@ -882,7 +864,7 @@ long double host::runapp(std::string binaryFile__[2],
 					export_pointer[fpga] = INVALID_IOBUFFER_ID;//88;
 					action[fpga].id_export = export_pointer[fpga];
 					for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS; t+=EXPORT_BATCH_SIZE){ 
-						bool en = true; if(gas_export[fpga][t].ready_for_export == 0){ en = false; } // NEWCHANGE 'NB: checking first one in set suffices.'
+						bool en = true; if(export_Queue[fpga][t].ready_for_export == 0){ en = false; } // NEWCHANGE 'NB: checking first one in set suffices.'
 						if(en == true){
 							export_pointer[fpga] = t;
 							action[fpga].id_export = export_pointer[fpga]; 
@@ -900,12 +882,16 @@ long double host::runapp(std::string binaryFile__[2],
 				#ifdef FPGA_IMPL//_XXX // FIXME.	
 				for(unsigned int fpga=0; fpga<device_count; fpga++){ 
 					if(profiling0 == true){ std::cout << "Creating Import Buffers @ fpga "<<fpga<<"..." << std::endl; }
-					OCL_CHECK(err, buffer_import[2*fpga + flag] = cl::Buffer(contexts[fpga], CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR,
-													(IMPORT_EXPORT_GRANULARITY_VECSIZE * HBM_AXI_PACK_SIZE * sizeof(int)), &HBM_import[action[fpga].id_import][0], &err)); 
-				
+					if(action[fpga].id_import < universalparams.NUM_UPARTITIONS){
+						OCL_CHECK(err, buffer_import[2*fpga + flag] = cl::Buffer(contexts[fpga], CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR,
+														(IMPORT_EXPORT_GRANULARITY_VECSIZE * HBM_AXI_PACK_SIZE * sizeof(int)), &vertex_properties[action[fpga].id_import * MAX_UPARTITION_SIZE], &err)); 
+					}
+					
 					if(profiling0 == true){ std::cout << "Creating Export Buffers..." << std::endl; }
-					OCL_CHECK(err, buffer_export[2*fpga + flag] = cl::Buffer(contexts[fpga], CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR,
-													(IMPORT_EXPORT_GRANULARITY_VECSIZE * HBM_AXI_PACK_SIZE * sizeof(int)), &HBM_export[fpga][action[fpga].id_export][0], &err)); 
+					if(action[fpga].id_export < universalparams.NUM_UPARTITIONS){
+						OCL_CHECK(err, buffer_export[2*fpga + flag] = cl::Buffer(contexts[fpga], CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR,
+														(IMPORT_EXPORT_GRANULARITY_VECSIZE * HBM_AXI_PACK_SIZE * sizeof(int)), &vertex_properties_mirror[fpga][action[fpga].id_export * MAX_UPARTITION_SIZE], &err)); 
+					}
 				}
 				#endif
 				double end_time3 = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin_time3).count()) / 1000;	
@@ -994,7 +980,7 @@ long double host::runapp(std::string binaryFile__[2],
 								#endif
 								#endif 
 								,(HBM_channelAXI_t *)HBM_axicenter[fpga][0], (HBM_channelAXI_t *)HBM_axicenter[fpga][1]
-								,(HBM_channelAXI_t *)HBM_import[action[fpga].id_import], (HBM_channelAXI_t *)HBM_export[fpga][action[fpga].id_export]
+								,(HBM_channelAXI_t *)&vertex_properties[action[fpga].id_import * MAX_UPARTITION_SIZE], (HBM_channelAXI_t *)&vertex_properties_mirror[fpga][action[fpga].id_export * MAX_UPARTITION_SIZE]
 								,fpga ,action[fpga].module ,action[fpga].graph_iteration ,action[fpga].start_pu ,action[fpga].size_pu ,action[fpga].skip_pu ,action[fpga].start_pv_fpga ,action[fpga].start_pv ,action[fpga].size_pv ,action[fpga].start_llpset ,action[fpga].size_llpset ,action[fpga].start_llpid ,action[fpga].size_llpid ,action[fpga].start_gv_fpga ,action[fpga].start_gv ,action[fpga].size_gv ,action[fpga].id_process ,action[fpga].id_import ,action[fpga].id_export ,action[fpga].size_import_export ,action[fpga].status ,final_edge_updates ,report_statistics				
 								);	
 						}
@@ -1028,12 +1014,12 @@ long double host::runapp(std::string binaryFile__[2],
 					if(import_pointer[fpga] == INVALID_IOBUFFER_ID){ continue; }
 					for(unsigned int k=0; k<IMPORT_BATCH_SIZE; k++){
 						if(import_pointer[fpga] + k < (universalparams.NUM_UPARTITIONS / NUM_FPGAS)){
-							gas_import[fpga][import_pointer[fpga] + k].ready_for_import -= NUM_FPGAS; 
-							gas_process[fpga][import_pointer[fpga] + k].tmp_state += NUM_FPGAS;	
-							utilityobj->checkoutofbounds("host::ERROR 2121::", gas_import[fpga][import_pointer[fpga] + k].ready_for_import, MAX_NUM_UPARTITIONS, fpga, k, import_pointer[fpga]);
-							if(gas_process[fpga][import_pointer[fpga] + k].tmp_state == NUM_FPGAS){ 
-								gas_process[fpga][import_pointer[fpga] + k].ready_for_process = 1; 
-								gas_process[fpga][import_pointer[fpga] + k].tmp_state = 0;
+							import_Queue[fpga][import_pointer[fpga] + k].ready_for_import -= NUM_FPGAS; 
+							process_Queue[fpga][import_pointer[fpga] + k].tmp_state += NUM_FPGAS;	
+							utilityobj->checkoutofbounds("host::ERROR 2121::", import_Queue[fpga][import_pointer[fpga] + k].ready_for_import, MAX_NUM_UPARTITIONS, fpga, k, import_pointer[fpga]);
+							if(process_Queue[fpga][import_pointer[fpga] + k].tmp_state == NUM_FPGAS){ 
+								process_Queue[fpga][import_pointer[fpga] + k].ready_for_process = 1; 
+								process_Queue[fpga][import_pointer[fpga] + k].tmp_state = 0;
 							}
 						}
 					}
@@ -1043,7 +1029,7 @@ long double host::runapp(std::string binaryFile__[2],
 					if(process_pointer[fpga] == INVALID_IOBUFFER_ID){ continue; } // NEWCHANGE.
 					for(unsigned int k=0; k<PE_BATCH_SIZE; k++){
 						if(process_pointer[fpga] + k >= MAX_NUM_UPARTITIONS){ continue; }
-						gas_process[fpga][process_pointer[fpga] + k].ready_for_process = 0; 
+						process_Queue[fpga][process_pointer[fpga] + k].ready_for_process = 0; 
 					}
 				}
 				
@@ -1056,7 +1042,7 @@ long double host::runapp(std::string binaryFile__[2],
 									#ifdef _DEBUGMODE_HOSTPRINTS//4
 									if(fpga < num_prints2 && (profiling0 == true)){ cout << TIMINGRESULTSCOLOR << "^^^ activating global vertex partition "<<global_vertex_partition<<" for export... (fpga: "<<fpga<<", g_v_fpga: "<<g_v_fpga<<")" << RESET <<endl; }
 									#endif 
-									gas_export[fpga][global_vertex_partition].ready_for_export = 1;
+									export_Queue[fpga][global_vertex_partition].ready_for_export = 1;
 								}
 							}
 						}
@@ -1066,7 +1052,7 @@ long double host::runapp(std::string binaryFile__[2],
 				for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ 
 					for(unsigned int k=0; k<EXPORT_BATCH_SIZE; k++){ 
 						if(export_pointer[fpga] + k >= MAX_NUM_UPARTITIONS){ continue; }
-						gas_export[fpga][export_pointer[fpga] + k].ready_for_export = 0; 
+						export_Queue[fpga][export_pointer[fpga] + k].ready_for_export = 0; 
 					}
 				}
 				#endif 
@@ -1075,43 +1061,21 @@ long double host::runapp(std::string binaryFile__[2],
 				#if (NUM_BBBBBB_FPGAS>1)
 				if(action[0].id_export != INVALID_IOBUFFER_ID){							
 					for(unsigned int k=0; k<EXPORT_BATCH_SIZE; k++){ 
-					unsigned int exp_id = action[0].id_export + k;
-					if(exp_id < universalparams.NUM_UPARTITIONS){
-						for(unsigned int t=0; t<IMPORT_EXPORT_GRANULARITY_VECSIZE; t++){
-							for(unsigned int v=0; v<HBM_AXI_PACK_SIZE; v++){
-								value_t res = 0;
-								for(unsigned int fpga_l=0; fpga_l<NUM_FPGAS; fpga_l++){
-									res = merge_frontiers(res, HBM_export[fpga_l][exp_id][t].data[v]);
-								}
-								HBM_import[exp_id][t].data[v] = res;
+						unsigned int upartition_id = action[0].id_export + k; 
+						if(upartition_id >= universalparams.NUM_UPARTITIONS){ continue; }
+						for(unsigned int t=0; t<IMPORT_EXPORT_GRANULARITY_VECSIZE * HBM_AXI_PACK_SIZE; t++){
+							value_t res = 0;
+							for(unsigned int fpga_l=0; fpga_l<NUM_FPGAS; fpga_l++){
+								res = merge_frontiers(res, vertex_properties_mirror[fpga_l][(upartition_id * MAX_UPARTITION_SIZE) + t]);
 							}
+							vertex_properties[(upartition_id * MAX_UPARTITION_SIZE) + t] = res;
+
 						}
-						gas_import[exp_id % NUM_FPGAS][exp_id / NUM_FPGAS].ready_for_import += NUM_FPGAS; 
-						gas_import[exp_id % NUM_FPGAS][exp_id / NUM_FPGAS].iteration = iteration_idx + 1; 
-					}
+						import_Queue[upartition_id % NUM_FPGAS][upartition_id / NUM_FPGAS].ready_for_import += NUM_FPGAS; 
+						import_Queue[upartition_id % NUM_FPGAS][upartition_id / NUM_FPGAS].iteration = iteration_idx + 1; 
 					}
 				}
-				#endif 
-				
-				/* // transfer export to imports
-				#if (NUM_BBBBBB_FPGAS>1)
-				for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ 
-					if(action[fpga].id_export != INVALID_IOBUFFER_ID){	
-						for(unsigned int k=0; k<EXPORT_BATCH_SIZE; k++){ 
-							if(action[fpga].id_export + k < universalparams.NUM_UPARTITIONS){ // NEWCHANGE.
-								mapping_t map = mapping[fpga][action[fpga].id_export + k];
-								if(map.fpga == INVALIDDATA){ continue; } // NEWCHANGE
-								#ifdef _DEBUGMODE_HOSTPRINTS//4
-								if(fpga < num_prints2 && (profiling0 == true)){ cout<< TIMINGRESULTSCOLOR << "<-> mapping exported vpartition: from (fpga: "<<fpga<<", id_export: "<<action[fpga].id_export + k<<") --- to (mapped_fpga: "<<map.fpga<<", id_mapped_import: "<<map.io_id<<") --- for iteration "<<iteration_idx + 1<< RESET <<endl; }
-								#endif 
-								HBM_xxx_ptr[fpga][action[fpga].id_export + k] = map;
-								gas_import[map.fpga][map.io_id].ready_for_import += 1; 
-								gas_import[map.fpga][map.io_id].iteration = iteration_idx + 1; 
-							}
-						}
-					}
-				}
-				#endif  */
+				#endif
 				#endif 
 				double end_time8 = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin_time8).count()) / 1000;	
 				if(profiling1_timing == true){ std::cout << TIMINGRESULTSCOLOR << ">>> host::post-process time elapsed : "<<end_time8<<" ms, "<<(end_time8 * 1000)<<" microsecs, "<< RESET << std::endl; }
@@ -1128,7 +1092,7 @@ long double host::runapp(std::string binaryFile__[2],
 		#endif 
 		
 		#ifdef _DEBUGMODE_HOSTPRINTS//4
-		for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ std::cout<<">>> imports @ fpga "<<fpga<<": "; for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS / NUM_FPGAS; t++){ std::cout<<gas_import[fpga][t].ready_for_import<<", "; } cout<<endl; }
+		for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ std::cout<<">>> imports @ fpga "<<fpga<<": "; for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS / NUM_FPGAS; t++){ std::cout<<import_Queue[fpga][t].ready_for_import<<", "; } cout<<endl; }
 		#endif 
 	}
 	double end_time = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin_time).count()) / 1000;	
@@ -1179,7 +1143,7 @@ long double host::runapp(std::string binaryFile__[2],
 		std::chrono::steady_clock::time_point begin_time0 = std::chrono::steady_clock::now();
 		
 		for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS; t++){ vpartition_stats[t].A = 0; vpartition_stats[t].B = 0; }
-		traverse_graph_in_iteration(iteration_idx, actvvs, actvvs_nextit, vertexptrbuffer, edgedatabuffer, vdatas, vpartition_stats, vertices_processed, edges_processed, universalparams);
+		run_traversal_algorithm_in_software(iteration_idx, actvvs, actvvs_nextit, vertexptrbuffer, edgedatabuffer, vdatas, vertex_properties_map[iteration_idx], vpartition_stats, vertices_processed, edges_processed, universalparams);
 		unsigned int num_actv_edges = 0; for(unsigned int t=0; t<universalparams.NUM_UPARTITIONS; t++){ num_actv_edges += vpartition_stats[t].B; }
 		if(actvvs_nextit.size() == 0){ cout<<"no more activer vertices to process. breaking out... "<<endl; break; }
 		actvvs.clear(); for(unsigned int i=0; i<actvvs_nextit.size(); i++){ actvvs.push_back(actvvs_nextit[i]); } actvvs_nextit.clear();

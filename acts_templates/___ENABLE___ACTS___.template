@@ -11,7 +11,7 @@
 	#define ___ENABLE___SAVE_DEST_PROPERTIES___ 
 #define ___ENABLE___GATHER_FRONTIERINFOS___ 
 #define ___ENABLE___REPORT_STATISTICS___
-// #define ___ENABLE___IMPORT_EXPORT___
+#define ___ENABLE___IMPORT_EXPORT___
 #define _____DEBUG_____	
 
 #define MAXVALID_APPLYPARTITION_VECSIZE (MAX_APPLYPARTITION_VECSIZE >> POW_VALID_VDATA)
@@ -225,7 +225,8 @@ MY_IFDEF_TOPLEVELFUNC(){
 		#pragma HLS PIPELINE II=1
 			updatesptrs[fpga][t] = load_vupdate_map(globalparams[GLOBALPARAMSCODE__BASEOFFSET__UPDATESPTRS], (fpga * MAX_NUM_LLPSETS) + t, {% include '___HBM___ARGS___.template' %});	
 			updatesptrs[fpga][t].offset = 0; // FIXME.
-			if((action.module == ALL_MODULES || action.module == PROCESS_EDGES_MODULE) && (action.start_pu / NUM_FPGAS == 0)){ 
+			// if((action.module == ALL_MODULES || action.module == PROCESS_EDGES_MODULE) && (action.start_pu / NUM_FPGAS == 0)){ 
+			if((action.module == ALL_MODULES || action.module == PROCESS_EDGES_MODULE) && (action.start_pu == 0)){ 
 				#ifdef _DEBUGMODE_KERNELPRINTS4
 				if(t==0 && action.fpga < num_prints){ cout << "acts: resetting updates space..." <<endl; }
 				#endif 
@@ -265,9 +266,6 @@ MY_IFDEF_TOPLEVELFUNC(){
 			unsigned int MASK_CODE = 1 + GraphIter;
 			unsigned int MASK_CODE_PE = 1 + GraphIter;
 			unsigned int MASK_CODE_AU = 4094 + 1 + GraphIter;
-			
-			// capture sparsity distribution for sssp, bfs
-			{% include '___ENABLE___CAPTUREACTVVS___.template' %}	
 			
 			// clear counters
 			#ifdef ___ENABLE___CLEAR_COUNTERS___
@@ -331,38 +329,34 @@ MY_IFDEF_TOPLEVELFUNC(){
 				
 				#ifdef _DEBUGMODE_KERNELPRINTS4 
 				if(action.fpga < num_prints){ cout<<"### applying vertex updates in vpartition "<<p_v<<": [PEs "; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<n<<", "; } cout<<"] [target FPGAs "; for(unsigned int n=0; n<NUM_FPGAS; n++){ cout<<n<<", "; } cout<<"] [max "<<globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]<<"]"<<endl; } 
-				if(false && action.fpga < num_prints){ cout<<"))))))))))))))))))))))) APPLY_UPDATES_MODULE_LOOP: action.start_pv_fpga: "<<action.start_pv_fpga<<", updatesptrs["<<0<<"]["<<p_v<<"].size: "<<updatesptrs[0][p_v].size<<" ((((((((((((((((((((((( "<<endl; }
+				if(true && action.fpga < num_prints){ cout<<"))))))))))))))))))))))) APPLY_UPDATES_MODULE_LOOP: action.start_pv_fpga: "<<action.start_pv_fpga<<", updatesptrs["<<0<<"]["<<p_v<<"].size: "<<updatesptrs[0][p_v].size<<" ((((((((((((((((((((((( "<<endl; }
+				if(false && action.fpga < num_prints){ cout<<"))))))))))))))))))))))) APPLY_UPDATES_MODULE_LOOP: action.start_pv_fpga: "<<action.start_pv_fpga<<", vpartition_vertices[0]["<<p_v<<"].count (ww): "<<vpartition_vertices[0][p_v].count<<" ((((((((((((((((((((((( "<<endl; }
 				#endif 
 				
 				if(vpartition_vertices[0][p_v].count > 0 || all_vertices_active_in_all_iterations == true){ 
 					// read destination properties
-					#ifdef ___ENABLE___READ_DEST_PROPERTIES___
+					#ifdef ___ENABLE___READ_DEST_PROPERTIES___//XXX // FIXME.
 					if(___ENABLE___READ_DEST_PROPERTIES___BOOL___ == 1){
 						{% include '___ENABLE___READ_DEST_PROPERTIES___.template' %}	
 					}
 					#endif
 					
 					// apply updates
-					unsigned int _start_ = 0; unsigned int _size_ = 0;
-					if(action.start_pv_fpga == NAp){ _start_ = 0; _size_ = NUM_FPGAS; }
-					else { _start_ = action.start_pv_fpga; _size_ = 1; }
 					#ifdef ___ENABLE___APPLYUPDATES___II1___ 
 					if(___ENABLE___APPLYUPDATES___BOOL___ == 1){	
-						for(unsigned int p_v_fpga=_start_; p_v_fpga<_start_ + _size_; p_v_fpga++){
-							{% include '___ENABLE___APPLY_VERTEXUPDATES___.template' %}			
-						}						
+						{% include '___ENABLE___APPLY_VERTEXUPDATES___.template' %}				
 					}	
 					#endif 
 					
 					// collect and save frontiers
-					#ifdef ___ENABLE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES___
+					#ifdef ___ENABLE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES___//XXX // FIXME.
 					if(___ENABLE___COLLECT_AND_SAVE_FRONTIER_PROPERTIES___BOOL___ == 1){
 						{% include '___ENABLE___COLLECT_AND_SAVE_FRONTIERS___.template' %}	
 					}
 					#endif 
 					
 					// save destination properties
-					#ifdef ___ENABLE___SAVE_DEST_PROPERTIES___
+					#ifdef ___ENABLE___SAVE_DEST_PROPERTIES___//XXX // FIXME.
 					if(___ENABLE___SAVE_DEST_PROPERTIES___BOOL___ == 1){	
 						{% include '___ENABLE___SAVE_DEST_PROPERTIES___.template' %}	
 					}
@@ -405,7 +399,7 @@ MY_IFDEF_TOPLEVELFUNC(){
 			{% include '___ENABLE___FINISH___.template' %}	
 		} // NUM_ITs
 	}
-	
+
 	// save state
 	if(action.module == PROCESS_EDGES_MODULE){ 
 		SAVE_UPDATEPTRS_lOOP1: for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){

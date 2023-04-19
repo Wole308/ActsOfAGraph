@@ -40,7 +40,7 @@ public:
 	
 	universalparams_t get_universalparams(std::string algorithm, unsigned int numiterations, unsigned int rootvid, unsigned int num_vertices, unsigned int num_edges, bool graphisundirected);
 	
-	void run(std::string setup, std::string algo, unsigned int rootvid, string graph_path, int graphisundirected, unsigned int numiterations, std::string _binaryFile1);
+	void run(std::string algo, unsigned int rootvid, int graphisundirected, unsigned int numiterations, std::string _binaryFile1, string graph_path);
 	
 	void summary();
 	

@@ -11,8 +11,8 @@ for(unsigned int n=0; n<NUM_VALID_PEs; n++){ offsets[n] = 0; }
 checkoutofbounds("acts_kernel::ERROR 12073::", cfrontier_dram___size[p_u], MAX_APPLYPARTITION_VECSIZE+1, NAp, NAp, NAp);
 #endif 
 
-// unsigned int import_offset = id_import * action.size_import_export;
-// unsigned int export_offset = id_export * action.size_import_export;
+unsigned int import_offset = id_import * action.size_import_export;
+unsigned int export_offset = id_export * action.size_import_export;
 
 READ_FRONTIERS_LOOP1: for(unsigned int t=0; t<cfrontier_dram___size[p_u]; t++){ 
 #pragma HLS PIPELINE II={{context['II_READ_FRONTIERS']}}	

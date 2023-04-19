@@ -38,14 +38,14 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<globalparams[GLOBALP
 		max_sz = 0; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ limits[n] = edge_maps[n].size; } for(unsigned int n=0; n<NUM_VALID_PEs; n++){ if(max_sz < limits[n]){ max_sz = limits[n]; }}			
 		for(unsigned int n=0; n<NUM_VALID_PEs; n++){ offsets[n] = edge_maps[n].offset; }	
 		#ifdef _DEBUGMODE_KERNELPRINTS//4
-		for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<"process-edges: edges map offsets: "; cout<<offsets[n]<<", max_sz: "<<max_sz<<", updatesptrs["<<action.fpga<<"]["<<llp_set<<"].offset: "<<updatesptrs[action.fpga][llp_set].offset<<", updatesptrs["<<action.fpga<<"]["<<llp_set<<"].size: "<<updatesptrs[action.fpga][llp_set].size<<endl; }				
+		if(action.fpga < num_prints){ for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<"process-edges: edges map offsets: "; cout<<offsets[n]<<", max_sz: "<<max_sz<<", updatesptrs["<<action.fpga<<"]["<<llp_set<<"].offset: "<<updatesptrs[action.fpga][llp_set].offset<<", updatesptrs["<<action.fpga<<"]["<<llp_set<<"].size: "<<updatesptrs[action.fpga][llp_set].size<<endl; }}				
 		#endif 	
 		
 		// process edges and save vertex updates 
 		unsigned int batch_size = 512;
 		PROCESS_EDGES_MAINLOOP1C: for(unsigned int t1=0; t1<(max_sz + batch_size - 1) / batch_size; t1++){ 
 		
-			// resets 
+			// resets 		
 			for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ 
 			#pragma HLS PIPELINE II=1
 				for(unsigned int n=0; n<NUM_VALID_PEs; n++){
@@ -59,7 +59,7 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<globalparams[GLOBALP
 			
 			// process edges 
 			unsigned int process_size = batch_size; if((t1 * batch_size) + batch_size >= max_sz){ process_size = max_sz - (t1 * batch_size); }
-			// cout<<"~~~~~~~~~~~~~process_size: "<<process_size<<", up"<<endl;
+			// cout<<"~~~~~~~~~~~~~process_edges:: ==> process_size: "<<process_size<<", up"<<endl; //////////////////////////
 			PROCESS_EDGES_MAINLOOP1D: for(unsigned int t2=0; t2<process_size; t2++){ 
 			#pragma HLS PIPELINE II={{context['II_PROCESS_EDGES_MAINLOOP1D']}}
 				unsigned int t = (t1 * 512) + t2;
@@ -84,7 +84,7 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<globalparams[GLOBALP
 						if(edge.srcvid != INVALIDDATA && edge.srcvid < MAX_UPARTITION_VECSIZE){ // && (uprop.degree == MASK_CODE_PE) // FIXME.
 							unsigned int res = process_funcG(uprop, 1, globalparams[GLOBALPARAMSCODE__PARAM__ALGORITHM]);
 							update_in[inst][v].key = edge.dstvid; update_in[inst][v].value = res;
-							#ifdef _DEBUGMODE_CHECKS3
+							#ifdef _DEBUGMODE_CHECKS//3
 							checkoutofbounds("acts_kernel::ERROR 1213c::", edge.srcvid, MAX_UPARTITION_VECSIZE, inst, NAp, NAp);
 							checkoutofbounds("acts_kernel::ERROR 1213d::", edge.dstvid, MAX_UPARTITION_VECSIZE, inst, NAp, NAp);
 							#endif
@@ -102,14 +102,14 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<globalparams[GLOBALP
 					// buffer updates 
 					for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 					#pragma HLS UNROLL
-						if(update_out[inst][v].key != INVALIDDATA){
-							unsigned int fpga = owner_fpga(update_out[inst][v].key); // update_out[inst][v].key % NUM_FPGAS; // FIXME?
-							URAM_updates[inst][v][(fpga * 512) + offset_fpga[inst][v][fpga].size] = update_out[inst][v];
-							offset_fpga[inst][v][fpga].size += 1;
-							#ifdef _DEBUGMODE_CHECKS3	
-							checkoutofbounds("acts_kernel::process-edges::ERROR 8873rrr::", offset_fpga[inst][v][fpga].size, 8192, NAp, offset_fpga[inst][v][fpga].offset, NAp); 
-							#endif
-						}
+						// if(update_out[inst][v].key != INVALIDDATA){
+						unsigned int fpga = owner_fpga(update_out[inst][v].key); 
+						URAM_updates[inst][v][(fpga * 512) + offset_fpga[inst][v][fpga].size] = update_out[inst][v];
+						offset_fpga[inst][v][fpga].size += 1;
+						#ifdef _DEBUGMODE_CHECKS3	
+						checkoutofbounds("acts_kernel::process-edges::ERROR 8873rrr::", offset_fpga[inst][v][fpga].size, 8192, NAp, offset_fpga[inst][v][fpga].offset, NAp); 
+						#endif
+						// }
 					}
 				}
 				update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___ECPROCESSEDGES___, 1);
@@ -122,7 +122,7 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<globalparams[GLOBALP
 				cout<<"### saving "<<offset_fpga[0][0][fpga].size<<" vertex updates into fpga partition "<<fpga<<"..."<<endl; 
 				#endif 
 				// if(globalparams[GLOBALPARAMSCODE__BASEOFFSET__VERTEXUPDATES] + updatesptrs[fpga][llp_set].offset + updatesptrs[fpga][llp_set].size + offset_fpga[0][0][fpga].size > globalparams_debug[GLOBALPARAMSCODE__BASEOFFSET__VDATAS]){ continue; } // FIXME.
-				SAVE_VERTEXUPDATES_MAINLOOP1B: for(unsigned int t=0; t<offset_fpga[0][0][fpga].size; t++){ // FIXME? // FIXHANG? hanging issues?
+				SAVE_VERTEXUPDATES_MAINLOOP1B: for(unsigned int t=0; t<offset_fpga[0][0][fpga].size; t++){ // FIXME? hanging issues?
 				#pragma HLS PIPELINE II={{context['II_SAVE_VERTEXUPDATES_MAINLOOP1B']}}
 					for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 	
 					#pragma HLS UNROLL
@@ -152,13 +152,33 @@ EC_PROCESS_EDGES_LOOP1: for(unsigned int llp_set=0; llp_set<globalparams[GLOBALP
 			}
 			
 			// collect stats
-			for(unsigned int n=0; n<NUM_VALID_PEs; n++){ vpartition_vertices[n][llp_set].count += max_sz; }
+			// for(unsigned int n=0; n<NUM_VALID_PEs; n++){ vpartition_vertices[n][llp_set].count += max_sz; }
 		}
+		
+		/* ////////////////////////////////////////////////////////////////////////////////////
+		for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){
+		#pragma HLS UNROLL
+			updatesptrs[fpga][llp_set].size += max_sz;
+		}
+		//////////////////////////////////////////////////////////////////////////////////// */
+		
+		// collect stats
+		for(unsigned int n=0; n<NUM_VALID_PEs; n++){ vpartition_vertices[n][llp_set].count += max_sz; }
 		// exit(EXIT_SUCCESS);
 	}
 	// exit(EXIT_SUCCESS); 
 }
 // exit(EXIT_SUCCESS); 
+
+// #ifdef _DEBUGMODE_KERNELPRINTS4 
+// if(action.fpga < num_prints){ 
+// for(unsigned int p_v=0; p_v<1; p_v++){ // globalparams[GLOBALPARAMSCODE__PARAM__NUM_APPLYPARTITIONS]
+// cout<<"))))))))))))))))))))))) CHECKKKKKKKKKKKKKK: offset_fpga[0][0][0].size: "<<offset_fpga[0][0][0].size<<" ((((((((((((((((((((((( "<<endl; 
+// cout<<"))))))))))))))))))))))) CHECKKKKKKKKKKKKKK: updatesptrs["<<0<<"]["<<p_v<<"].size: "<<updatesptrs[0][p_v].size<<" ((((((((((((((((((((((( "<<endl; 
+// cout<<"))))))))))))))))))))))) CHECKKKKKKKKKKKKKK: vpartition_vertices[0]["<<p_v<<"].count (ww): "<<vpartition_vertices[0][p_v].count<<" ((((((((((((((((((((((( "<<endl; 
+// }
+// }
+// #endif 
 
 
 						

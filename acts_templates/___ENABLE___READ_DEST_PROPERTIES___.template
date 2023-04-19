@@ -1,13 +1,6 @@
-// unsigned int import_offset = id_import * action.size_import_export;
-// unsigned int export_offset = id_export * action.size_import_export;
+unsigned int import_offset = id_import * action.size_import_export;
+unsigned int export_offset = id_export * action.size_import_export;
 
-for(unsigned int n=0; n<NUM_VALID_PEs; n++){ offsets[n] = 0; }
-
-unsigned int start_local_subpartitionID = 0; unsigned int skip_local_subpartitionID = 0;
-if(action.start_pv_fpga == NAp){ start_local_subpartitionID = 0; skip_local_subpartitionID = 1; }
-else { start_local_subpartitionID = action.start_pv_fpga; skip_local_subpartitionID = NUM_FPGAS; }
-
-#if NUM_FPGAS == 1
 READ_DEST_PROPERTIES_LOOP2B: for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE; t++){
 #pragma HLS PIPELINE II={{context['II_READ_DEST_PROPERTIES_LOOP2B']}}
 	dretrievemany_vdatadram(voffset, offsets, t, datas, {% include '___HBM___ARGS___.template' %});
@@ -15,46 +8,33 @@ READ_DEST_PROPERTIES_LOOP2B: for(unsigned int t=0; t<MAX_APPLYPARTITION_VECSIZE;
 	#pragma HLS UNROLL
 		insertvec_vdatabuffer(t, datas[inst], URAM_vprop[inst]);
 	}
+	
+	#ifdef ___ENABLE___IMPORT_EXPORT___//XXX
+	// import (Host -> FPGA)
+	if((action.id_import != INVALID_IOBUFFER_ID) && (t < action.size_import_export) && (import_offset + t < HBM_CHANNEL_SIZE)){	
+		#ifdef _DEBUGMODE_CHECKS3
+		checkoutofbounds("acts_kernel::ERROR 8602::", import_offset + t, HBM_CHANNEL_SIZE, import_offset, t, action.id_import);
+		#endif 
+		{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
+		HBM_centerA[import_offset + t].data[{{v}}] = HBM_import[t].data[{{v}}];
+		{%endfor%}	
+	}		
+	
+	// export (FPGA -> Host)
+	if((action.id_export != INVALID_IOBUFFER_ID) && (t < action.size_import_export) && (export_offset + t < HBM_CHANNEL_SIZE)){	
+		#ifdef _DEBUGMODE_CHECKS3
+		checkoutofbounds("acts_kernel::ERROR 8612::", export_offset + t, HBM_CHANNEL_SIZE, export_offset, t, action.id_export);
+		#endif 
+		{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
+		HBM_export[t].data[{{v}}] = HBM_centerB[export_offset + t].data[{{v}}];
+		{%endfor%}
+	}
+	#endif 
+		
 	update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___READ_DEST_PROPERTIES___, 1);
 }
-#else 	
-READ_DEST_PROPERTIES_LOOP2: for(unsigned int local_subpartitionID=start_local_subpartitionID; local_subpartitionID<NUM_SUBPARTITION_PER_PARTITION; local_subpartitionID+=skip_local_subpartitionID){	
-	unsigned int offset = local_subpartitionID * VDATA_SUBPARTITION_VECSIZE;
-	READ_DEST_PROPERTIES_LOOP2B: for(unsigned int t=0; t<VDATA_SUBPARTITION_VECSIZE; t++){
-	#pragma HLS PIPELINE II={{context['II_READ_DEST_PROPERTIES_LOOP2B']}}
-		dretrievemany_vdatadram(voffset + offset, offsets, t, datas, {% include '___HBM___ARGS___.template' %});
-		for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ 
-		#pragma HLS UNROLL
-			insertvec_vdatabuffer(t, datas[inst], URAM_vprop[inst]);
-		}
-		
-		#ifdef ___ENABLE___IMPORT_EXPORT___//XXX
-		// import (Host -> FPGA)
-		if((action.id_import != INVALID_IOBUFFER_ID) && (t < action.size_import_export) && (import_offset + t < HBM_CHANNEL_SIZE)){	
-			#ifdef _DEBUGMODE_CHECKS3
-			checkoutofbounds("acts_kernel::ERROR 8602::", import_offset + t, HBM_CHANNEL_SIZE, import_offset, t, action.id_import);
-			#endif 
-			{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
-			HBM_centerA[import_offset + t].data[{{v}}] = HBM_import[t].data[{{v}}];
-			{%endfor%}	
-		}		
-		
-		// export (FPGA -> Host)
-		if((action.id_export != INVALID_IOBUFFER_ID) && (t < action.size_import_export) && (export_offset + t < HBM_CHANNEL_SIZE)){	
-			#ifdef _DEBUGMODE_CHECKS3
-			checkoutofbounds("acts_kernel::ERROR 8612::", export_offset + t, HBM_CHANNEL_SIZE, export_offset, t, action.id_export);
-			#endif 
-			{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
-			HBM_export[t].data[{{v}}] = HBM_centerB[export_offset + t].data[{{v}}];
-			{%endfor%}
-		}
-		#endif 
-		
-		update_dramnumclockcycles(_NUMCLOCKCYCLES_, ___CODE___READ_DEST_PROPERTIES___, 1);
-	}
-	import_offset += VDATA_SUBPARTITION_VECSIZE;
-}
-#endif 
+
+
 
 
 

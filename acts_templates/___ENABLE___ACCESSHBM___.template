@@ -42,7 +42,6 @@ void master_retrieve_vec(unsigned int offset, unsigned int data[HBM_CHANNEL_PACK
 }
 
 //////////////////////////////////////////////////////////////////
-// #ifdef HHHHHHHH
 void master_insertmany_vec(unsigned int offsets[NUM_VALID_PEs], bool ens[NUM_VALID_PEs], unsigned int data[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE], {% include '___HBM___PARAMS___.template' %}){
 	#pragma HLS INLINE // FIXME_HARDWARE
 	{%for n in context['NUM_VALID_PEs_seq']%}	
@@ -106,72 +105,6 @@ void master_retrievemany_Bvec(unsigned int offsets[NUM_VALID_PEs], unsigned int 
 	{%endfor%}	
 	return;
 }
-// #endif 
-
-/* void master_insertmany_vec(unsigned int offsets[NUM_VALID_PEs], bool ens[NUM_VALID_PEs], unsigned int data[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE], {% include '___HBM___PARAMS___.template' %}){
-	#pragma HLS INLINE // FIXME_HARDWARE
-	{%for n in context['NUM_VALID_PEs_seq']%}	
-	{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
-	HBM_channelA{{n}}[offsets[{{n}}]].data[{{v}}] = data[{{n}}][{{v}}];
-	{%endfor%}
-	{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
-	HBM_channelB{{n}}[offsets[{{n}}]].data[{{v}}] = data[{{n}}][{{context['HBM_AXI_PACK_SIZE'] + v}}];
-	{%endfor%}	
-	{%endfor%}
-	return;
-}
-void master_retrievemany_vec(unsigned int offsets[NUM_VALID_PEs], unsigned int data[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE], {% include '___HBM___PARAMS___.template' %}){
-	#pragma HLS INLINE // FIXME_HARDWARE
-	{%for n in context['NUM_VALID_PEs_seq']%}
-	{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
-	data[{{n}}][{{v}}] = HBM_channelA{{n}}[offsets[{{n}}]].data[{{v}}];
-	{%endfor%}
-	{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
-	data[{{n}}][{{context['HBM_AXI_PACK_SIZE'] + v}}] = HBM_channelB{{n}}[offsets[{{n}}]].data[{{v}}];
-	{%endfor%}
-	{%endfor%}
-	return;
-}
-
-void master_insertmany_Avec(unsigned int offsets[NUM_VALID_PEs], unsigned int data[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE], {% include '___HBM___PARAMS___.template' %}){
-	#pragma HLS INLINE 
-	{%for n in context['NUM_VALID_PEs_seq']%}	
-		{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
-		HBM_channelA{{n}}[offsets[{{n}}]].data[{{v}}] = data[{{n}}][{{v}}];	// FIXME
-		{%endfor%}	
-	{%endfor%}	
-	return;
-}
-void master_insertmany_Bvec(unsigned int offsets[NUM_VALID_PEs], bool ens[NUM_VALID_PEs], unsigned int data[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE], {% include '___HBM___PARAMS___.template' %}){
-	#pragma HLS INLINE 
-	{%for n in context['NUM_VALID_PEs_seq']%}	
-	if(ens[{{n}}]==true){
-		{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
-		HBM_channelB{{n}}[offsets[{{n}}]].data[{{v}}] = data[{{n}}][{{context['HBM_AXI_PACK_SIZE'] + v}}];
-		{%endfor%}	
-	}
-	{%endfor%}
-	return;
-}
-void master_retrievemany_Avec(unsigned int offsets[NUM_VALID_PEs], unsigned int data[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE], {% include '___HBM___PARAMS___.template' %}){
-	#pragma HLS INLINE // FIXME_HARDWARE
-	{%for n in context['NUM_VALID_PEs_seq']%}
-	{%for v in context['HBM_AXI_PACK_SIZE_seq']%}
-	data[{{n}}][{{v}}] = HBM_channelA{{n}}[offsets[{{n}}]].data[{{v}}];
-	{%endfor%}
-	{%endfor%}	
-	return;
-}
-void master_retrievemany_Bvec(unsigned int offsets[NUM_VALID_PEs], unsigned int data[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE], {% include '___HBM___PARAMS___.template' %}){
-	#pragma HLS INLINE // FIXME_HARDWARE
-	{%for n in context['NUM_VALID_PEs_seq']%}
-	{%for v in context['HBM_AXI_PACK_SIZE_seq']%} /////////////////
-	data[{{n}}][{{context['HBM_AXI_PACK_SIZE'] + v}}] = HBM_channelB{{n}}[offsets[{{n}}]].data[{{v}}];
-	{%endfor%}	
-	{%endfor%}	
-	return;
-}
- */
 
 //////////////////////////////////////////////////////////////////
 unsigned int master_retrieve(unsigned int offset, unsigned int v, HBM_channelAXI_t * HBM_channelA, HBM_channelAXI_t * HBM_channelB, unsigned int inst){
@@ -684,8 +617,12 @@ void dretrievemany_cfrontierdram_tmp(unsigned int base_offset__, unsigned int of
 	return; 
 }
 
-void dinsertmany_nfrontierdram(unsigned int offset__, unsigned int p_u, unsigned int offsets[NUM_VALID_PEs], unsigned int t, keyvalue_t datas[NUM_VALID_PEs][EDGE_PACK_SIZE], bool ens[NUM_VALID_PEs][EDGE_PACK_SIZE], {% include '___HBM___PARAMS___.template' %}){
-	#pragma HLS INLINE // FIXME_HARDWARE
+void dinsertmany_nfrontierdram(unsigned int offsets[NUM_VALID_PEs], unsigned int t, keyvalue_t datas[NUM_VALID_PEs][EDGE_PACK_SIZE], bool ens[NUM_VALID_PEs][EDGE_PACK_SIZE], {% include '___HBM___PARAMS___.template' %}){
+	#pragma HLS INLINE
+	#ifdef _DEBUGMODE_CHECKS3
+	checkoutofbounds("acts_kernel::ERROR 71564a::", offsets[0], HBM_CHANNEL_SIZE, NAp, NAp, NAp);
+	#endif 
+	
 	unsigned int data_[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=data_ complete dim=0
 	unsigned int offsets_[NUM_VALID_PEs];

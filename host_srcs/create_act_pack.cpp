@@ -473,7 +473,7 @@ unsigned int create_act_pack::create_actpack(
 		CREATE_ACTPACK_BASELOOP1B: for(unsigned int llp_set=0; llp_set<num_vpartitions; llp_set++){ 
 			if(partitioned_edges[0][p_u][llp_set].size() == 0){ continue; } // NEW FIXME.
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS4
+			#ifdef _DEBUGMODE_KERNELPRINTS//4
 			if(false && num_upartitions <= 32){ cout<<">>> preparing edge updates in upartition "<<p_u<<", llp_set: "<<llp_set<<"...."<<endl; }
 			if(llp_set <= 4){ cout<<">>> preparing edge updates in upartition "<<p_u<<", llp_set: "<<llp_set<<"...."<<endl; }
 			#endif 
@@ -732,8 +732,10 @@ unsigned int create_act_pack::create_actpack(
 			}
 		}
 	}
+	#ifdef _DEBUGMODE_KERNELPRINTS//4
 	cout<<"------------------------ create_act_pack::FINISH: returned_volume_size: "<<returned_volume_size<<", returned_volume_size * EDGE_PACK_SIZE: "<<returned_volume_size * EDGE_PACK_SIZE<<endl;
 	cout<<"------------------------ create_act_pack::FINISH: returned_volume2_size: "<<returned_volume2_size<<", returned_volume2_size * EDGE_PACK_SIZE: "<<returned_volume2_size * EDGE_PACK_SIZE<<endl;
+	#endif 
 	// return running_offset[0];
 	// exit(EXIT_SUCCESS);
 	return returned_volume_size;

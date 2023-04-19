@@ -1,21 +1,6 @@
 #!/bin/bash
 #!/bin/bash
 
-# 1. Vitis profile summary 
-# https://xilinx.github.io/Vitis-Tutorials/2020-1/docs/Pathway3/ProfileAndTraceReports.html
-
-# 2. Select the Profile Summary report, a... (vitis profile summary has both Compute and Memory information to calculate Arithmetic Intensity)
-# https://xilinx.github.io/Vitis-Tutorials/2020-1/docs/Pathway3/ProfileAndTraceReports.html 
-# https://docs.xilinx.com/r/en-US/ug1393-vitis-application-acceleration/Profile-Summary-Report
-# https://docs.xilinx.com/r/en-US/ug1393-vitis-application-acceleration/profile-Options *
-
-ROOTDIR="/home/oj2zf/Documents/acts-clusterscale"
-OUTPUTDIRNAME="outputs"
-DEVICEPATH=/opt/xilinx/platforms/xilinx_u280_xdma_201920_3/xilinx_u280_xdma_201920_3.xpfm 
-
-TESTKERNEL="RK"
-# TESTKERNEL="TESTKERNEL"
-
 if [ $1 -eq 0 ]; then
      echo -------------------------------------------------- EVALUATE.SH: SOFTWARE ACTS APPLICATION RUNNING --------------------------------------------------
 	 XWARE="SW"
@@ -33,18 +18,7 @@ else
 	 quit
 fi
 
-#evaluation_type=EV_CREATENDGRAPH 
-evaluation_type=EV_PERFORMANCEOFALGORITHM
-#evaluation_type=EV_IMPACTOF__ACTS_VERYBARE
-#evaluation_type=EV_IMPACTOF__ACTS_BARE
-#evaluation_type=EV_IMPACTOF__ACTS_PLUS_MEMLAYOUT
-#evaluation_type=EV_IMPACTOF__ACTS_PLUS_MEMLAYOUT_PLUS_PARTITIONFUNC
-#evaluation_type=EV_IMPACTOF__ACTS_PLUS_MEMLAYOUT_PLUS_PARTITIONFUNC_PLUS_REPARTITIONFUNC
-#evaluation_type=EV_IMPACTOF__ACTS_PLUS_MEMLAYOUT_PLUS_PARTITIONFUNC_PLUS_REPARTITIONFUNC_PLUS_HYBRIDFUNC
-
-# make generatesrcs XWARE=$XWARE EVALUATION_TYPE=$evaluation_type NUM_PEs=1 TESTKERNEL=$TESTKERNEL
-make generatesrcs XWARE=$XWARE RUNNING_SYNTHESIS=$RUNNING_SYNTHESIS EVALUATION_TYPE=$evaluation_type NUM_PEs=12 NUM_FPGAs=$2 TESTKERNEL=$TESTKERNEL
-# make generatesrcs XWARE=$XWARE EVALUATION_TYPE=$evaluation_type NUM_PEs=24 TESTKERNEL=$TESTKERNEL										
+make generatesrcs XWARE=$XWARE RUNNING_SYNTHESIS=$RUNNING_SYNTHESIS NUM_PEs=12 NUM_FPGAs=$2								
 
 echo 'finished: successfully finished all processing'
 
