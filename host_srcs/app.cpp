@@ -336,13 +336,18 @@ unsigned int load_actpack_edges(HBM_channelAXISW_t * HBM_axicenter[NUM_FPGAS][2]
 			}
 		}
 	}
-	unsigned int max_lenght = 0; 
+	unsigned int max_lenght = 0; unsigned int min_lenght = 0xFFFFFFFE; unsigned int total_lenght = 0;
 	for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ 
 		cout<<"### app: lenght["<<fpga<<"] (ww): "<<lenght[fpga]<<", lenght["<<fpga<<"]: "<<lenght[fpga] * EDGE_PACK_SIZE<<""<<endl;
 		cout<<"### app: returned_volume_size["<<fpga<<"] (ww): "<<returned_volume_size[fpga]<<", returned_volume_size["<<fpga<<"]: "<<returned_volume_size[fpga] * EDGE_PACK_SIZE<<""<<endl;
 		if(max_lenght < lenght[fpga]){ max_lenght = lenght[fpga]; }
+		if(min_lenght > lenght[fpga]){ min_lenght = lenght[fpga]; }
+		total_lenght += lenght[fpga];
 	}
-	cout<<"### app: max_lenght (ww): "<<max_lenght<<", max_lenght: "<<max_lenght * EDGE_PACK_SIZE<<""<<endl;
+	cout<<"### app: max_lenght (ww): "<<max_lenght<<", max_lenght: "<<max_lenght * EDGE_PACK_SIZE<<endl;
+	cout<<"### app: min_lenght (ww): "<<min_lenght<<", min_lenght: "<<min_lenght * EDGE_PACK_SIZE<<endl;
+	cout<<"### app: total_lenght (ww): "<<total_lenght<<", total_lenght: "<<total_lenght * EDGE_PACK_SIZE<<endl;
+	if(max_lenght - min_lenght > 20000000){ cout<<"app: ERROR 445. max - min > 20000000. EXITING..."<<endl; exit(EXIT_FAILURE); }  
 	// exit(EXIT_SUCCESS);
 	return max_lenght;
 }

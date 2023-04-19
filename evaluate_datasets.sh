@@ -27,38 +27,55 @@
 # ./overlap vector_addition.xclbin
 
 make cleanall
-if [ $2 -eq 0 ]; then
+if [ $1 -eq 0 ]; then
 	 echo -------------------------------------------------- EVALUATE_DATASET.SH: SOFTWARE ACTS APPLICATION RUNNING --------------------------------------------------
-	 ./evaluate.sh 0 $3
+	 XWARE="SW"
+	 RUNNING_SYNTHESIS=0
+	 make generatesrcs XWARE=$XWARE RUNNING_SYNTHESIS=$RUNNING_SYNTHESIS NUM_PEs=12 NUM_FPGAs=$2		
 	 make actsobj
-elif [ $2 -eq 1 ]; then
+elif [ $1 -eq 1 ]; then
 	 echo -------------------------------------------------- EVALUATE_DATASET.SH: HARDWARE ACTS APPLICATION RUNNING --------------------------------------------------
-	 ./evaluate.sh 1 $3
+	 XWARE="HW" 
+	 RUNNING_SYNTHESIS=0
+	 make generatesrcs XWARE=$XWARE RUNNING_SYNTHESIS=$RUNNING_SYNTHESIS NUM_PEs=12 NUM_FPGAs=$2		
 	 make host
+elif [ $1 -eq 2 ]; then
+	 echo -------------------------------------------------- EVALUATE.SH: HARDWARE ACTS SYNTHESIS RUNNING --------------------------------------------------
+	 XWARE="HW" 
+	 RUNNING_SYNTHESIS=1
+	 make generatesrcs XWARE=$XWARE RUNNING_SYNTHESIS=$RUNNING_SYNTHESIS NUM_PEs=12 NUM_FPGAs=$2	
 else 
 	 echo -------------------------------------------------- EVALUATE_DATASET.SH: CMD ARGS NOT DEFINED. EXITING.... --------------------------------------------------
-	 quit
+	 quit	 
 fi
 
-# com-Orkut.mtx #(undirected)(3M,234M)
-# soc-LiveJournal1.mtx #(directed)(5M,70M)
-# sx-stackoverflow.mtx #(directed)(2.6M,36M)
-# ljournal-2008.mtx #(directed)(5M,79M)
-# soc-Pokec.mtx #(directed)(1.6M,30M)
-# kron_g500-logn20.mtx #(undirected)(1M,89M)
-# kron_g500-logn21.mtx #(undirected)(2M,182M)	
+# ./evaluate_datasets.sh 0 2
+# ./evaluate_datasets.sh 0 4
+# ./evaluate_datasets.sh 0 8
+# ./evaluate_datasets.sh 2 2
 		
-# ./evaluate_datasets.sh pr 0 2 /home/oj2zf/Documents/dataset/kron_g500-logn20.mtx
-# ./evaluate_datasets.sh pr 0 8 /home/oj2zf/Documents/dataset/rmat_16m_256m.mtx
-# ./evaluate_datasets.sh pr 0 8 /home/oj2zf/Documents/dataset/twitter7/twitter7.mtx
-# ./evaluate_datasets.sh pr 0 8 /home/oj2zf/Documents/dataset/rmat_16_1024/rmat_16_1024.mtx
-# ./evaluate_datasets.sh pr 0 8 /home/oj2zf/Documents/dataset/rmat_32_2048/rmat_32_2048.mtx
-# ./evaluate_datasets.sh pr 0 8 /home/oj2zf/Documents/dataset/sk-2005/sk-2005.mtx
-# ./evaluate_datasets.sh pr 0 8 /home/oj2zf/Documents/dataset/uk-2005/uk-2005.mtx
-# ./evaluate_datasets.sh pr 0 8 /home/oj2zf/Documents/dataset/com-Friendster/com-Friendster.mtx
+# "USAGE: ./host [--algo] [--rootvid] [--direction] [--numiterations] [--XCLBIN] [--graph_path]"
+# ./host pr 1 0 12 /home/oj2zf/Documents/acts-clusterscale/outputs/vector_addition.xclbin /home/oj2zf/Documents/dataset/kron_g500-logn20.mtx
+# ./host pr 1 0 12 /home/oj2zf/Documents/acts-clusterscale/outputs/vector_addition.xclbin /home/oj2zf/Documents/dataset/rmat_16m_256m.mtx
+# ./host pr 1 0 12 /home/oj2zf/Documents/acts-clusterscale/outputs/vector_addition.xclbin /home/oj2zf/Documents/dataset/twitter7/twitter7.mtx
+# ./host pr 1 0 12 /home/oj2zf/Documents/acts-clusterscale/outputs/vector_addition.xclbin /home/oj2zf/Documents/dataset/rmat_16m_1024m/rmat_16m_1024m.mtx [FIXME]
+# ./host pr 1 0 12 /home/oj2zf/Documents/acts-clusterscale/outputs/vector_addition.xclbin /home/oj2zf/Documents/dataset/rmat_32m_2048m/rmat_32m_2048m.mtx
+# ./host pr 1 0 12 /home/oj2zf/Documents/acts-clusterscale/outputs/vector_addition.xclbin /home/oj2zf/Documents/dataset/sk-2005/sk-2005.mtx [FIXME]
+# ./host pr 1 0 12 /home/oj2zf/Documents/acts-clusterscale/outputs/vector_addition.xclbin /home/oj2zf/Documents/dataset/uk-2005/uk-2005.mtx
+# ./host pr 1 0 12 /home/oj2zf/Documents/acts-clusterscale/outputs/vector_addition.xclbin /home/oj2zf/Documents/dataset/com-Friendster/com-Friendster.mtx
+
+# ./host sssp 1 0 12 /home/oj2zf/Documents/acts-clusterscale/outputs/vector_addition.xclbin /home/oj2zf/Documents/dataset/kron_g500-logn20.mtx
+# ./host sssp 1 0 12 /home/oj2zf/Documents/acts-clusterscale/outputs/vector_addition.xclbin /home/oj2zf/Documents/dataset/rmat_16m_256m.mtx
+# ./host sssp 1 0 12 /home/oj2zf/Documents/acts-clusterscale/outputs/vector_addition.xclbin /home/oj2zf/Documents/dataset/twitter7/twitter7.mtx
+# ./host sssp 1 0 12 /home/oj2zf/Documents/acts-clusterscale/outputs/vector_addition.xclbin /home/oj2zf/Documents/dataset/rmat_16m_1024m/rmat_16m_1024m.mtx [FIXME]
+# ./host sssp 1 0 12 /home/oj2zf/Documents/acts-clusterscale/outputs/vector_addition.xclbin /home/oj2zf/Documents/dataset/rmat_32m_2048m/rmat_32m_2048m.mtx
+# ./host sssp 1 0 12 /home/oj2zf/Documents/acts-clusterscale/outputs/vector_addition.xclbin /home/oj2zf/Documents/dataset/sk-2005/sk-2005.mtx [FIXME]
+# ./host sssp 1 0 12 /home/oj2zf/Documents/acts-clusterscale/outputs/vector_addition.xclbin /home/oj2zf/Documents/dataset/uk-2005/uk-2005.mtx
+# ./host sssp 1 0 12 /home/oj2zf/Documents/acts-clusterscale/outputs/vector_addition.xclbin /home/oj2zf/Documents/dataset/com-Friendster/com-Friendster.mtx
 
 # ./host pr 1 0 12 /home/oj2zf/Documents/acts-clusterscale/outputs/vector_addition.xclbin /home/oj2zf/Documents/dataset/kron_g500-logn20.mtx
+./host pr 1 0 12 /home/oj2zf/Documents/acts-clusterscale/outputs/vector_addition.xclbin /home/oj2zf/Documents/dataset/rmat_16m_256m.mtx
+# ./host sssp 1 0 12 /home/oj2zf/Documents/acts-clusterscale/outputs/vector_addition.xclbin /home/oj2zf/Documents/dataset/rmat_16m_256m.mtx
 
-./host "$1" 1 "0" 12 "/home/oj2zf/Documents/acts-clusterscale/outputs/vector_addition.xclbin" "$4" 
-
+# ./host
 

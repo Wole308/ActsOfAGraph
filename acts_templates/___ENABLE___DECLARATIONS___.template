@@ -43,12 +43,10 @@
 	#pragma HLS ARRAY_PARTITION variable=URAM_map complete dim=1	
 	#pragma HLS ARRAY_PARTITION variable=URAM_map complete dim=2	
 	
-	// #ifdef NUM_FPGAS>1	
-	keyvalue_t URAM_updates[NUM_VALID_PEs][EDGE_PACK_SIZE][VERTEXUPDATES_BUFFER_SIZE];	// VERTEXUPDATES_BUFFER_SIZE // 8192
+	keyvalue_t URAM_updates[NUM_VALID_PEs][EDGE_PACK_SIZE][VERTEXUPDATES_BUFFER_SIZE];
 	#pragma HLS resource variable=URAM_updates core=XPM_MEMORY uram 
 	#pragma HLS ARRAY_PARTITION variable=URAM_updates complete dim=1	
 	#pragma HLS ARRAY_PARTITION variable=URAM_updates complete dim=2		
-	// #endif 
 	
 #else 
 	keyvalue_t * nfrontier_buffer[NUM_VALID_PEs][EDGE_PACK_SIZE]; 
@@ -165,14 +163,13 @@ unsigned int counts[NUM_VALID_PEs];
 #pragma HLS ARRAY_PARTITION variable = counts complete
 keyvalue_t actvvs[NUM_VALID_PEs][EDGE_PACK_SIZE];
 #pragma HLS ARRAY_PARTITION variable = actvvs complete dim=0
-frontier_t actvv[EDGE_PACK_SIZE];
 unsigned int vid_first0[NUM_VALID_PEs];
 #pragma HLS ARRAY_PARTITION variable = vid_first0 complete
 unsigned int vid_first1[NUM_VALID_PEs]; 
 #pragma HLS ARRAY_PARTITION variable = vid_first1 complete
 unsigned int globalparams[GLOBALBUFFER_SIZE];
-map_t updatesptrs[NUM_FPGAS][MAX_NUM_LLPSETS];
-#pragma HLS ARRAY_PARTITION variable = updatesptrs complete dim=0
+map_t updatesptrs[MAX_NUM_FPGAS][MAX_NUM_LLPSETS];
+#pragma HLS ARRAY_PARTITION variable = updatesptrs complete dim=1
 unsigned int limits[NUM_VALID_PEs];
 #pragma HLS ARRAY_PARTITION variable = limits complete
 unsigned int max_limits[NUM_VALID_PEs];

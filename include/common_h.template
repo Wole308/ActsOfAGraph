@@ -1,7 +1,7 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include <string.h> 
-#include <cmath>
+#include <cmath> 
 {%if(context['XWARE'] == "HW" or context['XWARE'] == "SWEMU")%}
 #include <ap_int.h>
 // #include "ap_fixed.h"	
@@ -20,7 +20,7 @@
 #endif 
 
 #define NUM_FPGAS {{context['NUM_FPGAs']}} // 8 // 1, 2*, 4, 8
-#define NUM_SUBKERNELS_IN_KERNEL {{context['NUM_PEs'] / 3}}
+#define MAX_NUM_FPGAS 8
 
 #define ALL_MODULES 222
 // #define PREPARE_EDGEUPDATES_MODULE 2220
@@ -143,8 +143,8 @@
 #define HBM_CHANNEL_INTSIZE (HBM_CHANNEL_BYTESIZE / 4)
 #define HBM_CHANNEL_SIZE ((HBM_CHANNEL_BYTESIZE / 4) / EDGE_PACK_SIZE) // {4194304 EDGE_PACK_SIZEs, 67108864 uints, 256MB}
 #define FOLD_SIZE 1
-#define MAX_NUM_UPARTITIONS 512
-#define MAX_NUM_APPLYPARTITIONS 32 // 16(original), 32
+#define MAX_NUM_UPARTITIONS 512		
+#define MAX_NUM_APPLYPARTITIONS 48 // 32 // 16(original), 32
 #define MAX_NUM_LLPSETS 32 // 64 // 16(original), 64*
 #define NUM_LLP_PER_LLPSET EDGE_PACK_SIZE
 #define MAX_NUM_LLP_PER_UPARTITION (MAX_NUM_LLPSETS * NUM_LLP_PER_LLPSET)
@@ -154,8 +154,8 @@
 #define INVALIDDATA 0xFFFFFFFF 
 // #define INVALIDDATA_MINI 0xFFFF
 #define INVALIDMASK 0 
-
-#define UNIDENTIFIED_STAGE 0
+#define NUM_KERNEL_SUBLAUNCHES_PER_LAUNCH 1 // (NUM_PEs / NUM_VALID_PEs)
+// #define UNIDENTIFIED_STAGE 0
 // #define __UNIDENTIFIED__STATUS__ 0 
 
 #define MAXNUMBITS2_ACTPACK_SRCVID 14
@@ -196,11 +196,10 @@
 #define EDGE_BUFFER_SIZE 512   //8192// 512 // FIXME.
 #define UPDATES_BUFFER_SIZE 512	
 #endif 	
+// #define VERTEXUPDATES_BUFFER_SIZE (512 * NUM_PEs) 
+#define VERTEXUPDATES_BUFFER_SIZE 8192
 
-#define VERTEXUPDATES_BUFFER_SIZE (512 * NUM_PEs) 
-
-#define EDGE_UPDATES_DRAMBUFFER_LONGSIZE (8192 * 16) // used for cpu implementation only
-// #define EDGE_UPDATES_WORKBUFFER_LONGSIZE (EDGE_UPDATES_DRAMBUFFER_LONGSIZE - 1000)
+#define EDGE_UPDATES_DRAMBUFFER_LONGSIZE (8192 * 64) 
 #define EDGE_UPDATES_DRAMBUFFER_SIZE 8192
 #define EDGE_UPDATES_WORKBUFFER_SIZE 7000 // 7200
 #define EDGE_LLPUPDATES_DRAMBUFFER_SIZE 512
@@ -215,7 +214,6 @@
 #define PE_BATCH_SIZE IMPORT_BATCH_SIZE // 6
 #define EXPORT_BATCH_SIZE (GF_BATCH_SIZE * K1) // 24
 #define IMPORT_EXPORT_GRANULARITY_VECSIZE (IMPORT_BATCH_SIZE * MAX_UPARTITION_VECSIZE) // NEWCHANGE. 
-// #define IMPORT_EXPORT_GRANULARITY_VECSIZE 1 // FIXME.
 
 ////////////////
 
@@ -447,6 +445,7 @@ typedef struct {
 	unsigned int id_export;
 	unsigned int size_import_export;
 	unsigned int status;
+	unsigned int numfpgas;
 } action_t; 
 
 typedef struct {

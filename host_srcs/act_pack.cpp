@@ -18,6 +18,14 @@ unsigned int get_local2(unsigned int vid){
 	return lvid;
 }
 
+// unsigned int get_H2(unsigned int vid){
+	// return (vid / 234) % NUM_PEs; // FIXME
+// }
+// unsigned int get_local2(unsigned int vid){
+	// unsigned int lvid = vid / NUM_PEs; // FIXME
+	// return lvid;
+// }
+
 unsigned int get_local_to_upartitionn(unsigned int lvid){
 	return lvid % MAX_UPARTITION_SIZE;
 }
@@ -83,6 +91,10 @@ void act_pack::load_edgeupdates(vector<edge_t> &vertexptrbuffer, vector<edge3_ty
 	#ifdef _DEBUGMODE_KERNELPRINTS4
 	for(unsigned int i=0; i<NUM_PEs; i++){ cout<<"dist edges:: PE: "<<i<<": edges_in_channel["<<i<<"].size(): "<<edges_in_channel[i].size()<<""<<endl; }
 	#endif 
+	unsigned int max=0; for(unsigned int i=0; i<NUM_PEs; i++){ if(max < edges_in_channel[i].size()){ max = edges_in_channel[i].size(); } }
+	unsigned int min=0xFFFFFFFE; for(unsigned int i=0; i<NUM_PEs; i++){ if(min > edges_in_channel[i].size()){ min = edges_in_channel[i].size(); } }
+	if(max - min > 20000000){ cout<<"act_pack: ERROR 445. max - min > 20000000. EXITING..."<<endl; exit(EXIT_FAILURE); }  
+	// exit(EXIT_SUCCESS);////////////////////////
 	
 	#ifdef _DEBUGMODE_HOSTPRINTS4
 	cout<<"load_edgeupdates: loading edges [STAGE 2]: preparing edges..."<<endl;

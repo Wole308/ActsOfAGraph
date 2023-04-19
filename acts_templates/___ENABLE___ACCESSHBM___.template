@@ -510,25 +510,22 @@ void dretrievemany_udatesdram(unsigned int offset__, unsigned int llp_set, unsig
 
 	unsigned int data_[NUM_VALID_PEs][HBM_CHANNEL_PACK_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable=data_ complete dim=0
-	unsigned int offsets_[NUM_VALID_PEs];
-	#pragma HLS ARRAY_PARTITION variable=offsets_ complete
+	unsigned int offsets[NUM_VALID_PEs];
+	#pragma HLS ARRAY_PARTITION variable=offsets complete
 	for(unsigned int n=0; n<NUM_VALID_PEs; n++){
 	#pragma HLS UNROLL
-		offsets_[n] = offset__ + index;
+		offsets[n] = offset__ + index;
 	}
 	
-	master_retrievemany_Bvec(offsets_, data_, {% include '___HBM___ARGS___.template' %});
+	master_retrievemany_vec(offsets, data_, {% include '___HBM___ARGS___.template' %}); // FIXME.
 	for(unsigned int n=0; n<NUM_VALID_PEs; n++){
 	#pragma HLS UNROLL
 		for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 		#pragma HLS UNROLL
-			data[n].data[v].key = data_[n][EDGE_PACK_SIZE + v] & MAXLOCALVALUE2_ACTPACK_DESTVID;		
-			data[n].data[v].value = (data_[n][EDGE_PACK_SIZE + v] >> MAXNUMBITS2_ACTPACK_DESTVID) & MAXLOCALVALUE2_ACTPACK_SRCVID;	
-
-			if(data[n].data[v].key == INVALIDDATA_DESTVID){ data[n].data[v].key = INVALIDDATA; }  
-			if(data[n].data[v].value == INVALIDDATA_SRCVID){ data[n].data[v].value = INVALIDDATA; }			
+			data[n].data[v].key = data_[n][2*v];	
+			data[n].data[v].value = data_[n][2*v+1];
 		}
-	}
+	}	
 	return; 
 }
 

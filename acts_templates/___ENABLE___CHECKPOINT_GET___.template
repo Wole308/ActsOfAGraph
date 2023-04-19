@@ -1,2 +1,0 @@
-unsigned int u_index = import_checkpoint_dram[0].msg;
-unsigned int v_index = export_checkpoint_dram[0].msg;
