@@ -10,7 +10,7 @@
 	#define ___CREATE_ACTPACK_FROM_VECTOR___
 #endif 
 
-#define NUM_FPGAS 2 // 8 // 1, 2*, 4, 8
+#define NUM_FPGAS 8 // 8 // 1, 2*, 4, 8
 #define MAX_NUM_FPGAS 8
 
 #define ALL_MODULES 222
