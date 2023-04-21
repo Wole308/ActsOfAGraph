@@ -1,7 +1,5 @@
 uint512_vec_dt updates_vecs[NUM_VALID_PEs];
 #pragma HLS ARRAY_PARTITION variable=updates_vecs complete
-unsigned int import_offset = id_import * action.size_import_export;
-unsigned int export_offset = id_export * action.size_import_export;
 max_limit = 0; for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ limits[inst] = updatesptrs[0][p_v].size; } for(unsigned int inst=0; inst<NUM_VALID_PEs; inst++){ if(max_limit < limits[inst]){ max_limit = limits[inst]; }}
 
 #ifdef _DEBUGMODE_KERNELPRINTS//4 
@@ -41,6 +39,10 @@ APPLY_UPDATES_LOOP1: for(unsigned int t=0; t<max_limit; t++){
 			#endif 
 		}
 	}
+	
+	#ifdef ___ENABLE___IMPORT_EXPORT___
+	hidden_import_and_export_function(t, import_offset, export_offset, action.size_import_export, HBM_centerA, HBM_centerB, HBM_import, HBM_export, action);
+	#endif 
 }		
 
 

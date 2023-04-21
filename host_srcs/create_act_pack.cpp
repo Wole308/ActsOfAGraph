@@ -31,9 +31,6 @@ unsigned int owner_fpga2(unsigned int dstvid){
 unsigned int owner_partition(unsigned int data){
 	return data % EDGE_PACK_SIZE;
 }
-// unsigned int owner_partition(unsigned int data){
-	// return (data / 234) % NUM_PEs;
-// }
 
 void rearrange_layout(unsigned int s, edge_dtype in[EDGE_PACK_SIZE], edge_dtype out[EDGE_PACK_SIZE]){
 	#ifndef FPGA_IMPL
@@ -330,7 +327,7 @@ void rearrange_layout(unsigned int s, edge_dtype in[EDGE_PACK_SIZE], edge_dtype 
 	return;
 }
 
-int save_tmp_edges(edge_dtype * URAM_edges[EDGE_PACK_SIZE], map_t stats[EDGE_PACK_SIZE][EDGE_PACK_SIZE], HBM_channelAXISW_t * HBM_channelA, HBM_channelAXISW_t * HBM_channelB, edge_vec_dtype * HBM_channelTmp){
+int save_tmp_edges(edge_dtype * URAM_edges[EDGE_PACK_SIZE], map_t stats[EDGE_PACK_SIZE][EDGE_PACK_SIZE], edge_vec_dtype * HBM_channelTmp){
 	edge_dtype edge_in[NUM_LLP_PER_LLPSET];	
 	edge_dtype edge_out[NUM_LLP_PER_LLPSET];
 	unsigned int offset_p[NUM_LLP_PER_LLPSET];
@@ -378,7 +375,7 @@ int save_tmp_edges(edge_dtype * URAM_edges[EDGE_PACK_SIZE], map_t stats[EDGE_PAC
 	return index;
 }	
 
-void save_final_edges(unsigned int cmd, unsigned int base_offset, map_t stats[EDGE_PACK_SIZE][EDGE_PACK_SIZE], edge_dtype * URAM_edges[EDGE_PACK_SIZE], map_t * edges_map, map_t edges_dmap[NUM_FPGAS][NUM_LLP_PER_LLPSET], HBM_channelAXISW_t * HBM_channelA, HBM_channelAXISW_t * HBM_channelB){
+void save_final_edges(unsigned int cmd, unsigned int base_offset, map_t stats[EDGE_PACK_SIZE][EDGE_PACK_SIZE], edge_dtype * URAM_edges[EDGE_PACK_SIZE], map_t * edges_map, map_t edges_dmap[NUM_FPGAS][NUM_LLP_PER_LLPSET], HBM_channelAXISW_t * HBM_channel[2]){
 	unsigned int offset_p[EDGE_PACK_SIZE];
 	unsigned int p_[EDGE_PACK_SIZE];
 	edge_dtype edge[EDGE_PACK_SIZE];	
@@ -411,20 +408,20 @@ void save_final_edges(unsigned int cmd, unsigned int base_offset, map_t stats[ED
 				for(unsigned int v=0; v<EDGE_PACK_SIZE; v++){
 					if(edge[v].srcvid != INVALIDDATA){ edge[v].srcvid = edge[v].srcvid; } else { edge[v].srcvid = INVALIDDATA_SRCVID; }
 					if(edge[v].dstvid != INVALIDDATA){ edge[v].dstvid = edge[v].dstvid; } else { edge[v].dstvid = INVALIDDATA_DESTVID; }
-					HBM_channelA[offset + t].data[v] = ((1 & MAXLOCALVALUE2_ACTPACK_EDGEID) << (MAXNUMBITS2_ACTPACK_DESTVID + MAXNUMBITS2_ACTPACK_SRCVID)) | ((edge[v].srcvid & MAXLOCALVALUE2_ACTPACK_SRCVID) << MAXNUMBITS2_ACTPACK_DESTVID) | (edge[v].dstvid & MAXLOCALVALUE2_ACTPACK_DESTVID);		
-					HBM_channelB[offset + t].data[v] = ((1 & MAXLOCALVALUE2_ACTPACK_EDGEID) << (MAXNUMBITS2_ACTPACK_DESTVID + MAXNUMBITS2_ACTPACK_SRCVID)) | ((edge[v].srcvid & MAXLOCALVALUE2_ACTPACK_SRCVID) << MAXNUMBITS2_ACTPACK_DESTVID) | (edge[v].dstvid & MAXLOCALVALUE2_ACTPACK_DESTVID);
+					HBM_channel[0][offset + t].data[v] = ((1 & MAXLOCALVALUE2_ACTPACK_EDGEID) << (MAXNUMBITS2_ACTPACK_DESTVID + MAXNUMBITS2_ACTPACK_SRCVID)) | ((edge[v].srcvid & MAXLOCALVALUE2_ACTPACK_SRCVID) << MAXNUMBITS2_ACTPACK_DESTVID) | (edge[v].dstvid & MAXLOCALVALUE2_ACTPACK_DESTVID);		
+					HBM_channel[1][offset + t].data[v] = ((1 & MAXLOCALVALUE2_ACTPACK_EDGEID) << (MAXNUMBITS2_ACTPACK_DESTVID + MAXNUMBITS2_ACTPACK_SRCVID)) | ((edge[v].srcvid & MAXLOCALVALUE2_ACTPACK_SRCVID) << MAXNUMBITS2_ACTPACK_DESTVID) | (edge[v].dstvid & MAXLOCALVALUE2_ACTPACK_DESTVID);
 				}
 				#ifndef FPGA_IMPL
 				checkoutofbounds_("create_act_pack::ERROR 221215::", offset + t, HBM_CHANNEL_SIZE, offset, t, NAp);
 				#endif 
 			} else {
 				for(unsigned int v=0; v<EDGE_PACK_SIZE/2; v++){				
-					HBM_channelA[offset + t].data[2*v] = edge[v].srcvid;
-					HBM_channelA[offset + t].data[2*v + 1] = edge[v].dstvid;
+					HBM_channel[0][offset + t].data[2*v] = edge[v].srcvid;
+					HBM_channel[0][offset + t].data[2*v + 1] = edge[v].dstvid;
 				}
 				for(unsigned int v=0; v<EDGE_PACK_SIZE/2; v++){				
-					HBM_channelB[offset + t].data[2*v] = edge[EDGE_PACK_SIZE/2 + v].srcvid;
-					HBM_channelB[offset + t].data[2*v + 1] = edge[EDGE_PACK_SIZE/2 + v].dstvid;
+					HBM_channel[1][offset + t].data[2*v] = edge[EDGE_PACK_SIZE/2 + v].srcvid;
+					HBM_channel[1][offset + t].data[2*v + 1] = edge[EDGE_PACK_SIZE/2 + v].dstvid;
 				}
 			}
 		}		
@@ -440,7 +437,7 @@ void save_final_edges(unsigned int cmd, unsigned int base_offset, map_t stats[ED
 }
 			
 unsigned int create_act_pack::create_actpack(
-		vector<edge3_type> (&partitioned_edges)[NUM_PEs][MAX_NUM_UPARTITIONS][MAX_NUM_LLPSETS], HBM_channelAXISW_t * HBM_channelA[NUM_PEs], HBM_channelAXISW_t * HBM_channelB[NUM_PEs], map_t * returned_edge_maps[NUM_PEs], map_t * returned_vu_map[NUM_PEs], unsigned int offset_dest, 
+		vector<edge3_type> (&partitioned_edges)[NUM_PEs][MAX_NUM_UPARTITIONS][MAX_NUM_LLPSETS], HBM_channelAXISW_t * HBM_channel[NUM_PEs][2], map_t * returned_edge_maps[NUM_PEs], map_t * returned_vu_map[NUM_PEs], unsigned int offset_dest, 
 		unsigned int num_upartitions, unsigned int num_vpartitions, unsigned int start_pu, unsigned int size_pu, unsigned int skip_pu, unsigned int cmd
 		){				
 	
@@ -621,14 +618,14 @@ unsigned int create_act_pack::create_actpack(
 				// store edge updates
 				if(c==0){ 
 					for(unsigned int i=0; i<NUM_VALID_PEs; i++){
-						temp_size[i] = save_tmp_edges(URAM_edges[i], stats[i], HBM_channelA[i], HBM_channelB[i], HBM_channelTmp[i]);	
+						temp_size[i] = save_tmp_edges(URAM_edges[i], stats[i], HBM_channelTmp[i]);	
 					}
 				} else {
 					#ifdef _DEBUGMODE_KERNELPRINTS4_CREATEACTPACT // NUM_LLP_PER_LLPSET
 					for(unsigned int n=0; n<NUM_VALID_PEs; n++){ for(unsigned int llp_id=0; llp_id<NUM_LLP_PER_LLPSET; llp_id++){ cout<<"prepare-edge-updates (before): edges_map[n]["<<llp_id<<"]: p_u: "<<p_u<<", llp_set: "<<llp_set<<", llp_id: "<<llp_id<<", offset: "<<edges_map[n][llp_id].offset<<", size: "<<edges_map[n][llp_id].size<<""<<endl; }}
 					#endif 	
 					for(unsigned int i=0; i<NUM_VALID_PEs; i++){
-						save_final_edges(cmd, offset_dest, stats[i], URAM_edges[i], edges_map[i], edges_dmap[i], HBM_channelA[i], HBM_channelB[i]);	
+						save_final_edges(cmd, offset_dest, stats[i], URAM_edges[i], edges_map[i], edges_dmap[i], HBM_channel[i]);	
 					}
 					#ifdef _DEBUGMODE_KERNELPRINTS4_CREATEACTPACT
 					for(unsigned int n=0; n<NUM_VALID_PEs; n++){ for(unsigned int llp_id=0; llp_id<NUM_LLP_PER_LLPSET; llp_id++){ cout<<"prepare-edge-updates (after): edges_map[n]["<<llp_id<<"]: p_u: "<<p_u<<", llp_set: "<<llp_set<<", llp_id: "<<llp_id<<", offset: "<<edges_map[n][llp_id].offset<<", size: "<<edges_map[n][llp_id].size<<""<<endl; }}

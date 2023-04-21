@@ -115,8 +115,8 @@ void act_pack::load_edgeupdates(vector<edge_t> &vertexptrbuffer, vector<edge3_ty
 			if(p_u >= universalparams.NUM_UPARTITIONS){ p_u = universalparams.NUM_UPARTITIONS-1; } 
 	
 			#ifdef _DEBUGMODE_HOSTCHECKS3
-			utilityobj->checkoutofbounds("act_pack::ERROR 22a::", edge.srcvid, 60000000, edge.srcvid, edge.srcvid, MAX_UPARTITION_SIZE);
-			utilityobj->checkoutofbounds("act_pack::ERROR 22b::", edge.dstvid, 60000000, edge.srcvid, edge.srcvid, MAX_UPARTITION_SIZE);
+			// utilityobj->checkoutofbounds("act_pack::ERROR 22a::", edge.srcvid, 60000000, edge.srcvid, edge.srcvid, MAX_UPARTITION_SIZE);
+			// utilityobj->checkoutofbounds("act_pack::ERROR 22b::", edge.dstvid, 60000000, edge.srcvid, edge.srcvid, MAX_UPARTITION_SIZE);
 			utilityobj->checkoutofbounds("act_pack::ERROR 22c::", p_u, universalparams.NUM_UPARTITIONS, edge.srcvid, edge.srcvid, MAX_UPARTITION_SIZE);
 			#endif 
 			edgesin_srcvp[p_u].push_back(edge);
