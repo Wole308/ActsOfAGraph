@@ -498,6 +498,7 @@ unsigned int create_act_pack::create_actpack(
 			
 			map_t rawedge_maps[NUM_VALID_PEs];
 			for(unsigned int n=0; n<NUM_VALID_PEs; n++){ rawedge_maps[n].size = partitioned_edges[n][p_u][llp_set].size() / EDGE_PACK_SIZE; }
+			// cout<<"^^^^^ create_act_pack::prepare-edge-updates:: rawedges_maps: "; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ cout<<rawedge_maps[n].size<<", "; } cout<<endl;
 			
 			for(unsigned int c=0; c<2; c++){
 				unsigned int maxnum_rawedges = 0; for(unsigned int n=0; n<NUM_VALID_PEs; n++){ if(maxnum_rawedges < rawedge_maps[n].size){ maxnum_rawedges = rawedge_maps[n].size; }}
@@ -742,7 +743,8 @@ unsigned int create_act_pack::create_actpack(
 	#endif 
 	// return running_offset[0];
 	// exit(EXIT_SUCCESS);
-	return returned_volume_size;
+	// return returned_volume_size;
+	return returned_volume2_size;
 }
 // exit(EXIT_SUCCESS);
 

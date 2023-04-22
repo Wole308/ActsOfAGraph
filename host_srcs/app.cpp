@@ -473,7 +473,6 @@ void app::run(std::string algo, unsigned int rootvid, int graphisundirected, uns
 	// std::vector<int, aligned_allocator<int> > HBM_axichannel[NUM_FPGAS][NUM_PEs][2]; for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ for(unsigned int i=0; i<NUM_VALID_PEs; i++){ for(unsigned int j=0; j<2; j++){ HBM_axichannel[fpga][i][j] = std::vector<int, aligned_allocator<int> >(HBM_CHANNEL_SIZE); }}}
 	// std::vector<int, aligned_allocator<int> > HBM_axicenter[NUM_FPGAS][2]; for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ for(unsigned int j=0; j<2; j++){ HBM_axicenter[fpga][j] = std::vector<int, aligned_allocator<int> >(HBM_CHANNEL_SIZE); }}
 	unsigned int globalparams[1024];
-	vector<edge3_type> csr_pack_edges[NUM_PEs]; 
 
 	// allocate AXI HBM memory
 	cout<<"app: initializing HBM_axichannels..."<<endl;
@@ -521,49 +520,9 @@ void app::run(std::string algo, unsigned int rootvid, int graphisundirected, uns
 	unsigned int __NUM_UPARTITIONS = (universalparams.NUM_VERTICES + (MAX_UPARTITION_SIZE - 1)) /  MAX_UPARTITION_SIZE;
 	unsigned int __NUM_APPLYPARTITIONS = ((universalparams.NUM_VERTICES / NUM_PEs) + (MAX_APPLYPARTITION_SIZE - 1)) /  MAX_APPLYPARTITION_SIZE; // NUM_PEs
 
-	// create csr format
-	unsigned int * degrees[NUM_PEs]; for(unsigned int i=0; i<NUM_PEs; i++){ degrees[i] = new unsigned int[(universalparams.NUM_VERTICES / NUM_PEs) + 64]; }
-	unsigned int * v_ptr[NUM_PEs]; for(unsigned int i=0; i<NUM_PEs; i++){ v_ptr[i] = new unsigned int[(universalparams.NUM_VERTICES / NUM_PEs) + 64]; }
-	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<(universalparams.NUM_VERTICES / NUM_PEs) + 64; t++){ v_ptr[i][t] = 0; degrees[i][t] = 0; }}
-	unsigned int H = 0;
-	for(unsigned int vid=0; vid<universalparams.NUM_VERTICES-1; vid++){
-		unsigned int vptr_begin = vertexptrbuffer[vid];
-		unsigned int vptr_end = vertexptrbuffer[vid+1];
-		unsigned int edges_size = vptr_end - vptr_begin;
-		if(vptr_end < vptr_begin){ continue; }
-		utilityobj->checkoutofbounds("app::ERROR 211::", vid / MAX_UPARTITION_SIZE, __NUM_UPARTITIONS, NAp, NAp, NAp);
-		for(unsigned int i=0; i<edges_size; i++){
-			unsigned int H_hash = H % NUM_PEs;
-			edge3_type edge = edgedatabuffer[vptr_begin + i];
-			csr_pack_edges[H_hash].push_back(edge);
-			degrees[H_hash][edge.srcvid / NUM_PEs] += 1;
-		}
-		H += 1;
-	}
-	
-	edge3_type first_edge = csr_pack_edges[0][0];
-	#ifdef _DEBUGMODE_HOSTPRINTS
-	cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ first_edge.srcvid: "<<first_edge.srcvid<<", first_edge.dstvid: "<<first_edge.dstvid<<endl;
-	#endif 
-	#ifdef ___FORCE_SUCCESS_SINGLE_CHANNEL___
-	rootvid = first_edge.srcvid;
-	universalparams.ROOTVID = first_edge.srcvid;
-	cout<<"app::run:: [CHANGED] app algo started. (algo: "<<algo<<", numiterations: "<<numiterations<<", rootvid: "<<rootvid<<", graph path: "<<graph_path<<", graph dir: "<<graphisundirected<<", _binaryFile1: "<<_binaryFile1<<")"<<endl;
-	#endif 
-	// exit(EXIT_SUCCESS);
-	
-	unsigned int max_degree = 0;
-	for(unsigned int i=0; i<NUM_PEs; i++){ unsigned int index = 0, ind = 0; for(unsigned int vid=0; vid<universalparams.NUM_VERTICES; vid++){ if(vid % NUM_PEs == i){ 
-		if(max_degree < degrees[i][vid / NUM_PEs]){ max_degree = degrees[i][vid / NUM_PEs]; }
-		v_ptr[i][vid / NUM_PEs] = index; index += degrees[i][vid / NUM_PEs]; ind += 1; }}}			
-	for(unsigned int i=0; i<NUM_PEs; i++){ cout<<"csr-pack:: PE: 21: csr_pack_edges["<<i<<"].size(): "<<csr_pack_edges[i].size()<<endl; }
-	cout<<"app::csr-pack:: max_degree: "<<max_degree<<endl;
-	
 	// load globalparams: {vptrs, edges, updatesptrs, updates, vertexprops, frontiers}
 	cout<<"app: loading global addresses: {vptrs, edges, updates, vertexprops, frontiers}..."<<endl;
-	unsigned int numcsredges = 0; for(unsigned int i=0; i<NUM_PEs; i++){ if(numcsredges < csr_pack_edges[i].size()){ numcsredges = csr_pack_edges[i].size(); }} 
-	unsigned int numww_csredges = (numcsredges / EDGE_PACK_SIZE) + 16;
-	
+
 	unsigned int vdatasz_u32 = __NUM_APPLYPARTITIONS * MAX_APPLYPARTITION_VECSIZE * EDGE_PACK_SIZE * 2;
 	unsigned int cfrontiersz_u32 = 1 * MAX_APPLYPARTITION_VECSIZE * EDGE_PACK_SIZE * 2;
 	unsigned int nfrontiersz_u32 = (__NUM_APPLYPARTITIONS * VDATA_SUBPARTITION_VECSIZE * NUM_SUBPARTITION_PER_PARTITION * EDGE_PACK_SIZE) * 2;
@@ -742,7 +701,7 @@ void app::run(std::string algo, unsigned int rootvid, int graphisundirected, uns
 	// load edges and edge updates 
 	unsigned int max_lenght = load_actpack_edges(HBM_axicenter, HBM_axichannel, 
 		partitioned_edges,
-		rootvid, max_degree,
+		rootvid, NAp,
 		utilityobj, universalparams, globalparams);
 	size_u32 = (max_lenght * EDGE_PACK_SIZE * 2) + (1024 * EDGE_PACK_SIZE * 2); // 'NOTE: second value ('1024') is padding'
 	// exit(EXIT_SUCCESS);
@@ -795,11 +754,10 @@ void app::run(std::string algo, unsigned int rootvid, int graphisundirected, uns
 	}	
 	cout<<"loading nfrontier: globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS]: "<<globalparams[GLOBALPARAMSCODE__BASEOFFSET__NFRONTIERS]<<" (of "<<HBM_CHANNEL_SIZE<<")"<<endl;
 	
-	unsigned int lastww_addr2 = load_globalparams2(HBM_axichannel, globalparams, universalparams, rootvid, max_degree, utilityobj);
+	unsigned int lastww_addr2 = load_globalparams2(HBM_axichannel, globalparams, universalparams, rootvid, NAp, utilityobj);
 	print_globalparams(globalparams, universalparams, utilityobj);
 
 	//Free 
-	for(unsigned int i=0; i<NUM_PEs; i++){ csr_pack_edges[i].clear(); } 
 	edgedatabuffer.clear();
 	vertexptrbuffer.clear();
 	// exit(EXIT_SUCCESS); 

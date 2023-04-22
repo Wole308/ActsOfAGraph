@@ -189,7 +189,8 @@
 // #define VERTEXUPDATES_BUFFER_SIZE (512 * NUM_PEs) 
 #define VERTEXUPDATES_BUFFER_SIZE 8192
 
-#define EDGE_UPDATES_DRAMBUFFER_LONGSIZE (8192 * 64) 
+// #define EDGE_UPDATES_DRAMBUFFER_LONGSIZE (8192 * 64) 
+#define EDGE_UPDATES_DRAMBUFFER_LONGSIZE (8192 * 128) 
 #define EDGE_UPDATES_DRAMBUFFER_SIZE 8192
 #define EDGE_UPDATES_WORKBUFFER_SIZE 7000 // 7200
 #define EDGE_LLPUPDATES_DRAMBUFFER_SIZE 512
@@ -197,7 +198,7 @@
 ////////////////
 
 #define K0 1 // <lowerlimit:1, upperlimit:GF_BATCH_SIZE>
-#define K1 NUM_FPGAS // <lowerlimit:1, upperlimit:NUM_FPGAS>
+#define K1 2 // NUM_FPGAS // <lowerlimit:1, upperlimit:NUM_FPGAS*>
 #define AU_BATCH_SIZE 2 // 2*, 11 ///////////////////////////////////////////////////// FIXME.
 #define GF_BATCH_SIZE (AU_BATCH_SIZE * NUM_SUBPARTITION_PER_PARTITION) // 6 (i.e., 24 upartitions)
 #define IMPORT_BATCH_SIZE (GF_BATCH_SIZE / K0) // 6
