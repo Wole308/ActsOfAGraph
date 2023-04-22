@@ -217,12 +217,8 @@ unsigned int load_actpack_edges(HBM_channelAXISW_t * HBM_axicenter[NUM_FPGAS][2]
 		utility * utilityobj, universalparams_t universalparams, unsigned int globalparams[1024]){
 	
 	unsigned int report_statistics[64]; for(unsigned int t=0; t<64; t++){ report_statistics[t] = 0; }
-			
-	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
-	unsigned int num_its = 2;
-	#else 
+	
 	unsigned int num_its = 1;	
-	#endif 
 	unsigned int lenght[NUM_FPGAS]; for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ lenght[fpga] = 0; }
 
 	unsigned int lastww_addr2 = load_globalparams2(HBM_axichannel, globalparams, universalparams, rootvid, max_degree, utilityobj);
@@ -675,9 +671,6 @@ void app::run(std::string algo, unsigned int rootvid, int graphisundirected, uns
 	}
 	size_u32 = 0; 
 	unsigned int approx_actpacksz = (universalparams.NUM_EDGES / NUM_PEs / EDGE_PACK_SIZE) + (1024000 / EDGE_PACK_SIZE);
-	#ifdef ___ENABLE___DYNAMICGRAPHANALYTICS___
-	size_u32 += approx_actpacksz * EDGE_PACK_SIZE * 2;
-	#endif
 
 	// load edges (csr format)
 	cout<<"loading csr edges..."<<endl;

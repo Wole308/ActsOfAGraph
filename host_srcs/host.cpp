@@ -1042,7 +1042,7 @@ long double host::runapp(std::string binaryFile__[2],
 				
 				// post process: remove partitions just processed from queue; indicate that partition has been processed 
 				for(unsigned int fpga=0; fpga<NUM_FPGAS; fpga++){ 
-					if(process_pointer[fpga] == INVALID_IOBUFFER_ID){ continue; } // NEWCHANGE.
+					if(process_pointer[fpga] == INVALID_IOBUFFER_ID){ continue; } 
 					for(unsigned int k=0; k<PE_BATCH_SIZE; k++){
 						if(process_pointer[fpga] + k >= MAX_NUM_UPARTITIONS){ continue; }
 						process_Queue[fpga][process_pointer[fpga] + k].ready_for_process = 0; 
