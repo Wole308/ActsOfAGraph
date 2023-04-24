@@ -2,6 +2,12 @@
 #define COMMON_H
 #include <string.h> 
 #include <cmath> 
+#include <ap_int.h>
+// #include "ap_fixed.h"	
+#include <vector> 
+#include<hls_vector.h> 
+#include<hls_stream.h> 
+#include <iostream>
  
 
  
@@ -10,7 +16,7 @@
 	#define ___CREATE_ACTPACK_FROM_VECTOR___
 #endif 
 
-#define NUM_FPGAS 8 // 8 // 1, 2*, 4, 8
+// #define NUM_FPGAS  // 8 // 1, 2*, 4, 8
 #define MAX_NUM_FPGAS 8
 
 #define ALL_MODULES 222
@@ -42,7 +48,7 @@
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
-#define SW // SWEMU, HW, *SW
+#define HW // SWEMU, HW, *SW
 #if (defined(SWEMU) || defined(HW))
 #define FPGA_IMPL
 #endif 
@@ -382,6 +388,7 @@ typedef struct {
 
 typedef struct {
 	unsigned int ALGORITHM; 
+	unsigned int NUM_FPGAS_;
 	unsigned int NUM_ITERATIONS;
 	unsigned int ROOTVID;
 	

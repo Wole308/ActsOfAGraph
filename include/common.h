@@ -10,8 +10,10 @@
 	#define ___CREATE_ACTPACK_FROM_VECTOR___
 #endif 
 
-#define NUM_FPGAS 8 // 8 // 1, 2*, 4, 8
+// #define NUM_FPGAS  // 8 // 1, 2*, 4, 8
 #define MAX_NUM_FPGAS 8
+
+	
 
 #define ALL_MODULES 222
 // #define PREPARE_EDGEUPDATES_MODULE 2220
@@ -43,7 +45,7 @@
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
 #define SW // SWEMU, HW, *SW
-#if (defined(SWEMU) || defined(HW))
+#if (defined(SWEMU) || defined(HW)) 
 #define FPGA_IMPL
 #endif 
 
@@ -124,7 +126,11 @@
 //////////////// 
 
 // #define NUM_PROCS 2
-#define NUM_PEs 12
+#define MAX_NUM_PEs 12
+#define NUM_PEs 1	
+// #if NUM_PEs==1
+	// #define SINGLE_FPGA_SETUP
+	// #endif 	
 #define NUM_VALID_PEs 1
 #define NUM_VALID_HBM_CHANNELS 1
 #define EDGE_PACK_SIZE_POW 4 // 1 4*
@@ -134,11 +140,20 @@
 #define HBM_AXI_PACK_BITSIZE (HBM_AXI_PACK_SIZE * 32) // 512* // NEW**
 #define HBM_CHANNEL_BYTESIZE (1 << 28)
 #define HBM_CHANNEL_INTSIZE (HBM_CHANNEL_BYTESIZE / 4)
-#define HBM_CHANNEL_SIZE ((HBM_CHANNEL_BYTESIZE / 4) / EDGE_PACK_SIZE) // {4194304 EDGE_PACK_SIZEs, 67108864 uints, 256MB}
+#if NUM_PEs==1
+	#define HBM_CHANNEL_SIZE (((HBM_CHANNEL_BYTESIZE / 4) / EDGE_PACK_SIZE) * MAX_NUM_PEs) 
+	#else 
+	#define HBM_CHANNEL_SIZE ((HBM_CHANNEL_BYTESIZE / 4) / EDGE_PACK_SIZE) // {4194304 EDGE_PACK_SIZEs, 67108864 uints, 256MB}
+	#endif 
 #define FOLD_SIZE 1
 #define MAX_NUM_UPARTITIONS 512		
-#define MAX_NUM_APPLYPARTITIONS 48 
+#if NUM_PEs==1
+	#define MAX_NUM_APPLYPARTITIONS (48 * MAX_NUM_PEs)
+	#else 
+	#define MAX_NUM_APPLYPARTITIONS 48 
+	#endif 
 #define MAX_NUM_LLPSETS 32 
+// #define MAX_NUM_LLPSETS MAX_NUM_APPLYPARTITIONS // FIXME?
 #define NUM_LLP_PER_LLPSET EDGE_PACK_SIZE
 #define MAX_NUM_LLP_PER_UPARTITION (MAX_NUM_LLPSETS * NUM_LLP_PER_LLPSET)
 #define NAp 666
@@ -148,7 +163,7 @@
 #define INVALIDMASK 0 
 #define NUM_KERNEL_SUBLAUNCHES_PER_LAUNCH 1 // (NUM_PEs / NUM_VALID_PEs)
 
-#define MAXNUMBITS2_ACTPACK_SRCVID 14
+#define MAXNUMBITS2_ACTPACK_SRCVID 14 
 #define MAXNUMBITS2_ACTPACK_DESTVID 14
 #define MAXNUMBITS2_ACTPACK_EDGEID 4
 #define MAXLOCALVALUE2_ACTPACK_SRCVID 0x3FFF // (2^14-1=16383)
@@ -187,7 +202,11 @@
 #define UPDATES_BUFFER_SIZE 512	
 #endif 	
 // #define VERTEXUPDATES_BUFFER_SIZE (512 * NUM_PEs) 
-#define VERTEXUPDATES_BUFFER_SIZE 8192
+#if NUM_PEs==1
+	#define VERTEXUPDATES_BUFFER_SIZE (8192 * MAX_NUM_PEs)
+	#else
+	#define VERTEXUPDATES_BUFFER_SIZE 8192
+	#endif 
 
 // #define EDGE_UPDATES_DRAMBUFFER_LONGSIZE (8192 * 64) 
 #define EDGE_UPDATES_DRAMBUFFER_LONGSIZE (8192 * 128) 
@@ -197,14 +216,21 @@
 
 ////////////////
 
-#define K0 1 // <lowerlimit:1, upperlimit:GF_BATCH_SIZE>
+#define MAX_IMPORT_BATCH_SIZE NAp
+#define MAX_EXPORT_BATCH_SIZE NAp
+
+/* #define K0 1 // <lowerlimit:1, upperlimit:GF_BATCH_SIZE>
 #define K1 2 // NUM_FPGAS // <lowerlimit:1, upperlimit:NUM_FPGAS*>
-#define AU_BATCH_SIZE 2 // 2*, 11 ///////////////////////////////////////////////////// FIXME.
+// #if NUM_FPGAS==1
+	#define AU_BATCH_SIZE 200 
+	// #else 
+	// #define AU_BATCH_SIZE 2 // 2*, 11 ///////////////////////////////////////////////////// FIXME.
+	// #endif 
 #define GF_BATCH_SIZE (AU_BATCH_SIZE * NUM_SUBPARTITION_PER_PARTITION) // 6 (i.e., 24 upartitions)
 #define IMPORT_BATCH_SIZE (GF_BATCH_SIZE / K0) // 6
 #define PE_BATCH_SIZE IMPORT_BATCH_SIZE // 6
 #define EXPORT_BATCH_SIZE (GF_BATCH_SIZE * K1) // 24
-#define IMPORT_EXPORT_GRANULARITY_VECSIZE (IMPORT_BATCH_SIZE * MAX_UPARTITION_VECSIZE) // NEWCHANGE. 
+#define IMPORT_EXPORT_GRANULARITY_VECSIZE (IMPORT_BATCH_SIZE * MAX_UPARTITION_VECSIZE) // NEWCHANGE.  */
 
 ////////////////
 
@@ -382,6 +408,7 @@ typedef struct {
 
 typedef struct {
 	unsigned int ALGORITHM; 
+	unsigned int NUM_FPGAS_;
 	unsigned int NUM_ITERATIONS;
 	unsigned int ROOTVID;
 	
@@ -393,6 +420,26 @@ typedef struct {
 	unsigned int NUM_APPLYPARTITIONS; // NUM_PEs
 	
 	unsigned int NUM_PARTITIONS;
+	
+	
+	
+	
+	
+	
+	
+	
+	unsigned int AU_BATCH_SIZE;
+	unsigned int GF_BATCH_SIZE;
+	unsigned int IMPORT_BATCH_SIZE;
+	unsigned int PE_BATCH_SIZE;
+	unsigned int EXPORT_BATCH_SIZE;
+	unsigned int IMPORT_EXPORT_GRANULARITY_VECSIZE; 
+	
+	
+	
+	
+	
+	
 } universalparams_t;
 
 typedef struct {

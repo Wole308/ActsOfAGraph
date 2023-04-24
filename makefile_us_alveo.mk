@@ -46,8 +46,9 @@ endif
 KERNEL_TOP_ALL += $(RELREF)acts_templates/acts_kernel.cpp
 HOST_SRCS_ACTS += $(RELREF)host_srcs/hostprocess.cpp
 HOST_SRCS_ACTS += $(RELREF)host_srcs/prepare_graph.cpp
-HOST_SRCS_ACTS += $(RELREF)host_srcs/make_graph.cpp
+# HOST_SRCS_ACTS += $(RELREF)host_srcs/make_graph.cpp
 HOST_SRCS_ACTS += $(RELREF)host_srcs/act_pack.cpp
+HOST_SRCS_ACTS += $(RELREF)host_srcs/create_act_pack.cpp
 # HOST_SRCS_ACTS += $(RELREF)acts_templates/transform_to_actpack.cpp
 HOST_SRCS_ACTS += $(RELREF)host_srcs/app.cpp
 HOST_SRCS_ACTS += $(RELREF)host_srcs/utility.cpp
@@ -119,6 +120,9 @@ $(BUILD_DIR)/vector_addition.xclbin: $(TEMP_DIR)/vadd.xo
 	v++ -p $(LINK_OUTPUT) $(VPP_FLAGS) -t $(TARGET) --platform $(PLATFORM) --package.out_dir $(PACKAGE_OUT) -o $(BUILD_DIR)/vector_addition.xclbin
 
 ############################## Setting Rules for Host (Building Host Executable) ##############################
+# LDFLAGS += -I/opt/xilinx/xrt/include/ -I/tools/Xilinx/./Vitis_HLS/2021.2/include/ -I/tools/Xilinx/Vitis/2021.2/runtime/ -I/tools/Xilinx/Vivado/2021.2/include/ -pthread -march=native -lrt xcl.c -L/opt/Xilinx/SDx/2021.2/runtime/lib/x86_64 -lOpenCL -pthread -lrt 			
+# $(EXECUTABLE): $(HOST_SRCS) $(KERNEL_TOP_ALL) | check-xrt
+		# g++ -o $@ $^ $(CXXFLAGS) $(LDFLAGS)
 LDFLAGS += -I/opt/xilinx/xrt/include/ -I/tools/Xilinx/./Vitis_HLS/2021.2/include/ -I/tools/Xilinx/Vitis/2021.2/runtime/ -I/tools/Xilinx/Vivado/2021.2/include/ -pthread -march=native -lrt xcl.c -L/opt/Xilinx/SDx/2021.2/runtime/lib/x86_64 -lOpenCL -pthread -lrt 			
 $(EXECUTABLE): $(HOST_SRCS) | check-xrt
 		g++ -o $@ $^ $(CXXFLAGS) $(LDFLAGS)
@@ -140,7 +144,7 @@ run_nthreads_debug:
 	
 ############################## Generating source files (Jinja 2) ##############################
 generatesrcs:
-	python gen.py $(XWARE) $(ALGORITHM) $(EVALUATION_TYPE) $(NUM_PEs) $(TESTKERNEL)
+	python gen.py $(XWARE) $(RUNNING_SYNTHESIS) $(NUM_PEs) $(RUN_IN_ASYNC_MODE)
 
 ############################## Setting Essential Checks and Running Rules ##############################
 run: all

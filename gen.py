@@ -12,7 +12,7 @@ print ('ACTGraph (Courtesy: Jinja 2.0)...')
 context['XWARE'] = sys.argv[1]
 context['RUNNING_SYNTHESIS'] = sys.argv[2]
 context['NUM_PEs'] = int(sys.argv[3])
-context['NUM_FPGAs'] = int(sys.argv[4])
+context['RUN_IN_ASYNC_MODE'] = int(sys.argv[4])
 
 context['FPGA_IMPL'] = 0
 context['NUM_VALID_PEs'] = 1      
@@ -27,7 +27,7 @@ print ('Generating sources... ')
 print ('XWARE: ' + str(context['XWARE']))
 print ('RUNNING_SYNTHESIS: ' + str(context['RUNNING_SYNTHESIS']))
 print ('NUM_PEs: ' + str(context['NUM_PEs']))
-print ('NUM_FPGAs: ' + str(context['NUM_FPGAs']))
+print ('RUN_IN_ASYNC_MODE: ' + str(context['RUN_IN_ASYNC_MODE']))
 print ('NUM_VALID_PEs: ' + str(context['NUM_VALID_PEs']))
 print ('NUM_VALID_HBM_CHANNELS: ' + str(context['NUM_VALID_HBM_CHANNELS']))
 print ('EDGE_PACK_SIZE: ' + str(context['EDGE_PACK_SIZE']))
@@ -82,8 +82,8 @@ o_path1=relref+"acts_templates/acts_kernel.cpp"
 o_path2=relref+"acts_templates/acts_kernel.h"
 o_path3=relref+"acts_templates/acts_kernel.cpp"
 o_path4=relref+"acts_templates/acts_kernel.h"
-o_path5=relref+"include/common_h.cpp"
-o_path6=relref+"include/common_h.h"
+o_path5=relref+"include/common.h"
+o_path6=relref+"include/common.h"
 o_path7=relref+"include/common.h"
 o_path8=relref+"include/common.h"
 o_path9=relref+"include/common.h"
