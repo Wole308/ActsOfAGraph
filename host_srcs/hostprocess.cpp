@@ -15,7 +15,7 @@ int main(int argc, char** argv){
 	cout<<"Hostprocess:: Graph Analytics Started..."<<endl;
 	if (argc < 4) { 
 		// ./host pr 1 0 12 /home/oj2zf/Documents/acts-clusterscale/outputs/vector_addition.xclbin /home/oj2zf/Documents/dataset/kron_g500-logn20.mtx
-		std::cout << "USAGE: ./host [--algo] [--num fpgas] [--rootvid] [--direction] [--numiterations] [--XCLBIN0] [--XCLBIN1] [--graph_path]" << std::endl;
+		std::cout << "USAGE: ./host [--algo] [--num fpgas] [--rootvid] [--direction] [--numiterations] [--graph_path] [--XCLBIN0]" << std::endl;
         return EXIT_FAILURE;
     }
 	
@@ -24,9 +24,7 @@ int main(int argc, char** argv){
 	#endif
 	
 	app * appobj = new app();	
-	unsigned int num_fpgas = stoi(argv[2]);
-	if(num_fpgas == 1){ appobj->run(argv[1], stoi(argv[2]), stoi(argv[3]), stoi(argv[4]), stoi(argv[5]), argv[7], argv[8]); }
-	else{ appobj->run(argv[1], stoi(argv[2]), stoi(argv[3]), stoi(argv[4]), stoi(argv[5]), argv[6], argv[8]); }
+	appobj->run(argv[1], stoi(argv[2]), stoi(argv[3]), stoi(argv[4]), stoi(argv[5]), argv[6], argv[7]);
 	
 	#ifdef _DEBUGMODE_TIMERS3
 	std::cout << endl << "TEST FINISHED" << std::endl; 

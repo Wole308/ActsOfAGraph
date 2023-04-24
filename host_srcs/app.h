@@ -37,10 +37,8 @@ public:
 	app();
 	~app();
 	void finish();
-	
-	// universalparams_t get_universalparams(std::string algorithm, unsigned int num_fpgas, unsigned int numiterations, unsigned int rootvid, unsigned int num_vertices, unsigned int num_edges, bool graphisundirected);
-	
-	void run(std::string algo, unsigned int num_fpgas, unsigned int rootvid, int graphisundirected, unsigned int numiterations, std::string _binaryFile1, string graph_path);
+
+	void run(std::string algo, unsigned int num_fpgas, unsigned int rootvid, int graphisundirected, unsigned int numiterations, string graph_path, std::string _binaryFile1);
 	
 	void summary();
 	

@@ -78,39 +78,20 @@ universalparams_t get_universalparams(std::string algo, unsigned int num_fpgas, 
 	universalparams.NUM_EDGES = num_edges; 
 
 	universalparams.NUM_UPARTITIONS = (universalparams.NUM_VERTICES + (MAX_UPARTITION_SIZE - 1)) /  MAX_UPARTITION_SIZE;
-	// if(universalparams.NUM_UPARTITIONS > MAX_NUM_UPARTITIONS){ universalparams.NUM_UPARTITIONS = MAX_NUM_UPARTITIONS; } // FIXME.
+	if(universalparams.NUM_UPARTITIONS > MAX_NUM_UPARTITIONS){ cout<<"app: ERROR 234. universalparams.NUM_UPARTITIONS ("<<universalparams.NUM_UPARTITIONS<<") > MAX_NUM_UPARTITIONS ("<<MAX_NUM_UPARTITIONS<<"). EXITING..."<<endl; } 
 	universalparams.NUM_APPLYPARTITIONS = ((universalparams.NUM_VERTICES / NUM_PEs) + (MAX_APPLYPARTITION_SIZE - 1)) /  MAX_APPLYPARTITION_SIZE; // NUM_PEs
 	
 	universalparams.NUM_PARTITIONS = 16;
-	
-	
-	
-	/* #define K0 1 // <lowerlimit:1, upperlimit:universalparams.GF_BATCH_SIZE>
-	#define K1 2 // NUM_FPGAS // <lowerlimit:1, upperlimit:NUM_FPGAS*>
-	// #if NUM_FPGAS==1
-		#define AU_BATCH_SIZE 200 
-		// #else 
-		// #define AU_BATCH_SIZE 2 // 2*, 11 ///////////////////////////////////////////////////// FIXME.
-		// #endif 
-	#define universalparams.GF_BATCH_SIZE (AU_BATCH_SIZE * NUM_SUBPARTITION_PER_PARTITION) // 6 (i.e., 24 upartitions)
-	#define universalparams.IMPORT_BATCH_SIZE (universalparams.GF_BATCH_SIZE / K0) // 6
-	#define PE_BATCH_SIZE universalparams.IMPORT_BATCH_SIZE // 6
-	#define universalparams.EXPORT_BATCH_SIZE (universalparams.GF_BATCH_SIZE * K1) // 24
-	#define universalparams.IMPORT_EXPORT_GRANULARITY_VECSIZE (universalparams.IMPORT_BATCH_SIZE * MAX_UPARTITION_VECSIZE) // NEWCHANGE.  */
-	
-	
+
 	if(num_fpgas==1){ universalparams.AU_BATCH_SIZE = 200; }
 	else{ universalparams.AU_BATCH_SIZE = 2; }
 	universalparams.GF_BATCH_SIZE = (universalparams.AU_BATCH_SIZE * NUM_SUBPARTITION_PER_PARTITION) ;
 	universalparams.IMPORT_BATCH_SIZE = (universalparams.GF_BATCH_SIZE / K0);
 	universalparams.PE_BATCH_SIZE = universalparams.IMPORT_BATCH_SIZE;
 	universalparams.EXPORT_BATCH_SIZE = (universalparams.GF_BATCH_SIZE * K1);
-	universalparams.IMPORT_EXPORT_GRANULARITY_VECSIZE = (universalparams.IMPORT_BATCH_SIZE * MAX_UPARTITION_VECSIZE); 
-	
-	
-	
-	
-	
+	if(num_fpgas==1){ universalparams.IMPORT_EXPORT_GRANULARITY_VECSIZE = 16; } // 8 *  MAX_UPARTITION_VECSIZE; } 
+	else { universalparams.IMPORT_EXPORT_GRANULARITY_VECSIZE = (universalparams.IMPORT_BATCH_SIZE * MAX_UPARTITION_VECSIZE); }
+
 	return universalparams;
 }
 
@@ -476,7 +457,7 @@ unsigned int traverse2_graph(unsigned int root, vector<edge_t> &vertexptrbuffer,
 	return GraphIter+1;
 }
 
-void app::run(std::string algo, unsigned int num_fpgas, unsigned int rootvid, int graphisundirected, unsigned int numiterations, std::string _binaryFile1, string graph_path){
+void app::run(std::string algo, unsigned int num_fpgas, unsigned int rootvid, int graphisundirected, unsigned int numiterations, string graph_path, std::string _binaryFile1){
 	cout<<"app::run:: app algo started. (algo: "<<algo<<", numiterations: "<<numiterations<<", rootvid: "<<rootvid<<", graph path: "<<graph_path<<", graph dir: "<<graphisundirected<<", _binaryFile1: "<<_binaryFile1<<")"<<endl;
 	
 	universalparams_t mock_universalparams = get_universalparams(algo, num_fpgas, numiterations, rootvid, NAp, NAp, NAp);

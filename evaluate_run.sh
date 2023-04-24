@@ -21,14 +21,14 @@
 # ./host pr 8 1 0 20 /home/oj2zf/Documents/acts-project/outputs/vector_addition.xclbin /home/oj2zf/Documents/dataset/uk-2005/uk-2005.mtx
 # exit
 
-XCLBIN0="/home/oj2zf/Documents/acts-project/outputs/vector_addition_hbm.xclbin"
-XCLBIN1="/home/oj2zf/Documents/acts-project/outputs/vector_addition_ddr.xclbin"
-
+# XCLBIN0="/home/oj2zf/Documents/acts-project/outputs/vector_addition_hbm.xclbin"
+# XCLBIN1="/home/oj2zf/Documents/acts-project/outputs/vector_addition_ddr.xclbin"
+		
 DATSETS=(
-		# kron_g500-logn20 
+		kron_g500-logn20 
 		# rmat_16m_256m 
 		# twitter7 
-		rmat_16m_1024m
+		# rmat_16m_1024m
 		# rmat_32m_2048m 
 		# sk-2005 
 		# uk-2005 
@@ -51,6 +51,11 @@ NUM_PES=(
 		# 12
 		)
 		
+XCLBINS=(
+		"/home/oj2zf/Documents/acts-project/outputs/vector_addition_hbm.xclbin"
+		"/home/oj2zf/Documents/acts-project/outputs/vector_addition_ddr.xclbin"
+		)
+		
 RUN_IN_ASYNC_MODE=(
 		1
 		# 0
@@ -59,25 +64,25 @@ RUN_IN_ASYNC_MODE=(
 XWARE_ID=0 # 0, 1
 MAX_NUM_ITERATIONS=1
 
-# "USAGE: ./host [--algo] [--num fpgas] [--rootvid] [--direction] [--numiterations] [--XCLBINA] [--XCLBINB] [--graph_path]"
+# "USAGE: ./host [--algo] [--num fpgas] [--rootvid] [--direction] [--numiterations] [--graph_path] [--XCLBINS...] "
 for ((n = 0; n < ${#RUN_IN_ASYNC_MODE[@]}; n++)) do	
 	for ((k = 0; k < ${#NUM_PES[@]}; k++)) do	
 		./evaluate_datasets.sh $XWARE_ID ${NUM_PES[i]} ${RUN_IN_ASYNC_MODE[i]}
 		
 		for ((i = 0; i < ${#DATSETS[@]}; i++)) do
 			echo pagerank algorithm running...: dataset: ${DATSETS[i]}, num fpgas: ${NUM_FPGAS}, xclbin: ${XCLBIN} num_iterations: 50
-			./host pr $NUM_FPGAS 1 0 $MAX_NUM_ITERATIONS $XCLBIN0 $XCLBIN1 /home/oj2zf/Documents/dataset/${DATSETS[i]}/${DATSETS[i]}.mtx #> results_${XWARE_ID}_pr/${DATSETS[i]}_${RUN_IN_ASYNC_MODE}.out
+			./host pr $NUM_FPGAS 1 0 $MAX_NUM_ITERATIONS /home/oj2zf/Documents/dataset/${DATSETS[i]}/${DATSETS[i]}.mtx ${XCLBINS[i]} #> results_${XWARE_ID}_pr/${DATSETS[i]}_${RUN_IN_ASYNC_MODE}.out
 			exit
 		done
 
 		# for ((i = 0; i < ${#DATSETS[@]}; i++)) do
 			# echo bfs algorithm running...: dataset: ${DATSETS[i]}, num fpgas: ${NUM_FPGAS}, xclbin: ${XCLBIN} num_iterations: 50
-			# ./host bfs ${NUM_FPGAS} 1 0 $MAX_NUM_ITERATIONS $XCLBIN0 $XCLBIN1 /home/oj2zf/Documents/dataset/${DATSETS[i]}/${DATSETS[i]}.mtx > results_${XWARE}_bfs/${DATSETS[i]}_${RUN_IN_ASYNC_MODE}.out
+			# ./host bfs ${NUM_FPGAS} 1 0 $MAX_NUM_ITERATIONS /home/oj2zf/Documents/dataset/${DATSETS[i]}/${DATSETS[i]}.mtx ${XCLBINS[i]} > results_${XWARE}_bfs/${DATSETS[i]}_${RUN_IN_ASYNC_MODE}.out
 		# done
 
 		# for ((i = 0; i < ${#DATSETS[@]}; i++)) do
 			# echo sssp algorithm running...: dataset: ${DATSETS[i]}, num fpgas: ${NUM_FPGAS}, xclbin: ${XCLBIN} num_iterations: 50
-			# ./host sssp ${NUM_FPGAS} 1 0 $MAX_NUM_ITERATIONS $XCLBIN0 $XCLBIN1 /home/oj2zf/Documents/dataset/${DATSETS[i]}/${DATSETS[i]}.mtx > results_${XWARE}_sssp/${DATSETS[i]}_${RUN_IN_ASYNC_MODE}.out
+			# ./host sssp ${NUM_FPGAS} 1 0 $MAX_NUM_ITERATIONS /home/oj2zf/Documents/dataset/${DATSETS[i]}/${DATSETS[i]}.mtx ${XCLBINS[i]} > results_${XWARE}_sssp/${DATSETS[i]}_${RUN_IN_ASYNC_MODE}.out
 		# done	
 	done
 done
